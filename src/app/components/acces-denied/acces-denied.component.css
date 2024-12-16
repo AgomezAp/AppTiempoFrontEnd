@@ -1,0 +1,16 @@
+.access-denied {
+    text-align: center;
+    margin-top: 50px;
+  }
+  
+  .access-denied img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+  }
+  
+  .access-denied button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+  }

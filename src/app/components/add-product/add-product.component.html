@@ -1,0 +1,24 @@
+<div class="add-product">
+    <h2>Agregar Producto</h2>
+    <form (ngSubmit)="addProduct()">
+      <label for="name">Nombre:</label>
+      <input type="text" id="name" [(ngModel)]="newProduct.name" name="name" required>
+  
+      <label for="brand">Marca:</label>
+      <input type="text" id="brand" [(ngModel)]="newProduct.brand" name="brand" required>
+  
+      <label for="category">Categoría:</label>
+      <input type="text" id="category" [(ngModel)]="newProduct.category" name="category" required>
+  
+      <label for="price">Precio:</label>
+      <input type="number" id="price" [(ngModel)]="newProduct.price" name="price" required>
+  
+      <label for="quantity">Cantidad:</label>
+      <input type="number" id="quantity" [(ngModel)]="newProduct.quantity" name="quantity" required>
+  
+      <div class="button-group">
+        <button type="button" class="btn btn-secondary" (click)="cancel()">Cancelar</button>
+        <button type="submit" class="btn btn-success">Agregar</button>
+      </div>
+    </form>
+  </div>

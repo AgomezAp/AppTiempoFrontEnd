@@ -1,0 +1,22 @@
+<div class="edit-product">
+    <h2>Modificar Producto</h2>
+    <form *ngIf="editingProduct" (ngSubmit)="updateProduct()">
+      <label for="editName">Nombre:</label>
+      <input type="text" id="editName" [(ngModel)]="editingProduct.name" name="editName" required>
+  
+      <label for="editBrand">Marca:</label>
+      <input type="text" id="editBrand" [(ngModel)]="editingProduct.brand" name="editBrand" required>
+  
+      <label for="editCategory">Categoría:</label>
+      <input type="text" id="editCategory" [(ngModel)]="editingProduct.category" name="editCategory" required>
+  
+      <label for="editPrice">Precio:</label>
+      <input type="number" id="editPrice" [(ngModel)]="editingProduct.price" name="editPrice" required>
+  
+      <label for="editQuantity">Cantidad:</label>
+      <input type="number" id="editQuantity" [(ngModel)]="editingProduct.quantity" name="editQuantity" required>
+  
+      <button type="submit">Guardar Cambios</button>
+      <button type="button" (click)="cancelEdit()">Cancelar</button>
+    </form>
+  </div>
