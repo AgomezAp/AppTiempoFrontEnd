@@ -1,3 +1,40 @@
 .table-container {
-    margin-top: 0px; 
+  max-width: 80%;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.table-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.table-container .btn-success {
+  margin-bottom: 20px;
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-container th, .table-container td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.table-container th {
+  background-color: #f2f2f2;
+}
+
+.action-button {
+  margin-right: 10px;
+}
+
+.action-button:last-child {
+  margin-right: 0;
 }

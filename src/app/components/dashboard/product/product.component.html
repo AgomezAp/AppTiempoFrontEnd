@@ -1,6 +1,6 @@
 <div class="table-container">
   <h1>Inventario</h1>
-  <button  class="btn btn-success" (click)="navigateToAddProduct()">Agregar Producto</button>
+  <button class="btn btn-success" (click)="navigateToAddProduct()">Agregar Producto</button>
 
   <table class="table table-bordered">
     <thead>
@@ -23,8 +23,8 @@
         <td>{{item.price}}</td>
         <td>{{item.quantity}}</td>
         <td>
-          <button class="btn btn-warning" (click)="navigateToEditProduct(item.id)">Modificar</button>
-          <button class="btn btn-danger" (click)="navigateToDeleteProduct(item.id)">Eliminar</button>
+          <button class="btn btn-warning action-button" (click)="navigateToEditProduct(item.id)">Modificar</button>
+          <button class="btn btn-danger action-button" (click)="navigateToDeleteProduct(item.id)">Eliminar</button>
         </td>
       </tr>
     </tbody>

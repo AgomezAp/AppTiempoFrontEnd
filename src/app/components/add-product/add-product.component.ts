@@ -3,6 +3,8 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { ToastrService } from 'ngx-toastr';
+
 import { ProductService } from '../../services/product.service';
 
 @Component({
@@ -20,12 +22,19 @@ export class AddProductComponent {
     quantity: null
   };
 
-  constructor(private productService: ProductService, private router: Router) {}
+  constructor(private productService: ProductService, private router: Router,private toastr: ToastrService) {}
 
   addProduct() {
-    this.productService.createProduct(this.newProduct).subscribe(() => {
-      this.router.navigate(['/dashBoard']);
-    });
+    this.productService.createProduct(this.newProduct).subscribe(
+      () => {
+        this.toastr.success('Producto creado exitosamente');
+        this.router.navigate(['/dashBoard']);
+      },
+      (error) => {
+        this.toastr.error('Error al crear el producto');
+        console.error(error);
+      }
+    );
   }
   cancel() {
     this.router.navigate(['/dashBoard']);

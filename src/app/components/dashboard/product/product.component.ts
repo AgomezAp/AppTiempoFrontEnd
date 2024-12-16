@@ -40,6 +40,8 @@ export class ProductComponent {
   }
 
   navigateToEditProduct(id: number) {
+    localStorage.setItem('productId', id.toString());
+    console.log('Product ID:', id);
     this.router.navigate(['/edit-product', id]);
   }
 

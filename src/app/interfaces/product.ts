@@ -1,9 +1,8 @@
 export interface Product{
-    id:number,
-    name: string,
-    category:string,
-    brand:string,
-    location:string
-    lastUpdate: Date,
-    quantity: number
+    id: number;
+    name: string;
+    brand: string;
+    category: string;
+    price: number; // Asegúrate de que la propiedad 'price' esté definida
+    quantity: number;
 }

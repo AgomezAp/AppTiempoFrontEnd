@@ -23,14 +23,16 @@ export class ProductService {
   createProduct(product:Product):Observable<Product>{
     return this.http.post<Product>(`${this.appUrl}${this.apiUrl}/register`, product)
   }
-  updateProduct(product:Product):Observable<Product>{
-    return this.http.patch<Product>(`${this.appUrl}${this.apiUrl}/ActualizarProducto`, product)
+
+  updateProduct( id:number, product: Product): Observable<Product> {
+    return this.http.patch<Product>(`${this.appUrl}${this.apiUrl}/actualizar/${id}`, product);
   }
+
   deleteProduct(id:number):Observable<Product>{
-    return this.http.delete<Product>(`${this.appUrl}${this.apiUrl}/EliminarProducto/${id}`)
+    return this.http.delete<Product>(`${this.appUrl}${this.apiUrl}/delete/${id}`)
   }
   getProductById(id:number):Observable<Product>{
-    return this.http.get<Product>(`${this.appUrl}${this.apiUrl}/ObtenerProducto/${id}`)
+    return this.http.get<Product>(`${this.appUrl}${this.apiUrl}/obtener/${id}`)
   }
   
 }

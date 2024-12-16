@@ -4,11 +4,12 @@ import {
   OnInit,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-  ActivatedRoute,
-  Router,
-} from '@angular/router';
+import { Router } from '@angular/router';
 
+import { ToastrService } from 'ngx-toastr';
+import { firstValueFrom } from 'rxjs';
+
+import { Product } from '../../interfaces/product';
 import { ProductService } from '../../services/product.service';
 
 @Component({
@@ -17,32 +18,57 @@ import { ProductService } from '../../services/product.service';
   templateUrl: './edit-product.component.html',
   styleUrl: './edit-product.component.css'
 })
-export class EditProductComponent implements OnInit{
-  editingProduct: any = null;
-
+export class EditProductComponent implements OnInit {
+  editingProduct: Product = {
+    id: 0,
+    name: '',
+    brand: '',
+    category: '',
+    price: 0,
+    quantity: 0
+  };
+  
   constructor(
     private productService: ProductService,
-    private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private toastr: ToastrService
   ) {}
 
-  ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id !== null) {
-      this.productService.getProductById(Number(id)).subscribe((product) => {
-        this.editingProduct = product;
-      });
+  async ngOnInit(): Promise<void> {
+    const id = localStorage.getItem('productId');
+    console.log('ID recuperado del localStorage:', id); // Asegúrate de que este valor no sea null o undefined
+  
+    if (id) {
+      try {
+        const response = await firstValueFrom(this.productService.getProductById(+id));
+        console.log('Respuesta completa del backend:', response);
+  
+        // Extraer el producto y asignar manualmente el id
+        this.editingProduct = response; 
+        this.editingProduct.id = response.id || +id; // Asegura que el ID se asigne correctamente
+        console.log('Producto asignado a editingProduct:', this.editingProduct);
+      } catch (error) {
+        this.toastr.error('Error al cargar el producto');
+        console.error('Error al obtener el producto:', error);
+      }
     } else {
-      // Handle the case where id is null
       console.error('Product ID is null');
     }
   }
+  
 
-  updateProduct() {
-    this.productService.updateProduct(this.editingProduct).subscribe(() => {
+  async updateProduct(): Promise<void> {
+    console.log('ID del producto a actualizar:', this.editingProduct.id);
+    try {
+      await firstValueFrom(this.productService.updateProduct(this.editingProduct.id, this.editingProduct));
+      this.toastr.success('Producto actualizado exitosamente');
       this.router.navigate(['/dashBoard']);
-    });
+    } catch (error) {
+      this.toastr.error('Error al actualizar el producto');
+      console.error(error);
+    }
   }
+
   cancelEdit() {
     this.router.navigate(['/dashBoard']);
   }

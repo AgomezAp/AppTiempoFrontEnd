@@ -9,6 +9,8 @@ import {
   Router,
 } from '@angular/router';
 
+import { ToastrService } from 'ngx-toastr';
+
 import { ProductService } from '../../services/product.service';
 
 @Component({
@@ -23,7 +25,8 @@ export class DeleteProductComponent implements OnInit {
   constructor(
     private productService: ProductService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -31,9 +34,16 @@ export class DeleteProductComponent implements OnInit {
   }
 
   deleteProduct() {
-    this.productService.deleteProduct(this.productId).subscribe(() => {
-      this.router.navigate(['/dashBoard']);
-    });
+    this.productService.deleteProduct(this.productId).subscribe(
+      () => {
+        this.toastr.success('Producto eliminado exitosamente');
+        this.router.navigate(['/dashBoard']);
+      },
+      (error) => {
+        this.toastr.error('Error al eliminar el producto');
+        console.error(error);
+      }
+    );
   }
   cancelDelete() {
     this.router.navigate(['/dashBoard']);
