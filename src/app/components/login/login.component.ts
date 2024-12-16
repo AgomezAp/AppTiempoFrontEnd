@@ -44,7 +44,7 @@ export class LoginComponent {
           this.toastr.success('', 'Bienvenido');
           localStorage.setItem('token', token);
           localStorage.setItem('role', role); // Guarda el rol en el localStorage
-          this.router.navigate(['/dashBoard']);
+          this.router.navigate(['/horas']);
         },
         error: (e: HttpErrorResponse) => {
           this.loading = false;

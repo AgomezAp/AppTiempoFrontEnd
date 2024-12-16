@@ -1,5 +1,5 @@
-import { Location } from '@angular/common';
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-acces-denied',
@@ -8,9 +8,17 @@ import { Component } from '@angular/core';
   styleUrl: './acces-denied.component.css'
 })
 export class AccesDeniedComponent {
-  constructor(private location: Location) {}
+  constructor(private router: Router) { }
 
-  goBack() {
-    this.location.back(); // Volver a la página anterior
+  ngOnInit(): void {
+    // Redirigir a la página de horas después de 3 segundos
+    setTimeout(() => {
+      this.router.navigate(['/horas']);
+    }, 3000);
+  }
+
+  // Método para redirigir inmediatamente a la página de horas
+  redirectToHoras(): void {
+    this.router.navigate(['/horas']);
   }
 }

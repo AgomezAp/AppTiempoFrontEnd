@@ -16,6 +16,7 @@ import {
 import {
   ErrorPageComponent,
 } from './components/error-page/error-page.component';
+import { HorasComponent } from './components/horas/horas.component';
 import { LoginComponent } from './components/login/login.component';
 import {
   MantenimientoComponent,
@@ -34,13 +35,16 @@ export const routes: Routes = [
     path: 'signup', component: SignInComponent
   },
   {
-    path: 'dashBoard', component: DashboardComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'User', 'Tecnologia'] }
+    path: 'dashBoard', component: DashboardComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin'] }
   },
   {
     path: 'mantenimiento', component: MantenimientoComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'] }
   },
   {
     path: 'errorPage', component: ErrorPageComponent
+  },
+  {
+    path: 'horas', component: HorasComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia'] } 
   },
   {
     path: 'admin', component: DashboardComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin'] }
@@ -57,5 +61,6 @@ export const routes: Routes = [
   {
     path: 'delete-product/:id', component: DeleteProductComponent // Página para eliminar productos
   },
+  { path: '**', component: ErrorPageComponent } 
   // otras rutas
 ];

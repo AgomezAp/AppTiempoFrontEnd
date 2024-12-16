@@ -1,32 +1,35 @@
-<div class="table-container">
+<div class="product-dashboard">
   <h1>Inventario</h1>
-  <button class="btn btn-success" (click)="navigateToAddProduct()">Agregar Producto</button>
-
-  <table class="table table-bordered">
-    <thead>
-      <tr>
-        <th scope="col">Id</th>
-        <th scope="col">Nombre</th>
-        <th scope="col">Marca</th>
-        <th scope="col">Categoría</th>
-        <th scope="col">Precio</th>
-        <th scope="col">Cantidad</th>
-        <th scope="col">Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let item of listProducts">
-        <th scope="row">{{item.id}}</th>
-        <td>{{item.name}}</td>
-        <td>{{item.brand}}</td>
-        <td>{{item.category}}</td>
-        <td>{{item.price}}</td>
-        <td>{{item.quantity}}</td>
-        <td>
-          <button class="btn btn-warning action-button" (click)="navigateToEditProduct(item.id)">Modificar</button>
-          <button class="btn btn-danger action-button" (click)="navigateToDeleteProduct(item.id)">Eliminar</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="table-container">
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Marca</th>
+            <th scope="col">Categoría</th>
+            <th scope="col">Cantidad</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of listProducts">
+            <th scope="row">{{item.id}}</th>
+            <td>{{item.name}}</td>
+            <td>{{item.brand}}</td>
+            <td>{{item.category}}</td>
+            <td>{{item.quantity}}</td>
+            <td>
+              <button class="btn btn-warning action-button" (click)="navigateToEditProduct(item.id)">Modificar</button>
+              <button class="btn btn-danger action-button" (click)="navigateToDeleteProduct(item.id)">Eliminar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="button-container">
+    <button class="btn btn-success" (click)="navigateToAddProduct()">Agregar Producto</button>
+  </div>
 </div>

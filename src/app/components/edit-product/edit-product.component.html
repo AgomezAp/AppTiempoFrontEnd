@@ -2,19 +2,16 @@
   <h2>Modificar Producto</h2>
   <form *ngIf="editingProduct" (ngSubmit)="updateProduct()">
     <label for="editName">Nombre:</label>
-    <input type="text" id="editName" [(ngModel)]="editingProduct.name" name="editName" [placeholder]="editingProduct.name" required>
+    <input type="text" id="editName" [(ngModel)]="editingProduct.name" name="editName"  required>
 
     <label for="editBrand">Marca:</label>
-    <input type="text" id="editBrand" [(ngModel)]="editingProduct.brand" name="editBrand" [placeholder]="editingProduct.brand" required>
+    <input type="text" id="editBrand" [(ngModel)]="editingProduct.brand" name="editBrand"  required>
 
     <label for="editCategory">Categoría:</label>
-    <input type="text" id="editCategory" [(ngModel)]="editingProduct.category" name="editCategory" [placeholder]="editingProduct.category" required>
-
-    <label for="editPrice">Precio:</label>
-    <input type="number" id="editPrice" [(ngModel)]="editingProduct.price" name="editPrice" [placeholder]="editingProduct.price" required>
+    <input type="text" id="editCategory" [(ngModel)]="editingProduct.category" name="editCategory"  required>
 
     <label for="editQuantity">Cantidad:</label>
-    <input type="number" id="editQuantity" [(ngModel)]="editingProduct.quantity" name="editQuantity" [placeholder]="editingProduct.quantity" required>
+    <input type="number" id="editQuantity" [(ngModel)]="editingProduct.quantity" name="editQuantity"  required>
 
     <div class="button-group">
       <button type="submit" class="btn btn-primary">Guardar Cambios</button>

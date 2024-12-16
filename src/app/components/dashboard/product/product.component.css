@@ -1,40 +1,111 @@
-.table-container {
-  max-width: 80%;
-  margin: 0 auto;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-}
-
-.table-container h1 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.table-container .btn-success {
-  margin-bottom: 20px;
-}
-
-.table-container table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.table-container th, .table-container td {
-  padding: 10px;
-  text-align: left;
-  border: 1px solid #ddd;
-}
-
-.table-container th {
-  background-color: #f2f2f2;
-}
-
-.action-button {
-  margin-right: 10px;
-}
-
-.action-button:last-child {
-  margin-right: 0;
-}
+.product-dashboard {
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 80px; /* Añade un margen superior para mantener la distancia del navbar */
+  }
+  
+  .table-container {
+    width: 80%;
+  }
+  
+  .table-responsive {
+    overflow-x: auto;
+    width: 100%;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 8px; /* Bordes redondeados */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra */
+    overflow: hidden; /* Para que los bordes redondeados funcionen */
+  }
+  
+  th, td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+  
+  th {
+    background-color: #f4f4f4;
+    color: #333;
+    font-weight: bold;
+  }
+  
+  tbody tr:nth-child(even) {
+    background-color: #f9f9f9; /* Fondo alterno para filas */
+  }
+  
+  tbody tr:hover {
+    background-color: #f1f1f1; /* Efecto hover para filas */
+  }
+  
+  button {
+    padding: 6px 12px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  .action-button {
+    margin-right: 10px; /* Añade margen derecho para separar los botones */
+  }
+  
+  .button-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .button-container .btn {
+    width: auto;
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #28a745;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, transform 0.3s;
+  }
+  
+  .button-container .btn:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+  }
+  
+  /* Media query para dispositivos móviles */
+  @media (max-width: 768px) {
+    .product-dashboard {
+      padding: 10px;
+      margin-top: 60px; /* Ajusta el margen superior para dispositivos móviles */
+    }
+  
+    .table-container {
+      width: 100%;
+    }
+  
+    th, td {
+      padding: 8px 10px;
+    }
+  
+    button {
+      padding: 4px 8px;
+    }
+  
+    .action-button {
+      margin-right: 5px; /* Ajusta el margen para dispositivos móviles si es necesario */
+    }
+  
+    .button-container .btn {
+      width: 100%;
+      font-size: 16px;
+    }
+  }
