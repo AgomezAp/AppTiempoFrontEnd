@@ -1,111 +1,129 @@
 .product-dashboard {
-    padding: 30px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 80px; /* Añade un margen superior para mantener la distancia del navbar */
+  padding: 20px; /* Reduce el padding */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 60px; /* Reduce el margen superior */
+}
+
+.filter-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px; /* Añade un margen inferior */
+}
+
+.filter-container input {
+  margin-right: 10px; /* Añade un margen derecho */
+  padding: 5px 10px; /* Añade padding */
+  border-radius: 4px; /* Bordes redondeados */
+  border: 1px solid #ccc; /* Borde */
+}
+
+.table-container {
+  width: 90%; /* Reduce el ancho */
+}
+
+.table-responsive {
+  overflow-x: auto;
+  width: 100%;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 6px; /* Reduce los bordes redondeados */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Reduce la sombra */
+  overflow: hidden; /* Para que los bordes redondeados funcionen */
+}
+
+th, td {
+  padding: 8px 10px; /* Reduce el padding */
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+th {
+  background-color: #f4f4f4;
+  color: #333;
+  font-weight: bold;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f9f9f9; /* Fondo alterno para filas */
+}
+
+tbody tr:hover {
+  background-color: #f1f1f1; /* Efecto hover para filas */
+}
+
+button {
+  padding: 4px 8px; /* Reduce el padding */
+  border: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.action-button {
+  margin-right: 5px; /* Reduce el margen derecho */
+}
+
+.button-container {
+  margin-top: 15px; /* Reduce el margen superior */
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.button-container .btn {
+  width: auto;
+  padding: 8px 16px; /* Reduce el padding */
+  font-size: 16px; /* Reduce el tamaño de la fuente */
+  background-color: #28a745;
+  border-radius: 6px; /* Reduce los bordes redondeados */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Reduce la sombra */
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.button-container .btn:hover {
+  background-color: #218838;
+  transform: translateY(-1px); /* Reduce la transformación */
+}
+
+.chart-container {
+  width: 90%; /* Reduce el ancho */
+  margin-top: 20px; /* Reduce el margen superior */
+}
+
+@media (max-width: 768px) {
+  .product-dashboard {
+    padding: 10px;
+    margin-top: 40px; /* Ajusta el margen superior para dispositivos móviles */
   }
-  
-  .table-container {
-    width: 80%;
-  }
-  
-  .table-responsive {
-    overflow-x: auto;
+
+  .table-container, .chart-container {
     width: 100%;
   }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    border-radius: 8px; /* Bordes redondeados */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra */
-    overflow: hidden; /* Para que los bordes redondeados funcionen */
-  }
-  
+
   th, td {
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    text-align: left;
+    padding: 6px 8px; /* Reduce el padding */
   }
-  
-  th {
-    background-color: #f4f4f4;
-    color: #333;
-    font-weight: bold;
-  }
-  
-  tbody tr:nth-child(even) {
-    background-color: #f9f9f9; /* Fondo alterno para filas */
-  }
-  
-  tbody tr:hover {
-    background-color: #f1f1f1; /* Efecto hover para filas */
-  }
-  
+
   button {
-    padding: 6px 12px;
-    border: none;
-    color: white;
-    cursor: pointer;
-    border-radius: 4px;
+    padding: 3px 6px; /* Reduce el padding */
   }
-  
-  button:hover {
-    background-color: #0056b3;
-  }
-  
+
   .action-button {
-    margin-right: 10px; /* Añade margen derecho para separar los botones */
+    margin-right: 3px; /* Ajusta el margen para dispositivos móviles si es necesario */
   }
-  
-  .button-container {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-    width: 100%;
-  }
-  
+
   .button-container .btn {
-    width: auto;
-    padding: 10px 20px;
-    font-size: 18px;
-    background-color: #28a745;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s, transform 0.3s;
+    width: 100%;
+    font-size: 14px; /* Reduce el tamaño de la fuente */
   }
-  
-  .button-container .btn:hover {
-    background-color: #218838;
-    transform: translateY(-2px);
-  }
-  
-  /* Media query para dispositivos móviles */
-  @media (max-width: 768px) {
-    .product-dashboard {
-      padding: 10px;
-      margin-top: 60px; /* Ajusta el margen superior para dispositivos móviles */
-    }
-  
-    .table-container {
-      width: 100%;
-    }
-  
-    th, td {
-      padding: 8px 10px;
-    }
-  
-    button {
-      padding: 4px 8px;
-    }
-  
-    .action-button {
-      margin-right: 5px; /* Ajusta el margen para dispositivos móviles si es necesario */
-    }
-  
-    .button-container .btn {
-      width: 100%;
-      font-size: 16px;
-    }
-  }
+}

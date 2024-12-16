@@ -1,38 +1,94 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import {
+  Component,
+  OnInit,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+
+import {
+  ChartData,
+  ChartOptions,
+} from 'chart.js';
+import { BaseChartDirective } from 'ng2-charts';
 
 import { ProductService } from '../../../services/product.service';
 
 @Component({
   selector: 'dashboard-product',
-  imports: [CommonModule,FormsModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule,BaseChartDirective],
   templateUrl: './product.component.html',
-  styleUrl: './product.component.css'
+  styleUrl: './product.component.css',
 })
-export class ProductComponent {
+export class ProductComponent implements OnInit {
   listProducts: any[] = [];
   showAddForm: boolean = false;
-  newProduct: any = {
-    name: '',
-    brand: '',
-    category: '',
-    price: null,
-    quantity: null
-  };
+  filteredProducts: any[] = [];
+  filterText: string = '';
+  totalQuantity: number = 0;
+  // Datos del gráfico
+  barChartData: ChartData<'bar'> = { labels: [], datasets: [] };
+  barChartOptions: ChartOptions<'bar'> = { responsive: true };
   editingProduct: any = null;
-
-  constructor(private productService: ProductService,private router: Router) {}
+  constructor(
+    private productService: ProductService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadProducts();
   }
-
+  updateChartData(): void {
+    this.barChartData.labels = this.filteredProducts.map(product => product.name);
+    this.barChartData.datasets[0].data = this.filteredProducts.map(product => product.quantity);
+  }
   loadProducts() {
     this.productService.getProduct().subscribe((data: any[]) => {
       this.listProducts = data;
+      this.updateChart();
+      this.filteredProducts = data;
+      this.updateChartData();
+      this.updateTotalQuantity();
     });
+  }
+  updateTotalQuantity(): void {
+    this.totalQuantity = this.filteredProducts.reduce((sum, product) => sum + product.quantity, 0);
+  }
+
+  applyFilter(): void {
+    this.filteredProducts = this.listProducts.filter(product => 
+      product.category.toLowerCase().includes(this.filterText.toLowerCase())
+    );
+    this.updateChartData();
+    this.updateTotalQuantity();
+  }
+  updateChart() {
+    // Agrupar por categoría y sumar las cantidades
+    const productCategoryMap: { [key: string]: number } = {};
+
+    this.listProducts.forEach((product) => {
+      const category = product.category || 'Sin categoría';
+      productCategoryMap[category] =
+        (productCategoryMap[category] || 0) + product.quantity;
+    });
+
+    // Convertir los datos a formato compatible con el gráfico
+    const labels = Object.keys(productCategoryMap);
+    const data = Object.values(productCategoryMap);
+
+    this.barChartData = {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Cantidad de Productos por Categoría',
+          data: data,
+          backgroundColor: '#42A5F5',
+          borderColor: '#1E88E5',
+          borderWidth: 1,
+        },
+      ],
+    };
   }
 
   navigateToAddProduct() {
@@ -41,7 +97,6 @@ export class ProductComponent {
 
   navigateToEditProduct(id: number) {
     localStorage.setItem('productId', id.toString());
-    console.log('Product ID:', id);
     this.router.navigate(['/edit-product', id]);
   }
 
