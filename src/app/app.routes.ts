@@ -38,7 +38,7 @@ export const routes: Routes = [
     path: 'dashBoard', component: DashboardComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin'] }
   },
   {
-    path: 'mantenimiento', component: MantenimientoComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'] }
+    path: 'mantenimiento', component: MantenimientoComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User','Tecnologia'] }
   },
   {
     path: 'errorPage', component: ErrorPageComponent
@@ -47,19 +47,16 @@ export const routes: Routes = [
     path: 'horas', component: HorasComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia'] } 
   },
   {
-    path: 'admin', component: DashboardComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin'] }
+    path: 'access-denied', component: AccesDeniedComponent,canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia'] }  // Página de acceso denegado
   },
   {
-    path: 'access-denied', component: AccesDeniedComponent // Página de acceso denegado
+    path: 'add-product', component: AddProductComponent,canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'] }  // Página para agregar productos
   },
   {
-    path: 'add-product', component: AddProductComponent // Página para agregar productos
+    path: 'edit-product/:id', component: EditProductComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'] } // Página para editar productos
   },
   {
-    path: 'edit-product/:id', component: EditProductComponent // Página para editar productos
-  },
-  {
-    path: 'delete-product/:id', component: DeleteProductComponent // Página para eliminar productos
+    path: 'delete-product/:id', component: DeleteProductComponent,canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'] }  // Página para eliminar productos
   },
   { path: '**', component: ErrorPageComponent } 
   // otras rutas

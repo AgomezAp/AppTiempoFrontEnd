@@ -1,4 +1,7 @@
-import { CommonModule } from '@angular/common';
+import {
+  CommonModule,
+  Location,
+} from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
@@ -9,5 +12,8 @@ import { RouterLink } from '@angular/router';
   styleUrl: './error-page.component.css'
 })
 export class ErrorPageComponent {
-
+  constructor(private location: Location) {}
+  goBack(): void {
+    this.location.back();
+  }
 }
