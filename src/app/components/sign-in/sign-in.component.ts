@@ -65,6 +65,7 @@ export class SignInComponent implements OnInit {
     }
     if (this.password != this.repeatPassword) {
       this.toastr.warning('Las contraseñas no coinciden', 'Advertencia');
+      return 
     }
 
     //Creación Objeto

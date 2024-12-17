@@ -13,11 +13,12 @@ import {
 import { BaseChartDirective } from 'ng2-charts';
 
 import { ProductService } from '../../../services/product.service';
+import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'dashboard-product',
   standalone: true,
-  imports: [CommonModule, FormsModule,BaseChartDirective],
+  imports: [CommonModule, FormsModule,BaseChartDirective,SpinnerComponent],
   templateUrl: './product.component.html',
   styleUrl: './product.component.css',
 })
@@ -27,6 +28,7 @@ export class ProductComponent implements OnInit {
   filteredProducts: any[] = [];
   filterText: string = '';
   totalQuantity: number = 0;
+  loading: boolean = false;
   // Datos del gráfico
   barChartData: ChartData<'bar'> = { labels: [], datasets: [] };
   barChartOptions: ChartOptions<'bar'> = { responsive: true };
@@ -37,6 +39,7 @@ export class ProductComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.loading = true;
     this.loadProducts();
   }
   updateChartData(): void {
@@ -50,10 +53,12 @@ export class ProductComponent implements OnInit {
       this.filteredProducts = data;
       this.updateChartData();
       this.updateTotalQuantity();
+      this.loading = false;
     });
   }
   updateTotalQuantity(): void {
     this.totalQuantity = this.filteredProducts.reduce((sum, product) => sum + product.quantity, 0);
+    this.loading = true;
   }
 
   applyFilter(): void {
@@ -62,6 +67,7 @@ export class ProductComponent implements OnInit {
     );
     this.updateChartData();
     this.updateTotalQuantity();
+    this.loading = true;
   }
   updateChart() {
     // Agrupar por categoría y sumar las cantidades
