@@ -22,6 +22,7 @@ import {
   MantenimientoComponent,
 } from './components/mantenimiento/mantenimiento.component';
 import { SignInComponent } from './components/sign-in/sign-in.component';
+import { UploadComponent } from './components/upload/upload.component';
 import { tRolGuard } from './utils/t-rol.guard';
 
 export const routes: Routes = [
@@ -58,6 +59,8 @@ export const routes: Routes = [
   {
     path: 'delete-product/:id', component: DeleteProductComponent,canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'] }  // Página para eliminar productos
   },
-  { path: '**', component: ErrorPageComponent } 
-  // otras rutas
+  { 
+    path: 'subirArchivo', component: UploadComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'] } // Página para subir archivos
+  },
+  { path: '**', component: ErrorPageComponent },
 ];

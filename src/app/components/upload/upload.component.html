@@ -1,0 +1,10 @@
+<div class="upload-xml-container">
+    <h2>Subir Archivo XML</h2>
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="file">Seleccionar archivo XML</label>
+        <input type="file" id="file" (change)="onFileSelected($event)" class="form-control" accept=".xml" required>
+      </div>
+      <button type="submit" class="btn btn-primary" [disabled]="!selectedFile">Subir</button>
+    </form>
+  </div>
