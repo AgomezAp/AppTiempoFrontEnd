@@ -1,6 +1,7 @@
 <div class="edit-product">
   <h2>Modificar Producto</h2>
   <form *ngIf="editingProduct" (ngSubmit)="updateProduct()">
+    
     <label for="editName">Nombre:</label>
     <input type="text" id="editName" [(ngModel)]="editingProduct.name" name="editName" required>
 
@@ -18,4 +19,6 @@
       <button type="button" class="btn btn-secondary" (click)="cancelEdit()">Cancelar</button>
     </div>
   </form>
+  <app-spinner *ngIf="loading"></app-spinner>
+  
 </div>

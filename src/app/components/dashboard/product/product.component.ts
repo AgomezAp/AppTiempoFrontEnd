@@ -11,6 +11,7 @@ import {
   ChartOptions,
 } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 import { ProductService } from '../../../services/product.service';
 import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
@@ -18,7 +19,7 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 @Component({
   selector: 'dashboard-product',
   standalone: true,
-  imports: [CommonModule, FormsModule,BaseChartDirective,SpinnerComponent],
+  imports: [CommonModule, FormsModule,BaseChartDirective,SpinnerComponent,NgxPaginationModule],
   templateUrl: './product.component.html',
   styleUrl: './product.component.css',
 })
@@ -29,10 +30,17 @@ export class ProductComponent implements OnInit {
   filterText: string = '';
   totalQuantity: number = 0;
   loading: boolean = false;
+
   // Datos del gráfico
   barChartData: ChartData<'bar'> = { labels: [], datasets: [] };
   barChartOptions: ChartOptions<'bar'> = { responsive: true };
+
   editingProduct: any = null;
+  sortOrder: string = 'asc';
+
+  p: number = 1;
+  itemsPerPage: number = 5;
+
   constructor(
     private productService: ProductService,
     private router: Router
@@ -42,10 +50,12 @@ export class ProductComponent implements OnInit {
     this.loading = true;
     this.loadProducts();
   }
+  
   updateChartData(): void {
     this.barChartData.labels = this.filteredProducts.map(product => product.name);
     this.barChartData.datasets[0].data = this.filteredProducts.map(product => product.quantity);
   }
+
   loadProducts() {
     this.productService.getProduct().subscribe((data: any[]) => {
       this.listProducts = data;
@@ -56,9 +66,10 @@ export class ProductComponent implements OnInit {
       this.loading = false;
     });
   }
+
   updateTotalQuantity(): void {
     this.totalQuantity = this.filteredProducts.reduce((sum, product) => sum + product.quantity, 0);
-    this.loading = true;
+    this.loading = false;
   }
 
   applyFilter(): void {
@@ -67,8 +78,18 @@ export class ProductComponent implements OnInit {
     );
     this.updateChartData();
     this.updateTotalQuantity();
-    this.loading = true;
   }
+
+  sortProducts(order: string): void {
+    this.sortOrder = order;
+    if (order === 'asc') {
+      this.filteredProducts.sort((a, b) => a.quantity - b.quantity);
+    } else if (order === 'desc') {
+      this.filteredProducts.sort((a, b) => b.quantity - a.quantity);
+    }
+    this.updateChartData();
+  }
+  
   updateChart() {
     // Agrupar por categoría y sumar las cantidades
     const productCategoryMap: { [key: string]: number } = {};

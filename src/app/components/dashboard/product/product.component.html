@@ -14,13 +14,17 @@
             <th scope="col">Nombre</th>
             <th scope="col">Marca</th>
             <th scope="col">Categoría</th>
-            <th scope="col">Cantidad</th>
+            <th scope="col">Cantidad
+              <button class="btn btn-outline-dark" *ngIf="sortOrder !== 'asc' && sortOrder !== 'desc'" (click)="sortProducts('asc')">↑</button>
+              <button class="btn btn-outline-dark" *ngIf="sortOrder === 'asc'" (click)="sortProducts('desc')">↓</button>
+              <button class="btn btn-outline-dark" *ngIf="sortOrder === 'desc'" (click)="sortProducts('')">↔</button>
+            </th>
             <th scope="col">Código QR</th>
             <th scope="col">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let item of filteredProducts">
+          <tr *ngFor="let item of filteredProducts | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
             <th scope="row">{{ item.id }}</th>
             <td>{{ item.name }}</td>
             <td>{{ item.brand }}</td>
@@ -37,6 +41,9 @@
         </tbody>
         <app-spinner *ngIf="loading"></app-spinner>
       </table>
+      <div class="pagination-container">
+        <pagination-controls (pageChange)="p = $event"></pagination-controls>
+      </div>
     </div>
   </div>
   <div *ngIf="filterText" class="total-container">
@@ -52,5 +59,4 @@
       [type]="'bar'">
     </canvas>
   </div>
-
 </div>

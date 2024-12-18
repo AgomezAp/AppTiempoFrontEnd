@@ -7,10 +7,11 @@ import { ToastrService } from 'ngx-toastr';
 import * as QRCode from 'qrcode';
 
 import { ProductService } from '../../services/product.service';
+import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'app-add-product',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule,SpinnerComponent],
   templateUrl: './add-product.component.html',
   styleUrls: ['./add-product.component.css']
 })
@@ -22,7 +23,7 @@ export class AddProductComponent  {
     price: null,
     quantity: null
   };
-
+  loading: boolean = false;
   constructor(
     private productService: ProductService,
     private router: Router,
@@ -31,6 +32,7 @@ export class AddProductComponent  {
 
   addProduct() {
     // Generar el código QR con los datos completos del producto
+    this.loading = true;
     const productData = {
       name: this.newProduct.name,
       brand: this.newProduct.brand,
@@ -41,6 +43,7 @@ export class AddProductComponent  {
 
     QRCode.toDataURL(JSON.stringify(productData), { errorCorrectionLevel: 'L' }, (err, url) => {
       if (err) {
+        this.loading = true;
         console.error(err);
         this.toastr.error('Error al generar el código QR');
         return;
@@ -51,17 +54,21 @@ export class AddProductComponent  {
       this.productService.createProduct(this.newProduct).subscribe(
         () => {
           this.toastr.success('Producto creado exitosamente');
+          this.loading = true;
           this.openQRCodeWindow(url);
         },
         (error) => {
           this.toastr.error('Error al crear el producto');
+          this.loading = true;
         }
       );
     });
   }
   openQRCodeWindow(qrCodeUrl: string): void {
     const printWindow = window.open('', '_blank');
+    
     if (printWindow) {
+      this.loading = true;
       printWindow.document.write(`
         <html>
           <head>
@@ -87,6 +94,7 @@ export class AddProductComponent  {
       `);
     printWindow.document.close();
   }
+  this.loading = false;
 }
 /* 
   openQRCodeWindow(qrCodeUrl: string): void {
@@ -112,6 +120,7 @@ export class AddProductComponent  {
   } */
 
   cancel() {
+    this.loading = true;
     this.router.navigate(['/dashBoard']);
   }
 }

@@ -14,7 +14,7 @@ export class HoraService {
   private apiUrl: string;
 
   constructor(private http: HttpClient) {
-    this.appUrl = environment.apiUrl;
+    this.appUrl = environment.apiHoras;
     this.apiUrl = 'api/horas';
   }
 
