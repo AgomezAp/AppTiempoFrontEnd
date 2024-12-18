@@ -21,6 +21,9 @@ import { LoginComponent } from './components/login/login.component';
 import {
   MantenimientoComponent,
 } from './components/mantenimiento/mantenimiento.component';
+import {
+  ResetPasswordComponent,
+} from './components/reset-password/reset-password.component';
 import { SignInComponent } from './components/sign-in/sign-in.component';
 import { UploadComponent } from './components/upload/upload.component';
 import { tRolGuard } from './utils/t-rol.guard';
@@ -34,6 +37,9 @@ export const routes: Routes = [
   },
   {
     path: 'signup', component: SignInComponent
+  },
+  {
+    path: 'reestablecerContraseña', component: ResetPasswordComponent
   },
   {
     path: 'dashBoard', component: DashboardComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin'] }

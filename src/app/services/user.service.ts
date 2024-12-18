@@ -22,4 +22,7 @@ export class UserService {
   logIn(user :User):Observable<string>{
     return this.http.post<string>(`${this.appUrl}${this.apiUrl}/login`,user)
   }
+  resetPassword(data: { email: string, newPassword: string }): Observable<string> {
+    return this.http.patch<string>(`${this.appUrl}${this.apiUrl}/reset-password`, data);
+  }
 }
