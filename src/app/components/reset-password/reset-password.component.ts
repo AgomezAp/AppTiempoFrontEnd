@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import {
+  Router,
+  RouterLink,
+} from '@angular/router';
 
 import { ToastrService } from 'ngx-toastr';
 
@@ -9,7 +12,7 @@ import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-reset-password',
-  imports: [CommonModule,FormsModule],
+  imports: [CommonModule,FormsModule,RouterLink],
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.css'
 })

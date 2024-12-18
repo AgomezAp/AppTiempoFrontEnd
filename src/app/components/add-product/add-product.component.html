@@ -1,26 +1,40 @@
-<div class="add-product-form">
-  <h2>Agregar Producto</h2>
-  <form (ngSubmit)="addProduct()">
-    <div class="form-group">
-      <label for="name">Nombre:</label>
-      <input type="text" id="name" [(ngModel)]="newProduct.name" name="name" class="form-control" required>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar Producto</title>
+    <link rel="stylesheet" href="add-product.component.css"> <!-- Enlace al archivo CSS -->
+</head>
+<body>
+    <div class="logo-container">
+        <img src="/LogoAP.png" alt="Logo de Andrés Publicidad">
     </div>
-    <div class="form-group">
-      <label for="brand">Marca:</label>
-      <input type="text" id="brand" [(ngModel)]="newProduct.brand" name="brand" class="form-control" required>
+    <div class="add-product-form">
+        <h2>Agregar Producto</h2>
+        <form (ngSubmit)="addProduct()">
+            <div class="form-group">
+                <label for="name">Nombre:</label>
+                <input type="text" id="name" [(ngModel)]="newProduct.name" name="name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="brand">Marca:</label>
+                <input type="text" id="brand" [(ngModel)]="newProduct.brand" name="brand" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="category">Categoría:</label>
+                <input type="text" id="category" [(ngModel)]="newProduct.category" name="category" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="quantity">Cantidad:</label>
+                <input type="number" id="quantity" [(ngModel)]="newProduct.quantity" name="quantity" class="form-control" required>
+            </div>
+            <div class="button-group">
+                <button type="button" class="btn btn-secondary" (click)="cancel()">Cancelar</button>
+                <button type="submit" class="btn btn-success">Agregar</button>
+            </div>
+        </form>
+        <app-spinner *ngIf="loading"></app-spinner>
     </div>
-    <div class="form-group">
-      <label for="category">Categoría:</label>
-      <input type="text" id="category" [(ngModel)]="newProduct.category" name="category" class="form-control" required>
-    </div>
-    <div class="form-group">
-      <label for="quantity">Cantidad:</label>
-      <input type="number" id="quantity" [(ngModel)]="newProduct.quantity" name="quantity" class="form-control" required>
-    </div>
-    <div class="button-group">
-      <button type="button" class="btn btn-secondary" (click)="cancel()">Cancelar</button>
-      <button type="submit" class="btn btn-success">Agregar</button>
-    </div>
-  </form>
-  <app-spinner *ngIf="loading"></app-spinner>
-</div>
+</body>
+</html>

@@ -1,24 +1,40 @@
-<div class="edit-product">
-  <h2>Modificar Producto</h2>
-  <form *ngIf="editingProduct" (ngSubmit)="updateProduct()">
-    
-    <label for="editName">Nombre:</label>
-    <input type="text" id="editName" [(ngModel)]="editingProduct.name" name="editName" required>
-
-    <label for="editBrand">Marca:</label>
-    <input type="text" id="editBrand" [(ngModel)]="editingProduct.brand" name="editBrand" required>
-
-    <label for="editCategory">Categoría:</label>
-    <input type="text" id="editCategory" [(ngModel)]="editingProduct.category" name="editCategory" required>
-
-    <label for="editQuantity">Cantidad:</label>
-    <input type="number" id="editQuantity" [(ngModel)]="editingProduct.quantity" name="editQuantity" required>
-
-    <div class="button-group">
-      <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-      <button type="button" class="btn btn-secondary" (click)="cancelEdit()">Cancelar</button>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modificar Producto</title>
+    <link rel="stylesheet" href="edit-product.component.css"> <!-- Enlace al archivo CSS -->
+</head>
+<body>
+    <div class="logo-container">
+        <img src="/LogoAP.png" alt="Logo de Andrés Publicidad">
     </div>
-  </form>
-  <app-spinner *ngIf="loading"></app-spinner>
-  
-</div>
+    <div class="edit-product-form">
+        <h2>Modificar Producto</h2>
+        <form *ngIf="editingProduct" (ngSubmit)="updateProduct()">
+            <div class="form-group">
+                <label for="editName">Nombre:</label>
+                <input type="text" id="editName" [(ngModel)]="editingProduct.name" name="editName" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="editBrand">Marca:</label>
+                <input type="text" id="editBrand" [(ngModel)]="editingProduct.brand" name="editBrand" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="editCategory">Categoría:</label>
+                <input type="text" id="editCategory" [(ngModel)]="editingProduct.category" name="editCategory" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="editQuantity">Cantidad:</label>
+                <input type="number" id="editQuantity" [(ngModel)]="editingProduct.quantity" name="editQuantity" class="form-control" required>
+            </div>
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                <button type="button" class="btn btn-secondary" (click)="cancelEdit()">Cancelar</button>
+            </div>
+        </form>
+        <app-spinner *ngIf="loading"></app-spinner>
+    </div>
+</body>
+</html>
