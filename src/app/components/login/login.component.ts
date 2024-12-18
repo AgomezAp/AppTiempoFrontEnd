@@ -40,9 +40,12 @@ export class LoginComponent {
         next: (response: any) => {
           const token = response.token;
           const role = response.role;
+          const userId = response.userId;
           this.loading = false;
           this.toastr.success('', 'Bienvenido');
           localStorage.setItem('token', token);
+          localStorage.setItem('userId', userId); 
+          console.log(response.id);
           localStorage.setItem('role', role); // Guarda el rol en el localStorage
           this.router.navigate(['/horas']);
         },
