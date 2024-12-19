@@ -1,0 +1,28 @@
+<app-navbar></app-navbar>
+<div class="admin-panel">
+  <h2>Administrar Usuarios</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Email</th>
+        <th>Rol</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of users">
+        <td>{{ user.Uid }}</td>
+        <td>{{ user.name }}</td>
+        <td>{{ user.lastName }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.role?.Rname }}</td>
+        <td>
+          <button *ngIf="user.Uid !== currentUserId" class="btn btn-danger" (click)="user.Uid && deleteUser(user.Uid)">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

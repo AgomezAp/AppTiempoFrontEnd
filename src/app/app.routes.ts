@@ -6,6 +6,7 @@ import {
 import {
   AddProductComponent,
 } from './components/add-product/add-product.component';
+import { AdminComponent } from './components/admin/admin.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import {
   DeleteProductComponent,
@@ -70,6 +71,6 @@ export const routes: Routes = [
     path: 'subirArchivo', component: UploadComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'] } // Página para subir archivos
   },
   { path: 'permisos', component: PermisoComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'User', 'Tecnologia'] } },
-
+  { path: 'admin', component: AdminComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin'] } },
   { path: '**', component: ErrorPageComponent },
 ];

@@ -4,7 +4,10 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../environments/environment.development';
-import { User } from '../interfaces/user';
+import {
+  UResponse,
+  User,
+} from '../interfaces/user';
 
 @Injectable({
   providedIn: 'root'
@@ -24,5 +27,13 @@ export class UserService {
   }
   resetPassword(data: { email: string, newPassword: string }): Observable<string> {
     return this.http.patch<string>(`${this.appUrl}${this.apiUrl}/reset-password`, data);
+  }
+  
+  getAllUsers(): Observable<UResponse[]> {
+    return this.http.get<UResponse[]>(`${this.appUrl}${this.apiUrl}/AllUsers`);
+  }
+
+  deleteUserById(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.appUrl}${this.apiUrl}/delete/${id}`);
   }
 }

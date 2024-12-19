@@ -21,8 +21,14 @@
               <li><a class="dropdown-item" href="/permisos">Permisos</a></li>
             </ul>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/dashBoard">Inventario</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="inventarioDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Inventario
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="inventarioDropdown">
+              <li><a class="dropdown-item" href="/dashBoard">Inventario</a></li>
+              <li><a class="dropdown-item" href="/admin">Usuarios</a></li>
+            </ul>
           </li>
           <li class="nav-item">
             <button class="btn btn-outline-danger" type="button" (click)="logOut()">Cerrar sesión</button>
