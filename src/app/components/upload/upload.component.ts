@@ -4,9 +4,11 @@ import { Router } from '@angular/router';
 
 import { ToastrService } from 'ngx-toastr';
 
+import { NavbarComponent } from '../navbar/navbar.component';
+
 @Component({
   selector: 'app-upload',
-  imports: [],
+  imports: [NavbarComponent],
   templateUrl: './upload.component.html',
   styleUrl: './upload.component.css'
 })
