@@ -1,0 +1,68 @@
+<div class="permisos-form">
+  <h2>Solicitar Permiso</h2>
+  <form (ngSubmit)="createPermiso()" #permisoForm="ngForm">
+    <div class="form-group">
+      <label for="emailPersonal">Correo electrónico personal:</label>
+      <input type="email" id="emailPersonal" [(ngModel)]="permiso.emailPersonal" name="emailPersonal" class="form-control" required>
+    </div>
+    <div class="form-group">
+      <label for="emailLider">Correo electrónico del líder o directivo:</label>
+      <input type="email" id="emailLider" [(ngModel)]="permiso.emailLider" name="emailLider" class="form-control" required>
+    </div>
+    <div class="form-group">
+      <label for="nombre">Nombre:</label>
+      <input type="text" id="nombre" [(ngModel)]="permiso.nombre" name="nombre" class="form-control" required>
+    </div>
+    <div class="form-group">
+      <label for="numeroDocumento">Número de documento:</label>
+      <input type="text" id="numeroDocumento" [(ngModel)]="permiso.numeroDocumento" name="numeroDocumento" class="form-control" required>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="fechaInicio">Fecha de salida de permiso:</label>
+          <input type="date" id="fechaInicio" [(ngModel)]="permiso.fechaInicio" name="fechaInicio" class="form-control" [min]="today" required>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="fechaFin">Fecha de entrada de permiso:</label>
+          <input type="date" id="fechaFin" [(ngModel)]="permiso.fechaFin" name="fechaFin" class="form-control" [min]="today" required>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="tipo">Tipo de permiso:</label>
+      <select id="tipo" [(ngModel)]="permiso.tipo" name="tipo" class="form-control" required>
+        <option *ngFor="let tipo of tiposPermiso" [value]="tipo">{{ tipo }}</option>
+      </select>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="horaSalida">Hora de salida:</label>
+          <input type="time" id="horaSalida" [(ngModel)]="permiso.horaSalida" name="horaSalida" class="form-control" required>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="horaRegreso">Hora de regreso o llegada tarde:</label>
+          <input type="time" id="horaRegreso" [(ngModel)]="permiso.horaRegreso" name="horaRegreso" class="form-control" required>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="observaciones">Observaciones:</label>
+      <textarea id="observaciones" [(ngModel)]="permiso.observaciones" name="observaciones" class="form-control" rows="3"></textarea>
+    </div>
+    <div class="form-group">
+      <label for="soporte">Subir autorizaciones o soporte del permiso:</label>
+      <input type="file" id="soporte" name="soporte" class="form-control" (change)="onFileSelected($event)">
+    </div>
+    <div class="button-group">
+      <button type="submit" class="btn btn-success" [disabled]="!permisoForm.form.valid">Solicitar Permiso</button>
+      <button type="button" class="btn btn-secondary" (click)="cancel()">Cancelar</button>
+    </div>
+  </form>
+  <app-spinner *ngIf="loading"></app-spinner>
+</div>

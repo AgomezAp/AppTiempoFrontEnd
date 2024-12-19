@@ -21,6 +21,7 @@ import { LoginComponent } from './components/login/login.component';
 import {
   MantenimientoComponent,
 } from './components/mantenimiento/mantenimiento.component';
+import { PermisoComponent } from './components/permiso/permiso.component';
 import {
   ResetPasswordComponent,
 } from './components/reset-password/reset-password.component';
@@ -68,5 +69,7 @@ export const routes: Routes = [
   { 
     path: 'subirArchivo', component: UploadComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'] } // Página para subir archivos
   },
+  { path: 'permisos', component: PermisoComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'User', 'Tecnologia'] } },
+
   { path: '**', component: ErrorPageComponent },
 ];

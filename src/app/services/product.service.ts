@@ -11,7 +11,7 @@ import { Product } from '../interfaces/product';
 })
 export class ProductService {
  private appUrl : string;
-  private apiUrl : string;
+ private apiUrl : string;
   constructor(private http:HttpClient) { 
     this.appUrl= environment.apiUrl
     this.apiUrl = 'api/product'

@@ -45,7 +45,6 @@ export class LoginComponent {
           this.toastr.success('', 'Bienvenido');
           localStorage.setItem('token', token);
           localStorage.setItem('userId', userId); 
-          console.log(response.id);
           localStorage.setItem('role', role); // Guarda el rol en el localStorage
           this.router.navigate(['/horas']);
         },
