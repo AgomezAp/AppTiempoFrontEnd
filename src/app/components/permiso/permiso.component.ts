@@ -10,10 +10,11 @@ import { ToastrService } from 'ngx-toastr';
 
 import { PermisosService } from '../../services/permisos.service';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
+import { NavbarComponent } from '../navbar/navbar.component';
 
 @Component({
   selector: 'app-permiso',
-  imports: [CommonModule,FormsModule,SpinnerComponent],
+  imports: [CommonModule,FormsModule,SpinnerComponent,NavbarComponent],
   templateUrl: './permiso.component.html',
   styleUrl: './permiso.component.css'
 })
