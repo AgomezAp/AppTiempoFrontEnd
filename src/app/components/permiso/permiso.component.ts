@@ -14,9 +14,9 @@ import { NavbarComponent } from '../navbar/navbar.component';
 
 @Component({
   selector: 'app-permiso',
-  imports: [CommonModule,FormsModule,SpinnerComponent,NavbarComponent],
+  imports: [CommonModule, FormsModule, SpinnerComponent, NavbarComponent],
   templateUrl: './permiso.component.html',
-  styleUrl: './permiso.component.css'
+  styleUrl: './permiso.component.css',
 })
 export class PermisoComponent {
   permiso: any = {
@@ -32,7 +32,7 @@ export class PermisoComponent {
     numeroDocumento: '',
     horaSalida: '',
     horaRegreso: '',
-    observaciones: ''
+    observaciones: '',
   };
   loading: boolean = false;
   tiposPermiso: string[] = [
@@ -50,7 +50,7 @@ export class PermisoComponent {
     'Jurado de votación',
     'Incapacidad laboral',
     'Urgencia médica',
-    'Vacaciones'
+    'Vacaciones',
   ];
   selectedFile: File | null = null;
   today: string;
@@ -82,7 +82,6 @@ export class PermisoComponent {
     }
 
     this.permisoService.createPermiso(formData).subscribe({
-      
       next: (response: any) => {
         this.loading = false;
         this.toastr.success('Permiso creado con éxito', 'Éxito');
@@ -90,7 +89,7 @@ export class PermisoComponent {
       },
       error: (error: any) => {
         this.toastr.error('Error al crear el permiso', 'Error');
-      }
+      },
     });
   }
   cancel() {
