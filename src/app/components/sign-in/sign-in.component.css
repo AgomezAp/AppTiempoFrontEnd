@@ -93,3 +93,15 @@ body {
 .register-container select option {
     color: #999; /* Color del texto del placeholder */
 }
+.flex-container {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .flex-item {
+    flex: 1;
+  }
+  
+  .form-group {
+    margin-bottom: 0px;
+  }

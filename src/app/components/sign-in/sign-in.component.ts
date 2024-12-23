@@ -9,8 +9,10 @@ import { Router } from '@angular/router';
 
 import { ToastrService } from 'ngx-toastr';
 
+import { Area } from '../../interfaces/area';
 import { Role } from '../../interfaces/role';
 import { User } from '../../interfaces/user';
+import { AreaService } from '../../services/area.service';
 import { ErrorsService } from '../../services/errors.service';
 import { RoleService } from '../../services/role.service';
 import { UserService } from '../../services/user.service';
@@ -23,32 +25,39 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
   styleUrl: './sign-in.component.css',
 })
 export class SignInComponent implements OnInit {
-  roleList: Role [] = []
+  roleList: Role [] = [];
+  areaList: Area [] = [];
   name: string = '';
   lastName: string = '';
   email: string = '';
   password: string = '';
   repeatPassword: string = '';
   Rid: number |undefined;
+  Aid: number |undefined;
   loading: boolean = false;
   constructor(
     private toastr: ToastrService,
     private userService: UserService,
     private router: Router,
     private errorService : ErrorsService,
-    private rolService :RoleService
+    private rolService :RoleService,
+    private areaService :AreaService
   ) {}
 
   getRole(){
     this.rolService.getRoleS().subscribe(data=>{
       this.roleList = data
-      console.log(data)
+    })
+    
+  }
+  getArea(){
+    this.areaService.GetArea().subscribe(data=>{
+      this.areaList = data
     })
   }
 
-
   ngOnInit(): void {
-
+    this.getArea()
     this.getRole()
   }
   agregarUsuario() {
@@ -75,7 +84,8 @@ export class SignInComponent implements OnInit {
       lastName: this.lastName,
       email: this.email,
       password: this.password,
-      Rid:this.Rid 
+      Rid:this.Rid,
+      Aid:this.Aid
     };
     this.loading = true;
     this.userService.signIn(user).subscribe({
