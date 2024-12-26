@@ -1,29 +1,21 @@
-body {
+/* Contenedor principal para centrar el formulario */
+.add-product-container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  height: 100vh;
-  margin: 0;
-  background-color: #f9f9f9;
+  align-items: center;
+  height: 100vh; /* Altura completa de la pantalla */
+  background-color: #f8f9fa; /* Color de fondo claro */
 }
 
-.logo-container {
-  margin-bottom: 20px;
-}
-
-.logo-container img {
-  width: 150px;
-}
-
+/* Estilos para el formulario */
 .add-product-form {
-  max-width: 400px;
+  background-color: #ffffff;
+  padding: 20px 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   width: 100%;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  position: relative; /* Necesario para posicionar el spinner */
 }
 
 .add-product-form h2 {
@@ -42,8 +34,10 @@ body {
 
 .form-group input {
   width: 100%;
-  padding: 8px;
+  padding: 10px;
   box-sizing: border-box;
+  border: 1px solid #dddddd;
+  border-radius: 5px;
 }
 
 .button-group {
@@ -53,4 +47,15 @@ body {
 
 .btn {
   width: 48%;
+}
+
+/* Estilos para centrar el spinner */
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  bottom: -40px; /* Ajusta este valor según sea necesario */
+  left: 50%;
+  transform: translateX(-50%);
 }

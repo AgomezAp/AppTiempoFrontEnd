@@ -9,10 +9,11 @@ import {
 import { ToastrService } from 'ngx-toastr';
 
 import { UserService } from '../../services/user.service';
+import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'app-reset-password',
-  imports: [CommonModule,FormsModule,RouterLink],
+  imports: [CommonModule,FormsModule,RouterLink,SpinnerComponent],
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.css'
 })
@@ -33,12 +34,12 @@ export class ResetPasswordComponent {
     this.loading = true;
     this.userService.resetPassword({ email: this.email, newPassword: this.newPassword }).subscribe({
       next: () => {
-        this.loading = false;
+        this.loading = true;
         this.toastr.success('Contraseña restablecida con éxito', 'Éxito');
         this.router.navigate(['/logIn']);
       },
       error: (error) => {
-        this.loading = false;
+        this.loading = true;
         if (error.status === 404) {
           this.toastr.error('El correo electrónico no existe', 'Error');
         } else {

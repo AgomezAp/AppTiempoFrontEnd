@@ -1,26 +1,30 @@
-<div class="add-product-form">
-  <h2>Agregar Producto</h2>
-  <form (ngSubmit)="addProduct()">
-    <div class="form-group">
-      <label for="name">Nombre:</label>
-      <input type="text" id="name" [(ngModel)]="newProduct.name" name="name" class="form-control" required>
+<div class="add-product-container">
+  <div class="add-product-form">
+    <h2>Agregar Producto</h2>
+    <form (ngSubmit)="addProduct()">
+      <div class="form-group">
+        <label for="name">Nombre:</label>
+        <input type="text" id="name" [(ngModel)]="newProduct.name" name="name" class="form-control" required>
+      </div>
+      <div class="form-group">
+        <label for="brand">Marca:</label>
+        <input type="text" id="brand" [(ngModel)]="newProduct.brand" name="brand" class="form-control" required>
+      </div>
+      <div class="form-group">
+        <label for="category">Categoría:</label>
+        <input type="text" id="category" [(ngModel)]="newProduct.category" name="category" class="form-control" required>
+      </div>
+      <div class="form-group">
+        <label for="quantity">Cantidad:</label>
+        <input type="number" id="quantity" [(ngModel)]="newProduct.quantity" name="quantity" class="form-control" required>
+      </div>
+      <div class="button-group">
+        <button type="button" class="btn btn-secondary" (click)="cancel()">Cancelar</button>
+        <button type="submit" class="btn btn-success">Agregar</button>
+      </div>
+    </form>
+    <div class="spinner-container" *ngIf="loading">
+      <app-spinner></app-spinner>
     </div>
-    <div class="form-group">
-      <label for="brand">Marca:</label>
-      <input type="text" id="brand" [(ngModel)]="newProduct.brand" name="brand" class="form-control" required>
-    </div>
-    <div class="form-group">
-      <label for="category">Categoría:</label>
-      <input type="text" id="category" [(ngModel)]="newProduct.category" name="category" class="form-control" required>
-    </div>
-    <div class="form-group">
-      <label for="quantity">Cantidad:</label>
-      <input type="number" id="quantity" [(ngModel)]="newProduct.quantity" name="quantity" class="form-control" required>
-    </div>
-    <div class="button-group">
-      <button type="button" class="btn btn-secondary" (click)="cancel()">Cancelar</button>
-      <button type="submit" class="btn btn-success">Agregar</button>
-    </div>
-  </form>
-  <app-spinner *ngIf="loading"></app-spinner>
+  </div>
 </div>
