@@ -25,7 +25,6 @@ export class EditProductComponent implements OnInit {
     name: '',
     brand: '',
     category: '',
-    price: 0,
     quantity: 0
   };
   loading: boolean = false;
