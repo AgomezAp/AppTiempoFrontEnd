@@ -2,7 +2,10 @@ import {
   CommonModule,
   Location,
 } from '@angular/common';
-import { Component } from '@angular/core';
+import {
+  Component,
+  OnInit,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -18,7 +21,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
   templateUrl: './permiso.component.html',
   styleUrl: './permiso.component.css',
 })
-export class PermisoComponent {
+export class PermisoComponent implements OnInit {
   permiso: any = {
     tipo: '',
     descripcion: '',
@@ -34,6 +37,13 @@ export class PermisoComponent {
     horaRegreso: '',
     observaciones: '',
   };
+  ngOnInit(): void {
+    // Obtener el correo del líder desde localStorage
+    const correoLider = localStorage.getItem('correoLider');
+    if (correoLider) {
+      this.permiso.emailLider = correoLider;
+    }
+  }
   loading: boolean = false;
   tiposPermiso: string[] = [
     'Permiso personal de todo el día',

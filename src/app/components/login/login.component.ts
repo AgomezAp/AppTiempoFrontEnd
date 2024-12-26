@@ -42,9 +42,11 @@ export class LoginComponent {
           const role = response.role;
           const userId = response.userId;
           const Aid = response.Aid;
+          const correoLider = response.correoLider;
           this.loading = false;
           this.toastr.success('', 'Bienvenido');
           localStorage.setItem('token', token);
+          localStorage.setItem('correoLider', correoLider);
           localStorage.setItem('userId', userId); 
           localStorage.setItem('Aid', Aid);
           console.log(response.id);
