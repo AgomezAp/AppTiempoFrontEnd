@@ -24,7 +24,7 @@ bootstrapApplication(AppComponent, {
     provideCharts(withDefaultRegisterables()),  // Agrega el proveedor de gráficos
     provideHttpClient(withInterceptors([tokenInterceptor])),   // Agrega el proveedor de animaciones
     provideToastr({
-      timeOut: 5000,
+      timeOut: 1200,
       positionClass: 'toast-top-right',
       preventDuplicates: true,
     }),          // Agrega el proveedor de Toastr
