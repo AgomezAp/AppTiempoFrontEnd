@@ -10,12 +10,12 @@ import { Hora } from '../interfaces/hora';
   providedIn: 'root'
 })
 export class HoraService {
-  private appUrl: string;
-  private apiUrl: string;
+  private appUrl : string;
+  private apiUrl : string;
 
   constructor(private http: HttpClient) {
-    this.appUrl = environment.apiHoras;
-    this.apiUrl = 'api/horas';
+        this.appUrl= environment.apiUrl
+        this.apiUrl = 'api/product'
   }
 
   getHoras(): Observable<Hora[]> {

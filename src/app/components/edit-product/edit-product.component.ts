@@ -9,7 +9,10 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { firstValueFrom } from 'rxjs';
 
-import { Product } from '../../interfaces/product';
+import {
+  Product,
+  ProductEstado,
+} from '../../interfaces/product';
 import { ProductService } from '../../services/product.service';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 
@@ -25,8 +28,10 @@ export class EditProductComponent implements OnInit {
     name: '',
     brand: '',
     category: '',
+    estado: ProductEstado.Excelente,
     quantity: 0
   };
+  estados = Object.values(ProductEstado);
   loading: boolean = false;
   constructor(
     private productService: ProductService,

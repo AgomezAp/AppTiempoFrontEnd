@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import * as QRCode from 'qrcode';
 
+import { ProductEstado } from '../../interfaces/product';
 import { ProductService } from '../../services/product.service';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 
@@ -20,9 +21,10 @@ export class AddProductComponent  {
     name: '',
     brand: '',
     category: '',
-    price: null,
+    estado: ProductEstado.Excelente,
     quantity: null
   };
+  estados = Object.values(ProductEstado);
   loading: boolean = false;
   constructor(
     private productService: ProductService,
@@ -38,6 +40,7 @@ export class AddProductComponent  {
       brand: this.newProduct.brand,
       category: this.newProduct.category,
       price: this.newProduct.price,
+      estado: this.newProduct.estado,
       quantity: this.newProduct.quantity
     };
 
