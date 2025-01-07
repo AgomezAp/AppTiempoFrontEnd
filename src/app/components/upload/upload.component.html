@@ -1,11 +1,14 @@
 <app-navbar></app-navbar>
 <div class="upload-xml-container">
     <h2>Subir Archivo XML</h2>
-    <form (ngSubmit)="onSubmit()">
+    <form >
       <div class="form-group">
         <label for="file">Seleccionar archivo XML</label>
         <input type="file" id="file" (change)="onFileSelected($event)" class="form-control" accept=".xml" required>
       </div>
-      <button type="submit" class="btn btn-primary" [disabled]="!selectedFile">Subir</button>
+      <button type="button" class="btn btn-primary" [disabled]="!selectedFile" (click)="onSubmit($event)">Subir</button>
     </form>
+    <div *ngIf="progress > 0">
+      <p>Progreso: {{ progress }}%</p>
+    </div>
 </div>

@@ -2,9 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment.development';
 import { Hora } from '../interfaces/hora';
+import { response } from 'express';
 
 @Injectable({
   providedIn: 'root'
@@ -19,15 +21,28 @@ export class HoraService {
   }
 
   getHoras(): Observable<Hora[]> {
-    return this.http.get<Hora[]>(`${this.appUrl}${this.apiUrl}`);
+    return this.http.get<Hora[]>(`${this.appUrl}${this.apiUrl}/ObtenerHorario`);
   }
-  updateHoraSalida( id:number, hora: Hora): Observable<Hora> {
-    return this.http.patch<Hora>(`${this.appUrl}${this.apiUrl}/actualizar/${id}`, hora);
+  
+  getHorarioById(ID:number):Observable<Hora[]>{
+    return this.http.get<Hora[]>(`${this.appUrl}${this.apiUrl}/ObtenerHorario/${ID}`).pipe(
+      map((response: any) => {
+        return Array.isArray(response) ? response : [response];
+      })
+    );
   }
-  getHorarioById(id:number):Observable<Hora>{
-    return this.http.get<Hora>(`${this.appUrl}${this.apiUrl}/obtener/${id}`)
+  getHorarioByFecha(Fecha:string):Observable<Hora[]>{
+    return this.http.get<Hora[]>(`${this.appUrl}${this.apiUrl}/Obtener/${Fecha}`).pipe(
+      map((response: any) => {
+        return Array.isArray(response) ? response : [response];
+      })
+    );
   }
-  guardarDatos(hora:Hora):Observable<Hora>{
-    return this.http.post<Hora>(`${this.appUrl}${this.apiUrl}/register`, hora)
+
+  getRegistro(id: number, fecha: string): Observable<Hora> {
+    return this.http.get<Hora>(`${this.appUrl}${this.apiUrl}/ObtenerHorario/${id}/${fecha}`);
+  } 
+  updateSalida(id: number, fecha: string, salida: string): Observable<any> {
+    return this.http.put(`${this.appUrl}${this.apiUrl}/ActualizarSalida`, { id, fecha, salida });
   }
 }

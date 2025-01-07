@@ -29,6 +29,7 @@ import {
 import { SignInComponent } from './components/sign-in/sign-in.component';
 import { UploadComponent } from './components/upload/upload.component';
 import { tRolGuard } from './utils/t-rol.guard';
+import { EditSalidaComponent } from './components/edit-salida/edit-salida.component';
 
 export const routes: Routes = [
   {
@@ -54,6 +55,15 @@ export const routes: Routes = [
   },
   {
     path: 'horas', component: HorasComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia'] } 
+  },
+  {
+    path: 'horas/:id', component: HorasComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia'] } 
+  },
+  {
+    path: 'horas/:fecha', component: HorasComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia'] } 
+  },
+  {
+    path: 'editar-salida/:id/:fecha', component: EditSalidaComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia'] }
   },
   {
     path: 'access-denied', component: AccesDeniedComponent,canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia'] }  // Página de acceso denegado

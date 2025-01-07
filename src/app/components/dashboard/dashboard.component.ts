@@ -6,7 +6,7 @@ import { ProductComponent } from './product/product.component';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [NavbarComponent,ProductComponent,HorasComponent],
+  imports: [NavbarComponent,ProductComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
