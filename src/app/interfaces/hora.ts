@@ -7,3 +7,19 @@ export interface Hora {
     Fecha: string;
     Extra: string;
   }
+
+  export interface Extra {
+    unique_key?: number;
+    ID: number;
+    Name: string;
+    Acumulado: string;
+  }
+
+export interface Novedad {
+  unique_key?: number;
+  ID: number;
+  Name: string;
+  type: string;
+  description: string;
+  Fecha: string;
+}

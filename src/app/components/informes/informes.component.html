@@ -1,0 +1,27 @@
+<app-navbar></app-navbar>
+<div class="body-container">
+    <div class="logo-container">
+        <img src="/LogoAP.png" alt="Logo de Andrés Publicidad">
+    </div>
+    <div class="informes-container">
+        <h2>Informes</h2>
+        <form>
+            <div class="form-group">
+                <label for="id">Id</label>
+                <input type="number" id="id" name="id" required [(ngModel)]="id">
+            </div>
+            <div class="form-group">
+                <label for="startDate">Fecha de Inicio:</label>
+                <input type="date" id="startDate" name="startDate" required [(ngModel)]="startDate">
+            </div>
+            <div class="form-group">
+                <label for="endDate">Fecha de Fin:</label>
+                <input type="date" id="endDate" name="endDate" required [(ngModel)]="endDate">
+            </div>
+            <div class="button-group">
+                <!-- <button type="submit" class="btn btn-primary" (click)="informePersonal()">Crear Informe</button> -->
+                <button type="button" class="btn btn-secondary">Descargar Informe</button>
+            </div>
+        </form>
+    </div>
+</div>

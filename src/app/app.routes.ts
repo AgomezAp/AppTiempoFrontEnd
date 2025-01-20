@@ -30,7 +30,9 @@ import { SignInComponent } from './components/sign-in/sign-in.component';
 import { UploadComponent } from './components/upload/upload.component';
 import { tRolGuard } from './utils/t-rol.guard';
 import { EditSalidaComponent } from './components/edit-salida/edit-salida.component';
-
+import { InformesComponent } from './components/informes/informes.component';
+import { NovedadesComponent } from './components/novedades/novedades.component';
+import { VerNovedadComponent } from './components/ver-novedad/ver-novedad.component'
 export const routes: Routes = [
   {
     path: '', component: LoginComponent
@@ -64,6 +66,18 @@ export const routes: Routes = [
   },
   {
     path: 'editar-salida/:id/:fecha', component: EditSalidaComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia'] }
+  },
+  {
+    path: 'editar-entrada/:id/:fecha', component: EditSalidaComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'User', 'Tecnologia']}
+  },
+  {
+    path: 'informes', component: InformesComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia'] }
+  },
+  {
+    path: 'crearNovedad', component: NovedadesComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia']}
+  },
+  {
+    path: 'verNovedad', component: VerNovedadComponent, canActivate: [tRolGuard], data: {allowedRoles: ['Admin', 'User', 'Tecnologia']}
   },
   {
     path: 'access-denied', component: AccesDeniedComponent,canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia'] }  // Página de acceso denegado

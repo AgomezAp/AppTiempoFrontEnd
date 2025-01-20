@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment.development';
-import { Hora } from '../interfaces/hora';
+import { Hora, Extra} from '../interfaces/hora';
 import { response } from 'express';
 
 @Injectable({
@@ -45,4 +45,25 @@ export class HoraService {
   updateSalida(id: number, fecha: string, salida: string): Observable<any> {
     return this.http.put(`${this.appUrl}${this.apiUrl}/ActualizarSalida`, { id, fecha, salida });
   }
+
+  updateEntrada(id: number, fecha: string, entrada: string): Observable<any> {
+    return this.http.put(`${this.appUrl}${this.apiUrl}/ActualizarEntrada`, { id, fecha, entrada });
+  }
+
+  getExtra(): Observable<Extra> {
+    return this.http.get<Extra>(`${this.appUrl}${this.apiUrl}/ObtenerExtra`);
+  }
+
+  getExtraById(id: number): Observable<Extra[]> {
+    return this.http.get<Extra>(`${this.appUrl}${this.apiUrl}/ObtenerExtra/${id}`).pipe(
+      map((response: any) => {
+        return Array.isArray(response) ? response : [response];
+      })
+    );
+  }
+
+  informePersonal(id: number, entrada: string, salida: string){
+    return this.http.post<Hora>(`${this.appUrl}${this.apiUrl}/informePersonal`, { id, entrada, salida }, { responseType: 'blob' as 'json' });
+  }
+
 }

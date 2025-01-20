@@ -1,22 +1,49 @@
 <app-navbar></app-navbar>
 <div *ngIf="!loading" class="horas-dashboard">
     <h1>{{ showList ? 'Registro de Horas' : 'Horarios por ID'}}</h1>
+    <div class="filters">
+      <button (click)="toggleDateWeek()">{{ showDateRange ? 'Semana' : 'Fecha' }}</button>
+      <button *ngIf="!showList" >Extras</button>
+      <div *ngIf="showDateRange">
+        <label for="startDate">Fecha Inicio: </label>
+        <input id="startDate" [(ngModel)]="startDate" (change)="filterByDataRange()" type="date">
+
+        <label for="endDate">Fecha Fin: </label>
+        <input id="endDate" [(ngModel)]="endDate" (change)="filterByDataRange()" type="date">
+      </div>
+      <div *ngIf="!showDateRange">
+        <label for="week">Semana: </label>
+        <input id="week" [(ngModel)]="week" (change)="filterByWeek()" type="week">
+      </div>
+      <div *ngIf="showList"> 
+        <label for="name">Nombre: </label>
+        <input id="name" [(ngModel)]="filterName" (input)="filterdByName()" type="text">  
+      </div>
+    </div>
     <div class="table-container">
       <div class="table-responsive">
         <table class="table table-bordered">
           <thead>
             <tr>
-              <th scope="col">Id</th>
+              <th scope="col">Id
+                <button class="btn btn-outline-dark" *ngIf="sortOrder !== 'asc' && sortOrder !== 'desc'" (click)="sortHoursID('asc')">↑</button>
+                <button class="btn btn-outline-dark" *ngIf="sortOrder === 'asc'" (click)="sortHoursID('desc')">↓</button>
+                <button class="btn btn-outline-dark" *ngIf="sortOrder === 'desc'" (click)="sortHoursID('')">↔</button>  
+              </th>
               <th scope="col">Nombre</th>
               <th scope="col">Entrada</th>
               <th scope="col">Salida</th>
-              <th scope="col">Fecha</th>
+              <th scope="col">Fecha
+                <button class="btn btn-outline-dark" *ngIf="sortOrder !== 'asc' && sortOrder !== 'desc'" (click)="sortHours('asc')">↑</button>
+                <button class="btn btn-outline-dark" *ngIf="sortOrder === 'asc'" (click)="sortHours('desc')">↓</button>
+                <button class="btn btn-outline-dark" *ngIf="sortOrder === 'desc'" (click)="sortHours('')">↔</button> 
+              </th>
               <th scope="col">Extras</th>
               <th scope="col">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let item of listHoras">
+            <tr *ngFor="let item of filteredHoras">
               <th scope="row">{{item.ID}}</th>
               <td>{{item.Name}}</td>
               <td>{{item.Entrada}}</td>
@@ -24,7 +51,8 @@
               <td>{{item.Fecha}}</td>
               <td>{{item.Extra}}</td>
               <td>
-                <button class="btn btn-warning action-button"  (click)="navigateToEditSalida(item.ID, item.Fecha)">Modificar</button>
+                <button class="btn btn-warning action-button"  (click)="navigateToEditEntrada(item.ID, item.Fecha)">Entrada</button>
+                <button class="btn btn-warning action-button"  (click)="navigateToEditSalida(item.ID, item.Fecha)">Salida</button>
               </td>
             </tr>
           </tbody>

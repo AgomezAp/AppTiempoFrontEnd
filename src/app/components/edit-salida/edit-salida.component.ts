@@ -9,10 +9,11 @@ import { ToastrService } from 'ngx-toastr';
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { response } from 'express';
+import { NavbarComponent } from '../navbar/navbar.component';
 
 @Component({
   selector: 'app-edit-salida',
-  imports	: [ FormsModule, CommonModule],
+  imports	: [ FormsModule, CommonModule, NavbarComponent],
   templateUrl: './edit-salida.component.html',
   styleUrls: ['./edit-salida.component.css']
 })
@@ -27,7 +28,7 @@ export class EditSalidaComponent implements OnInit {
     Extra: ''
   };
   loading: boolean = false;
-
+  showlist: boolean = false;
   constructor(
     private route: Router,
     private horaService: HoraService,
@@ -39,7 +40,7 @@ export class EditSalidaComponent implements OnInit {
     
     const id = localStorage.getItem('horaId');
     const fecha = localStorage.getItem('horaFecha')
-
+    this.showlist = true;
     if (id && fecha) {
       try {
         const response = await firstValueFrom(this.horaService.getRegistro(+id, fecha));
