@@ -1,6 +1,6 @@
 export interface Hora {
     unique_key?: number;
-    ID: number;
+    Hid: number;
     Name: string;
     Entrada: string;
     Salida: string;
@@ -17,9 +17,13 @@ export interface Hora {
 
 export interface Novedad {
   unique_key?: number;
-  ID: number;
+  Nid: number;
   Name: string;
   type: string;
-  description: string;
   Fecha: string;
+  HoraEntrada: string;
+  HoraSalida: string;
+  description: string;
+  horas: string;
+  aceptacion: boolean;
 }

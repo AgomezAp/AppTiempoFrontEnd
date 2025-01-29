@@ -14,17 +14,21 @@
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 8px;
-    margin-top:50px;
+    margin-top: 30px;
     background-color: #f9f9f9;
 }
 
 .informes-container h2 {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+}
+.informes-container h5 {
+    text-align: center;
+    margin-bottom: 10px;
 }
 .logo-container {
     margin-bottom: 0px;
-    margin-top: 30px;
+    margin-top: 80px;
 }
   
 .logo-container img {
@@ -53,4 +57,21 @@
 
 .btn {
     width: 50%;
+}
+
+.tipo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.button-tipo {
+    margin-right: 10px;
+    margin-bottom: 10px;
+    padding: 5px 10px;
+    background-color: #007bff;
+    cursor: pointer;
+}
+.button-tipo:hover {
+    background-color: #0056b3;
 }

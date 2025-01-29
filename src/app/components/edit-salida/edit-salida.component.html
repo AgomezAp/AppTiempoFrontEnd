@@ -6,17 +6,17 @@
     <div class="edit-hora-form">
         <h2>{{ showlist ? 'Modificar Entrada' : 'Modificar Salida'}}</h2>
         <form *ngIf="editingSalida" (ngSubmit)="updateSalida()">
-            <div class="form-group">
+            <!-- <div class="form-group">
                 <label for="id">ID</label>
                 <input type="number" id="id" [(ngModel)]="editingSalida.ID" name="ID" readonly />
-            </div>
+            </div> -->
             <div class="form-group">
                 <label for="name">Nombre</label>
                 <input type="text" id="name" [(ngModel)]="editingSalida.Name" name="Name" readonly />
             </div>
             <div class="form-group">
                 <label for="entrada">Entrada</label>
-                <input type="text" id="entrada" [(ngModel)]="editingSalida.Entrada" name="Entrada" readonly />
+                <input type="time" id="entrada" [(ngModel)]="editingSalida.Entrada" name="Entrada" required />
             </div>
             <div class="form-group">
                 <label for="fecha">Fecha</label>

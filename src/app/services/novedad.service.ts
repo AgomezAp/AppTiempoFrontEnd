@@ -11,11 +11,11 @@ export class NovedadService {
   private apiUrl: string;
   constructor(private http:HttpClient) {
     this.appUrl = environment.apiUrl
-    this.apiUrl = 'api/horario'
+    this.apiUrl = 'api/novedad'
   }
 
-  createNovedad(novedad:Novedad):Observable<Novedad>{
-    return this.http.post<Novedad>(`${this.appUrl}${this.apiUrl}/NuevaNovedad`, novedad)
+  createNovedad():Observable<Novedad>{
+    return this.http.post<Novedad>(`${this.appUrl}${this.apiUrl}/NuevaNovedad`, {})
   }
   verNovedad(): Observable<Novedad[]>{
     return this.http.get<Novedad[]>(`${this.appUrl}${this.apiUrl}/ObtenerNovedad`)

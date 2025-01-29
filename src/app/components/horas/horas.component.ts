@@ -99,10 +99,9 @@ export class HorasComponent implements OnInit {
     localStorage.setItem('horaFecha', fecha);
     this.router.navigate(['/editar-salida', id, fecha]);
   }
-  navigateToEditEntrada(id: number, fecha: string): void {
-    localStorage.setItem('horaId', id.toString());
-    localStorage.setItem('horaFecha', fecha);
-    this.router.navigate(['/editar-salida', id, fecha]);
+
+  agregarRegistro(): void {
+    this.router.navigate(['/nuevoRegistro']);  
   }
   sortHoursID(order: string): void {
     this.sortOrder = order;

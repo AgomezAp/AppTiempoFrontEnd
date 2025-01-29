@@ -25,8 +25,7 @@ export class PermisoComponent implements OnInit {
   permiso: any = {
     tipo: '',
     descripcion: '',
-    fechaInicio: new Date(),
-    fechaFin: new Date(),
+    fecha: new Date(),
     horas: 0,
     Uid: parseInt(localStorage.getItem('userId') || '0', 10),
     emailPersonal: '',
@@ -34,7 +33,7 @@ export class PermisoComponent implements OnInit {
     nombre: '',
     numeroDocumento: '',
     horaSalida: '',
-    horaRegreso: '',
+    horaEntrada: '',
     observaciones: '',
   };
   ngOnInit(): void {
@@ -47,6 +46,8 @@ export class PermisoComponent implements OnInit {
   loading: boolean = false;
   tiposPermiso: string[] = [
     'Permiso personal de todo el día',
+    'Salida Temprano',
+    'Entrada luego de la jornada',
     'Llegada tarde por factores externos',
     'Cita médica',
     'Cita odontológica',
@@ -60,7 +61,9 @@ export class PermisoComponent implements OnInit {
     'Jurado de votación',
     'Incapacidad laboral',
     'Urgencia médica',
+    'Movimiento de horario',
     'Vacaciones',
+    'Horas extras (en casa, fuera de las instalaciones y viajes)'
   ];
   selectedFile: File | null = null;
   today: string;

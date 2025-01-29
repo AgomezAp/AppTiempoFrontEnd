@@ -18,7 +18,7 @@ export class NovedadesComponent {
   loading: boolean = false;
   newNovedad: any = {
     Name: '',
-    ID: 0,
+    Nid: 0,
     type: '',
     description: '',
     Fecha: ''
@@ -28,31 +28,35 @@ export class NovedadesComponent {
     private toastr: ToastrService,
     private novedadService: NovedadService) {}
 
-  addNovedad() {
-    this.loading = true;
-    const novedadData = {
-      ID: this.newNovedad.ID,
-      Name: this.newNovedad.Name,
-      type: this.newNovedad.type,
-      description: this.newNovedad.description,
-      Fecha: this.newNovedad.Fecha
-    };
-    this.novedadService.createNovedad(novedadData).subscribe({
-      next: (response) => {
-        console.log('Novedad agregada con exito', response);
-        this.loading = false;
-        this.router.navigate(['/verNovedad']);
-      },
-      error: (err) => {
-        console.error('Error al agregar novedad: front', err);
-        this.toastr.error('Error al crear la novedad completa todos los camos');
-        this.loading = false;
-      }
-    });
-  }
+  // addNovedad() {
+  //   this.loading = true;
+  //   const novedadData = {
+  //     Nid: this.newNovedad.Nid,
+  //     Name: this.newNovedad.Name,
+  //     type: this.newNovedad.type,
+  //     Fecha: this.newNovedad.Fecha,
+  //     HoraEntrada: this.newNovedad.HoraEntrada,
+  //     HoraSalida: this.newNovedad.HoraSalida,
+  //     description: this.newNovedad.description,
+  //     horas: this.newNovedad.horas,
+  //     aceptacion: this.newNovedad.aceptacion
+  //   };
+  //   this.novedadService.createNovedad(novedadData).subscribe({
+  //     next: (response) => {
+  //       console.log('Novedad agregada con exito', response);
+  //       this.loading = false;
+  //       this.router.navigate(['/verNovedad']);
+  //     },
+  //     error: (err) => {
+  //       console.error('Error al agregar novedad: front', err);
+  //       this.toastr.error('Error al crear la novedad completa todos los camos');
+  //       this.loading = false;
+  //     }
+  //   });
+  // }
   resetForm(){
     this.newNovedad = {
-      ID: '',
+      Nid: '',
       Name: '',
       type: '',
       description: '',

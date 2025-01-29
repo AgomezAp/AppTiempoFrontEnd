@@ -3,7 +3,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
 import { FormsModule } from '@angular/forms';
 import { NgModel } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NovedadService } from '../../services/novedad.service';
 import { Novedad } from '../../interfaces/hora';
 @Component({
@@ -24,11 +24,12 @@ export class VerNovedadComponent {
   constructor(
     private route : ActivatedRoute,
     private novedadService: NovedadService,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
     this.showList = true;
-    this.loadNovedad()
+    this.loadNovedad();    
   }
 
   loadNovedad(): void {
@@ -59,4 +60,17 @@ export class VerNovedadComponent {
       this.filteredNovedad = this.listNovedad
     }
   }
+
+  crearNovedad() {
+    console.log('Creando novedad');
+    this.novedadService.createNovedad().subscribe(
+      (respuesta: Novedad) => {
+        console.log('Novedad creada con exito', respuesta);
+      },
+      (error) => {
+        console.error('Error al crear novedad', error);
+      }
+    );
+  }
+
 }

@@ -1,11 +1,11 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment.development';
-import { Hora, Extra} from '../interfaces/hora';
+import { Hora, Extra, Novedad} from '../interfaces/hora';
 import { response } from 'express';
 
 @Injectable({
@@ -62,8 +62,20 @@ export class HoraService {
     );
   }
 
-  informePersonal(id: number, entrada: string, salida: string){
-    return this.http.post<Hora>(`${this.appUrl}${this.apiUrl}/informePersonal`, { id, entrada, salida }, { responseType: 'blob' as 'json' });
+  createRegistro(registro:Hora):Observable<Hora>{
+    return this.http.post<Hora>(`${this.appUrl}${this.apiUrl}/agregarRegistro`, registro);
   }
 
+  informePersonal(ID: number[], entrada: string, salida: string): Observable<Blob>{
+    const body = {
+      ID: ID,
+      startDate: entrada,
+      endDate: salida
+    };
+    return this.http.post<Blob>(`${this.appUrl}${this.apiUrl}/informePersonal`, body, { 
+      headers: new HttpHeaders({ 'Content-Type': 'application/json'}),
+      responseType: 'blob' as 'json'
+    });
+  }
+  
 }

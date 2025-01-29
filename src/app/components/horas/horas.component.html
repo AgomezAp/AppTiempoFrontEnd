@@ -1,9 +1,10 @@
 <app-navbar></app-navbar>
 <div *ngIf="!loading" class="horas-dashboard">
-    <h1>{{ showList ? 'Registro de Horas' : 'Horarios por ID'}}</h1>
+    <h1>{{ showList ? 'Registro de Horas' : 'Horarios por persona'}}</h1>
     <div class="filters">
       <button (click)="toggleDateWeek()">{{ showDateRange ? 'Semana' : 'Fecha' }}</button>
-      <button *ngIf="!showList" >Extras</button>
+      <button class="extra" *ngIf="!showList">Extras</button>
+      <button class="extra" *ngIf="showList" (click)="agregarRegistro()">+</button>
       <div *ngIf="showDateRange">
         <label for="startDate">Fecha Inicio: </label>
         <input id="startDate" [(ngModel)]="startDate" (change)="filterByDataRange()" type="date">
@@ -44,15 +45,14 @@
           </thead>
           <tbody>
             <tr *ngFor="let item of filteredHoras">
-              <th scope="row">{{item.ID}}</th>
+              <th scope="row">{{item.Hid}}</th>
               <td>{{item.Name}}</td>
               <td>{{item.Entrada}}</td>
               <td>{{item.Salida}}</td>
               <td>{{item.Fecha}}</td>
               <td>{{item.Extra}}</td>
               <td>
-                <button class="btn btn-warning action-button"  (click)="navigateToEditEntrada(item.ID, item.Fecha)">Entrada</button>
-                <button class="btn btn-warning action-button"  (click)="navigateToEditSalida(item.ID, item.Fecha)">Salida</button>
+                <button class="btn btn-warning action-button"  (click)="navigateToEditSalida(item.ID, item.Fecha)">Modificar</button>
               </td>
             </tr>
           </tbody>

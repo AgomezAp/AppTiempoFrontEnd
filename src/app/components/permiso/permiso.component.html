@@ -21,14 +21,8 @@
     <div class="row">
       <div class="col-md-6">
         <div class="form-group">
-          <label for="fechaInicio">Fecha de salida de permiso:</label>
-          <input type="date" id="fechaInicio" [(ngModel)]="permiso.fechaInicio" name="fechaInicio" class="form-control" [min]="today" required>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="form-group">
-          <label for="fechaFin">Fecha de entrada de permiso:</label>
-          <input type="date" id="fechaFin" [(ngModel)]="permiso.fechaFin" name="fechaFin" class="form-control" [min]="today" required>
+          <label for="fechaInicio">Fecha del permiso:</label>
+          <input type="date" id="fechaInicio" [(ngModel)]="permiso.fecha" name="fechaInicio" class="form-control" [min]="today" required>
         </div>
       </div>
     </div>
@@ -47,8 +41,8 @@
       </div>
       <div class="col-md-6">
         <div class="form-group">
-          <label for="horaRegreso">Hora de regreso o llegada tarde:</label>
-          <input type="time" id="horaRegreso" [(ngModel)]="permiso.horaRegreso" name="horaRegreso" class="form-control" required>
+          <label for="horaRegreso">Hora de entrada:</label>
+          <input type="time" id="horaRegreso" [(ngModel)]="permiso.horaEntrada" name="horaRegreso" class="form-control" required>
         </div>
       </div>
     </div>

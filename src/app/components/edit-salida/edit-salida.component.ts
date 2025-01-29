@@ -20,7 +20,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
 export class EditSalidaComponent implements OnInit {
   
   editingSalida: Hora = {
-    ID: 0,
+    Hid: 0,
     Name: '',
     Entrada: '',
     Salida: '',
@@ -46,7 +46,7 @@ export class EditSalidaComponent implements OnInit {
         const response = await firstValueFrom(this.horaService.getRegistro(+id, fecha));
         this.loading = false;
         this.editingSalida = {
-          ID: response.ID || +id,
+          Hid: response.Hid || +id,
           Name: response.Name || '',
           Entrada: response.Entrada || '',
           Salida: response.Salida || '',
@@ -55,7 +55,7 @@ export class EditSalidaComponent implements OnInit {
         };
         console.log('Datos recibidos del backend:', response)
         this.editingSalida = response;
-        this.editingSalida.ID = response.ID || +id;
+        this.editingSalida.Hid = response.Hid || +id;
         
       } catch (error) {
         this.loading = true;
@@ -70,7 +70,8 @@ export class EditSalidaComponent implements OnInit {
   async updateSalida(): Promise<void>{
     try {
       this.loading = true;
-      await firstValueFrom(this.horaService.updateSalida(this.editingSalida.ID, this.editingSalida.Fecha, this.editingSalida.Salida))
+      await firstValueFrom(this.horaService.updateSalida(this.editingSalida.Hid, this.editingSalida.Fecha, this.editingSalida.Salida));
+      await firstValueFrom(this.horaService.updateEntrada(this.editingSalida.Hid, this.editingSalida.Fecha, this.editingSalida.Entrada));
       this.toastr.success('Hora actualizada correctamente');
       this.route.navigate(['/horas']);
     } catch (error) {

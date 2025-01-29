@@ -33,6 +33,7 @@ import { EditSalidaComponent } from './components/edit-salida/edit-salida.compon
 import { InformesComponent } from './components/informes/informes.component';
 import { NovedadesComponent } from './components/novedades/novedades.component';
 import { VerNovedadComponent } from './components/ver-novedad/ver-novedad.component'
+import { NuevoRegistroComponent } from './components/nuevo-registro/nuevo-registro.component';
 export const routes: Routes = [
   {
     path: '', component: LoginComponent
@@ -69,6 +70,9 @@ export const routes: Routes = [
   },
   {
     path: 'editar-entrada/:id/:fecha', component: EditSalidaComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'User', 'Tecnologia']}
+  },
+  {
+    path: 'nuevoRegistro', component: NuevoRegistroComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'User', 'Tecnologia']}
   },
   {
     path: 'informes', component: InformesComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia'] }

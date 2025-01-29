@@ -10,6 +10,9 @@
             <label for="fecha">Fecha:</label>
             <input id="fecha" type="date" [(ngModel)]="fecha" (change)="filterByData()">
         </div>
+        <div>
+            <button type="button" class="btn btn-primary" (click)="crearNovedad()">Actualizar</button>
+        </div>
     </div>
     <div class="table-container">
         <div class="table-responsive">
@@ -25,7 +28,7 @@
                 </thead>
                 <tbody>
                     <tr *ngFor="let item of filteredNovedad">
-                        <th scope="row">{{item.ID}}</th>
+                        <th scope="row">{{item.Nid}}</th>
                         <td>{{item.Name}}</td>
                         <td>{{item.type}}</td>
                         <td>{{item.description}}</td>

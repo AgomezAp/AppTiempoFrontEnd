@@ -39,6 +39,7 @@
     background-color: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 5px;
+    position: relative;
   }
   
   .filters input[type="date"],
@@ -75,6 +76,13 @@
   
   .filters button:hover {
     background-color: #0056b3;
+  }
+
+  .filters .extra {
+    position: absolute;
+    top: -10;
+    right: 10px;
+    background-color: rgb(19, 150, 150);
   }
   
   /* Media query para dispositivos móviles */
