@@ -28,9 +28,9 @@ export class PermisoComponent implements OnInit {
     fecha: new Date(),
     horas: 0,
     Uid: parseInt(localStorage.getItem('userId') || '0', 10),
-    emailPersonal: '',
+    emailPersonal: localStorage.getItem('email') || '',
     emailLider: '',
-    nombre: '',
+    nombre: localStorage.getItem('name') + ' ' + localStorage.getItem('lastname'),
     numeroDocumento: '',
     horaSalida: '',
     horaEntrada: '',
@@ -65,6 +65,30 @@ export class PermisoComponent implements OnInit {
     'Vacaciones',
     'Horas extras (en casa, fuera de las instalaciones y viajes)'
   ];
+
+  permitidosSalida: string[] = [ 
+    'Salida Temprano',
+    'Cita médica',
+    'Cita odontológica',
+    'Movimiento de horario',
+    'Horas extras (en casa, fuera de las instalaciones y viajes)'
+  ];
+
+  permitidoEntrada: string[] = [
+    'Entrada luego de la jornada',
+    'Llegada tarde por factores externos',
+    'Cita médica',
+    'Cita odontológica',
+    'Movimiento de horario',
+    'Horas extras (en casa, fuera de las instalaciones y viajes)'
+  ];
+
+  mostrarSalida(): boolean {
+    return this.permitidosSalida.includes(this.permiso.tipo);
+  }
+  mostrarEntrada(): boolean {
+    return this.permitidoEntrada.includes(this.permiso.tipo);
+  }
   selectedFile: File | null = null;
   today: string;
 
@@ -98,7 +122,7 @@ export class PermisoComponent implements OnInit {
       next: (response: any) => {
         this.loading = false;
         this.toastr.success('Permiso creado con éxito', 'Éxito');
-        this.router.navigate(['/horas']); // Redirigir a la pantalla de horas
+        this.router.navigate(['/permisos']); // Redirigir a la pantalla de horas
       },
       error: (error: any) => {
         this.toastr.error('Error al crear el permiso', 'Error');

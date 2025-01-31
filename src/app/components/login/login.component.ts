@@ -12,6 +12,7 @@ import { ToastrService } from 'ngx-toastr';
 import { ErrorsService } from '../../services/errors.service';
 import { UserService } from '../../services/user.service';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
+import { response } from 'express';
 
 @Component({
   selector: 'app-login',
@@ -24,7 +25,6 @@ export class LoginComponent {
     email: string = ''
     password: string = ''
     loading: boolean = false
-
     constructor(private userService: UserService,private toastr: ToastrService,private router:Router,private errorService:ErrorsService){}
     
     logIn() {
@@ -33,24 +33,31 @@ export class LoginComponent {
         return;
       }
   
-      const user = { email: this.email, password: this.password };
+      const user = { email: this.email, password: this.password};
       this.loading = true;
-  
+      console.log("user",user);
       this.userService.logIn(user).subscribe({
         next: (response: any) => {
+          console.log(response);
           const token = response.token;
           const role = response.role;
           const userId = response.userId;
           const Aid = response.Aid;
-          const correoLider = response.correoLider;
+          const correoLider = response.correolider;
+          const email = user.email;
+          const name = response.name;
+          const lastname = response.lastname;
           this.loading = false;
           this.toastr.success('', 'Bienvenido');
           localStorage.setItem('token', token);
           localStorage.setItem('correoLider', correoLider);
           localStorage.setItem('userId', userId); 
           localStorage.setItem('Aid', Aid);
-          console.log(response.id);
+          localStorage.setItem('email', email);
+          localStorage.setItem('name', name);
+          localStorage.setItem('lastname', lastname);
           localStorage.setItem('role', role); // Guarda el rol en el localStorage
+          console.log('correolIDER', correoLider);
           this.router.navigate(['/horas']);
         },
         error: (e: HttpErrorResponse) => {

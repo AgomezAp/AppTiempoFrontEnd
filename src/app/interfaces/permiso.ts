@@ -1,8 +1,8 @@
 export interface Permiso {
     tipo: string;
     descripcion: string;
-    fechaInicio: Date;
-    fechaFin: Date;
+    fechaInicio?: string;
+    fechaFin?: string;
     horas: number;
     Uid: number;
     emailPersonal: string;

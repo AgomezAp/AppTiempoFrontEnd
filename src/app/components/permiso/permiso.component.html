@@ -4,7 +4,7 @@
   <form (ngSubmit)="createPermiso()" #permisoForm="ngForm">
     <div class="form-group">
       <label for="emailPersonal">Correo electrónico personal:</label>
-      <input type="email" id="emailPersonal" [(ngModel)]="permiso.emailPersonal" name="emailPersonal" class="form-control" required>
+      <input type="email" id="emailPersonal" [(ngModel)]="permiso.emailPersonal" name="emailPersonal" class="form-control" readonly>
     </div>
     <div class="form-group">
       <label for="emailLider">Correo electrónico del líder o directivo:</label>
@@ -12,7 +12,7 @@
     </div>
     <div class="form-group">
       <label for="nombre">Nombre:</label>
-      <input type="text" id="nombre" [(ngModel)]="permiso.nombre" name="nombre" class="form-control" required>
+      <input type="text" id="nombre" [(ngModel)]="permiso.nombre" name="nombre" class="form-control" readonly>
     </div>
     <div class="form-group">
       <label for="numeroDocumento">Número de documento:</label>
@@ -34,13 +34,13 @@
     </div>
     <div class="row">
       <div class="col-md-6">
-        <div class="form-group">
+        <div class="form-group" *ngIf="mostrarSalida()">
           <label for="horaSalida">Hora de salida:</label>
           <input type="time" id="horaSalida" [(ngModel)]="permiso.horaSalida" name="horaSalida" class="form-control" required>
         </div>
       </div>
       <div class="col-md-6">
-        <div class="form-group">
+        <div class="form-group" *ngIf="mostrarEntrada()">
           <label for="horaRegreso">Hora de entrada:</label>
           <input type="time" id="horaRegreso" [(ngModel)]="permiso.horaEntrada" name="horaRegreso" class="form-control" required>
         </div>
