@@ -122,6 +122,7 @@ export class PermisoComponent implements OnInit {
       next: (response: any) => {
         this.loading = false;
         this.toastr.success('Permiso creado con éxito', 'Éxito');
+        this.permiso;
         this.router.navigate(['/permisos']); // Redirigir a la pantalla de horas
       },
       error: (error: any) => {

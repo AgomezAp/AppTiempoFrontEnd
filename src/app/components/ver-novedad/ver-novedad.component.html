@@ -19,20 +19,30 @@
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th scope="col">ID</th>
                         <th scope="col">Nombre</th>
                         <th scope="col">Tipo</th>
-                        <th scope="col">Descripcion</th>
                         <th scope="col">Fecha</th>
+                        <th scope="col">Descripcion</th>
+                        <th scope="col">Horas</th>
+                        <th scope="col">Estado</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let item of filteredNovedad">
-                        <th scope="row">{{item.Nid}}</th>
                         <td>{{item.Name}}</td>
                         <td>{{item.type}}</td>
-                        <td>{{item.description}}</td>
                         <td>{{item.Fecha}}</td>
+                        <td>{{item.description}}</td>
+                        <td>{{item.horas}}</td>
+                        <td>
+                            <span *ngIf="item.aceptacion === true" class="btn btn-success">✔️</span>
+                            <span *ngIf="item.aceptacion === false" class="btn btn-danger">❌</span>
+                            <div *ngIf="item.aceptacion === null">
+                                <button class="btn btn-success">✔️</button>
+                                <button class="btn btn-danger">❌</button>
+                                <button class="btn btn-danger">edit</button>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>

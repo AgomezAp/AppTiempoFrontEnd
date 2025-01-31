@@ -73,4 +73,11 @@ export class VerNovedadComponent {
     );
   }
 
+  hora() {
+    
+  }
+
+  aceptacion() {
+    
+  }
 }

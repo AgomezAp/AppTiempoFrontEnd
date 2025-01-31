@@ -58,7 +58,7 @@ export class HorasComponent implements OnInit {
       this.listHoras = data;
       this.filteredHoras = data;
       this.loading = false;
-      console.log(data);
+      console.log("eseses",data);
     });
   }
 
@@ -94,10 +94,12 @@ export class HorasComponent implements OnInit {
     );
   }
 
-  navigateToEditSalida(id: number, fecha: string): void {
-    localStorage.setItem('horaId', id.toString());
+  navigateToEditSalida(Hid: number, fecha: string): void {
+    console.log('fecha', fecha);
+    console.log('Hid', Hid);
+    localStorage.setItem('horaId', Hid.toString());
     localStorage.setItem('horaFecha', fecha);
-    this.router.navigate(['/editar-salida', id, fecha]);
+    this.router.navigate(['/editar-salida', Hid, fecha]);
   }
 
   agregarRegistro(): void {
