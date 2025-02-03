@@ -33,6 +33,10 @@ export class UserService {
     return this.http.get<UResponse[]>(`${this.appUrl}${this.apiUrl}/AllUsers`);
   }
 
+  getListUser(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.appUrl}${this.apiUrl}/ListUsers`)
+  }
+
   deleteUserById(id: number): Observable<void> {
     return this.http.delete<void>(`${this.appUrl}${this.apiUrl}/delete/${id}`);
   }

@@ -3,6 +3,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { HoraService } from '../../services/hora.service';
+import { UserService } from '../../services/user.service'
 import { Router } from '@angular/router';
 import { response } from 'express';
 import { CommonModule } from '@angular/common';
@@ -22,12 +23,32 @@ export class NuevoRegistroComponent {
     Fecha: '',
     Extra: '',
   };
+  usuarios: any[] = []
   constructor(
     private router: Router,
     private toastr: ToastrService,
-     private horaService: HoraService 
+    private horaService: HoraService,
+    private userService: UserService
   ) {}
 
+  ngOnInit(){
+    this.userService.getListUser().subscribe(
+      (data: any[]) => {
+        this.usuarios = data;
+        console.log('Usuarios recibidos', this.usuarios)
+      },
+      (error) => {
+        console.log('Error al obtener los nombres', error);
+      }
+    );
+  }
+  onNombreChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const selectedUsuario = this.usuarios.find(usuario => usuario.nombre === target.value);
+      if (selectedUsuario) {
+        this.newRegistro.Hid = selectedUsuario.Uid;
+      }
+  }
   addRegistro() {
     this.loading = true;
     const registroData = {
