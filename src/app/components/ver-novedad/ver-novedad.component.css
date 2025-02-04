@@ -86,6 +86,33 @@
     color: white;
   }
   
+  .btn-secondary {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: crimson;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-secondary:hover {
+    background-color: darkred;
+  }
+
+  .aceptado {
+    color: green;
+    font-weight: bold;
+  }
+  .rechazado {
+    color: red;
+    font-weight: bold;
+  }
+  
   /* Media query para dispositivos móviles */
   @media (max-width: 768px) {
     .horas-dashboard {

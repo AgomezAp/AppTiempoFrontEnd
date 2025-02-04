@@ -35,17 +35,31 @@
                         <td>{{item.description}}</td>
                         <td>{{item.horas}}</td>
                         <td>
-                            <span *ngIf="item.aceptacion === true" class="btn btn-success">✔️</span>
-                            <span *ngIf="item.aceptacion === false" class="btn btn-danger">❌</span>
-                            <div *ngIf="item.aceptacion === null">
-                                <button class="btn btn-success">✔️</button>
-                                <button class="btn btn-danger">❌</button>
-                                <button class="btn btn-danger">edit</button>
-                            </div>
+                            <span *ngIf="item.aceptacion === null">Pendiente</span>
+                            <span *ngIf="item.aceptacion === true" class="aceptado">Aceptado</span>
+                            <span *ngIf="item.aceptacion === false" class="rechazado">Rechazado</span>
+                        </td>
+                        <!-- <td>{{item.aceptacion === null ? 'Pendiente' : (item.aceptacion ? 'Aceptada': 'Rechazada')}}</td> -->
+                        <td>
+                            <button *ngIf="item.aceptacion === null || item.aceptacion === false" (click)="editarEstado(item, true)" title="Aceptar">
+                                <i class="fas fa-check-circle"></i>
+                            </button>
+                            <button *ngIf="item.aceptacion === null || item.aceptacion === true" (click)="editarEstado(item, false)" title="Rechazar">
+                                <i class="fas fa-times-circle"></i>
+                            </button>
+                            <button *ngIf="item.aceptacion !== null" (click)="editarEstado(item, null)" title="Pendiente">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            <button title="Hora" background-color="green">
+                                <i class="fa fa-clock"></i>
+                            </button>
                         </td>
                     </tr>
                 </tbody>
             </table>
+            <div>
+                <button class="btn-secondary" (click)="enviarAceptacion()">Aceptar</button>
+            </div>
         </div>
     </div>
 </div>

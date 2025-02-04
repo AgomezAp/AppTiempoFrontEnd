@@ -20,10 +20,13 @@ export class NovedadService {
   verNovedad(): Observable<Novedad[]>{
     return this.http.get<Novedad[]>(`${this.appUrl}${this.apiUrl}/ObtenerNovedad`)
   }
-  actualizaHora(): Observable<Novedad>{
-    return this.http.put<Novedad>(`${this.appUrl}${this.apiUrl}/editarNovedadHora`, {})
+  actualizaHora(id: number, horas: string): Observable<Novedad>{
+    return this.http.put<Novedad>(`${this.appUrl}${this.apiUrl}/editarNovedadHora`, {id, horas})
   }
-  actualizaEstado(): Observable<Novedad>{
-    return this.http.put<Novedad>(`${this.appUrl}${this.apiUrl}/editarNovedadEstado`, {})
+  actualizaEstado(id: number, aceptacion: boolean| null): Observable<Novedad>{
+    return this.http.put<Novedad>(`${this.appUrl}${this.apiUrl}/editarNovedadEstado`, {id, aceptacion})
+  }
+  aceptar(): Observable<Novedad> {
+    return this.http.post<Novedad>(`${this.appUrl}${this.apiUrl}/aceptacion` ,{})
   }
 }

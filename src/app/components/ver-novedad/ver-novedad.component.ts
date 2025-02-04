@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NovedadService } from '../../services/novedad.service';
 import { Novedad } from '../../interfaces/hora';
+import { response } from 'express';
 @Component({
   selector: 'app-ver-novedad',
   imports: [NavbarComponent, FormsModule, CommonModule],
@@ -19,6 +20,8 @@ export class VerNovedadComponent {
   showList: boolean = true;
   filterName: string = '';
   fecha: string = '';
+  horas: string = '';
+  id: number = 0;
 
 
   constructor(
@@ -73,11 +76,37 @@ export class VerNovedadComponent {
     );
   }
 
-  hora() {
-    
+  editarHora(novedad: any, hora: string) {
+    this.novedadService.actualizaHora(novedad.id, hora).subscribe({
+      next: () => {
+        novedad.hora = hora;
+      },
+      error: (err) => {
+        console.error('Error al actualizara', err);
+      }
+    });
   }
 
-  aceptacion() {
-    
+  editarEstado(novedad: any, aceptacion: boolean | null) {
+    this.novedadService.actualizaEstado(novedad.id, aceptacion).subscribe({
+      next: () => {
+        novedad.aceptacion = aceptacion;
+      },
+      error: (err) => {
+        console.error('Error al actualizara', err);
+      }
+    });
+  }
+
+  enviarAceptacion() {
+    const datos = { /* Replace with actual data */ };
+    this.novedadService.aceptar().subscribe(
+      (respuesta: any) => {
+        console.log('Aceptación enviada con éxito', respuesta);
+      },
+      (error) => {
+        console.error('Error al enviar aceptación', error);
+      }
+    );
   }
 }
