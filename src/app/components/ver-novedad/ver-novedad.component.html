@@ -33,7 +33,13 @@
                         <td>{{item.type}}</td>
                         <td>{{item.Fecha}}</td>
                         <td>{{item.description}}</td>
-                        <td>{{item.horas}}</td>
+                        <td>
+                            <div class="hora-container">
+                                <input [(ngModel)]="horasTemp[item.Nid]" [disabled]="!editandoHoras[item.Nid]" [class.editing]="editandoHoras[item.Nid]" type="text" (keypress)="validarInput($event)" placeholder="HH:mm" maxlength="5">
+                                <button [title]="editandoHoras[item.Nid] ? 'Guardar' : 'Editar'" (click)="editandoHoras[item.Nid] ? guardarHora(item) : activarEdicion(item)" class="btn-hora"><i [class]="editandoHoras[item.Nid] ? 'fas fa-save' : 'fa fa-clock'"></i></button>
+                                <button *ngIf="editandoHoras[item.Nid]" title="Cancelar" (click)="cancelarEdicion(item)" class="btn-cancelar"> <i class="fas fa-times"></i> </button>
+                            </div>
+                        </td>
                         <td>
                             <span *ngIf="item.aceptacion === null">Pendiente</span>
                             <span *ngIf="item.aceptacion === true" class="aceptado">Aceptado</span>
@@ -50,9 +56,10 @@
                             <button *ngIf="item.aceptacion !== null" (click)="editarEstado(item, null)" title="Pendiente">
                                 <i class="fas fa-undo"></i>
                             </button>
-                            <button title="Hora" background-color="green">
+                            <button title="Hora" (click)="activarEdicion(item)" *ngIf="!editandoHoras[item.Nid]">
                                 <i class="fa fa-clock"></i>
                             </button>
+                            <button title="Aceptar" (click)="guardarHora(item)" *ngIf="editandoHoras[item.Nid]"></button>
                         </td>
                     </tr>
                 </tbody>

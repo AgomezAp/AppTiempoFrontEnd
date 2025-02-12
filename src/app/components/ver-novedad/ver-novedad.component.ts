@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { NavbarComponent } from '../navbar/navbar.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NumberValueAccessor } from '@angular/forms';
 import { NgModel } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, mapToResolve, Router } from '@angular/router';
 import { NovedadService } from '../../services/novedad.service';
 import { Novedad } from '../../interfaces/hora';
 import { response } from 'express';
@@ -22,7 +22,9 @@ export class VerNovedadComponent {
   fecha: string = '';
   horas: string = '';
   id: number = 0;
-
+  editandoHoras: {[key: number]: boolean} = {};
+  horasTemp: { [key: number]: string} = {}
+  errorMesssage: {[key: number]: string}= {}
 
   constructor(
     private route : ActivatedRoute,
@@ -40,6 +42,10 @@ export class VerNovedadComponent {
     this.novedadService.verNovedad().subscribe((data: Novedad[]) => {
       this.listNovedad = data;
       this.filteredNovedad = data;
+      data.forEach(novedad => {
+        this.horasTemp[novedad.Nid] = novedad.horas;
+        this.editandoHoras[novedad.Nid] = false;
+      })
       console.log(data);
     });
   }
@@ -61,6 +67,47 @@ export class VerNovedadComponent {
       });
     } else {
       this.filteredNovedad = this.listNovedad
+    }
+  }
+
+  activarEdicion(novedad: Novedad){
+    this.filteredNovedad.forEach(item => {
+      this.editandoHoras[item.Nid] = false;
+    });
+    this.editandoHoras[novedad.Nid] = true;
+    this.horasTemp[novedad.Nid] = novedad.horas;
+  }
+
+  guardarHora(novedad: Novedad) {
+    const hora = this.horasTemp[novedad.Nid];
+    if(!this.validarHora(hora)) {
+      console.error('Formato de hora invalido');
+      return
+    }
+    this.novedadService.actualizaHora(novedad.Nid, hora).subscribe({
+      next: () => {
+        novedad.horas = hora;
+        this.editandoHoras[novedad.Nid] = false;
+      },
+      error: (err) => {
+        console.error('Error al actualizar la hora', err);
+      }
+    });
+  }
+
+  cancelarEdicion(novedad: Novedad){
+    this.editandoHoras[novedad.Nid] = false;
+  }
+
+  validarHora(hora: string): boolean {
+    const regex = /^-?\d+:(00|30)$/;
+    return regex.test(hora);
+  }
+
+  validarInput(event: KeyboardEvent) {
+    const key = event.key
+    if (!/[\d:-]/.test(key)) {
+      event.preventDefault();
     }
   }
 
@@ -91,6 +138,8 @@ export class VerNovedadComponent {
     this.novedadService.actualizaEstado(novedad.id, aceptacion).subscribe({
       next: () => {
         novedad.aceptacion = aceptacion;
+        novedad.editable = true;
+
       },
       error: (err) => {
         console.error('Error al actualizara', err);

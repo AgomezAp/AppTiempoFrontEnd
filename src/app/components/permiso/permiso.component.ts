@@ -122,7 +122,21 @@ export class PermisoComponent implements OnInit {
       next: (response: any) => {
         this.loading = false;
         this.toastr.success('Permiso creado con éxito', 'Éxito');
-        this.permiso;
+        this.permiso = {
+          tipo: '',
+          descripcion: '',
+          fecha: new Date(),
+          horas: 0,
+          Uid: parseInt(localStorage.getItem('userId') || '0', 10),
+          emailPersonal: localStorage.getItem('email') || '',
+          emailLider: localStorage.getItem('correoLider') || '',
+          nombre: localStorage.getItem('name') + ' ' + localStorage.getItem('lastname'),
+          numeroDocumento: '',
+          horaSalida: '',
+          horaEntrada: '',
+          observaciones: '',
+        };
+        this.selectedFile = null;
         this.router.navigate(['/permisos']); // Redirigir a la pantalla de horas
       },
       error: (error: any) => {
