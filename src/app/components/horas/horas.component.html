@@ -39,6 +39,7 @@
                 <button class="btn btn-outline-dark" *ngIf="sortOrder === 'asc'" (click)="sortHours('desc')">↓</button>
                 <button class="btn btn-outline-dark" *ngIf="sortOrder === 'desc'" (click)="sortHours('')">↔</button> 
               </th>
+              <th scope="col">Total</th>
               <th scope="col">Extras</th>
               <th scope="col" *ngIf="showList">Acciones</th>
             </tr>
@@ -50,6 +51,7 @@
               <td>{{item.Entrada}}</td>
               <td>{{item.Salida}}</td>
               <td>{{item.Fecha}}</td>
+              <td>{{item.Total}}</td>
               <td>{{item.Extra}}</td>
               <td>
                 <button class="btn btn-warning action-button"  (click)="navigateToEditSalida(item.Hid, item.Fecha)" *ngIf="showList">Modificar</button>

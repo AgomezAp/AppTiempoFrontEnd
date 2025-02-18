@@ -7,6 +7,7 @@ import { UserService } from '../../services/user.service'
 import { Router } from '@angular/router';
 import { response } from 'express';
 import { CommonModule } from '@angular/common';
+import { DateTime } from 'luxon';
 @Component({
   selector: 'app-nuevo-registro',
   imports: [NavbarComponent, FormsModule, CommonModule],
@@ -16,12 +17,13 @@ import { CommonModule } from '@angular/common';
 export class NuevoRegistroComponent {
   loading: boolean = false;
   newRegistro: any = {
-    Hid: 0,
+    Hid: '',
     Name: '',
     Entrada: '',
     Salida: '',
     Fecha: '',
-    Extra: '',
+    // Extra: '',
+    // Total: '',
   };
   usuarios: any[] = []
   constructor(
@@ -51,14 +53,19 @@ export class NuevoRegistroComponent {
   }
   addRegistro() {
     this.loading = true;
+    const entrada =  this.formatDate(this.newRegistro.Fecha, this.newRegistro.Entrada);
+    const salida =  this.formatDate(this.newRegistro.Fecha, this.newRegistro.Salida); 
+    console.log(salida);
     const registroData = {
-      Hid: this.newRegistro.Hid,
+      Hid: this.newRegistro.Hid.toString(),
       Name: this.newRegistro.Name,
-      Entrada: this.newRegistro.Entrada,
-      Salida: this.newRegistro.Salida,
-      Extra: this.newRegistro.Extra,
+      Entrada: entrada,
+      Salida: salida,
+      // Extra: this.newRegistro.Extra,
       Fecha: this.newRegistro.Fecha,
+      // Total: this.newRegistro.Total,
     };
+    console.log(registroData);
     this.horaService.createRegistro(registroData).subscribe({
       next: (response) => {
         console.log('Registro agregado con exito', response);
@@ -71,10 +78,13 @@ export class NuevoRegistroComponent {
         this.loading = false;
       }
     })
+    
   }
-
+  formatDate(date: string, time: string): string {
+    const dateTime = DateTime.fromISO(`${date}T${time}:00.000`, { zone: 'America/Bogota' });
+    return dateTime.toFormat("yyyy-MM-dd HH:mm:ss.SSS ' -05:00'");
+  } 
   cancelEdit() {
     this.router.navigate(['/horas']);  
-  }
-
+  }  
 }

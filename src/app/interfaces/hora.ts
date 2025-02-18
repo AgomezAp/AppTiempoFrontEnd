@@ -5,7 +5,8 @@ export interface Hora {
     Entrada: string;
     Salida: string;
     Fecha: string;
-    Extra: string;
+    Extra?: string;
+    Total?: string;
   }
 
   export interface Extra {
