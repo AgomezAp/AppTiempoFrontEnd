@@ -7,27 +7,27 @@
     <div class="informes-container">
         <h5>tipo de informe</h5>
         <div class="tipo">
-            <button class="button-tipo" type="button"><i class="fa fa-clock"></i></button>
-            <button class="button-tipo" type="button"><i class="fas fa-bell"></i></button>
-            <button class="button-tipo" type="button"><i class="fas fa-exclamation-triangle"></i></button>
+            <button class="button-tipo" type="button" (click)="seleccionarTipoInforme('personal')"><i class="fa fa-clock"></i></button>
+            <button class="button-tipo" type="button" (click)="seleccionarTipoInforme('novedad')"><i class="fas fa-bell"></i></button>
+            <button class="button-tipo" type="button" (click)="seleccionarTipoInforme('riesgo')"><i class="fas fa-exclamation-triangle"></i></button>
         </div>
-        <h2>Informes</h2>
-        <form (ngSubmit)="generarInformePersonal()">
-            <div class="form-group">
+        <h2>{{tipo.toLocaleUpperCase()}}</h2>
+        <form (ngSubmit)="generarInforme()">
+            <div class="form-group" *ngIf="tipo==='personal'">
                 <label for="id">id</label>
-                <input type="number" id="id" name="id" class="form-control" placeholder="id" [(ngModel)]="id"  required >
+                <input type="text" id="id" name="id" class="form-control" placeholder="id" [(ngModel)]="id"  required >
             </div>
             <div class="form-group">
                 <label for="startDate">Fecha de Inicio:</label>
-                <!-- <input type="date" id="startDate" name="startDate" class="form-control" placeholder="startDate" [(ngModel)]="startDate" required> -->
+                <input type="date" id="startDate" name="startDate" class="form-control" placeholder="startDate" [(ngModel)]="fechaInicial" required>
             </div>
             <div class="form-group">
                 <label for="endDate">Fecha de Fin:</label>
-                <!-- <input type="date" id="endDate" name="endDate" class="form-control" placeholder="endDate" [(ngModel)]="endDate" required> -->
+                <input type="date" id="endDate" name="endDate" class="form-control" placeholder="endDate" [(ngModel)]="fechaFinal" required>
             </div>
             <div class="button-group">
                 <button type="submit" class="btn btn-primary" [disabled]="loading">{{ loading ? 'Generando...' : 'Generar Informe'}}</button>
-                <!-- <button type="button" class="btn btn-secondary"  [disabled]="!id || !startDate || !endDate">Descargar Informe</button> -->
+                <button type="button" class="btn btn-secondary" (click)="cancelEdit()">Cancelar</button>
             </div>
         </form>
     </div>

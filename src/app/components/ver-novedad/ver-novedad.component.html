@@ -25,6 +25,7 @@
                         <th scope="col">Descripcion</th>
                         <th scope="col">Horas</th>
                         <th scope="col">Estado</th>
+                        <th scope="col">Accion</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -34,11 +35,13 @@
                         <td>{{item.Fecha}}</td>
                         <td>{{item.description}}</td>
                         <td>
-                            <div class="hora-container">
-                                <input [(ngModel)]="horasTemp[item.Nid]" [disabled]="!editandoHoras[item.Nid]" [class.editing]="editandoHoras[item.Nid]" type="text" (keypress)="validarInput($event)" placeholder="HH:mm" maxlength="5">
-                                <button [title]="editandoHoras[item.Nid] ? 'Guardar' : 'Editar'" (click)="editandoHoras[item.Nid] ? guardarHora(item) : activarEdicion(item)" class="btn-hora"><i [class]="editandoHoras[item.Nid] ? 'fas fa-save' : 'fa fa-clock'"></i></button>
-                                <button *ngIf="editandoHoras[item.Nid]" title="Cancelar" (click)="cancelarEdicion(item)" class="btn-cancelar"> <i class="fas fa-times"></i> </button>
-                            </div>
+                            <!-- <div class="hora-container">
+                                <input [(ngModel)]="horasTemp[item.Nid]" [disabled]="!editandoHoras[item.Nid]" [class.editing]="editandoHoras[item.Nid]" type="text" placeholder="HH:mm" maxlength="5">
+                                <button *ngIf="editandoHoras[item.Nid]" title="Guardar" (click)="guardarHora(item)">
+                                    <i class="fas fa-save"></i>
+                                </button>
+                            </div> -->
+                            {{item.horas}}
                         </td>
                         <td>
                             <span *ngIf="item.aceptacion === null">Pendiente</span>
@@ -56,10 +59,9 @@
                             <button *ngIf="item.aceptacion !== null" (click)="editarEstado(item, null)" title="Pendiente">
                                 <i class="fas fa-undo"></i>
                             </button>
-                            <button title="Hora" (click)="activarEdicion(item)" *ngIf="!editandoHoras[item.Nid]">
+                            <!-- <button title="Hora" (click)="activarEdicion(item)" *ngIf="!editandoHoras[item.Nid]">
                                 <i class="fa fa-clock"></i>
-                            </button>
-                            <button title="Aceptar" (click)="guardarHora(item)" *ngIf="editandoHoras[item.Nid]"></button>
+                            </button> -->
                         </td>
                     </tr>
                 </tbody>

@@ -66,14 +66,33 @@ export class HoraService {
     return this.http.post<Hora>(`${this.appUrl}${this.apiUrl}/agregarRegistro`, registro);
   }
 
-  informePersonal(ID: number[], entrada: string, salida: string): Observable<Blob>{
+  informePersonal(id: number[], fechaInicial: string, fechaFinal: string): Observable<Blob>{
     const body = {
-      ID: ID,
-      startDate: entrada,
-      endDate: salida
+      id: id,
+      fechaInicial: fechaInicial,
+      fechaFinal: fechaFinal
     };
     return this.http.post<Blob>(`${this.appUrl}${this.apiUrl}/informePersonal`, body, { 
-      headers: new HttpHeaders({ 'Content-Type': 'application/json'}),
+      responseType: 'blob' as 'json'
+    });
+  }
+
+  informeNovedad(fechaInicial: string, fechaFinal: string): Observable<Blob>{
+    const body = {
+      fechaInicial: fechaInicial,
+      fechaFinal: fechaFinal
+    };
+    return this.http.post<Blob>(`${this.appUrl}${this.apiUrl}/informeNovedad`, body, {
+      responseType: 'blob' as 'json'
+    });
+  }
+
+  informeRiesgo(fechaInicial: string, fechaFinal: string): Observable<Blob>{
+    const body = {
+      fechaInicial: fechaInicial,
+      fechaFinal: fechaFinal
+    };
+    return this.http.post<Blob>(`${this.appUrl}${this.apiUrl}/InformeRiesgo`, body, {
       responseType: 'blob' as 'json'
     });
   }

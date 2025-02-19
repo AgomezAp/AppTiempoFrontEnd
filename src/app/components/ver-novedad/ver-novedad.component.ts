@@ -22,8 +22,8 @@ export class VerNovedadComponent {
   fecha: string = '';
   horas: string = '';
   id: number = 0;
-  editandoHoras: {[key: number]: boolean} = {};
-  horasTemp: { [key: number]: string} = {}
+  editandoHoras: any = {};
+  horasTemp: any = {}
   errorMesssage: {[key: number]: string}= {}
 
   constructor(
@@ -42,10 +42,7 @@ export class VerNovedadComponent {
     this.novedadService.verNovedad().subscribe((data: Novedad[]) => {
       this.listNovedad = data;
       this.filteredNovedad = data;
-      data.forEach(novedad => {
-        this.horasTemp[novedad.Nid] = novedad.horas;
-        this.editandoHoras[novedad.Nid] = false;
-      })
+      
       console.log(data);
     });
   }
@@ -71,9 +68,6 @@ export class VerNovedadComponent {
   }
 
   activarEdicion(novedad: Novedad){
-    this.filteredNovedad.forEach(item => {
-      this.editandoHoras[item.Nid] = false;
-    });
     this.editandoHoras[novedad.Nid] = true;
     this.horasTemp[novedad.Nid] = novedad.horas;
   }
