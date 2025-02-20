@@ -50,8 +50,8 @@ export class HoraService {
     return this.http.put(`${this.appUrl}${this.apiUrl}/ActualizarEntrada`, { id, fecha, entrada });
   }
 
-  getExtra(): Observable<Extra> {
-    return this.http.get<Extra>(`${this.appUrl}${this.apiUrl}/ObtenerExtra`);
+  getExtra(): Observable<Extra[]> {
+    return this.http.get<Extra[]>(`${this.appUrl}${this.apiUrl}/ObtenerExtra`);
   }
 
   getExtraById(id: number): Observable<Extra[]> {

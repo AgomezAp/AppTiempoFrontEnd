@@ -29,19 +29,34 @@
   th {
     background-color: #f4f4f4;
   }
+  .superior {
+    display: flex;
+    justify-content: y;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
 
   .filters {
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-bottom: 20px;
+    margin-right: 25px;
     padding: 10px;
     background-color: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 5px;
     position: relative;
   }
-  
+  .extra {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
   .filters input[type="date"],
   .filters input[type="week"],
   .filters input[type="text"] {

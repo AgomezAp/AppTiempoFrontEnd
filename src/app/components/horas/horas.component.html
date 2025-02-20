@@ -1,24 +1,30 @@
 <app-navbar></app-navbar>
 <div *ngIf="!loading" class="horas-dashboard">
     <h1>{{ showList ? 'Registro de Horas' : 'Horarios por persona'}}</h1>
-    <div class="filters">
-      <button (click)="toggleDateWeek()">{{ showDateRange ? 'Semana' : 'Fecha' }}</button>
-      <button class="extra" *ngIf="!showList">Extras</button>
-      <button class="extra" *ngIf="showList" (click)="agregarRegistro()">+</button>
-      <div *ngIf="showDateRange">
-        <label for="startDate">Fecha Inicio: </label>
-        <input id="startDate" [(ngModel)]="startDate" (change)="filterByDataRange()" type="date">
+    <div class="superior">
+      <div class="filters">
+        <button (click)="toggleDateWeek()">{{ showDateRange ? 'Semana' : 'Fecha' }}</button>
+        <button class="extra" *ngIf="!showList">Extras</button>
+        <button class="extra" *ngIf="showList" (click)="agregarRegistro()">+</button>
+        <div *ngIf="showDateRange">
+          <label for="startDate">Fecha Inicio: </label>
+          <input id="startDate" [(ngModel)]="startDate" (change)="filterByDataRange()" type="date">
 
-        <label for="endDate">Fecha Fin: </label>
-        <input id="endDate" [(ngModel)]="endDate" (change)="filterByDataRange()" type="date">
+          <label for="endDate">Fecha Fin: </label>
+          <input id="endDate" [(ngModel)]="endDate" (change)="filterByDataRange()" type="date">
+        </div>
+        <div *ngIf="!showDateRange">
+          <label for="week">Semana: </label>
+          <input id="week" [(ngModel)]="week" (change)="filterByWeek()" type="week">
+        </div>
+        <div *ngIf="showList"> 
+          <label for="name">Nombre: </label>
+          <input id="name" [(ngModel)]="filterName" (input)="filterdByName()" type="text">  
+        </div>
       </div>
-      <div *ngIf="!showDateRange">
-        <label for="week">Semana: </label>
-        <input id="week" [(ngModel)]="week" (change)="filterByWeek()" type="week">
-      </div>
-      <div *ngIf="showList"> 
-        <label for="name">Nombre: </label>
-        <input id="name" [(ngModel)]="filterName" (input)="filterdByName()" type="text">  
+      <div class="extra" *ngIf="!showList">
+        <h4>Horas Extras</h4>
+        <p *ngFor="let it of filterdExtra">{{it.Name}}: {{it.Acumulado}}</p>
       </div>
     </div>
     <div class="table-container">
@@ -61,4 +67,24 @@
         </table>
       </div>
     </div>
+    <!-- <div class="table-container" *ngIf="!showList">
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Nombre</th>
+              <th scope="col">Acumulado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let it of filterdExtra">
+              <th>{{it.Sid}}</th>
+              <td>{{it.Name}}</td>
+              <td>{{it.Acumulado}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div> -->
   </div>

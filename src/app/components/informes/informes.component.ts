@@ -8,6 +8,7 @@ import { application, response } from 'express';
 import { Router } from '@angular/router';
 
 import { CommonModule } from '@angular/common';
+import { UserService } from '../../services/user.service';
 @Component({
   selector: 'app-informes',
   imports: [NavbarComponent, FormsModule, CommonModule],
@@ -21,14 +22,35 @@ export class InformesComponent {
   tipo: string = 'personal';
   loading: boolean= false;
 
+  usuarios: any[] = []
 
   constructor(
     private router: Router,
     private horaService: HoraService,
-    private toastr: ToastrService) {}
+    private toastr: ToastrService,
+    private userService: UserService) {}
 
   seleccionarTipoInforme(tipoinforme: string) {
     this.tipo = tipoinforme;
+  }
+  ngOnInit(){
+    this.userService.getListUser().subscribe(
+      (data: any[]) => {
+        this.usuarios = data;
+        console.log('Usuarios recibidos', this.usuarios)
+      },
+      (error) => {
+        console.log('Error al obtener los nombres', error);
+      }
+    );
+  }
+  onNombreChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const selectedUsuario = this.usuarios.find(usuario => usuario.nombre === target.value);
+      if (selectedUsuario) {
+        this.id = selectedUsuario.Uid;
+        console.log(this.id)
+      }
   }
   
   generarInforme() {
@@ -45,7 +67,7 @@ export class InformesComponent {
     console.log('fin',this.fechaFinal, typeof(this.fechaFinal));
     console.log('inicio',this.fechaInicial, typeof(this.fechaInicial));
     
-    if(this.id.length || this.fechaInicial || this.fechaFinal) {
+    if(!this.id || !this.fechaInicial || !this.fechaFinal) {
 
       this.toastr.error('Por favor, completa todos los campos' )
       return;

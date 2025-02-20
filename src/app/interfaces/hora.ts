@@ -10,8 +10,7 @@ export interface Hora {
   }
 
   export interface Extra {
-    unique_key?: number;
-    ID: number;
+    Sid: number;
     Name: string;
     Acumulado: string;
   }

@@ -2,9 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Hora } from '../../interfaces/hora';
+import { Extra, Hora } from '../../interfaces/hora';
 
 import { HoraService } from '../../services/hora.service';
+import * as bootstrap from 'bootstrap';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { NgxPaginationModule } from 'ngx-pagination';
 
@@ -18,7 +19,9 @@ import { NgxPaginationModule } from 'ngx-pagination';
 export class HorasComponent implements OnInit {
   hora: Hora | null = null;
   listHoras: Hora[] = [];
+  listExtra: Extra[] = [];
   filteredHoras: any[] = [];
+  filterdExtra: any[] = [];
   filterText: string = '';
   totalQuantity: number = 0;
   loading: boolean = false;
@@ -32,6 +35,7 @@ export class HorasComponent implements OnInit {
   showDateRange: boolean = true;
   startDate: string = '';
   endDate: string = '';
+  selectedItem: any = null
 
 
   constructor(
@@ -45,9 +49,11 @@ export class HorasComponent implements OnInit {
         if (!isNaN(id)) {
           this.showList = false;
           this.getHoraById(id); // Cargar detalle
+          this.getExtraById(id)
         } else {
           this.showList = true;
           this.loadHoras(); // Cargar lista
+          this.loadExtra();
         }
       });
     }
@@ -58,8 +64,16 @@ export class HorasComponent implements OnInit {
       this.listHoras = data;
       this.filteredHoras = data;
       this.loading = false;
-      console.log("eseses",data);
     });
+  }
+
+  loadExtra(): void {
+    this.loading = true
+    this.horaService.getExtra().subscribe((data: Extra[]) => {
+      this.listExtra = data;
+      this.filterdExtra = data;
+      this.loading=false;
+    })
   }
 
   getHoraById(id: number): void {
@@ -69,7 +83,20 @@ export class HorasComponent implements OnInit {
         this.listHoras = data;
         this.filteredHoras = data;
         this.loading = false;
-        console.log(data);
+      },
+      (error) => {
+        console.error('Error al obtener la hora', error);
+        this.loading = false;
+      }
+    );
+  }
+
+  getExtraById(id: number): void {
+    this.loading = true;
+    this.horaService.getExtraById(id).subscribe((dato: Extra[]) => {
+        this.listExtra = dato;
+        this.filterdExtra = dato;
+        this.loading = false;
       },
       (error) => {
         console.error('Error al obtener la hora', error);
@@ -85,7 +112,6 @@ export class HorasComponent implements OnInit {
         this.listHoras = data;
         this.filteredHoras = data;
         this.loading = false;
-        console.log(data);
       },
       (error) => {
         console.error('Error al obtener la hora', error);
@@ -95,8 +121,6 @@ export class HorasComponent implements OnInit {
   }
 
   navigateToEditSalida(Hid: number, fecha: string): void {
-    console.log('fecha', fecha);
-    console.log('Hid', Hid);
     localStorage.setItem('horaId', Hid.toString());
     localStorage.setItem('horaFecha', fecha);
     this.router.navigate(['/editar-salida', Hid, fecha]);
@@ -109,8 +133,11 @@ export class HorasComponent implements OnInit {
     this.sortOrder = order;
     if (order === 'asc') {
       this.filteredHoras.sort((a,b) => a.ID - b.ID);
+      this.filterdExtra.sort((a,b) => a.ID - b.ID)
     } else if (order === 'desc') {
       this.filteredHoras.sort((a,b) => b.ID - a.ID);
+      this.filterdExtra.sort((a,b) => b.ID - a.ID);
+
     }
   }
   sortHours(order: string): void {
@@ -171,8 +198,11 @@ export class HorasComponent implements OnInit {
   filterdByName(): void {
     if(this.filterName) {
       this.filteredHoras = this.listHoras.filter(hora => hora.Name.toLowerCase().includes(this.filterName.toLowerCase()));
+      this.filterdExtra = this.listExtra.filter(hora => hora.Name.toLowerCase().includes(this.filterName.toLowerCase()));
+
     } else {
       this.filteredHoras = this.listHoras
+      this.filterdExtra = this.listExtra
     }
   }
 
