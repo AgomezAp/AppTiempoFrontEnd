@@ -13,15 +13,21 @@
         </div>
         <h2>{{tipo.toLocaleUpperCase()}}</h2>
         <form (ngSubmit)="generarInforme()">
-            <div class="form-group" *ngIf="tipo==='personal'">
+            <div class="form-group" *ngIf="tipo==='personal'" style="display: none;">
                 <label for="id">id</label>
-                <input type="text" id="id" name="id" class="form-control" placeholder="id" [(ngModel)]="id"  required >
+                <input type="text" id="id" name="id" class="form-control" placeholder="id" [(ngModel)]="id"  required readonly >
             </div>
             <div class="form-group" *ngIf="tipo==='personal'">
                 <label for="name">Nombre</label>
-                <select name="Name" id="name" required class="form-control" (change)="onNombreChange($event)">
-                    <option *ngFor="let usuario of usuarios" [value]="usuario.nombre">{{usuario.nombre}}</option>
-                </select>
+                <div class="input-group">
+                    <select name="Name" id="name" required class="form-control" (change)="onNombreChange($event)" [(ngModel)]="name">
+                        <option *ngFor="let usuario of usuarios" [value]="usuario.nombre">{{usuario.nombre}}</option>
+                    </select>
+                    <button type="button" class="btn btn-secondary" (click)="agregarNombre()">+</button>
+                </div>
+                <div *ngFor="let nm of nombres">
+                    <span>{{nm}}</span>
+                </div>
             </div>
 
             <div class="form-group">

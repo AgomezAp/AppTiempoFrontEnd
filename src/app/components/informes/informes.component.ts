@@ -17,11 +17,13 @@ import { UserService } from '../../services/user.service';
 })
 export class InformesComponent {
   id: string = '';
+  ids: number[] = []
   fechaInicial: string = '';
   fechaFinal: string = '';
   tipo: string = 'personal';
   loading: boolean= false;
-
+  name: string = ''
+  nombres: string[] = []
   usuarios: any[] = []
 
   constructor(
@@ -48,9 +50,28 @@ export class InformesComponent {
     const target = event.target as HTMLInputElement;
     const selectedUsuario = this.usuarios.find(usuario => usuario.nombre === target.value);
       if (selectedUsuario) {
-        this.id = selectedUsuario.Uid;
-        console.log(this.id)
+        this.name = selectedUsuario.nombre;
+        this.id = String(selectedUsuario.Uid);
       }
+  }
+  agregarNombre(): void {
+    if (this.name) {
+      console.log("npombmiewosn")
+      const usuario = this.usuarios.find(u => u.nombre === this.name);
+      console.log(this.usuarios)
+      if (usuario && !this.ids.includes(usuario.Uid)) {
+        this.nombres.push(usuario.nombre);
+        this.ids.push(usuario.Uid);
+        console.log('id-name',this.id)
+        this.id = this.ids.join(', ');
+        console.log('name-id',this.name)
+        this.name = '';
+        
+        
+      }
+    }
+    console.log('nombres', this.nombres)
+    console.log('ids',this.ids);
   }
   
   generarInforme() {
@@ -63,7 +84,7 @@ export class InformesComponent {
     }
   }
   generarInformePersonal() {
-    console.log('id',this.id);
+    console.log('id',this.id, typeof(this.id));
     console.log('fin',this.fechaFinal, typeof(this.fechaFinal));
     console.log('inicio',this.fechaInicial, typeof(this.fechaInicial));
     
