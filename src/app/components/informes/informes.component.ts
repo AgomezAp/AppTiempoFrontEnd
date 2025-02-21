@@ -25,6 +25,7 @@ export class InformesComponent {
   name: string = ''
   nombres: string[] = []
   usuarios: any[] = []
+  seleccionados: number[] = [];
 
   constructor(
     private router: Router,
@@ -54,26 +55,42 @@ export class InformesComponent {
         this.id = String(selectedUsuario.Uid);
       }
   }
+  onCheckboxChange(event: any, usuario:any): void {
+    if (event.target.checked) {
+      // Agrega el ID si no está en la lista
+      if (!this.seleccionados.includes(usuario.Uid)) {
+        this.seleccionados.push(usuario.Uid);
+      }
+    } else {
+      // Elimina el ID si se desmarca el checkbox
+      this.seleccionados = this.seleccionados.filter(id => id !== usuario.Uid);
+    }
+  }
   agregarNombre(): void {
     if (this.name) {
-      console.log("npombmiewosn")
       const usuario = this.usuarios.find(u => u.nombre === this.name);
-      console.log(this.usuarios)
       if (usuario && !this.ids.includes(usuario.Uid)) {
         this.nombres.push(usuario.nombre);
         this.ids.push(usuario.Uid);
-        console.log('id-name',this.id)
         this.id = this.ids.join(', ');
-        console.log('name-id',this.name)
         this.name = '';
-        
-        
       }
     }
-    console.log('nombres', this.nombres)
-    console.log('ids',this.ids);
   }
-  
+  agregarNombres(): void {
+    if (this.seleccionados.length > 0) {
+      this.seleccionados.forEach(id => {
+        const usuario = this.usuarios.find(u => u.Uid === id);
+        if (usuario && !this.ids.includes(id)) {
+          this.nombres.push(usuario.nombre);
+          this.ids.push(id);
+        }
+      });
+      // Limpiar selección después de añadir
+      this.id = this.ids.join(', ');
+      this.seleccionados = [];
+    }
+  }
   generarInforme() {
     if (this.tipo === 'personal') {
       this.generarInformePersonal();
