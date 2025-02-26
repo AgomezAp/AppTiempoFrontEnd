@@ -1,73 +1,91 @@
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { NovedadService } from '../../services/novedad.service';
-import { SpinnerComponent } from '../../shared/spinner/spinner.component';
-import { CommonModule } from '@angular/common';
-import { NavbarComponent } from '../navbar/navbar.component';
-import { response } from 'express';
 import { ToastrService } from 'ngx-toastr';
-
+import { NavbarComponent } from '../navbar/navbar.component';
+import { FormsModule, NumberValueAccessor } from '@angular/forms';
+import { NgModel } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, mapToResolve, Router } from '@angular/router';
+import { NovedadService } from '../../services/novedad.service';
+import { NovedadHistorico } from '../../interfaces/hora';
+import { response } from 'express';
 @Component({
   selector: 'app-novedades',
-  imports: [FormsModule, SpinnerComponent, CommonModule, NavbarComponent],
+  imports: [NavbarComponent, FormsModule, CommonModule],
   templateUrl: './novedades.component.html',
   styleUrl: './novedades.component.css'
 })
-export class NovedadesComponent {
-  loading: boolean = false;
-  newNovedad: any = {
-    Name: '',
-    Nid: 0,
-    type: '',
-    description: '',
-    Fecha: ''
-  };
+export class NovedadComponent {
+  loading: boolean = true;
+  listNovedad: NovedadHistorico[] = [];
+  filteredNovedad: NovedadHistorico[] = [];
+  showList: boolean = true;
+  filterName: string = '';
+  fecha: string = '';
+  horas: string = '';
+  id: number = 0;
+  editandoHoras: any = {};
+  horasTemp: any = {}
+  errorMesssage: {[key: number]: string}= {}
+
   constructor(
-    private router: Router,
-    private toastr: ToastrService,
-    private novedadService: NovedadService) {}
+    private route : ActivatedRoute,
+    private novedadService: NovedadService,
+    private toastr: ToastrService
+  ) {}
 
-  // addNovedad() {
-  //   this.loading = true;
-  //   const novedadData = {
-  //     Nid: this.newNovedad.Nid,
-  //     Name: this.newNovedad.Name,
-  //     type: this.newNovedad.type,
-  //     Fecha: this.newNovedad.Fecha,
-  //     HoraEntrada: this.newNovedad.HoraEntrada,
-  //     HoraSalida: this.newNovedad.HoraSalida,
-  //     description: this.newNovedad.description,
-  //     horas: this.newNovedad.horas,
-  //     aceptacion: this.newNovedad.aceptacion
-  //   };
-  //   this.novedadService.createNovedad(novedadData).subscribe({
-  //     next: (response) => {
-  //       console.log('Novedad agregada con exito', response);
-  //       this.loading = false;
-  //       this.router.navigate(['/verNovedad']);
-  //     },
-  //     error: (err) => {
-  //       console.error('Error al agregar novedad: front', err);
-  //       this.toastr.error('Error al crear la novedad completa todos los camos');
-  //       this.loading = false;
-  //     }
-  //   });
-  // }
-  resetForm(){
-    this.newNovedad = {
-      Nid: '',
-      Name: '',
-      type: '',
-      description: '',
-      Fecha: ''
-    };
+  ngOnInit(): void {
+    this.showList = true;
+    this.loadNovedad();
+    console.log('ngOnInit') 
   }
-  cancel() {
+
+  loadNovedad(): void {
     this.loading = true;
-    this.router.navigate(['/verNovedad'])
+    console.log('loadNovedad1') 
 
+    this.novedadService.verNovedadHistorico().subscribe((data: NovedadHistorico[]) => {
+      console.log('loadNovedad2') 
+
+      this.listNovedad = data;
+      this.filteredNovedad = data;
+      console.log('loadNovedad3') 
+    });
   }
+
+  filterdByName(): void {
+    if(this.filterName) {
+      this.filteredNovedad = this.listNovedad.filter(novedad => novedad.Name.toLowerCase().includes(this.filterName.toLowerCase()));
+    } else {
+      this.filteredNovedad = this.listNovedad
+    }
+    console.log('filterdByName') 
+  }
+
+  filterByData(): void {
+    if(this.fecha) {
+      const fecha = new Date(this.fecha).getTime();
+      this.filteredNovedad = this.listNovedad.filter(novedad => {
+        const fechaN = new Date(novedad.Fecha).getTime();
+        return fechaN === fecha;
+      });
+    } else {
+      this.filteredNovedad = this.listNovedad
+    }
+    console.log('filterByData')
+  }
+
+  revision(Cid: number): void {
+    console.log(this.filteredNovedad)
+    console.log(Cid)
+    this.novedadService.errorNovedad(Cid).subscribe({
+      next: (response) => {
+        this.toastr.success('Revisión completada con éxito');
+      }, 
+      error: (err) => {
+        console.error('Error al mover la novedad:', err);
+      }
+    })
+  }
+
+
 }
-
-

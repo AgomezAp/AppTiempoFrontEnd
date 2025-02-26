@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment.development';
 import { Observable } from 'rxjs';
-import { Novedad } from '../interfaces/hora'
+import { Novedad , NovedadHistorico } from '../interfaces/hora'
 @Injectable({
   providedIn: 'root'
 })
@@ -17,8 +17,11 @@ export class NovedadService {
   createNovedad():Observable<Novedad>{
     return this.http.post<Novedad>(`${this.appUrl}${this.apiUrl}/NuevaNovedad`, {})
   }
-  verNovedad(): Observable<Novedad[]>{
-    return this.http.get<Novedad[]>(`${this.appUrl}${this.apiUrl}/ObtenerNovedad`)
+  verNovedad(): Observable<NovedadHistorico[]>{
+    return this.http.get<NovedadHistorico[]>(`${this.appUrl}${this.apiUrl}/ObtenerNovedad`)
+  }
+  verNovedadHistorico(): Observable<Novedad[]>{
+    return this.http.get<Novedad[]>(`${this.appUrl}${this.apiUrl}/ObtenerHistorico`)
   }
   actualizaHora(id: number, horas: string): Observable<Novedad>{
     return this.http.put<Novedad>(`${this.appUrl}${this.apiUrl}/editarNovedadHora`, {id, horas})
@@ -29,4 +32,9 @@ export class NovedadService {
   aceptar(): Observable<Novedad> {
     return this.http.post<Novedad>(`${this.appUrl}${this.apiUrl}/aceptacion` ,{})
   }
+  errorNovedad(id: number): Observable<NovedadHistorico>{
+    console.log(`${this.appUrl}${this.apiUrl}/revision`)
+    return this.http.put<NovedadHistorico>(`${this.appUrl}${this.apiUrl}/revision`, {id})
+  }
+  
 }

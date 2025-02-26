@@ -1,114 +1,129 @@
-.body-container {
+.novedad-dashboard {
+  padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100vh;
-  margin: 0;
+  margin-top: 60px;
+}
+
+.table-container {
+  width: 80%;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  width: 100%;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+th {
+  background-color: #f4f4f4;
+}
+
+.filters {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 10px;
   background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
 }
 
-.logo-container {
-  margin-bottom: 0px;
-  margin-top: 30px;
-}
-
-.logo-container img {
-  width: 150px;
-}
-
-.add-novedad-container {
-  max-width: 600px;
-  width: 90%;
-  padding: 20px;
-  margin-bottom: 20px; /* Añadido para separar contenedores */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  background-color: #fff;
-  border-radius: 8px;
-  position: relative;
-}
-
-.add-novedad-form {
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  padding: 20px;
+.filters input[type="date"],
+.filters input[type="week"],
+.filters input[type="text"] {
+  margin-right: 10px;
+  padding: 5px;
   border: 1px solid #ccc;
-  border-radius: 10px;
-  background-color: #fff;
+  border-radius: 4px;
+  font-size: 14px;
 }
-
-.form-row {
-  display: flex;
-  justify-content: space-between;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-}
-
-.form-group input,
-.form-group textarea {
-  width: 100%;
-  padding: 8px;
-  box-sizing: border-box;
-}
-
-.form-group textarea {
-  height: 100px;
-}
-
-.button-group {
-  display: flex;
-  justify-content: space-between;
-}
-
-.btn {
-  width: 45%;
-}
-
-.btn-add {
+.filters input[type="text"] {
   margin-top: 10px;
-  width: 100%;
-  background-color: #28a745;
+}
+
+.filters label {
+  margin-right: 5px;
+  font-weight: bold;
+}
+
+.filters button {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 5px 10px;
+  font-size: 14px;
+  background-color: #007bff;
   color: white;
   border: none;
-  padding: 10px;
-  text-align: center;
-  cursor: pointer;
   border-radius: 4px;
+  cursor: pointer;
 }
 
-.btn-add:hover {
-  background-color: #218838;
+.filters button:hover {
+  background-color: #0056b3;
+}
+.btn-success {
+  background-color: #b6ecc3;
+  color: white;
 }
 
+.btn-danger {
+  background-color: #bb999d;
+  color: white;
+}
 
-#limpiar {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 30px;
-  height: 30px;
-  background-color: #f5f5f5;
+.btn-secondary {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  background-color: crimson;
+  color: white;
   border: none;
   border-radius: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-#limpiar i {
-  font-size: 14px;
-  color: #333;
+.btn-secondary:hover {
+  background-color: darkred;
 }
 
-#limpiar:hover {
-  background-color: #e0e0e0;
+.aceptado {
+  color: green;
+  font-weight: bold;
+}
+.rechazado {
+  color: red;
+  font-weight: bold;
+}
+
+/* Media query para dispositivos móviles */
+@media (max-width: 768px) {
+  .horas-dashboard {
+    padding: 10px;
+  }
+
+  .table-container {
+    width: 100%;
+  }
+
+  th, td {
+    padding: 6px 4px;
+  }
 }

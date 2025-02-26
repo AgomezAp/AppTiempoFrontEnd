@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { FormsModule, NumberValueAccessor } from '@angular/forms';
 import { NgModel } from '@angular/forms';
@@ -29,12 +30,13 @@ export class VerNovedadComponent {
   constructor(
     private route : ActivatedRoute,
     private novedadService: NovedadService,
-    private router: Router,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
     this.showList = true;
-    this.loadNovedad();    
+    this.loadNovedad();
+    console.log('ngOnInit') 
   }
 
   loadNovedad(): void {
@@ -42,8 +44,7 @@ export class VerNovedadComponent {
     this.novedadService.verNovedad().subscribe((data: Novedad[]) => {
       this.listNovedad = data;
       this.filteredNovedad = data;
-      
-      console.log(data);
+      console.log('loadNovedad') 
     });
   }
 
@@ -53,6 +54,7 @@ export class VerNovedadComponent {
     } else {
       this.filteredNovedad = this.listNovedad
     }
+    console.log('filterdByName') 
   }
 
   filterByData(): void {
@@ -65,46 +67,36 @@ export class VerNovedadComponent {
     } else {
       this.filteredNovedad = this.listNovedad
     }
+    console.log('filterByData')
   }
 
   activarEdicion(novedad: Novedad){
     this.editandoHoras[novedad.Nid] = true;
     this.horasTemp[novedad.Nid] = novedad.horas;
-  }
+    console.log('activarEdicion')
 
-  guardarHora(novedad: Novedad) {
-    const hora = this.horasTemp[novedad.Nid];
-    if(!this.validarHora(hora)) {
-      console.error('Formato de hora invalido');
-      return
+  }
+  validarYActualizarHora(id: number, horas: string): void {
+    const regex = /^-?(0?[0-9]|1[0-9]|2[0-3]):(00|30)$/;
+    console.log(id)
+    if (regex.test(horas)) {
+      this.novedadService.actualizaHora(id, horas).subscribe({
+        next: (response) => {
+          console.log('Hora actualizada', response);
+          this.toastr.success('Hora actualizada exitosamente');
+        },
+        error: (err) => {
+          console.error('Error al actualizar la hora', err);
+        }
+      });
+    } else {
+      console.warn('Formato de hora invalido');
+      this.toastr.error('Por favor usa un formato correcto');
+
     }
-    this.novedadService.actualizaHora(novedad.Nid, hora).subscribe({
-      next: () => {
-        novedad.horas = hora;
-        this.editandoHoras[novedad.Nid] = false;
-      },
-      error: (err) => {
-        console.error('Error al actualizar la hora', err);
-      }
-    });
-  }
+    console.log('validarYActualizarHora')
 
-  cancelarEdicion(novedad: Novedad){
-    this.editandoHoras[novedad.Nid] = false;
   }
-
-  validarHora(hora: string): boolean {
-    const regex = /^-?\d+:(00|30)$/;
-    return regex.test(hora);
-  }
-
-  validarInput(event: KeyboardEvent) {
-    const key = event.key
-    if (!/[\d:-]/.test(key)) {
-      event.preventDefault();
-    }
-  }
-
   crearNovedad() {
     console.log('Creando novedad');
     this.novedadService.createNovedad().subscribe(
@@ -115,17 +107,7 @@ export class VerNovedadComponent {
         console.error('Error al crear novedad', error);
       }
     );
-  }
-
-  editarHora(novedad: any, hora: string) {
-    this.novedadService.actualizaHora(novedad.id, hora).subscribe({
-      next: () => {
-        novedad.hora = hora;
-      },
-      error: (err) => {
-        console.error('Error al actualizara', err);
-      }
-    });
+    console.log('crearNovedad')
   }
 
   editarEstado(novedad: any, aceptacion: boolean | null) {
@@ -133,23 +115,27 @@ export class VerNovedadComponent {
       next: () => {
         novedad.aceptacion = aceptacion;
         novedad.editable = true;
-
       },
       error: (err) => {
         console.error('Error al actualizara', err);
       }
     });
+    console.log('editarEstado')
   }
 
-  enviarAceptacion() {
-    const datos = { /* Replace with actual data */ };
-    this.novedadService.aceptar().subscribe(
-      (respuesta: any) => {
-        console.log('Aceptación enviada con éxito', respuesta);
+  enviarAceptacion(): void {
+    this.novedadService.aceptar().subscribe({
+      next: (response: Novedad) => {
+        console.log(`Novedad Aceptada:`, response);
+        this.toastr.success('Novedades aceptadas exitosamente');
       },
-      (error) => {
-        console.error('Error al enviar aceptación', error);
-      }
-    );
+      error: (err) => {
+        if (err.status === 404) {
+          this.toastr.error('Ninguna novedad para aceptar');
+        }  else if (err.status === 500) {
+          this.toastr.error('Error al aceptar la novedad');
+        }
+      },
+    })
   }
 }

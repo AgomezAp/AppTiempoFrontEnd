@@ -31,7 +31,7 @@ import { UploadComponent } from './components/upload/upload.component';
 import { tRolGuard } from './utils/t-rol.guard';
 import { EditSalidaComponent } from './components/edit-salida/edit-salida.component';
 import { InformesComponent } from './components/informes/informes.component';
-import { NovedadesComponent } from './components/novedades/novedades.component';
+import { NovedadComponent } from './components/novedades/novedades.component';
 import { VerNovedadComponent } from './components/ver-novedad/ver-novedad.component'
 import { NuevoRegistroComponent } from './components/nuevo-registro/nuevo-registro.component';
 export const routes: Routes = [
@@ -78,7 +78,7 @@ export const routes: Routes = [
     path: 'informes', component: InformesComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia'] }
   },
   {
-    path: 'crearNovedad', component: NovedadesComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia']}
+    path: 'novedad', component: NovedadComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia']}
   },
   {
     path: 'verNovedad', component: VerNovedadComponent, canActivate: [tRolGuard], data: {allowedRoles: ['Admin', 'User', 'Tecnologia']}

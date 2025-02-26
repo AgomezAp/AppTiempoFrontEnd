@@ -16,7 +16,20 @@ export interface Hora {
   }
 
 export interface Novedad {
-  unique_key?: number;
+  id: number;
+  Nid: number;
+  Name: string;
+  type: string;
+  Fecha: string;
+  HoraEntrada: string;
+  HoraSalida: string;
+  description: string;
+  horas: string;
+  aceptacion: boolean;
+}
+
+export interface NovedadHistorico {
+  id: number;
   Nid: number;
   Name: string;
   type: string;
