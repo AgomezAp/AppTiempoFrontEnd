@@ -41,14 +41,11 @@ export class NovedadComponent {
 
   loadNovedad(): void {
     this.loading = true;
-    console.log('loadNovedad1') 
 
     this.novedadService.verNovedadHistorico().subscribe((data: NovedadHistorico[]) => {
-      console.log('loadNovedad2') 
 
       this.listNovedad = data;
       this.filteredNovedad = data;
-      console.log('loadNovedad3') 
     });
   }
 
@@ -58,7 +55,6 @@ export class NovedadComponent {
     } else {
       this.filteredNovedad = this.listNovedad
     }
-    console.log('filterdByName') 
   }
 
   filterByData(): void {
@@ -71,18 +67,20 @@ export class NovedadComponent {
     } else {
       this.filteredNovedad = this.listNovedad
     }
-    console.log('filterByData')
   }
 
   revision(Cid: number): void {
     console.log(this.filteredNovedad)
     console.log(Cid)
-    this.novedadService.errorNovedad(Cid).subscribe({
+    String(Cid)
+    this.novedadService.errorNovedad(String(Cid)).subscribe({
       next: (response) => {
         this.toastr.success('Revisión completada con éxito');
+        this.loadNovedad();
       }, 
       error: (err) => {
         console.error('Error al mover la novedad:', err);
+        this.toastr.error('Error al mover la novedad');
       }
     })
   }

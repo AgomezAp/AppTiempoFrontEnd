@@ -29,7 +29,7 @@ export interface Novedad {
 }
 
 export interface NovedadHistorico {
-  id: number;
+  Cid: number;
   Nid: number;
   Name: string;
   type: string;

@@ -128,6 +128,7 @@ export class VerNovedadComponent {
       next: (response: Novedad) => {
         console.log(`Novedad Aceptada:`, response);
         this.toastr.success('Novedades aceptadas exitosamente');
+        this.loadNovedad()
       },
       error: (err) => {
         if (err.status === 404) {
