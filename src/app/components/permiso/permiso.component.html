@@ -18,6 +18,12 @@
       <label for="numeroDocumento">Número de documento:</label>
       <input type="text" id="numeroDocumento" [(ngModel)]="permiso.numeroDocumento" name="numeroDocumento" class="form-control" required>
     </div>
+    <div class="form-group">
+      <label for="tipo">Tipo de permiso:</label>
+      <select id="tipo" [(ngModel)]="permiso.tipo" name="tipo" class="form-control" required>
+        <option *ngFor="let tipo of tiposPermiso" [value]="tipo">{{ tipo }}</option>
+      </select>
+    </div>
     <div class="row">
       <div class="col-md-6">
         <div class="form-group">
@@ -25,12 +31,12 @@
           <input type="date" id="fechaInicio" [(ngModel)]="permiso.fecha" name="fechaInicio" class="form-control" [min]="today" required>
         </div>
       </div>
-    </div>
-    <div class="form-group">
-      <label for="tipo">Tipo de permiso:</label>
-      <select id="tipo" [(ngModel)]="permiso.tipo" name="tipo" class="form-control" required>
-        <option *ngFor="let tipo of tiposPermiso" [value]="tipo">{{ tipo }}</option>
-      </select>
+      <div class="col-md-6">
+        <div class="form-group" *ngIf="mostrarDias()">
+          <label for="dias">Cantidad de días:</label>
+          <input type="number" id="dias" [(ngModel)]="cantidadDias" name="dias" class="form-control">
+        </div>
+      </div>
     </div>
     <div class="row">
       <div class="col-md-6">

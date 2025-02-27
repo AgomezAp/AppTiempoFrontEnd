@@ -12,9 +12,11 @@ import { Permiso } from '../interfaces/permiso';
 export class PermisosService {
   private appUrl : string;
   private apiUrl : string;
+  private holidaysApiUrl: string;
   constructor(private http:HttpClient) { 
     this.appUrl= environment.apiUrl
     this.apiUrl = 'api/permisos'
+    this.holidaysApiUrl = 'https://date.nager.at/api/v3/publicholidays'
   }
 
   createPermiso(permiso: FormData): Observable<Permiso> {
@@ -27,5 +29,9 @@ export class PermisosService {
 
   getAllUsersWithPermisos(): Observable<any[]> {
     return this.http.get<any[]>(`${environment.apiUrl}/users-with-permisos`);
+  }
+
+  getHolidays(year: number, countryCode: string = 'CO'): Observable<any[]> {
+    return this.http.get<any[]>(`${this.holidaysApiUrl}/${year}/${countryCode}`);
   }
 }
