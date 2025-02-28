@@ -53,7 +53,6 @@ export class EditSalidaComponent implements OnInit {
           Fecha: response.Fecha || fecha,
           Extra: response.Extra || ''
         };
-        console.log('Datos recibidos del backend:', response)
         this.editingSalida = response;
         this.editingSalida.Hid = response.Hid || +id;
         
@@ -62,7 +61,6 @@ export class EditSalidaComponent implements OnInit {
         this.toastr.error('Error al cargar el horario');
       }
     } else {
-      console.log('ID and Date is null');
       this.loading = true;
     }
   }

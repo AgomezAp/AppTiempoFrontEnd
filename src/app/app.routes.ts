@@ -57,7 +57,7 @@ export const routes: Routes = [
     path: 'errorPage', component: ErrorPageComponent
   },
   {
-    path: 'horas', component: HorasComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia'] } 
+    path: 'horas', component: HorasComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'] } 
   },
   {
     path: 'horas/:id', component: HorasComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia'] } 

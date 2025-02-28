@@ -101,9 +101,6 @@ export class InformesComponent {
     }
   }
   generarInformePersonal() {
-    console.log('id',this.id, typeof(this.id));
-    console.log('fin',this.fechaFinal, typeof(this.fechaFinal));
-    console.log('inicio',this.fechaInicial, typeof(this.fechaInicial));
     
     if(!this.id || !this.fechaInicial || !this.fechaFinal) {
 
@@ -117,7 +114,6 @@ export class InformesComponent {
       fechaInicial: this.fechaInicial,
       fechaFinal: this.fechaFinal,
     };
-    console.log(data)
     
     this.horaService.informePersonal(data.id, data.fechaInicial, data.fechaFinal).subscribe({
       next: (response) => {
@@ -181,7 +177,6 @@ export class InformesComponent {
       fechaInicial: this.fechaInicial,
       fechaFinal: this.fechaFinal,
     };
-    console.log(data);
 
     this.horaService.informeRiesgo(data.fechaInicial, data.fechaFinal).subscribe({
       next: (response) => {

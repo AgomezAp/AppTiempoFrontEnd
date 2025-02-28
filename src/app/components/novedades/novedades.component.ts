@@ -36,7 +36,6 @@ export class NovedadComponent {
   ngOnInit(): void {
     this.showList = true;
     this.loadNovedad();
-    console.log('ngOnInit') 
   }
 
   loadNovedad(): void {
@@ -70,8 +69,6 @@ export class NovedadComponent {
   }
 
   revision(Cid: number): void {
-    console.log(this.filteredNovedad)
-    console.log(Cid)
     String(Cid)
     this.novedadService.errorNovedad(String(Cid)).subscribe({
       next: (response) => {

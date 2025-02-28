@@ -64,7 +64,6 @@ export class ProductComponent implements OnInit {
       this.updateChartData();
       this.updateTotalQuantity();
       this.loading = false;
-      console.log(data);
     });
   }
 

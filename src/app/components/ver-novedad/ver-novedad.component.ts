@@ -36,7 +36,6 @@ export class VerNovedadComponent {
   ngOnInit(): void {
     this.showList = true;
     this.loadNovedad();
-    console.log('ngOnInit') 
   }
 
   loadNovedad(): void {
@@ -44,7 +43,6 @@ export class VerNovedadComponent {
     this.novedadService.verNovedad().subscribe((data: Novedad[]) => {
       this.listNovedad = data;
       this.filteredNovedad = data;
-      console.log('loadNovedad') 
     });
   }
 
@@ -54,7 +52,6 @@ export class VerNovedadComponent {
     } else {
       this.filteredNovedad = this.listNovedad
     }
-    console.log('filterdByName') 
   }
 
   filterByData(): void {
@@ -67,18 +64,15 @@ export class VerNovedadComponent {
     } else {
       this.filteredNovedad = this.listNovedad
     }
-    console.log('filterByData')
   }
 
   activarEdicion(novedad: Novedad){
     this.editandoHoras[novedad.Nid] = true;
     this.horasTemp[novedad.Nid] = novedad.horas;
-    console.log('activarEdicion')
 
   }
   validarYActualizarHora(id: number, horas: string): void {
     const regex = /^-?(0?[0-9]|1[0-9]|2[0-3]):(00|30)$/;
-    console.log(id)
     if (regex.test(horas)) {
       this.novedadService.actualizaHora(id, horas).subscribe({
         next: (response) => {
@@ -94,11 +88,9 @@ export class VerNovedadComponent {
       this.toastr.error('Por favor usa un formato correcto');
 
     }
-    console.log('validarYActualizarHora')
 
   }
   crearNovedad() {
-    console.log('Creando novedad');
     this.novedadService.createNovedad().subscribe(
       (respuesta: Novedad) => {
         console.log('Novedad creada con exito', respuesta);
@@ -107,7 +99,6 @@ export class VerNovedadComponent {
         console.error('Error al crear novedad', error);
       }
     );
-    console.log('crearNovedad')
   }
 
   editarEstado(novedad: any, aceptacion: boolean | null) {
@@ -120,7 +111,6 @@ export class VerNovedadComponent {
         console.error('Error al actualizara', err);
       }
     });
-    console.log('editarEstado')
   }
 
   enviarAceptacion(): void {

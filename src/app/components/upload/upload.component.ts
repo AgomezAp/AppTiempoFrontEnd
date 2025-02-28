@@ -1,4 +1,4 @@
-import { HttpEventType } from '@angular/common/http';
+import { HttpEventType, HttpEvent } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -16,13 +16,18 @@ import { NavbarComponent } from '../navbar/navbar.component';
 export class UploadComponent {
   selectedFile: File | null = null;
   progress: number = 0;
+  selectedFiles: File[] = []
+  uploadProgress = 0;
+  isUploading = false;
+  errorMessage = '';
+  successMessage = '';
+  mergedXmlUrl: string | null = null;
   constructor(private uploadService: UploadService, private toastr: ToastrService, private router: Router) {}
 
   onFileSelected(event: Event): void {
     const target = event.target as HTMLInputElement;
     if (target.files) {
       this.selectedFile = target.files[0];
-      console.log('Archivo seleccionado:', this.selectedFile);
     } else{
       console.error('No se seleccionó ningún archivo');
     }
@@ -30,7 +35,6 @@ export class UploadComponent {
 
   onSubmit(event: Event): void {
     event.preventDefault();
-    console.log('onSubmit EJECUTANDO');
     if (this.selectedFile) {
       this.uploadService.upload(this.selectedFile).subscribe(event => {
         if (event.type === HttpEventType.UploadProgress && event.total) {
@@ -51,5 +55,34 @@ export class UploadComponent {
     } else {
       this.toastr.error('Seleccione un archivo');
     }
-  }  
+  }
+
+  onFileSelect(event: any): void {
+    this.selectedFiles = Array.from(event.target.files); // Convierte FileList a Array
+  }
+
+  onSubmit1(): void {
+    if (!this.selectedFiles || this.selectedFiles.length === 0) {
+      alert('Por favor, selecciona al menos un archivo XML.');
+      return;
+    }
+
+    this.uploadService.uploadFiles(this.selectedFiles).subscribe(
+      (response: Blob) => {
+        // Crear un enlace temporal para descargar el archivo
+        const url = window.URL.createObjectURL(response);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'merged.xml'; // Nombre del archivo descargado
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      (error) => {
+        console.error('Error al subir los archivos:', error);
+        alert('Ocurrió un error al procesar los archivos.');
+      }
+    );
+  }
 } 

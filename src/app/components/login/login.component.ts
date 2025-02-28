@@ -35,10 +35,8 @@ export class LoginComponent {
   
       const user = { email: this.email, password: this.password};
       this.loading = true;
-      console.log("user",user);
       this.userService.logIn(user).subscribe({
         next: (response: any) => {
-          console.log(response);
           const token = response.token;
           const role = response.role;
           const userId = response.userId;
@@ -57,8 +55,7 @@ export class LoginComponent {
           localStorage.setItem('name', name);
           localStorage.setItem('lastname', lastname);
           localStorage.setItem('role', role); // Guarda el rol en el localStorage
-          console.log('correolIDER', correoLider);
-          this.router.navigate(['/horas']);
+          this.router.navigate([`/horas/${userId}`]);
         },
         error: (e: HttpErrorResponse) => {
           this.loading = false;
@@ -66,5 +63,6 @@ export class LoginComponent {
         }
       });
     }
+    uploadFiles() {}
     
 }

@@ -1,4 +1,20 @@
 <app-navbar></app-navbar>
+<div class="upload-container">
+  <h2>Concatena tus archivos XML</h2>
+
+  <input
+    type="file" multiple accept=".xml" (change)="onFileSelect($event)" id="file" class="form-control"  />
+  <button (click)="onSubmit1()" [disabled]="selectedFiles.length === 0">
+    Subir y Combinar
+  </button>
+
+  <div *ngIf="selectedFiles.length > 0">
+    <h3>Archivos seleccionados:</h3>
+    <ul>
+      <li *ngFor="let file of selectedFiles">{{ file.name }}</li>
+    </ul>
+  </div>
+</div>
 <div class="upload-xml-container">
     <h2>Subir Archivo XML</h2>
     <form >
@@ -12,3 +28,5 @@
       <p>Progreso: {{ progress }}%</p>
     </div>
 </div>
+
+

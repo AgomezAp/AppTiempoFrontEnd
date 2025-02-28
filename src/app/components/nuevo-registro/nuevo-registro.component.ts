@@ -55,7 +55,6 @@ export class NuevoRegistroComponent {
     this.loading = true;
     const entrada =  this.formatDate(this.newRegistro.Fecha, this.newRegistro.Entrada);
     const salida =  this.formatDate(this.newRegistro.Fecha, this.newRegistro.Salida); 
-    console.log(salida);
     const registroData = {
       Hid: this.newRegistro.Hid.toString(),
       Name: this.newRegistro.Name,
@@ -65,7 +64,6 @@ export class NuevoRegistroComponent {
       Fecha: this.newRegistro.Fecha,
       // Total: this.newRegistro.Total,
     };
-    console.log(registroData);
     this.horaService.createRegistro(registroData).subscribe({
       next: (response) => {
         console.log('Registro agregado con exito', response);

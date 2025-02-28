@@ -41,7 +41,6 @@ export class AdminComponent  implements OnInit {
     this.loading = true;
     this.userService.getAllUsers().subscribe({
       next: (data) => {
-        console.log(data); // Verificar los datos obtenidos
         this.users = data;
         this.loading = false;
 

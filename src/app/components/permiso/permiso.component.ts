@@ -52,7 +52,6 @@ export class PermisoComponent implements OnInit {
     this.permisoService.getHolidays(year).subscribe({
       next: (holidays) => {
         this.holidays = holidays.map(h => h.date); // Extrae solo las fechas
-        console.log('Días festivos cargados:', this.holidays);
       },
       error: (err) => console.error('Error obteniendo días festivos:', err)
     });
@@ -147,7 +146,6 @@ export class PermisoComponent implements OnInit {
   createPermiso() {
     this.loading = true;
     let testDate = new Date("2025-01-01"); // Año Nuevo (feriado)
-    console.log(this.isHoliday(testDate));
     let currentDate = new Date(this.permiso.fecha + "T00:00:00");
     let daysAdded = 0;
     const permisosRequests = [];
