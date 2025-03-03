@@ -15,4 +15,8 @@ export class NavbarComponent {
     localStorage.clear();
     this.router.navigate(['/logIn'])
   }
+  verHoras() {
+    const id = Number(localStorage.getItem('userId'))
+    this.router.navigate([`/horas/${id}`])
+  }
 }

@@ -102,9 +102,7 @@ export class PermisoComponent implements OnInit {
     'Incapacidad laboral',
   ];
 
-  holidays: string[] = [
-    '2025-01-01', '2025-12-25'
-  ]
+  holidays: string[] = []
 
   mostrarSalida(): boolean {
     return this.permitidosSalida.includes(this.permiso.tipo);

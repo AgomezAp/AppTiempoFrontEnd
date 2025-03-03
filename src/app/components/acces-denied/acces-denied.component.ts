@@ -13,12 +13,17 @@ export class AccesDeniedComponent {
   ngOnInit(): void {
     // Redirigir a la página de horas después de 3 segundos
     setTimeout(() => {
-      this.router.navigate(['/horas']);
+      const id = Number(localStorage.getItem('userId'))
+      this.router.navigate([`/horas/${id}`])
     }, 3000);
   }
 
   // Método para redirigir inmediatamente a la página de horas
   redirectToHoras(): void {
-    this.router.navigate(['/horas']);
+    this.verHoras();
+  }
+  verHoras() {
+    const id = Number(localStorage.getItem('userId'))
+    this.router.navigate([`/horas/${id}`])
   }
 }
