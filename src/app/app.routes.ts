@@ -63,19 +63,19 @@ export const routes: Routes = [
     path: 'horas/:id', component: HorasComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia'] } 
   },
   {
-    path: 'horas/:fecha', component: HorasComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia'] } 
+    path: 'horas/:fecha', component: HorasComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'] } 
   },
   {
-    path: 'editar-salida/:id/:fecha', component: EditSalidaComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia'] }
+    path: 'editar-salida/:id/:fecha', component: EditSalidaComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'] }
   },
   {
-    path: 'editar-entrada/:id/:fecha', component: EditSalidaComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'User', 'Tecnologia']}
+    path: 'editar-entrada/:id/:fecha', component: EditSalidaComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia']}
   },
   {
-    path: 'nuevoRegistro', component: NuevoRegistroComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'User', 'Tecnologia']}
+    path: 'nuevoRegistro', component: NuevoRegistroComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia']}
   },
   {
-    path: 'informes', component: InformesComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia'] }
+    path: 'informes', component: InformesComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'] }
   },
   {
     path: 'novedad', component: NovedadComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia']}
