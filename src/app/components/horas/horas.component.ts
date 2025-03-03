@@ -210,4 +210,7 @@ export class HorasComponent implements OnInit {
     this.showDateRange = !this.showDateRange
   }
 
+  verHoras() {
+    this.router.navigate([`/horas/`])
+  }
 }

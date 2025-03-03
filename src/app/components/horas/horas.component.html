@@ -4,7 +4,7 @@
     <div class="superior">
       <div class="filters">
         <button (click)="toggleDateWeek()">{{ showDateRange ? 'Semana' : 'Fecha' }}</button>
-        <button class="extra" *ngIf="!showList">Extras</button>
+        <button class="extra" *ngIf="!showList" (click)="verHoras()" >Todo</button>
         <button class="extra" *ngIf="showList" (click)="agregarRegistro()">+</button>
         <div *ngIf="showDateRange">
           <label for="startDate">Fecha Inicio: </label>

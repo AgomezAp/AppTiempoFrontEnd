@@ -78,10 +78,10 @@ export const routes: Routes = [
     path: 'informes', component: InformesComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia'] }
   },
   {
-    path: 'novedad', component: NovedadComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia']}
+    path: 'novedad', component: NovedadComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia']}
   },
   {
-    path: 'verNovedad', component: VerNovedadComponent, canActivate: [tRolGuard], data: {allowedRoles: ['Admin', 'User', 'Tecnologia']}
+    path: 'verNovedad', component: VerNovedadComponent, canActivate: [tRolGuard], data: {allowedRoles: ['Admin', 'Tecnologia']}
   },
   {
     path: 'access-denied', component: AccesDeniedComponent,canActivate: [tRolGuard], data: { allowedRoles: ['Admin','User', 'Tecnologia'] }  // Página de acceso denegado
