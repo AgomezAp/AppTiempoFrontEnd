@@ -59,6 +59,11 @@ export class UploadComponent {
 
   onFileSelect(event: any): void {
     this.selectedFiles = Array.from(event.target.files); // Convierte FileList a Array
+    const file202Index = this.selectedFiles.findIndex(file => file.name.includes('202'));
+    if (file202Index !== -1){
+      const file202 = this.selectedFiles.splice(file202Index,1)[0];
+      this.selectedFiles.unshift(file202)
+    } 
   }
 
   onSubmit1(): void {
@@ -66,6 +71,7 @@ export class UploadComponent {
       alert('Por favor, selecciona al menos un archivo XML.');
       return;
     }
+    console.log(this.selectedFiles)
 
     this.uploadService.uploadFiles(this.selectedFiles).subscribe(
       (response: Blob) => {

@@ -132,11 +132,11 @@ export class HorasComponent implements OnInit {
   sortHoursID(order: string): void {
     this.sortOrder = order;
     if (order === 'asc') {
-      this.filteredHoras.sort((a,b) => a.ID - b.ID);
-      this.filterdExtra.sort((a,b) => a.ID - b.ID)
+      this.filteredHoras.sort((a,b) => a.Hid - b.Hid);
+      this.filterdExtra.sort((a,b) => a.Hid - b.Hid)
     } else if (order === 'desc') {
-      this.filteredHoras.sort((a,b) => b.ID - a.ID);
-      this.filterdExtra.sort((a,b) => b.ID - a.ID);
+      this.filteredHoras.sort((a,b) => b.Hid - a.Hid);
+      this.filterdExtra.sort((a,b) => b.Hid - a.Hid);
 
     }
   }
