@@ -34,6 +34,7 @@ import { InformesComponent } from './components/informes/informes.component';
 import { NovedadComponent } from './components/novedades/novedades.component';
 import { VerNovedadComponent } from './components/ver-novedad/ver-novedad.component'
 import { NuevoRegistroComponent } from './components/nuevo-registro/nuevo-registro.component';
+import { ExtraListComponent } from './components/extra-list/extra-list.component';
 export const routes: Routes = [
   {
     path: '', component: LoginComponent
@@ -97,6 +98,9 @@ export const routes: Routes = [
   },
   { 
     path: 'subirArchivo', component: UploadComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'] } // Página para subir archivos
+  },
+  {
+    path: 'extras', component: ExtraListComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin']} //Pagina para ver las horas extras
   },
   { path: 'permisos', component: PermisoComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'User', 'Tecnologia'] } },
   { path: 'admin', component: AdminComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin'] } },

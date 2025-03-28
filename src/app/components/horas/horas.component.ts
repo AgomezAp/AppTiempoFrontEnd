@@ -3,11 +3,12 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Extra, Hora } from '../../interfaces/hora';
-
+import { UResponse } from '../../interfaces/user'
 import { HoraService } from '../../services/hora.service';
 import * as bootstrap from 'bootstrap';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { NgxPaginationModule } from 'ngx-pagination';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-horas',
@@ -20,6 +21,7 @@ export class HorasComponent implements OnInit {
   hora: Hora | null = null;
   listHoras: Hora[] = [];
   listExtra: Extra[] = [];
+  listUsers: UResponse[] = [];
   filteredHoras: any[] = [];
   filterdExtra: any[] = [];
   filterText: string = '';
@@ -40,6 +42,7 @@ export class HorasComponent implements OnInit {
 
   constructor(
     private horaService: HoraService,
+    private userService: UserService,
     private route: ActivatedRoute,
     private router: Router) {}
 
@@ -52,9 +55,16 @@ export class HorasComponent implements OnInit {
           this.getExtraById(id)
         } else {
           this.showList = true;
+          this.loadUsers();
           this.loadHoras(); // Cargar lista
           this.loadExtra();
         }
+      });
+    }
+
+    loadUsers(): void {
+      this.userService.getListUser().subscribe((users: UResponse[]) => {
+        this.listUsers = users;
       });
     }
 
@@ -63,6 +73,26 @@ export class HorasComponent implements OnInit {
     this.horaService.getHoras().subscribe((data: Hora[]) => {
       this.listHoras = data;
       this.filteredHoras = data;
+      const currentDate = new Date();
+      const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      this.filteredHoras = data.filter(hora => new Date(hora.Fecha).getTime() >= startOfMonth.getTime());
+      this.filteredHoras.sort((a, b) => new Date(a.Fecha).getTime() - new Date(b.Fecha).getTime());
+      this.loading = false;
+    });
+  }
+  loadHoras2(): void {
+    this.loading = true;
+    this.horaService.getHoras().subscribe((data: Hora[]) => {
+      this.listHoras = data.map((hora) => {
+        const user = this.listUsers.find((u) => u.Uid === hora.Hid);
+        console.log(user)
+        return {
+          ...hora,
+          Name: user ? `aca${user.name}` : `1${hora.Name}`
+        };
+      });
+      console.log(this.listHoras)
+      this.filteredHoras = this.listHoras;
       this.loading = false;
     });
   }
@@ -83,6 +113,12 @@ export class HorasComponent implements OnInit {
         this.listHoras = data;
         this.filteredHoras = data;
         this.loading = false;
+        this.filteredHoras = data.filter(hora => {
+          const horaDate = new Date(hora.Fecha);
+          const currentDate = new Date();
+          const oneMonthAgo = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, currentDate.getDate());
+          return horaDate >= oneMonthAgo && horaDate <= currentDate;
+        });
       },
       (error) => {
         console.error('Error al obtener la hora', error);

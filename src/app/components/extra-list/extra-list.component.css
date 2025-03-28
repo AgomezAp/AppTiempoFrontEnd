@@ -1,0 +1,60 @@
+.extra-list-container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 60px;
+  }
+  
+  .table-container {
+    width: 80%;
+  }
+  
+  .table-responsive {
+    overflow-x: auto;
+    width: 100%;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+  }
+  
+  th {
+    background-color: #f4f4f4;
+  }
+  
+  .loading-spinner {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  .btn {
+    padding: 5px 10px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+
+  .table th:nth-child(1), .table td:nth-child(1) {
+    width: 1%; /* Columna "Id" */
+  }
+  
+  .table th:nth-child(2), .table td:nth-child(2) {
+    width: 20%; /* Columna "Nombre" */
+  }
+  
+  .table th:nth-child(3), .table td:nth-child(3) {
+    width: 15%; /* Columna "Entrada" */
+  }
+  
+  .table th:nth-child(4), .table td:nth-child(4) {
+    width: 15%; /* Columna "Salida" */
+  }

@@ -1,0 +1,32 @@
+<app-navbar></app-navbar>
+<div class="extra-list-container">
+  <h1>Lista de Horas Extras</h1>
+  <div *ngIf="loading" class="loading-spinner">
+    <p>Cargando...</p>
+  </div>
+  <div class="table-container" *ngIf="!loading && filterdExtra.length > 0">
+    <div class="table-responsive" >
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Id</th>
+            <th>Nombre</th>
+            <th>Horas Acumuladas</th>
+            <th>Observaciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let extra of filterdExtra">
+            <td>{{ extra.Sid }}</td>
+            <td>{{ extra.Name }}</td>
+            <td>{{ extra.Acumulado }}</td>
+            <td>{{ extra.observaciones}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div *ngIf="!loading && filterdExtra.length === 0">
+    <p>No hay datos disponibles.</p>
+  </div>
+</div>

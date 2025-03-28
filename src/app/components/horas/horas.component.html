@@ -59,32 +59,12 @@
               <td>{{item.Fecha}}</td>
               <td>{{item.Total}}</td>
               <td>{{item.Extra}}</td>
-              <td>
-                <button class="btn btn-warning action-button"  (click)="navigateToEditSalida(item.Hid, item.Fecha)" *ngIf="showList">Modificar</button>
+              <td *ngIf="showList">
+                <button class="btn btn-warning action-button"  (click)="navigateToEditSalida(item.Hid, item.Fecha)" >Modificar</button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
-    <!-- <div class="table-container" *ngIf="!showList">
-      <div class="table-responsive">
-        <table class="table table-bordered">
-          <thead>
-            <tr>
-              <th scope="col">ID</th>
-              <th scope="col">Nombre</th>
-              <th scope="col">Acumulado</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let it of filterdExtra">
-              <th>{{it.Sid}}</th>
-              <td>{{it.Name}}</td>
-              <td>{{it.Acumulado}}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div> -->
   </div>

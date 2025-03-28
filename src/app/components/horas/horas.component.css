@@ -23,7 +23,7 @@
   th, td {
     padding: 8px 12px;
     border: 1px solid #ddd;
-    text-align: left;
+    text-align: center;
   }
   
   th {
@@ -99,7 +99,37 @@
     right: 10px;
     background-color: rgb(19, 150, 150);
   }
+  .table th:nth-child(1), .table td:nth-child(1) {
+    width: 7%; /* Columna "Id" */
+  }
   
+  .table th:nth-child(2), .table td:nth-child(2) {
+    width: 20%; /* Columna "Nombre" */
+  }
+  
+  .table th:nth-child(3), .table td:nth-child(3) {
+    width: 15%; /* Columna "Entrada" */
+  }
+  
+  .table th:nth-child(4), .table td:nth-child(4) {
+    width: 15%; /* Columna "Salida" */
+  }
+  
+  .table th:nth-child(5), .table td:nth-child(5) {
+    width: 15%; /* Columna "Fecha" */
+  }
+  
+  .table th:nth-child(6), .table td:nth-child(6) {
+    width: 10%; /* Columna "Total" */
+  }
+  
+  .table th:nth-child(7), .table td:nth-child(7) {
+    width: 10%; /* Columna "Extras" */
+  }
+  
+  .table th:nth-child(8), .table td:nth-child(8) {
+    width: 10%; /* Columna "Acciones" */
+  }
   /* Media query para dispositivos móviles */
   @media (max-width: 768px) {
     .horas-dashboard {
