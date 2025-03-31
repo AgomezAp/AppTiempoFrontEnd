@@ -12,7 +12,9 @@
             <th>Id</th>
             <th>Nombre</th>
             <th>Horas Acumuladas</th>
+            <th>Dias Acumuladas</th>
             <th>Observaciones</th>
+            <th>Actualizar</th>
           </tr>
         </thead>
         <tbody>
@@ -20,7 +22,9 @@
             <td>{{ extra.Sid }}</td>
             <td>{{ extra.Name }}</td>
             <td>{{ extra.Acumulado }}</td>
+            <td>{{ extra.acumuladoEnDias }}</td>
             <td>{{ extra.observaciones}}</td>
+            <td><button class="btn btn-primary" (click)="openModal(extra)">Actualizar</button></td>
           </tr>
         </tbody>
       </table>

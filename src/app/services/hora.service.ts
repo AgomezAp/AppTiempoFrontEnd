@@ -96,5 +96,13 @@ export class HoraService {
       responseType: 'blob' as 'json'
     });
   }
+
+  updateExtra(id: string, extra: string): Observable<Blob>{
+    const body = {
+      id: id,
+      extra: extra
+    };
+    return this.http.put<Blob>(`${this.appUrl}${this.apiUrl}/updateExtra`, body);
+  }
   
 }
