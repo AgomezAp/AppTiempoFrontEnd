@@ -43,7 +43,11 @@ export class PermisoComponent implements OnInit {
     // Obtener el correo del líder desde localStorage
     const correoLider = localStorage.getItem('correoLider');
     if (correoLider) {
-      this.permiso.emailLider = correoLider;
+      if (correoLider === this.permiso.emailPersonal){
+        this.permiso.emailLider = ''
+      } else {
+        this.permiso.emailLider = correoLider;          
+      }
     }
     this.loadHolidays()
   }
