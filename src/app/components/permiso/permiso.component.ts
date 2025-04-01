@@ -60,6 +60,7 @@ export class PermisoComponent implements OnInit {
   tiposPermiso: string[] = [
     'Permiso personal de todo el día',
     'Salida Temprano',
+    'Permiso personal por horas',
     'Entrada luego de la jornada',
     'Llegada tarde por factores externos',
     'Cita médica',
@@ -76,7 +77,8 @@ export class PermisoComponent implements OnInit {
     'Urgencia médica',
     'Movimiento de horario',
     'Vacaciones',
-    'Horas extras (en casa, fuera de las instalaciones y viajes)'
+    'Horas extras (en casa, fuera de las instalaciones y viajes)',
+    'Adecuacion horario'
   ];
 
   permitidosSalida: string[] = [ 
@@ -84,7 +86,9 @@ export class PermisoComponent implements OnInit {
     'Cita médica',
     'Cita odontológica',
     'Movimiento de horario',
-    'Horas extras (en casa, fuera de las instalaciones y viajes)'
+    'Permiso personal por horas',
+    'Horas extras (en casa, fuera de las instalaciones y viajes)',
+    'Adecuacion horario'
   ];
 
   permitidoEntrada: string[] = [
@@ -93,7 +97,9 @@ export class PermisoComponent implements OnInit {
     'Cita médica',
     'Cita odontológica',
     'Movimiento de horario',
-    'Horas extras (en casa, fuera de las instalaciones y viajes)'
+    'Permiso personal por horas',
+    'Horas extras (en casa, fuera de las instalaciones y viajes)',
+    'Adecuacion horario'
   ];
 
   variosDias: string[] = [
