@@ -156,6 +156,12 @@ export class PermisoComponent implements OnInit {
     let testDate = new Date("2025-01-01"); // Año Nuevo (feriado)
     let currentDate = new Date(this.permiso.fecha + "T00:00:00");
     let daysAdded = 0;
+
+    if (this.variosDias.includes(this.permiso.tipo)) {
+      daysAdded = 0;
+    } else {
+      daysAdded = this.cantidadDias - 1
+    }
     const permisosRequests = [];
     while (daysAdded < this.cantidadDias) {
       while (this.isWeekend(currentDate) || this.isHoliday(currentDate)) {

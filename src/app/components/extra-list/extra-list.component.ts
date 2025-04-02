@@ -54,10 +54,14 @@ export class ExtraListComponent implements OnInit {
 
         this.listExtra = dataE.map(extra => {
           const novedadEncontrada = dataN.filter(n => n.Nid === extra.Sid).map(n => n.description);
-          const [hours, minutes] = extra.Acumulado.split(':').map(Number);
-          const totalMinutes = hours * 60 + minutes;
+          let [hours, minutes] = extra.Acumulado.split(':').map(Number);
+          if(extra.Acumulado.startsWith('-')){
+            minutes = -minutes;
+          }
+          let totalMinutes = hours * 60 + minutes;
           const days = totalMinutes < 0 ? Math.ceil(totalMinutes/ (8.5 * 60)) :Math.floor(totalMinutes / (8.5 * 60));
-          const remainingHours = totalMinutes < 0 ? Math.ceil((totalMinutes % (8.5 * 60))/60) : Math.floor((totalMinutes % (8.5 * 60)) / 60);
+          totalMinutes = totalMinutes - (days*510);
+          const remainingHours = totalMinutes < 0 ? Math.ceil(totalMinutes/60) : Math.floor(totalMinutes/ 60);
           const remainingMinutes = totalMinutes % 60;
           const acumuladoEnDias = `${days} días, ${remainingHours} horas, ${remainingMinutes} minutos`;
           return { 
@@ -67,7 +71,6 @@ export class ExtraListComponent implements OnInit {
           };
         });
         this.filterdExtra = this.listExtra;
-        console.log(this.filterdExtra)
         this.loading = false;
       });
     });
