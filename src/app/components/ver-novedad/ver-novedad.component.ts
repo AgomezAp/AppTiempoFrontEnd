@@ -28,7 +28,7 @@ export class VerNovedadComponent {
   errorMesssage: {[key: number]: string}= {}
 
   constructor(
-    private route : ActivatedRoute,
+    private router : Router,
     private novedadService: NovedadService,
     private toastr: ToastrService
   ) {}
@@ -94,9 +94,12 @@ export class VerNovedadComponent {
     this.novedadService.createNovedad().subscribe(
       (respuesta: Novedad) => {
         console.log('Novedad creada con exito', respuesta);
+        this.toastr.success('Novedades actualizadas');
+        this.router.navigate(['/verNovedad']);
       },
       (error) => {
         console.error('Error al crear novedad', error);
+        this.toastr.error('Error al crear la novedad, intentalo de nuevo mas tarde');
       }
     );
   }
