@@ -41,20 +41,21 @@
     <div class="row">
       <div class="col-md-6">
         <div class="form-group" *ngIf="mostrarSalida()">
-          <label for="horaSalida">Hora de salida:</label>
-          <input type="time" id="horaSalida" [(ngModel)]="permiso.horaSalida" name="horaSalida" class="form-control" required>
+          <label for="horaSalida">Hora de salida de la empresa:</label>
+            <input type="time" id="horaSalida" [(ngModel)]="permiso.horaSalida" name="horaSalida" class="form-control" required min="7:30" max="17:00">
         </div>
       </div>
       <div class="col-md-6">
         <div class="form-group" *ngIf="mostrarEntrada()">
-          <label for="horaRegreso">Hora de entrada:</label>
-          <input type="time" id="horaRegreso" [(ngModel)]="permiso.horaEntrada" name="horaRegreso" class="form-control" required>
+          <label for="horaRegreso">Hora de entrada a la empresa:</label>
+          <input type="time" id="horaRegreso" [(ngModel)]="permiso.horaEntrada" name="horaRegreso" class="form-control" required min="7:30" max="17:00">
         </div>
       </div>
+      <p *ngIf="mostrarEntrada() || mostrarSalida()"><strong>POR FAVOR REVISAR BIEN EL HORARIO</strong></p>
     </div>
     <div class="form-group">
       <label for="observaciones">Observaciones:</label>
-      <textarea id="observaciones" [(ngModel)]="permiso.observaciones" name="observaciones" class="form-control" rows="3" minlength="50" placeholder="Debe ingresar al menos 50 caracteres"></textarea>
+      <textarea id="observaciones" required [(ngModel)]="permiso.observaciones" name="observaciones" class="form-control" rows="3" minlength="50" placeholder="Debe ingresar al menos 50 caracteres"></textarea>
     </div>
     <div class="form-group">
       <label for="soporte">Subir autorizaciones o soporte del permiso:</label>

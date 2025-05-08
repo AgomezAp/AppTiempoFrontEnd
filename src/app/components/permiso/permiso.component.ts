@@ -8,13 +8,12 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-
+import { DatePipe } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 
 import { PermisosService } from '../../services/permisos.service';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 import { NavbarComponent } from '../navbar/navbar.component';
-import { response } from 'express';
 
 @Component({
   selector: 'app-permiso',
@@ -51,6 +50,15 @@ export class PermisoComponent implements OnInit {
     }
     this.loadHolidays()
   }
+  transformHora() {
+    const pipe = new DatePipe('en-GB'); // Configuración para 24 horas
+    return pipe.transform(this.permiso.horaEntrada, 'HH:mm') ?? '';
+  }
+  actualizarHora(event: any) {
+    const horaIngresada = event.target.value;
+    this.permiso.horaEntrada = horaIngresada.length === 5 ? horaIngresada : ''; // Valida formato HH:mm
+  }
+  
   loadHolidays() {
     const year = new Date().getFullYear();
     this.permisoService.getHolidays(year).subscribe({
@@ -82,7 +90,7 @@ export class PermisoComponent implements OnInit {
     'Movimiento de horario',
     'Vacaciones',
     'Horas extras (en casa, fuera de las instalaciones y viajes)',
-    'Adecuacion horario'
+    'Adecuacion horario (Horarios Especiales)'
   ];
 
   permitidosSalida: string[] = [ 
@@ -92,7 +100,7 @@ export class PermisoComponent implements OnInit {
     'Movimiento de horario',
     'Permiso personal por horas',
     'Horas extras (en casa, fuera de las instalaciones y viajes)',
-    'Adecuacion horario'
+    'Adecuacion horario (Horarios Especiales)'
   ];
 
   permitidoEntrada: string[] = [
@@ -103,7 +111,7 @@ export class PermisoComponent implements OnInit {
     'Movimiento de horario',
     'Permiso personal por horas',
     'Horas extras (en casa, fuera de las instalaciones y viajes)',
-    'Adecuacion horario'
+    'Adecuacion horario (Horarios Especiales)'
   ];
 
   variosDias: string[] = [
@@ -149,6 +157,11 @@ export class PermisoComponent implements OnInit {
   isWeekend(date: Date): boolean {
     const day = date.getDay();
     return day === 0 || day === 6;
+  }
+
+  isObservacionesValid(): boolean {
+    // Elimina los espacios en blanco al inicio y al final, y verifica la longitud
+    return this.permiso.observaciones?.trim().length >= 50;
   }
 
   createPermiso() {
