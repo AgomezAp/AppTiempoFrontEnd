@@ -20,7 +20,7 @@
     </div>
     <div class="form-group">
       <label for="tipo">Tipo de permiso:</label>
-      <select id="tipo" [(ngModel)]="permiso.tipo" name="tipo" class="form-control" required>
+      <select id="tipo" [(ngModel)]="permiso.tipo" name="tipo" class="form-control" required (ngModelChange)="onTipoPermisoChange()">
         <option *ngFor="let tipo of tiposPermiso" [value]="tipo">{{ tipo }}</option>
       </select>
     </div>

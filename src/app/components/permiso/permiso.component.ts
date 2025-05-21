@@ -149,6 +149,16 @@ export class PermisoComponent implements OnInit {
     this.selectedFile = event.target.files[0];
   }
 
+  onTipoPermisoChange() {
+  if (!this.mostrarSalida()) {
+    this.permiso.horaSalida = '';
+  }
+  if (!this.mostrarEntrada()) {
+    this.permiso.horaEntrada = '';
+  }
+  console.log('horaSalida:', this.permiso.horaSalida, 'horaEntrada:', this.permiso.horaEntrada);
+}
+
   isHoliday(date: Date): boolean {
     const dateString = date.toISOString().split('T')[0];
     return this.holidays.includes(dateString);
