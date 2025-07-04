@@ -13,34 +13,35 @@ import { UserService } from '../../services/user.service';
   selector: 'app-informes',
   imports: [NavbarComponent, FormsModule, CommonModule],
   templateUrl: './informes.component.html',
-  styleUrl: './informes.component.css'
+  styleUrl: './informes.component.css',
 })
 export class InformesComponent {
   id: string = '';
-  ids: number[] = []
+  ids: number[] = [];
   fechaInicial: string = '';
   fechaFinal: string = '';
   tipo: string = 'personal';
-  loading: boolean= false;
-  name: string = ''
-  nombres: string[] = []
-  usuarios: any[] = []
+  loading: boolean = false;
+  name: string = '';
+  nombres: string[] = [];
+  usuarios: any[] = [];
   seleccionados: number[] = [];
 
   constructor(
     private router: Router,
     private horaService: HoraService,
     private toastr: ToastrService,
-    private userService: UserService) {}
+    private userService: UserService
+  ) {}
 
   seleccionarTipoInforme(tipoinforme: string) {
     this.tipo = tipoinforme;
   }
-  ngOnInit(){
+  ngOnInit() {
     this.userService.getListUser().subscribe(
       (data: any[]) => {
         this.usuarios = data;
-        console.log('Usuarios recibidos', this.usuarios)
+        console.log('Usuarios recibidos', this.usuarios);
       },
       (error) => {
         console.log('Error al obtener los nombres', error);
@@ -49,13 +50,15 @@ export class InformesComponent {
   }
   onNombreChange(event: Event) {
     const target = event.target as HTMLInputElement;
-    const selectedUsuario = this.usuarios.find(usuario => usuario.nombre === target.value);
-      if (selectedUsuario) {
-        this.name = selectedUsuario.nombre;
-        this.id = String(selectedUsuario.Uid);
-      }
+    const selectedUsuario = this.usuarios.find(
+      (usuario) => usuario.nombre === target.value
+    );
+    if (selectedUsuario) {
+      this.name = selectedUsuario.nombre;
+      this.id = String(selectedUsuario.Uid);
+    }
   }
-  onCheckboxChange(event: any, usuario:any): void {
+  onCheckboxChange(event: any, usuario: any): void {
     if (event.target.checked) {
       // Agrega el ID si no está en la lista
       if (!this.seleccionados.includes(usuario.Uid)) {
@@ -63,12 +66,14 @@ export class InformesComponent {
       }
     } else {
       // Elimina el ID si se desmarca el checkbox
-      this.seleccionados = this.seleccionados.filter(id => id !== usuario.Uid);
+      this.seleccionados = this.seleccionados.filter(
+        (id) => id !== usuario.Uid
+      );
     }
   }
   agregarNombre(): void {
     if (this.name) {
-      const usuario = this.usuarios.find(u => u.nombre === this.name);
+      const usuario = this.usuarios.find((u) => u.nombre === this.name);
       if (usuario && !this.ids.includes(usuario.Uid)) {
         this.nombres.push(usuario.nombre);
         this.ids.push(usuario.Uid);
@@ -79,8 +84,8 @@ export class InformesComponent {
   }
   agregarNombres(): void {
     if (this.seleccionados.length > 0) {
-      this.seleccionados.forEach(id => {
-        const usuario = this.usuarios.find(u => u.Uid === id);
+      this.seleccionados.forEach((id) => {
+        const usuario = this.usuarios.find((u) => u.Uid === id);
         if (usuario && !this.ids.includes(id)) {
           this.nombres.push(usuario.nombre);
           this.ids.push(id);
@@ -101,40 +106,39 @@ export class InformesComponent {
     }
   }
   generarInformePersonal() {
-    
-    if(!this.id || !this.fechaInicial || !this.fechaFinal) {
-
-      this.toastr.error('Por favor, completa todos los campos' )
+    if (!this.id || !this.fechaInicial || !this.fechaFinal) {
+      this.toastr.error('Por favor, completa todos los campos');
       return;
     }
     this.loading = true;
-    const idArray = this.id.split(',').map(id => parseInt(id.trim(), 10));
+    const idArray = this.id.split(',').map((id) => parseInt(id.trim(), 10));
     const data = {
       id: idArray,
       fechaInicial: this.fechaInicial,
       fechaFinal: this.fechaFinal,
     };
-    
-    this.horaService.informePersonal(data.id, data.fechaInicial, data.fechaFinal).subscribe({
-      next: (response) => {
-        const blob = new Blob([response],{type: 'application/pdf'});
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Informe_personal_${new Date().toISOString()}.pdf`;
-        a.click();
-        window.URL.revokeObjectURL(url);
-        this.loading = false; 
-      },
-      error: (error) => {
-        console.error('Error al general el informe:1', error);
-        this.toastr.error('Ocurrio un error al general el informe, intentalo de nuevo.');
-        this.loading = false;
-      }
-    });
 
-    
-
+    this.horaService
+      .informePersonal(data.id, data.fechaInicial, data.fechaFinal)
+      .subscribe({
+        next: (response) => {
+          const blob = new Blob([response], { type: 'application/pdf' });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `Informe_personal_${new Date().toISOString()}.pdf`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error al general el informe:1', error);
+          this.toastr.error(
+            'Ocurrio un error al general el informe, intentalo de nuevo.'
+          );
+          this.loading = false;
+        },
+      });
   }
 
   generarInformeNovedad() {
@@ -147,23 +151,27 @@ export class InformesComponent {
       fechaInicial: this.fechaInicial,
       fechaFinal: this.fechaFinal,
     };
-    this.horaService.informeNovedad(data.fechaInicial, data.fechaFinal).subscribe({
-      next: (response) => {
-        const blob = new Blob([response],{type: 'application/pdf'});
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Novedades_${data.fechaInicial}_${data.fechaFinal}.pdf`
-        a.click();
-        window.URL.revokeObjectURL(url);
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error al generar el informe', error)
-        this.toastr.error('Ocurrio un error al general el informe, intentalo de nuevo.');
-        this.loading = false;
-      }
-    });
+    this.horaService
+      .informeNovedad(data.fechaInicial, data.fechaFinal)
+      .subscribe({
+        next: (response) => {
+          const blob = new Blob([response], { type: 'application/pdf' });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `Novedades_${data.fechaInicial}_${data.fechaFinal}.pdf`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error al generar el informe', error);
+          this.toastr.error(
+            'Ocurrio un error al general el informe, intentalo de nuevo.'
+          );
+          this.loading = false;
+        },
+      });
   }
 
   generarInformeRiesgo() {
@@ -178,25 +186,48 @@ export class InformesComponent {
       fechaFinal: this.fechaFinal,
     };
 
-    this.horaService.informeRiesgo(data.fechaInicial, data.fechaFinal).subscribe({
-      next: (response) => {
-        const blob = new Blob([response], { type: 'application/pdf' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Riesgo_${data.fechaInicial}_${data.fechaFinal}.pdf`;
-        a.click();
-        window.URL.revokeObjectURL(url);
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error al generar el informe:', error);
-        this.toastr.error('Ocurrió un error al generar el informe, inténtalo de nuevo.');
-        this.loading = false;
-      }
-    });
+    this.horaService
+      .informeRiesgo(data.fechaInicial, data.fechaFinal)
+      .subscribe({
+        next: (response) => {
+          const blob = new Blob([response], { type: 'application/pdf' });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `Riesgo_${data.fechaInicial}_${data.fechaFinal}.pdf`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error al generar el informe:', error);
+          this.toastr.error(
+            'Ocurrió un error al generar el informe, inténtalo de nuevo.'
+          );
+          this.loading = false;
+        },
+      });
   }
   cancelEdit() {
-    this.router.navigate(['/horas']);  
-  }  
+    this.router.navigate(['/horas']);
+  }
+  toggleSeleccionarTodos(event: any): void {
+    if (event.target.checked) {
+      // Selecciona todos los usuarios
+      this.nombres = this.usuarios.map((u) => u.nombre);
+      this.ids = this.usuarios.map((u) => u.Uid);
+      this.id = this.ids.join(', ');
+    } else {
+      // Deselecciona todos
+      this.nombres = [];
+      this.ids = [];
+      this.id = '';
+    }
+  }
+  eliminarNombre(index: number): void {
+    // Elimina el nombre y el id correspondiente
+    this.nombres.splice(index, 1);
+    this.ids.splice(index, 1);
+    this.id = this.ids.join(', ');
+  }
 }

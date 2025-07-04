@@ -1,70 +1,234 @@
 <app-navbar></app-navbar>
-<div *ngIf="!loading" class="horas-dashboard">
-    <h1>{{ showList ? 'Registro de Horas' : 'Horarios por persona'}}</h1>
-    <div class="superior">
-      <div class="filters">
-        <button (click)="toggleDateWeek()">{{ showDateRange ? 'Semana' : 'Fecha' }}</button>
-        <button class="extra" *ngIf="!showList" (click)="verHoras()" >Todo</button>
-        <button class="extra" *ngIf="showList" (click)="agregarRegistro()">+</button>
-        <div *ngIf="showDateRange">
-          <label for="startDate">Fecha Inicio: </label>
-          <input id="startDate" [(ngModel)]="startDate" (change)="filterByDataRange()" type="date">
 
-          <label for="endDate">Fecha Fin: </label>
-          <input id="endDate" [(ngModel)]="endDate" (change)="filterByDataRange()" type="date">
+<div *ngIf="!loading" class="horas-container">
+  <!-- Header -->
+  <div class="header-section">
+    <h1 class="page-title">
+      {{ showList ? "Registro de Horas" : "Horarios por Persona" }}
+    </h1>
+  </div>
+
+  <!-- Content Layout -->
+  <div class="main-content">
+    <!-- Filters Section - Solo para Admin -->
+    <div class="filters-section" *ngIf="isAdmin">
+      <div class="filters-card">
+        <h3>Filtros</h3>
+        <div class="filters-grid">
+          <div class="filter-group">
+            <button class="filter-btn" (click)="toggleDateWeek()">
+              {{ showDateRange ? "Semana" : "Fecha" }}
+            </button>
+            <button
+              class="filter-btn extra"
+              *ngIf="!showList"
+              (click)="verHoras()"
+            >
+              Todo
+            </button>
+            <button
+              class="filter-btn add-btn"
+              *ngIf="showList"
+              (click)="agregarRegistro()"
+            >
+              <i class="fas fa-plus"></i> Agregar
+            </button>
+          </div>
+
+          <!-- Date Range Filters -->
+          <div class="date-filters" *ngIf="showDateRange">
+            <div class="input-group">
+              <label for="startDate">Fecha Inicio</label>
+              <input
+                id="startDate"
+                [(ngModel)]="startDate"
+                (change)="filterByDataRange()"
+                type="date"
+                class="date-input"
+              />
+            </div>
+            <div class="input-group">
+              <label for="endDate">Fecha Fin</label>
+              <input
+                id="endDate"
+                [(ngModel)]="endDate"
+                (change)="filterByDataRange()"
+                type="date"
+                class="date-input"
+              />
+            </div>
+          </div>
+
+          <!-- Week Filter -->
+          <div class="week-filter" *ngIf="!showDateRange">
+            <div class="input-group">
+              <label for="week">Semana</label>
+              <input
+                id="week"
+                [(ngModel)]="week"
+                (change)="filterByWeek()"
+                type="week"
+                class="week-input"
+              />
+            </div>
+          </div>
+
+          <!-- Name Filter -->
+          <div class="name-filter" *ngIf="showList">
+            <div class="input-group">
+              <label for="name">Nombre</label>
+              <input
+                id="name"
+                [(ngModel)]="filterName"
+                (input)="filterdByName()"
+                type="text"
+                class="text-input"
+                placeholder="Buscar por nombre..."
+              />
+            </div>
+          </div>
         </div>
-        <div *ngIf="!showDateRange">
-          <label for="week">Semana: </label>
-          <input id="week" [(ngModel)]="week" (change)="filterByWeek()" type="week">
-        </div>
-        <div *ngIf="showList"> 
-          <label for="name">Nombre: </label>
-          <input id="name" [(ngModel)]="filterName" (input)="filterdByName()" type="text">  
-        </div>
-      </div>
-      <div class="extra" *ngIf="!showList">
-        <h4>Horas Extras</h4>
-        <p *ngFor="let it of filterdExtra">{{it.Name}}: {{it.Acumulado}}</p>
       </div>
     </div>
-    <div class="table-container">
-      <div class="table-responsive">
-        <table class="table table-bordered">
-          <thead>
-            <tr>
-              <th scope="col">Id
-                <button class="btn btn-outline-dark" *ngIf="sortOrder !== 'asc' && sortOrder !== 'desc'" (click)="sortHoursID('asc')">↑</button>
-                <button class="btn btn-outline-dark" *ngIf="sortOrder === 'asc'" (click)="sortHoursID('desc')">↓</button>
-                <button class="btn btn-outline-dark" *ngIf="sortOrder === 'desc'" (click)="sortHoursID('')">↔</button>  
-              </th>
-              <th scope="col">Nombre</th>
-              <th scope="col">Entrada</th>
-              <th scope="col">Salida</th>
-              <th scope="col">Fecha
-                <button class="btn btn-outline-dark" *ngIf="sortOrder !== 'asc' && sortOrder !== 'desc'" (click)="sortHours('asc')">↑</button>
-                <button class="btn btn-outline-dark" *ngIf="sortOrder === 'asc'" (click)="sortHours('desc')">↓</button>
-                <button class="btn btn-outline-dark" *ngIf="sortOrder === 'desc'" (click)="sortHours('')">↔</button> 
-              </th>
-              <th scope="col">Total</th>
-              <th scope="col">Extras</th>
-              <th scope="col" *ngIf="showList">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let item of filteredHoras">
-              <th scope="row">{{item.Hid}}</th>
-              <td>{{item.Name}}</td>
-              <td>{{item.Entrada}}</td>
-              <td>{{item.Salida}}</td>
-              <td>{{item.Fecha}}</td>
-              <td>{{item.Total}}</td>
-              <td>{{item.Extra}}</td>
-              <td *ngIf="showList">
-                <button class="btn btn-warning action-button"  (click)="navigateToEditSalida(item.Hid, item.Fecha)" >Modificar</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+
+    <!-- Content Grid -->
+    <div class="content-grid">
+      <!-- Table Section -->
+      <div class="table-section">
+        <div class="table-header">
+          <h3>Registros de Horas</h3>
+          <div class="table-info">
+            <span
+              >Mostrando {{ getStartIndex() }} - {{ getEndIndex() }} de
+              {{ filteredHoras.length }} registros</span
+            >
+          </div>
+        </div>
+
+        <div class="table-container">
+          <div class="table-responsive">
+            <table class="hours-table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Entrada</th>
+                  <th>Salida</th>
+                  <th>
+                    Fecha
+                    <div class="sort-buttons">
+                      <button
+                        class="sort-btn"
+                        *ngIf="sortOrder !== 'asc' && sortOrder !== 'desc'"
+                        (click)="sortHours('asc')"
+                      >
+                        <i class="fas fa-sort"></i>
+                      </button>
+                      <button
+                        class="sort-btn active"
+                        *ngIf="sortOrder === 'asc'"
+                        (click)="sortHours('desc')"
+                      >
+                        <i class="fas fa-sort-up"></i>
+                      </button>
+                      <button
+                        class="sort-btn active"
+                        *ngIf="sortOrder === 'desc'"
+                        (click)="sortHours('')"
+                      >
+                        <i class="fas fa-sort-down"></i>
+                      </button>
+                    </div>
+                  </th>
+                  <th>Total</th>
+                  <th>Extras</th>
+                  <th *ngIf="showList && isAdmin">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let item of paginatedHoras"
+                  [class]="getRowClass(item)"
+                >
+                  <td class="name-cell">{{ item.Name }}</td>
+                  <td class="time-cell">{{ item.Entrada }}</td>
+                  <td class="time-cell">{{ item.Salida }}</td>
+                  <td class="date-cell">{{ item.Fecha }}</td>
+                  <td class="total-cell">{{ item.Total }}</td>
+                  <td
+                    class="extra-cell"
+                    [class]="getExtraCellClass(item.Extra)"
+                  >
+                    <span class="extra-value">{{ item.Extra }}</span>
+                    <i
+                      class="fas fa-clock extra-icon"
+                      [class]="getExtraIconClass(item.Extra)"
+                    ></i>
+                  </td>
+                  <td *ngIf="showList && isAdmin" class="actions-cell">
+                    <button
+                      class="btn-modify"
+                      (click)="navigateToEditSalida(item.Hid, item.Fecha)"
+                    >
+                      <i class="fas fa-edit"></i> Modificar
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container" *ngIf="totalPages > 1">
+          <button
+            class="pagination-btn"
+            (click)="goToPage(currentPage - 1)"
+            [disabled]="currentPage === 1"
+          >
+            <i class="fas fa-chevron-left"></i>
+          </button>
+
+          <button
+            class="pagination-btn"
+            *ngFor="let page of getPageNumbers()"
+            [class.active]="currentPage === page"
+            (click)="goToPage(page)"
+          >
+            {{ page }}
+          </button>
+
+          <button
+            class="pagination-btn"
+            (click)="goToPage(currentPage + 1)"
+            [disabled]="currentPage === totalPages"
+          >
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Extra Hours Section -->
+      <div class="extra-hours-section" *ngIf="!showList">
+        <div class="extra-hours-card">
+          <h3>
+            <i class="fas fa-clock"></i>
+            Horas Extras
+          </h3>
+          <div class="extra-hours-list">
+            <div class="extra-item" *ngFor="let it of filterdExtra">
+              <span class="employee-name">{{ it.Name }}</span>
+              <span
+                class="hours-badge"
+                [class]="getExtraHoursBadgeClass(it.Acumulado)"
+              >
+                {{ it.Acumulado }}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+</div>
+
+<app-spinner *ngIf="loading"></app-spinner>

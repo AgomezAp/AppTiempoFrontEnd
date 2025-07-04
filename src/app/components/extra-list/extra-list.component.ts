@@ -3,14 +3,14 @@ import { NavbarComponent } from '../navbar/navbar.component';
 import { HoraService } from '../../services/hora.service';
 import { NovedadService } from '../../services/novedad.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Extra, Novedad } from '../../interfaces/hora'
+import { Extra, Novedad } from '../../interfaces/hora';
 import { ToastrService } from 'ngx-toastr';
-import { CommonModule } from '@angular/common'
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-extra-list',
   imports: [NavbarComponent, CommonModule],
   templateUrl: './extra-list.component.html',
-  styleUrl: './extra-list.component.css'
+  styleUrl: './extra-list.component.css',
 })
 export class ExtraListComponent implements OnInit {
   loading: boolean = false;
@@ -20,54 +20,102 @@ export class ExtraListComponent implements OnInit {
   filterdNovedad: any[] = [];
 
   constructor(
-      private horaService: HoraService,
-      private novedadService: NovedadService,
-      private route: ActivatedRoute,
-      private router: Router,
-      private toastr: ToastrService) {}
+    private horaService: HoraService,
+    private novedadService: NovedadService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private toastr: ToastrService
+  ) {}
 
-  
+  pageSize = 7;
+  currentPage = 1;
+  totalPages = 1;
+  filterdExtraOriginal: any[] = [];
+
+  updatePagination() {
+    this.totalPages = Math.ceil(
+      this.filterdExtraOriginal.length / this.pageSize
+    );
+    this.goToPage(1);
+  }
+
+  goToPage(page: number) {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    const start = (page - 1) * this.pageSize;
+    const end = start + this.pageSize;
+    this.filterdExtra = this.filterdExtraOriginal.slice(start, end);
+  }
+
+  getPageNumbers(): number[] {
+    const pages = [];
+    for (let i = 1; i <= this.totalPages; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  getStartIndex(): number {
+    return (this.currentPage - 1) * this.pageSize;
+  }
+
+  getEndIndex(): number {
+    return Math.min(
+      this.currentPage * this.pageSize,
+      this.filterdExtraOriginal.length
+    );
+  }
   ngOnInit(): void {
     this.loadData();
   }
 
   loadExtra(): void {
-    this.loading = true
+    this.loading = true;
     this.horaService.getExtra().subscribe((data: Extra[]) => {
       this.listExtra = data;
       this.filterdExtra = data;
-      this.loading=false;
+      this.loading = false;
     });
   }
   loadNovedad(): void {
-    this.loading = true
+    this.loading = true;
     this.novedadService.verNovedad().subscribe((data: Novedad[]) => {
       this.listNovedad = data;
       this.filterdNovedad = data;
-      this.loading = false
-    })
+      this.loading = false;
+    });
   }
 
   loadData(): void {
     this.horaService.getExtra().subscribe((dataE: Extra[]) => {
       this.novedadService.verNovedad().subscribe((dataN: Novedad[]) => {
-
-        this.listExtra = dataE.map(extra => {
-          const novedadEncontrada = dataN.filter(n => n.Nid === extra.Sid).map(n => n.description);
+        this.listExtra = dataE.map((extra) => {
+          const novedadEncontrada = dataN
+            .filter((n) => n.Nid === extra.Sid)
+            .map((n) => n.description);
           let [hours, minutes] = extra.Acumulado.split(':').map(Number);
-          if(extra.Acumulado.startsWith('-')){
+          if (extra.Acumulado.startsWith('-')) {
             minutes = -minutes;
           }
           let totalMinutes = hours * 60 + minutes;
-          const days = totalMinutes < 0 ? Math.ceil(totalMinutes/ (8.5 * 60)) :Math.floor(totalMinutes / (8.5 * 60));
-          totalMinutes = totalMinutes - (days*510);
-          const remainingHours = totalMinutes < 0 ? Math.ceil(totalMinutes/60) : Math.floor(totalMinutes/ 60);
+          const days =
+            totalMinutes < 0
+              ? Math.ceil(totalMinutes / (8.5 * 60))
+              : Math.floor(totalMinutes / (8.5 * 60));
+          totalMinutes = totalMinutes - days * 510;
+          const remainingHours =
+            totalMinutes < 0
+              ? Math.ceil(totalMinutes / 60)
+              : Math.floor(totalMinutes / 60);
           const remainingMinutes = totalMinutes % 60;
           const acumuladoEnDias = `${days} días, ${remainingHours} horas, ${remainingMinutes} minutos`;
-          return { 
-            ...extra, 
-            observaciones: novedadEncontrada.length > 0 ? novedadEncontrada : ['sin observacion'],
-            acumuladoEnDias
+          return {
+            ...extra,
+            observaciones:
+              novedadEncontrada.length > 0
+                ? novedadEncontrada
+                : ['sin observacion'],
+            acumuladoEnDias,
           };
         });
         this.filterdExtra = this.listExtra;
@@ -76,7 +124,7 @@ export class ExtraListComponent implements OnInit {
     });
   }
   openModal(extra: Extra): void {
-    console.log("Open Modal", extra)
+    console.log('Open Modal', extra);
     const modal = document.createElement('div');
     modal.style.position = 'fixed';
     modal.style.top = '50%';
@@ -100,8 +148,12 @@ export class ExtraListComponent implements OnInit {
 
     const content = document.createElement('div');
     content.innerHTML = `
-      <label><strong>Nombre:</strong> <input style="margin-bottom: 15px" type="text" value="${extra.Name || ''}" readonly></label>
-      <label><strong>Acumulado:</strong> <input style="margin-bottom: 15px" id="acumuladoInput" type="text" value="${extra?.Acumulado || ''}"></label>
+      <label><strong>Nombre:</strong> <input style="margin-bottom: 15px" type="text" value="${
+        extra.Name || ''
+      }" readonly></label>
+      <label><strong>Acumulado:</strong> <input style="margin-bottom: 15px" id="acumuladoInput" type="text" value="${
+        extra?.Acumulado || ''
+      }"></label>
     `;
     content.style.display = 'block';
     content.style.marginBottom = '10px';
@@ -120,36 +172,40 @@ export class ExtraListComponent implements OnInit {
     saveButton.style.marginRight = '10px';
     saveButton.style.padding = '10px 20px';
     saveButton.style.fontSize = '1rem';
-    saveButton.style.border = 'none'
-    saveButton.style.borderRadius = '4px'
-    saveButton.style.cursor = 'pointer'
-    saveButton.style.transition = 'background-color 0.3s ease'
+    saveButton.style.border = 'none';
+    saveButton.style.borderRadius = '4px';
+    saveButton.style.cursor = 'pointer';
+    saveButton.style.transition = 'background-color 0.3s ease';
     saveButton.style.color = 'white';
     saveButton.style.backgroundColor = '#28a745';
     saveButton.addEventListener('mouseover', () => {
       saveButton.style.backgroundColor = '#218838';
-      saveButton.style.opacity = '0.9s'
+      saveButton.style.opacity = '0.9s';
     });
     saveButton.addEventListener('mouseout', () => {
       saveButton.style.backgroundColor = '#28a745';
       saveButton.style.color = 'white';
-      saveButton.style.marginRight = '10px'
+      saveButton.style.marginRight = '10px';
     });
 
     saveButton.addEventListener('click', () => {
-      const acumuladoInput = (document.getElementById('acumuladoInput') as HTMLInputElement).value;
-      this.horaService.updateExtra(extra.Sid.toString(), acumuladoInput).subscribe({
-        next: () => {
-          this.toastr.success('Datos actualizados con éxito');
-          document.body.removeChild(modal);
-          document.body.removeChild(overlay);
-          this.loadData();
-        },
-        error: (err) => {
-          console.error('Error al actualizar los datos',err);
-          alert('Error al actualizar')
-        }
-      });
+      const acumuladoInput = (
+        document.getElementById('acumuladoInput') as HTMLInputElement
+      ).value;
+      this.horaService
+        .updateExtra(extra.Sid.toString(), acumuladoInput)
+        .subscribe({
+          next: () => {
+            this.toastr.success('Datos actualizados con éxito');
+            document.body.removeChild(modal);
+            document.body.removeChild(overlay);
+            this.loadData();
+          },
+          error: (err) => {
+            console.error('Error al actualizar los datos', err);
+            alert('Error al actualizar');
+          },
+        });
     });
     modal.appendChild(saveButton);
 
@@ -158,15 +214,15 @@ export class ExtraListComponent implements OnInit {
     closeButton.style.marginRight = '10px';
     closeButton.style.padding = '10px 20px';
     closeButton.style.fontSize = '1rem';
-    closeButton.style.border = 'none'
-    closeButton.style.borderRadius = '4px'
-    closeButton.style.cursor = 'pointer'
+    closeButton.style.border = 'none';
+    closeButton.style.borderRadius = '4px';
+    closeButton.style.cursor = 'pointer';
     closeButton.style.transition = 'background-color 0.3s ease';
     closeButton.style.color = 'white';
     closeButton.style.backgroundColor = '#dc3545';
     closeButton.addEventListener('mouseover', () => {
       closeButton.style.backgroundColor = '#c82333';
-      closeButton.style.opacity = '0.9s'
+      closeButton.style.opacity = '0.9s';
     });
     closeButton.addEventListener('mouseout', () => {
       closeButton.style.backgroundColor = '#dc3545';
@@ -177,7 +233,6 @@ export class ExtraListComponent implements OnInit {
       document.body.removeChild(overlay);
     });
     modal.appendChild(closeButton);
-
 
     const overlay = document.createElement('div');
     overlay.style.position = 'fixed';

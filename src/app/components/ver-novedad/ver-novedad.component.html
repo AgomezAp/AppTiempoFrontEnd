@@ -14,6 +14,7 @@
             <button type="button" class="btn btn-primary" (click)="crearNovedad()">Actualizar</button>
         </div>
     </div>
+    
     <div class="table-container">
         <div class="table-responsive">
             <table class="table table-bordered">
@@ -52,14 +53,15 @@
                             <button *ngIf="item.aceptacion !== null" (click)="editarEstado(item, null)" title="Pendiente">
                                 <i class="fas fa-undo"></i>
                             </button>
-                           
                         </td>
                     </tr>
                 </tbody>
             </table>
-            <div>
-                <button class="btn-secondary" (click)="enviarAceptacion()">Aceptar</button>
-            </div>
         </div>
+    </div>
+    
+    <!-- Botón aceptar fuera de la tabla -->
+    <div class="action-buttons">
+        <button class="btn-secondary" (click)="enviarAceptacion()">ACEPTAR</button>
     </div>
 </div>

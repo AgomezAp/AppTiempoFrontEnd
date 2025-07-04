@@ -1,30 +1,103 @@
 <app-navbar></app-navbar>
-<div class="admin-panel">
-  <h2>Administrar Usuarios</h2>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Nombre</th>
-        <th>Apellido</th>
-        <th>Email</th>
-        <th>Rol</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let user of users">
-        <td>{{ user.Uid }}</td>
-        <td>{{ user.name }}</td>
-        <td>{{ user.lastName }}</td>
-        <td>{{ user.email }}</td>
-        <td>{{ user.role?.Rname }}</td>
-        <td>
-          <button *ngIf="user.Uid !== currentUserId" class="btn btn-danger" (click)="user.Uid && deleteUser(user.Uid)">Eliminar</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <app-spinner *ngIf="loading"></app-spinner>
 
+<div class="admin-container">
+  <div class="header-section">
+    <h1 class="page-title">Administrar Usuarios</h1>
+    <button class="btn-back" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i> Volver
+    </button>
+  </div>
+
+  <!-- Filtro de búsqueda -->
+  <div class="search-container">
+    <div class="search-box">
+      <i class="fas fa-search search-icon"></i>
+      <input 
+        type="text" 
+        placeholder="Buscar por nombre, apellido o email..."
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+        class="search-input"
+      >
+    </div>
+  </div>
+
+  <!-- Información de resultados -->
+  <div class="results-info" *ngIf="!loading && filteredUsers.length > 0">
+    <span>Mostrando {{ getStartIndex() }} - {{ getEndIndex() }} de {{ filteredUsers.length }} usuarios</span>
+  </div>
+
+  <!-- Tabla de usuarios -->
+  <div class="table-container" *ngIf="!loading">
+    <div class="table-responsive">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Email</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of paginatedUsers; let i = index" 
+              [class.current-user]="user.Uid === currentUserId">
+            <td>{{ user.name }}</td>
+            <td>{{ user.lastName }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+              <button 
+                *ngIf="user.Uid !== currentUserId" 
+                class="btn-delete" 
+                (click)="user.Uid && deleteUser(user.Uid)"
+                title="Eliminar usuario"
+              >
+                <i class="fas fa-trash"></i>
+              </button>
+              <span *ngIf="user.Uid === currentUserId" class="current-user-label">
+                Tú
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mensaje cuando no hay usuarios -->
+    <div class="no-users" *ngIf="filteredUsers.length === 0 && !loading">
+      <i class="fas fa-users"></i>
+      <p>No se encontraron usuarios</p>
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  <div class="pagination-container" *ngIf="totalPages > 1 && !loading">
+    <button 
+      class="pagination-btn" 
+      (click)="goToPage(currentPage - 1)"
+      [disabled]="currentPage === 1"
+    >
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    
+    <button 
+      class="pagination-btn"
+      *ngFor="let page of getPageNumbers()"
+      [class.active]="currentPage === page"
+      (click)="goToPage(page)"
+    >
+      {{ page }}
+    </button>
+    
+    <button 
+      class="pagination-btn"
+      (click)="goToPage(currentPage + 1)"
+      [disabled]="currentPage === totalPages"
+    >
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <!-- Spinner -->
+  <app-spinner *ngIf="loading"></app-spinner>
 </div>

@@ -11,6 +11,7 @@
             <input id="fecha" type="date" [(ngModel)]="fecha" (change)="filterByData()">
         </div>
     </div>
+    
     <div class="table-container">
         <div class="table-responsive">
             <table class="table table-bordered">
@@ -25,7 +26,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let item of filteredNovedad">
+                    <tr *ngFor="let item of paginatedData">
                         <td>{{item.Name}}</td>
                         <td>{{item.type}}</td>
                         <td>{{item.Fecha}}</td>
@@ -35,6 +36,37 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+        
+        <!-- Controles de paginación simplificados -->
+        <div class="pagination-container">
+            <div class="pagination-info">
+                Página {{currentPage}} de {{totalPages}} - Mostrando {{getStartIndex()}} - {{getEndIndex()}} de {{totalItems}} elementos
+            </div>
+            
+            <div class="pagination-controls">
+                <button class="pagination-btn" (click)="goToPage(1)" [disabled]="currentPage === 1">
+                    <i class="fas fa-angle-double-left"></i> Primera
+                </button>
+                <button class="pagination-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+                    <i class="fas fa-angle-left"></i> Anterior
+                </button>
+                
+                <button 
+                    *ngFor="let page of getVisiblePages()" 
+                    class="pagination-btn page-number" 
+                    [class.active]="page === currentPage"
+                    (click)="goToPage(page)">
+                    {{page}}
+                </button>
+                
+                <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+                    Siguiente <i class="fas fa-angle-right"></i>
+                </button>
+                <button class="pagination-btn" (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages">
+                    Última <i class="fas fa-angle-double-right"></i>
+                </button>
+            </div>
         </div>
     </div>
 </div>

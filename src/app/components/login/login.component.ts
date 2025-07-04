@@ -16,7 +16,7 @@ import { response } from 'express';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule,SpinnerComponent,FormsModule,RouterLink],
+  imports: [CommonModule,SpinnerComponent,FormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })

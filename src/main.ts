@@ -14,6 +14,7 @@ import { provideToastr } from 'ngx-toastr';
 import { AppComponent } from './app/app.component';
 import { appConfig } from './app/app.config';
 import { tokenInterceptor } from './app/utils/token.interceptor';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 bootstrapApplication(AppComponent, {
   ...appConfig, 
@@ -27,7 +28,7 @@ bootstrapApplication(AppComponent, {
       timeOut: 1200,
       positionClass: 'toast-top-right',
       preventDuplicates: true,
-    }),          // Agrega el proveedor de Toastr
+    }), provideAnimationsAsync(),          // Agrega el proveedor de Toastr
   ]
 })
   .catch((err) => console.error(err));

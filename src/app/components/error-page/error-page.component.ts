@@ -7,7 +7,7 @@ import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-error-page',
-  imports: [CommonModule,RouterLink],
+  imports: [CommonModule],
   templateUrl: './error-page.component.html',
   styleUrl: './error-page.component.css'
 })
