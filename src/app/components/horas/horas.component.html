@@ -16,13 +16,18 @@
         <h3>Filtros</h3>
         <div class="filters-grid">
           <div class="filter-group">
-            <button class="filter-btn" (click)="toggleDateWeek()">
+            <button
+              class="filter-btn"
+              title="Busca por semanas"
+              (click)="toggleDateWeek()"
+            >
               {{ showDateRange ? "Semana" : "Fecha" }}
             </button>
             <button
               class="filter-btn extra"
               *ngIf="!showList"
               (click)="verHoras()"
+              title="Ver todos los registros de horas"
             >
               Todo
             </button>
@@ -69,6 +74,7 @@
                 (change)="filterByWeek()"
                 type="week"
                 class="week-input"
+                title="Filtra por semana o por rango de fechas"
               />
             </div>
           </div>
