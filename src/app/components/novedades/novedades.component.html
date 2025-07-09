@@ -22,6 +22,7 @@
                         <th scope="col">Fecha</th>
                         <th scope="col">Descripcion</th>
                         <th scope="col">Horas</th>
+                        <th scope="col">Estado</th>
                         <th scope="col">Accion</th>
                     </tr>
                 </thead>
@@ -32,6 +33,10 @@
                         <td>{{item.Fecha}}</td>
                         <td>{{item.description}}</td>
                         <td>{{item.horas}}</td>
+                        <td>
+                            <span *ngIf="item.aceptacion === true" class="aceptado">Desconto</span>
+                            <span *ngIf="item.aceptacion === false" class="rechazado">No Desconto</span>
+                        </td>
                         <td><button class="btn btn-warning" (click)="revision(item.Cid)">*</button></td>
                     </tr>
                 </tbody>

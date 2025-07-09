@@ -354,7 +354,7 @@
 }
 
 .extra-hours-card h3 i {
-  color: #dc2626;
+  color: #6366f1;
 }
 
 .extra-hours-list {
@@ -363,7 +363,16 @@
   gap: 12px;
 }
 
-.extra-item {
+.extra-item-positive {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border-left: 4px solid #027902;
+}
+.extra-item-negative {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -372,13 +381,30 @@
   border-radius: 8px;
   border-left: 4px solid #dc2626;
 }
+.extra-item-neutral {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border-left: 4px solid #b5b4be;
+}
 
 .employee-name {
   font-weight: 600;
   color: #1e293b;
 }
 
-.hours-badge {
+.hours-badge-positive{
+  background: #027902;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.hours-badge-negative {
   background: #dc2626;
   color: white;
   padding: 4px 8px;
@@ -386,7 +412,14 @@
   font-size: 0.8rem;
   font-weight: 600;
 }
-
+.hours-badge-neutral{
+  background: #b5b4be;
+  color: black;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
 /* Responsive Design */
 @media (max-width: 1200px) {
   .content-grid {

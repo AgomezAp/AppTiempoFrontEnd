@@ -34,6 +34,7 @@ export class SignInComponent implements OnInit {
   repeatPassword: string = '';
   Rid: number |undefined;
   Aid: number |undefined;
+  Uid: number | undefined;
   loading: boolean = false;
   constructor(
     private toastr: ToastrService,
@@ -80,6 +81,7 @@ export class SignInComponent implements OnInit {
     //Creación Objeto
 
     const user: User = {
+      Uid: this.Uid,
       name: this.name,
       lastName: this.lastName,
       email: this.email,

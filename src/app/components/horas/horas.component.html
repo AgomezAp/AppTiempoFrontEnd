@@ -221,11 +221,9 @@
             Horas Extras
           </h3>
           <div class="extra-hours-list">
-            <div class="extra-item" *ngFor="let it of filterdExtra">
+            <div [class]="'extra-item-' + getExtraHoursBadgeClass(it.Acumulado)" *ngFor="let it of filterdExtra">
               <span class="employee-name">{{ it.Name }}</span>
-              <span
-                class="hours-badge"
-                [class]="getExtraHoursBadgeClass(it.Acumulado)"
+              <span [class]="'hours-badge-' + getExtraHoursBadgeClass(it.Acumulado)"
               >
                 {{ it.Acumulado }}
               </span>

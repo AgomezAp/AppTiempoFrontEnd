@@ -113,14 +113,16 @@ export class HorasComponent implements OnInit {
     });
   }
   getExtraHoursBadgeClass(acumulado: string | number): string {
+    console.log(acumulado)
     const valor = this.parseTimeToMinutes(acumulado.toString());
+    console.log(" valor" ,valor)
 
     if (valor > 0) {
-      return 'hours-badge positive'; // Verde para horas extras
+      return 'positive'; // Verde para horas extras
     } else if (valor < 0) {
-      return 'hours-badge negative'; // Rojo para horas debidas
+      return 'negative'; // Rojo para horas debidas
     } else {
-      return 'hours-badge neutral'; // Gris para cero horas
+      return 'neutral'; // Gris para cero horas
     }
   }
   getExtraCellClass(extra: string | number): string {

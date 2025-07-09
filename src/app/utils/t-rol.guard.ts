@@ -15,6 +15,7 @@ export class tRolGuard implements CanActivate {
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     const role = localStorage.getItem('role'); // Obtener el rol del localStorage
+    const userId = localStorage.getItem('userId');
 
     if (!role) {
       this.router.navigate(['/logIn']); // Redirige al login si no hay rol
@@ -25,7 +26,15 @@ export class tRolGuard implements CanActivate {
 
     // Verifica si el rol del usuario permite el acceso
     if (allowedRoles && allowedRoles.includes(role)) {
-      return true; // Permite el acceso si el usuario tiene uno de los roles permitidos
+      if (role === 'User' && route.params['id']) {
+        const routeId = route.params['id'];
+
+        if (routeId !== userId) {
+          this.router.navigate(['/horas', userId])
+          return false;
+        } 
+      }
+      return true
     } else {
       this.router.navigate(['/access-denied']); // Redirige si no tiene un rol permitido
       return false;
