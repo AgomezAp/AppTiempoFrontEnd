@@ -118,6 +118,7 @@ export class PermisoComponent implements OnInit {
     'Vacaciones',
     'Incapacidad médica',
     'Incapacidad laboral',
+    'Movimiento de horario'
   ];
 
   holidays: string[] = []
