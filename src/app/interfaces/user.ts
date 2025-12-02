@@ -6,6 +6,15 @@ export interface User {
   password: string;
   Rid?: number;
   Aid?: number;
+  salario?: number;
+  empresa?: 'AP' | 'AT' | 'ME';
+  documentoIdentificacion?: string;
+  cargo?: string;
+  tipoContrato?: 'termino-indefinido' | 'termino-fijo';
+  fondoPension?: string;
+  fondoCesantias?: string;
+  certificadosGenerados?: number;
+  fechaIngreso?: string;
 }
 
 export interface UResponse {
@@ -17,6 +26,15 @@ export interface UResponse {
   status?: number;
   Rid: number;
   Aid: number;
+  salario?: number;
+  empresa?: 'AP' | 'AT' | 'ME';
+  documentoIdentificacion?: string;
+  cargo?: string;
+  tipoContrato?: 'termino-indefinido' | 'termino-fijo';
+  fondoPension?: string;
+  fondoCesantias?: string;
+  certificadosGenerados?: number;
+  fechaIngreso?: string;
   role?: {
     Rid: number;
     Rname: string;

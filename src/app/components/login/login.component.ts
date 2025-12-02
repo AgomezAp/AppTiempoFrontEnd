@@ -45,6 +45,7 @@ export class LoginComponent {
           const email = user.email;
           const name = response.name;
           const lastname = response.lastname;
+          const documentoIdentificacion = response.documentoIdentificacion || '';
           this.loading = false;
           this.toastr.success('', 'Bienvenido');
           localStorage.setItem('token', token);
@@ -54,6 +55,7 @@ export class LoginComponent {
           localStorage.setItem('email', email);
           localStorage.setItem('name', name);
           localStorage.setItem('lastname', lastname);
+          localStorage.setItem('documentoIdentificacion', documentoIdentificacion);
           localStorage.setItem('role', role); // Guarda el rol en el localStorage
           this.router.navigate([`/horas/${userId}`]);
         },

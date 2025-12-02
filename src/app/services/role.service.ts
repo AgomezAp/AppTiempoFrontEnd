@@ -14,7 +14,7 @@ export class RoleService {
     private apiUrl : string;
     constructor(private http:HttpClient) { 
         this.appUrl= environment.apiUrl
-        this.apiUrl = 'api/rol'
+        this.apiUrl = '/api/rol'
     }
 
     getRoleS():Observable<Role[]>{

@@ -27,6 +27,10 @@ import { NovedadComponent } from './components/novedades/novedades.component';
 import { VerNovedadComponent } from './components/ver-novedad/ver-novedad.component'
 import { NuevoRegistroComponent } from './components/nuevo-registro/nuevo-registro.component';
 import { ExtraListComponent } from './components/extra-list/extra-list.component';
+import { GestionArchivosComponent } from './components/gestion-archivos/gestion-archivos.component';
+import { CertificadoLaboralComponent } from './components/certificado-laboral/certificado-laboral.component';
+import { ConfiguracionNominaComponent } from './components/configuracion-nomina/configuracion-nomina.component';
+
 export const routes: Routes = [
   {
     path: '', component: LoginComponent
@@ -88,5 +92,26 @@ export const routes: Routes = [
   },
   { path: 'permisos', component: PermisoComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'User', 'Tecnologia'] } },
   { path: 'admin', component: AdminComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin'] } },
+  
+  // Nuevas rutas para gestión de archivos y certificados
+  { 
+    path: 'gestion-archivos', 
+    component: GestionArchivosComponent, 
+    canActivate: [tRolGuard], 
+    data: { allowedRoles: ['Admin', 'User', 'Tecnologia'] } 
+  },
+  { 
+    path: 'mi-certificado', 
+    component: CertificadoLaboralComponent, 
+    canActivate: [tRolGuard], 
+    data: { allowedRoles: ['Admin', 'User', 'Tecnologia'] } 
+  },
+  { 
+    path: 'configuracion-nomina', 
+    component: ConfiguracionNominaComponent, 
+    canActivate: [tRolGuard], 
+    data: { allowedRoles: ['Admin'] } 
+  },
+  
   { path: '**', component: ErrorPageComponent },
 ];

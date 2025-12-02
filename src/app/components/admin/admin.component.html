@@ -36,6 +36,9 @@
             <th>Nombre</th>
             <th>Apellido</th>
             <th>Email</th>
+            <th>Rol</th>
+            <th>Empresa</th>
+            <th>Certificados</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -45,18 +48,38 @@
             <td>{{ user.name }}</td>
             <td>{{ user.lastName }}</td>
             <td>{{ user.email }}</td>
+            <td>{{ user.role?.Rname || 'Sin rol' }}</td>
             <td>
-              <button 
-                *ngIf="user.Uid !== currentUserId" 
-                class="btn-delete" 
-                (click)="user.Uid && deleteUser(user.Uid)"
-                title="Eliminar usuario"
-              >
-                <i class="fas fa-trash"></i>
-              </button>
-              <span *ngIf="user.Uid === currentUserId" class="current-user-label">
-                Tú
+              <span class="empresa-badge" [class]="'empresa-' + user.empresa">
+                {{ user.empresa || 'N/A' }}
               </span>
+            </td>
+            <td>
+              <span class="certificados-badge">
+                {{ user.certificadosGenerados || 0 }}
+              </span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <button 
+                  class="btn-edit" 
+                  (click)="editUser(user)"
+                  [title]="user.Uid === currentUserId ? 'Editar mi perfil' : 'Editar usuario'"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button 
+                  *ngIf="user.Uid !== currentUserId" 
+                  class="btn-delete" 
+                  (click)="user.Uid && deleteUser(user.Uid)"
+                  title="Eliminar usuario"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+                <span *ngIf="user.Uid === currentUserId" class="current-user-label">
+                  Tú
+                </span>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -96,6 +119,233 @@
     >
       <i class="fas fa-chevron-right"></i>
     </button>
+  </div>
+
+  <!-- Modal de Edición -->
+  <div class="modal-overlay" *ngIf="editingUser" (click)="cancelEdit()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>✏️ Editar Usuario</h2>
+        <button class="btn-close" (click)="cancelEdit()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">
+                <i class="fas fa-user"></i> Nombre *
+              </label>
+              <input 
+                type="text" 
+                id="name" 
+                [(ngModel)]="editForm.name"
+                name="name"
+                class="form-control"
+                placeholder="Ingrese el nombre"
+                required
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="lastName">
+                <i class="fas fa-user"></i> Apellido *
+              </label>
+              <input 
+                type="text" 
+                id="lastName" 
+                [(ngModel)]="editForm.lastName"
+                name="lastName"
+                class="form-control"
+                placeholder="Ingrese el apellido"
+                required
+              >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">
+              <i class="fas fa-envelope"></i> Email *
+            </label>
+            <input 
+              type="email" 
+              id="email" 
+              [(ngModel)]="editForm.email"
+              name="email"
+              class="form-control"
+              placeholder="correo@ejemplo.com"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="documentoIdentificacion">
+              <i class="fas fa-id-card"></i> Documento de Identificación
+            </label>
+            <input 
+              type="text" 
+              id="documentoIdentificacion" 
+              [(ngModel)]="editForm.documentoIdentificacion"
+              name="documentoIdentificacion"
+              class="form-control"
+              placeholder="Ej: 1234567890"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="fechaIngreso">
+              <i class="fas fa-calendar-check"></i> Fecha de Ingreso
+            </label>
+            <input 
+              type="date" 
+              id="fechaIngreso" 
+              [(ngModel)]="editForm.fechaIngreso"
+              name="fechaIngreso"
+              class="form-control"
+            >
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="Rid">
+                <i class="fas fa-user-tag"></i> Rol *
+              </label>
+              <select 
+                id="Rid" 
+                [(ngModel)]="editForm.Rid"
+                name="Rid"
+                class="form-control"
+                required
+              >
+                <option [value]="0" disabled>Seleccione un rol</option>
+                <option *ngFor="let role of roles" [value]="role.Rid">
+                  {{ role.Rname }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="Aid">
+                <i class="fas fa-building"></i> Área *
+              </label>
+              <select 
+                id="Aid" 
+                [(ngModel)]="editForm.Aid"
+                name="Aid"
+                class="form-control"
+                required
+              >
+                <option [value]="0" disabled>Seleccione un área</option>
+                <option *ngFor="let area of areas" [value]="area.Aid">
+                  {{ area.Aname }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="empresa">
+                <i class="fas fa-briefcase"></i> Empresa
+              </label>
+              <select 
+                id="empresa" 
+                [(ngModel)]="editForm.empresa"
+                name="empresa"
+                class="form-control"
+              >
+                <option value="AP">AP - Andrés Publicidad</option>
+                <option value="AT">AT - Andrés Tobón</option>
+                <option value="ME">ME - María Evangelina</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="salario">
+                <i class="fas fa-dollar-sign"></i> Salario
+              </label>
+              <input 
+                type="text" 
+                id="salario" 
+                [value]="formatSalario(editForm.salario)"
+                (input)="onSalarioChange($event)"
+                name="salario"
+                class="form-control"
+                placeholder="Ej: 1.500.000"
+              >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="cargo">
+              <i class="fas fa-user-tie"></i> Cargo
+            </label>
+            <input 
+              type="text" 
+              id="cargo" 
+              [(ngModel)]="editForm.cargo"
+              name="cargo"
+              class="form-control"
+              placeholder="Ej: Desarrollador, Diseñador, etc."
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="tipoContrato">
+              <i class="fas fa-file-contract"></i> Tipo de Contrato
+            </label>
+            <select 
+              id="tipoContrato" 
+              [(ngModel)]="editForm.tipoContrato"
+              name="tipoContrato"
+              class="form-control"
+            >
+              <option value="termino-indefinido">A Término Indefinido</option>
+              <option value="termino-fijo">A Término Fijo</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="fondoPension">
+              <i class="fas fa-piggy-bank"></i> Fondo de Pensión
+            </label>
+            <input 
+              type="text" 
+              id="fondoPension" 
+              [(ngModel)]="editForm.fondoPension"
+              name="fondoPension"
+              class="form-control"
+              placeholder="Ej: PORVENIR, PROTECCIÓN, COLFONDOS"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="fondoCesantias">
+              <i class="fas fa-wallet"></i> Fondo de Cesantías
+            </label>
+            <input 
+              type="text" 
+              id="fondoCesantias" 
+              [(ngModel)]="editForm.fondoCesantias"
+              name="fondoCesantias"
+              class="form-control"
+              placeholder="Ej: PORVENIR, PROTECCIÓN, COLFONDOS"
+            >
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="cancelEdit()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button class="btn-save" (click)="saveUser()">
+          <i class="fas fa-save"></i> Guardar Cambios
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Spinner -->

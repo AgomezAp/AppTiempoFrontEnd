@@ -1,0 +1,735 @@
+<app-navbar></app-navbar>
+
+<div class="certificado-container">
+  <!-- Error Message -->
+  <div *ngIf="error" class="alert alert-error">
+    <i class="fas fa-exclamation-triangle alert-icon"></i>
+    <span>{{ error }}</span>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SECCIÓN PARA USUARIOS NORMALES (NO ADMIN) -->
+  <!-- ============================================ -->
+  <div *ngIf="!isAdmin" class="user-section">
+    <div class="welcome-card">
+      <h2 class="welcome-title">
+        <i class="fas fa-file-alt"></i>
+        Mis Certificados y Documentos
+      </h2>
+      <p class="welcome-subtitle">
+        Aquí puede descargar sus documentos de forma fácil y rápida
+      </p>
+    </div>
+
+    <!-- GUÍA VISUAL CON TARJETAS -->
+    <div class="certificates-grid">
+      <!-- TARJETA: CERTIFICADO LABORAL -->
+      <div
+        class="certificate-card"
+        [class.selected]="tipoCertificado === 'laboral'"
+        (click)="tipoCertificado = 'laboral'"
+      >
+        <div class="card-icon">
+          <i class="fas fa-briefcase"></i>
+        </div>
+        <h3>Certificado Laboral</h3>
+        <p class="card-description">
+          Documento que confirma que usted trabaja en la empresa. Se usa para
+          créditos, arriendos u otros trámites.
+        </p>
+        <div class="card-steps">
+          <div class="step">
+            <span class="step-number">1</span>
+            <span class="step-text">Haga clic en esta tarjeta</span>
+          </div>
+          <div class="step">
+            <span class="step-number">2</span>
+            <span class="step-text">Presione el botón "Descargar" abajo</span>
+          </div>
+          <div class="step">
+            <span class="step-number">3</span>
+            <span class="step-text">Se descargará automáticamente</span>
+          </div>
+        </div>
+        <div class="card-badge" *ngIf="tipoCertificado === 'laboral'">
+          <i class="fas fa-check-circle"></i> SELECCIONADO
+        </div>
+      </div>
+
+      <!-- TARJETA: VACACIONES -->
+      <div
+        class="certificate-card"
+        [class.selected]="tipoCertificado === 'vacaciones'"
+        (click)="tipoCertificado = 'vacaciones'"
+      >
+        <div class="card-icon vacation">
+          <i class="fas fa-umbrella-beach"></i>
+        </div>
+        <h3>Carta de Vacaciones</h3>
+        <p class="card-description">
+          Documento para solicitar sus días de descanso (vacaciones). Debe
+          llenar las fechas que desea tomar.
+        </p>
+        <div class="card-steps">
+          <div class="step">
+            <span class="step-number">1</span>
+            <span class="step-text">Haga clic en esta tarjeta</span>
+          </div>
+          <div class="step">
+            <span class="step-number">2</span>
+            <span class="step-text">Llene las fechas abajo</span>
+          </div>
+          <div class="step">
+            <span class="step-number">3</span>
+            <span class="step-text">Presione "Descargar"</span>
+          </div>
+        </div>
+        <div class="card-badge" *ngIf="tipoCertificado === 'vacaciones'">
+          <i class="fas fa-check-circle"></i> SELECCIONADO
+        </div>
+      </div>
+    </div>
+
+    <!-- FORMULARIO PARA VACACIONES (USUARIOS NORMALES) -->
+    <div *ngIf="tipoCertificado === 'vacaciones'" class="form-container">
+      <div class="form-header">
+        <h3>
+          <i class="fas fa-edit"></i>
+          Llene los datos de sus vacaciones
+        </h3>
+        <p>
+          Complete la información solicitada. Todos los campos son obligatorios.
+        </p>
+      </div>
+
+      <div class="info-box-user">
+        <i class="fas fa-user-circle"></i>
+        <div>
+          <strong>Solicitando vacaciones para:</strong><br />
+          <span class="user-name">{{ userName }}</span>
+        </div>
+      </div>
+
+      <div class="simple-form">
+        <div class="form-row-simple">
+          <div class="input-group">
+            <label>
+              <i class="fas fa-calendar-alt"></i>
+              ¿Desde qué día?
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="certificadoConfig.fechaInicio"
+              (blur)="calcularDiasVacaciones()"
+              class="input-simple"
+              placeholder="Ejemplo: 15/12/2025"
+            />
+            <small class="help-text">Escriba: día/mes/año</small>
+          </div>
+
+          <div class="input-group">
+            <label>
+              <i class="fas fa-calendar-check"></i>
+              ¿Hasta qué día?
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="certificadoConfig.fechaFin"
+              (blur)="calcularDiasVacaciones()"
+              class="input-simple"
+              placeholder="Ejemplo: 30/12/2025"
+            />
+            <small class="help-text">Escriba: día/mes/año</small>
+          </div>
+        </div>
+
+        <div class="form-row-simple">
+          <div class="input-group">
+            <label>
+              <i class="fas fa-calculator"></i>
+              ¿Cuántos días en total?
+            </label>
+            <input
+              type="number"
+              [(ngModel)]="certificadoConfig.diasSolicitados"
+              class="input-simple"
+              placeholder="Se calculará automáticamente"
+              min="1"
+              readonly
+            />
+            <small
+              class="help-text"
+              *ngIf="certificadoConfig.diasSolicitados > 0"
+            >
+              <i class="fas fa-check-circle" style="color: #28a745"></i>
+              {{ certificadoConfig.diasSolicitados }} días calculados
+              automáticamente
+            </small>
+            <small class="help-text" *ngIf="!certificadoConfig.diasSolicitados">
+              Complete las fechas para calcular los días
+            </small>
+          </div>
+
+          <div class="input-group">
+            <label>
+              <i class="fas fa-list"></i>
+              ¿Qué tipo de vacaciones?
+            </label>
+            <select
+              [(ngModel)]="certificadoConfig.tipoVacaciones"
+              class="input-simple"
+            >
+              <option value="solo-vacaciones">
+                Solo mis vacaciones (hasta 15 días)
+              </option>
+              <option value="vacaciones-pagos">
+                Vacaciones + días pagos (más de 15 días)
+              </option>
+            </select>
+            <small class="help-text">Seleccione una opción</small>
+          </div>
+        </div>
+
+        <!-- CHECKBOX PARA SOLICITAR CABAÑA -->
+        <div class="checkbox-container">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="certificadoConfig.solicitaCabana"
+              class="checkbox-input"
+            />
+            <span class="checkbox-text">
+              <i class="fas fa-home"></i>
+              Deseo solicitar la cabaña de descanso
+            </span>
+          </label>
+          <small class="help-text checkbox-help">
+            <i class="fas fa-info-circle"></i>
+            Marque esta casilla si desea hacer uso de la cabaña durante sus
+            vacaciones
+          </small>
+        </div>
+
+        <div class="info-box-help">
+          <i class="fas fa-info-circle"></i>
+          <div>
+            <strong>¿Necesita ayuda?</strong><br />
+            • <strong>Solo vacaciones:</strong> Si va a tomar hasta 15 días<br />
+            • <strong>Vacaciones + días pagos:</strong> Si va a tomar 6 días de
+            vacaciones y 9 pagos<br />
+            • <strong>Cabaña:</strong> Marque la casilla si necesita reservar la
+            cabaña
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTÓN DE DESCARGA PARA USUARIOS NORMALES -->
+    <div class="download-section">
+      <button
+        class="download-btn"
+        (click)="generarCertificado()"
+        [disabled]="cargando"
+      >
+        <i
+          class="fas"
+          [class.fa-download]="!cargando"
+          [class.fa-spinner]="cargando"
+          [class.fa-spin]="cargando"
+        ></i>
+        <span *ngIf="!cargando">Descargar Documento</span>
+        <span *ngIf="cargando">Generando, por favor espere...</span>
+      </button>
+
+      <p class="download-help">
+        <i class="fas fa-lightbulb"></i>
+        El documento se descargará automáticamente a su computador
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SECCIÓN ADMIN -->
+  <!-- ============================================ -->
+  <div *ngIf="isAdmin" class="admin-section">
+    <div class="admin-card">
+      <div class="card-header">
+        <i class="fas fa-cog"></i>
+        <h3>Configuración de Certificado (Solo Admin)</h3>
+      </div>
+
+      <div class="card-body">
+        <!-- SELECTOR DE TIPO DE CERTIFICADO -->
+        <div class="form-group">
+          <label for="tipoCertificado">Tipo de Certificado:</label>
+          <select
+            id="tipoCertificado"
+            [(ngModel)]="tipoCertificado"
+            class="form-control"
+          >
+            <option value="laboral">Certificado Laboral (Estándar)</option>
+            <option value="cesantias">
+              Autorización de Retiro de Cesantías
+            </option>
+            <option value="terminacion">Terminación de Contrato</option>
+            <option value="desprendible">Desprendible de Pago</option>
+            <option value="vacaciones">Certificado de Vacaciones</option>
+          </select>
+        </div>
+
+        <!-- BUSCADOR DE USUARIOS (solo para admins en certificados personalizados, excepto vacaciones que todos pueden usar) -->
+        <div
+          *ngIf="isAdmin && tipoCertificado !== 'laboral'"
+          class="user-search-section"
+        >
+          <h4 style="margin-top: 20px">🔍 Buscar Empleado</h4>
+
+          <!-- Usuario ya seleccionado -->
+          <div *ngIf="selectedUser" class="selected-user-card">
+            <div class="selected-user-info">
+              <strong
+                >{{ selectedUser.name }} {{ selectedUser.lastName }}</strong
+              >
+              <span>CC: {{ selectedUser.documentoIdentificacion }}</span>
+              <span>{{ selectedUser.area?.Aname }}</span>
+            </div>
+            <button
+              type="button"
+              (click)="clearSelectedUser()"
+              class="btn-clear"
+            >
+              <i class="fas fa-times"></i> Cambiar
+            </button>
+          </div>
+
+          <!-- Campo de búsqueda -->
+          <div *ngIf="!selectedUser" class="search-container">
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              (input)="onSearchChange()"
+              class="form-control search-input"
+              placeholder="Buscar por nombre, cédula o email..."
+            />
+            <i class="fas fa-search search-icon"></i>
+
+            <!-- Resultados de búsqueda -->
+            <div *ngIf="searchResults.length > 0" class="search-results">
+              <div
+                *ngFor="let user of searchResults"
+                (click)="selectUser(user)"
+                class="search-result-item"
+              >
+                <div class="result-name">
+                  {{ user.name }} {{ user.lastName }}
+                </div>
+                <div class="result-details">
+                  <span>CC: {{ user.documentoIdentificacion }}</span>
+                  <span *ngIf="user.area">{{ user.area.Aname }}</span>
+                  <span>{{ user.empresa }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Loading -->
+            <div *ngIf="searching" class="searching-indicator">
+              <i class="fas fa-spinner fa-spin"></i> Buscando...
+            </div>
+          </div>
+        </div>
+
+        <!-- CAMPOS PARA CESANTÍAS -->
+        <div *ngIf="tipoCertificado === 'cesantias'" class="custom-fields">
+          <h4>📋 Datos para Retiro de Cesantías</h4>
+          <p class="info-text">
+            Se generarán 2 versiones: una con firma digital y otra con campo
+            para firma manual
+          </p>
+
+          <div class="form-group">
+            <label>Tipo de Retiro:</label>
+            <select
+              [(ngModel)]="certificadoConfig.tipoRetiro"
+              class="form-control"
+            >
+              <option value="">Seleccione el tipo de retiro</option>
+              <option value="RETIRO TOTAL">RETIRO TOTAL</option>
+              <option value="RETIRO PARCIAL">RETIRO PARCIAL</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Concepto de Retiro:</label>
+            <select
+              [(ngModel)]="certificadoConfig.conceptoRetiro"
+              class="form-control"
+            >
+              <option value="">Seleccione un concepto</option>
+              <option value="TERMINACIÓN DEL CONTRATO DE TRABAJO">
+                TERMINACIÓN DEL CONTRATO DE TRABAJO
+              </option>
+              <option value="ADQUISICIÓN DE VIVIENDA">
+                ADQUISICIÓN DE VIVIENDA
+              </option>
+              <option value="MEJORAMIENTO DE VIVIENDA">
+                MEJORAMIENTO DE VIVIENDA
+              </option>
+              <option value="EDUCACIÓN">EDUCACIÓN</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Valor Autorizado:</label>
+            <select
+              [(ngModel)]="certificadoConfig.valorAutorizado"
+              class="form-control"
+            >
+              <option value="">Seleccione un valor</option>
+              <option value="RETIRO TOTAL">RETIRO TOTAL</option>
+              <option value="RETIRO PARCIAL">RETIRO PARCIAL</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Causa:</label>
+            <select [(ngModel)]="certificadoConfig.causa" class="form-control">
+              <option value="">Seleccione una causa</option>
+              <option value="RETIRO CON JUSTA CAUSA">
+                RETIRO CON JUSTA CAUSA
+              </option>
+              <option value="RETIRO CON INJUSTA CAUSA">
+                RETIRO CON INJUSTA CAUSA
+              </option>
+              <option value="RETIRO VOLUNTARIO">RETIRO VOLUNTARIO</option>
+            </select>
+          </div>
+        </div>
+
+        <div *ngIf="tipoCertificado === 'terminacion'" class="custom-fields">
+          <h4>📋 Datos para terminación de contrato</h4>
+          <p class="info-text">
+            Se generarán 2 versiones: una con firma digital y otra con campo
+            para firma manual. La fecha de ingreso se tomará automáticamente del
+            usuario.
+          </p>
+
+          <!-- Contenedor para los dos campos en línea -->
+          <div class="form-row-inline">
+            <div class="form-group">
+              <label>Fecha de Salida:</label>
+              <input
+                type="date"
+                [(ngModel)]="certificadoConfig.fechaSalida"
+                class="form-control"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Tipo de Terminación:</label>
+              <select
+                [(ngModel)]="certificadoConfig.tipoTerminacion"
+                class="form-control"
+              >
+                <option value="terminacion-unilateral-voluntaria">
+                  Terminación Unilateral Voluntaria
+                </option>
+                <option value="terminacion-injusta-causa">
+                  Terminación Injusta Causa
+                </option>
+                <option value="terminacion-justa-causa">
+                  Terminación Justa Causa
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <!-- CAMPOS PARA DESPRENDIBLE DE PAGO -->
+        <div *ngIf="tipoCertificado === 'desprendible'" class="custom-fields">
+          <h4>💰 Datos para Desprendible de Pago</h4>
+          <p class="info-text">
+            El sistema calculará automáticamente las deducciones (salud 4%,
+            pensión 4%) y el auxilio de transporte si aplica (salario menor a 2
+            mínimos).
+          </p>
+
+          <div class="form-group">
+            <label>Fecha de Pago:</label>
+            <input
+              type="text"
+              [(ngModel)]="certificadoConfig.fechaPago"
+              class="form-control"
+              placeholder="Ej: 28/02/2025"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Número de Días Trabajados:</label>
+            <input
+              type="number"
+              [(ngModel)]="certificadoConfig.numeroDias"
+              class="form-control"
+              min="1"
+              max="30"
+              placeholder="30"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Extras (opcional):</label>
+            <input
+              type="text"
+              [(ngModel)]="certificadoConfig.extras"
+              (input)="formatNumberWithDots($event, 'extras')"
+              class="form-control"
+              placeholder="0"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Otras Deducciones (opcional):</label>
+            <input
+              type="text"
+              [(ngModel)]="certificadoConfig.otrasDeducciones"
+              (input)="formatNumberWithDots($event, 'otrasDeducciones')"
+              class="form-control"
+              placeholder="0"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Préstamos (opcional):</label>
+            <input
+              type="text"
+              [(ngModel)]="certificadoConfig.prestamos"
+              (input)="formatNumberWithDots($event, 'prestamos')"
+              class="form-control"
+              placeholder="0"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulario para VACACIONES -->
+      <div *ngIf="tipoCertificado === 'vacaciones'" class="vacaciones-fields">
+        <h4 style="margin-bottom: 15px">📅 Datos de Vacaciones</h4>
+
+        <!-- Mostrar info del usuario: selectedUser para admin, userName para usuarios normales -->
+        <div
+          class="info-box"
+          *ngIf="isAdmin && selectedUser"
+          style="margin-bottom: 20px"
+        >
+          <strong>Empleado:</strong> {{ selectedUser.name }}
+          {{ selectedUser.lastName }}<br />
+          <strong>Área:</strong>
+          {{ certificadoConfig.areaName || "No especificada" }}
+          <br />
+          <span *ngIf="esGestionAdministrativa()" style="color: #4caf50">
+            ✓ Gestión Administrativa - Puede solicitar desde 1 día
+          </span>
+          <span *ngIf="!esGestionAdministrativa()" style="color: #ff9800">
+            ⚠ Mínimo 6 días de vacaciones para este área
+          </span>
+        </div>
+
+        <div
+          class="info-box"
+          *ngIf="!isAdmin"
+          style="
+            margin-bottom: 20px;
+            background-color: #e8f5e9;
+            border-left: 4px solid #4caf50;
+          "
+        >
+          <strong>👤 Solicitando vacaciones para:</strong> {{ userName }}
+        </div>
+
+        <!-- DATE PICKER VISUAL PERSONALIZADO -->
+        <div class="date-picker-container">
+          <div class="date-picker-header">
+            <i class="fas fa-calendar-alt"></i>
+            <h5>Seleccione el Período de Vacaciones</h5>
+          </div>
+
+          <div class="date-inputs-row">
+            <div class="date-input-group">
+              <label>📅 Fecha de Inicio</label>
+              <input
+                type="date"
+                [(ngModel)]="certificadoConfig.fechaInicioDate"
+                (change)="onDateChange()"
+                class="date-input-modern"
+              />
+              <div class="date-display" *ngIf="certificadoConfig.fechaInicio">
+                {{ certificadoConfig.fechaInicio }}
+              </div>
+            </div>
+
+            <div class="date-separator">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+
+            <div class="date-input-group">
+              <label>📅 Fecha de Fin</label>
+              <input
+                type="date"
+                [(ngModel)]="certificadoConfig.fechaFinDate"
+                (change)="onDateChange()"
+                [min]="certificadoConfig.fechaInicioDate"
+                class="date-input-modern"
+              />
+              <div class="date-display" *ngIf="certificadoConfig.fechaFin">
+                {{ certificadoConfig.fechaFin }}
+              </div>
+            </div>
+          </div>
+
+          <!-- RESUMEN VISUAL DE DÍAS LABORALES -->
+          <div class="days-summary" *ngIf="certificadoConfig.diasSolicitados > 0">
+            <div class="summary-card total-days">
+              <div class="summary-icon">
+                <i class="fas fa-calendar-day"></i>
+              </div>
+              <div class="summary-info">
+                <div class="summary-number">{{ diasCalendario }}</div>
+                <div class="summary-label">Días Totales</div>
+              </div>
+            </div>
+
+            <div class="summary-arrow">
+              <i class="fas fa-minus"></i>
+            </div>
+
+            <div class="summary-card weekend-days">
+              <div class="summary-icon">
+                <i class="fas fa-calendar-times"></i>
+              </div>
+              <div class="summary-info">
+                <div class="summary-number">{{ diasNoLaborales }}</div>
+                <div class="summary-label">Fines de Semana y Festivos</div>
+              </div>
+            </div>
+
+            <div class="summary-arrow">
+              <i class="fas fa-equals"></i>
+            </div>
+
+            <div class="summary-card work-days">
+              <div class="summary-icon">
+                <i class="fas fa-briefcase"></i>
+              </div>
+              <div class="summary-info">
+                <div class="summary-number highlight">{{ certificadoConfig.diasSolicitados }}</div>
+                <div class="summary-label">Días Laborales</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- EXPLICACIÓN VISUAL -->
+          <div class="calculation-explanation" *ngIf="certificadoConfig.diasSolicitados > 0">
+            <div class="explanation-header">
+              <i class="fas fa-info-circle"></i>
+              <strong>¿Cómo se calcularon los días laborales?</strong>
+            </div>
+            <div class="explanation-items">
+              <div class="explanation-item included">
+                <i class="fas fa-check-circle"></i>
+                <span>Lunes a Viernes</span>
+              </div>
+              <div class="explanation-item included">
+                <i class="fas fa-check-circle"></i>
+                <span>Primer sábado de cada mes</span>
+              </div>
+              <div class="explanation-item excluded">
+                <i class="fas fa-times-circle"></i>
+                <span>Domingos</span>
+              </div>
+              <div class="explanation-item excluded">
+                <i class="fas fa-times-circle"></i>
+                <span>Sábados (excepto el primero)</span>
+              </div>
+              <div class="explanation-item excluded">
+                <i class="fas fa-times-circle"></i>
+                <span>Festivos colombianos</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+
+          <div class="form-group">
+            <label>Tipo de Vacaciones:</label>
+            <select
+              [(ngModel)]="certificadoConfig.tipoVacaciones"
+              class="form-control"
+            >
+              <option value="solo-vacaciones">
+                Solo Vacaciones (hasta 15 días)
+              </option>
+              <option value="vacaciones-pagos">
+                Vacaciones + Días Pagos (más de 15 días)
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- CHECKBOX PARA SOLICITAR CABAÑA (ADMIN) -->
+        <div class="checkbox-container" style="margin-top: 20px">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="certificadoConfig.solicitaCabana"
+              class="checkbox-input"
+            />
+            <span class="checkbox-text">
+              <i class="fas fa-home"></i>
+              Solicitar cabaña de descanso
+            </span>
+          </label>
+          <small class="help-text checkbox-help">
+            <i class="fas fa-info-circle"></i>
+            Marque esta casilla si el empleado desea hacer uso de la cabaña
+            durante sus vacaciones
+          </small>
+        </div>
+
+        <div
+          class="info-box"
+          style="background-color: #e3f2fd; border-left: 4px solid #2196f3"
+        >
+          <strong>ℹ️ Información:</strong><br />
+          • <strong>Solo Vacaciones:</strong> Hasta 15 días de vacaciones
+          legales<br />
+          • <strong>Vacaciones + Días Pagos:</strong> Los primeros 15 días son
+          vacaciones, el resto días pagos<br />
+          • <strong>Gestión Administrativa:</strong> Puede solicitar desde 1
+          día<br />
+          • <strong>Otras áreas:</strong> Mínimo 6 días de vacaciones<br />
+          • <strong>Cabaña:</strong> Si marca la casilla, aparecerá en el
+          certificado la solicitud de cabaña
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón de Generación -->
+  <div *ngIf="isAdmin" class="actions-section">
+    <button
+      class="action-btn btn-primary"
+      (click)="generarCertificado()"
+      [disabled]="cargando"
+    >
+      <i class="fas fa-file-alt"></i>
+      <span>{{ cargando ? "Generando..." : "Generar Certificado" }}</span>
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="cargando" class="loading-container">
+    <div class="spinner"></div>
+    <p>Generando certificado...</p>
+  </div>
+</div>

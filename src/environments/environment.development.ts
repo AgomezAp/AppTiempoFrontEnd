@@ -1,4 +1,9 @@
+/* export const environment = {
+  production: true,
+  apiUrl: 'https://api.horariosap.com/',
+};
+ */
 export const environment = {
   production: false,
-  apiUrl: 'https://api.horariosap.com/',
+  apiUrl: 'http://localhost:3010',
 };
