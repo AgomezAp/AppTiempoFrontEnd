@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.horariosap.com/',
+  apiUrl: 'https://api.horariosap.com',
 };
 
 /* export const environment = {
