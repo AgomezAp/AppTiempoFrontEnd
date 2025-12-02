@@ -11,7 +11,7 @@ export class NovedadService {
   private apiUrl: string;
   constructor(private http:HttpClient) {
     this.appUrl = environment.apiUrl
-    this.apiUrl = 'api/novedad'
+    this.apiUrl = '/api/novedad'
   }
 
   createNovedad():Observable<Novedad>{
