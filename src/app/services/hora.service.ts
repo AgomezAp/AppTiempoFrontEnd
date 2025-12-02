@@ -17,7 +17,7 @@ export class HoraService {
 
   constructor(private http: HttpClient) {
     this.appUrl = environment.apiUrl;
-    this.apiUrl = 'api/horario';
+    this.apiUrl = '/api/horario';
   }
 
   getHoras(): Observable<Hora[]> {
