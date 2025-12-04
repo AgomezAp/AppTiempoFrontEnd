@@ -654,6 +654,11 @@ select.form-control {
   color: white;
 }
 
+.card-icon.family {
+  background: linear-gradient(135deg, #ff9800, #ffa726);
+  color: white;
+}
+
 .certificate-card h3 {
   font-size: 1.5rem;
   font-weight: 700;

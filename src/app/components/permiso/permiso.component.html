@@ -21,20 +21,39 @@
     <div class="form-group">
       <label for="tipo">Tipo de permiso:</label>
       <select id="tipo" [(ngModel)]="permiso.tipo" name="tipo" class="form-control" required (ngModelChange)="onTipoPermisoChange()">
+        <option value="" disabled selected>Seleccione un tipo de permiso</option>
         <option *ngFor="let tipo of tiposPermiso" [value]="tipo">{{ tipo }}</option>
       </select>
+      <small class="form-text text-muted">
+        💡 Seleccione el tipo de permiso que necesita solicitar
+      </small>
     </div>
+
+    <!-- Instrucciones según el tipo de permiso -->
+    <div class="alert alert-info" *ngIf="permiso.tipo">
+      <strong>📋 Instrucciones para "{{ permiso.tipo }}":</strong>
+      <p>{{ getInstrucciones() }}</p>
+    </div>
+
     <div class="row">
       <div class="col-md-6">
         <div class="form-group">
-          <label for="fechaInicio">Fecha del permiso:</label>
+          <label for="fechaInicio">
+            {{ mostrarDias() ? 'Fecha de inicio:' : 'Fecha del permiso:' }}
+          </label>
           <input type="date" id="fechaInicio" [(ngModel)]="permiso.fecha" name="fechaInicio" class="form-control" required>
+          <small class="form-text text-muted" *ngIf="!mostrarDias()">
+            Seleccione la fecha en que necesita el permiso
+          </small>
         </div>
       </div>
       <div class="col-md-6">
         <div class="form-group" *ngIf="mostrarDias()">
-          <label for="dias">Cantidad de días:</label>
-          <input type="number" id="dias" [(ngModel)]="cantidadDias" name="dias" class="form-control">
+          <label for="fechaFin">Fecha de finalización:</label>
+          <input type="date" id="fechaFin" [(ngModel)]="fechaFin" name="fechaFin" class="form-control" required [min]="permiso.fecha">
+          <small class="form-text text-muted">
+            Seleccione el último día del permiso (se calcularán solo días laborales)
+          </small>
         </div>
       </div>
     </div>
@@ -55,11 +74,17 @@
     </div>
     <div class="form-group">
       <label for="observaciones">Observaciones:</label>
-      <textarea id="observaciones" required [(ngModel)]="permiso.observaciones" name="observaciones" class="form-control" rows="3" minlength="50" placeholder="Debe ingresar al menos 50 caracteres"></textarea>
+      <textarea id="observaciones" required [(ngModel)]="permiso.observaciones" name="observaciones" class="form-control" rows="3" minlength="50" placeholder="Debe ingresar al menos 50 caracteres. Explique detalladamente el motivo de su permiso."></textarea>
+      <small class="form-text text-muted">
+        ⚠️ Mínimo 50 caracteres. Caracteres actuales: {{ permiso.observaciones?.length || 0 }}
+      </small>
     </div>
     <div class="form-group">
       <label for="soporte">Subir autorizaciones o soporte del permiso:</label>
       <input type="file" id="soporte" name="soporte" class="form-control" (change)="onFileSelected($event)">
+      <small class="form-text text-muted">
+        📎 Opcional: Suba documentos que respalden su solicitud (PDF, imágenes, etc.)
+      </small>
     </div>
     <div class="button-group">
       <button type="submit" class="btn btn-success" [disabled]="!permisoForm.form.valid">Solicitar Permiso</button>

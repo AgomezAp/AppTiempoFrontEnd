@@ -88,6 +88,39 @@
           <i class="fas fa-check-circle"></i> SELECCIONADO
         </div>
       </div>
+
+      <!-- TARJETA: DÍA DE LA FAMILIA -->
+      <div
+        class="certificate-card"
+        [class.selected]="tipoCertificado === 'dia-familia'"
+        (click)="tipoCertificado = 'dia-familia'"
+      >
+        <div class="card-icon family">
+          <i class="fas fa-home"></i>
+        </div>
+        <h3>Día de la Familia</h3>
+        <p class="card-description">
+          Certificado para solicitar el día de compartir con la familia según la
+          Ley 1857 de 2017.
+        </p>
+        <div class="card-steps">
+          <div class="step">
+            <span class="step-number">1</span>
+            <span class="step-text">Haga clic en esta tarjeta</span>
+          </div>
+          <div class="step">
+            <span class="step-number">2</span>
+            <span class="step-text">Llene la fecha abajo</span>
+          </div>
+          <div class="step">
+            <span class="step-number">3</span>
+            <span class="step-text">Presione "Descargar"</span>
+          </div>
+        </div>
+        <div class="card-badge" *ngIf="tipoCertificado === 'dia-familia'">
+          <i class="fas fa-check-circle"></i> SELECCIONADO
+        </div>
+      </div>
     </div>
 
     <!-- FORMULARIO PARA VACACIONES (USUARIOS NORMALES) -->
@@ -224,6 +257,57 @@
       </div>
     </div>
 
+    <!-- FORMULARIO PARA DÍA DE LA FAMILIA (USUARIOS NORMALES) -->
+    <div *ngIf="tipoCertificado === 'dia-familia'" class="form-container">
+      <div class="form-header">
+        <h3>
+          <i class="fas fa-home"></i>
+          Solicitud Día de la Familia
+        </h3>
+        <p>
+          Complete la fecha en que desea tomar el día de la familia. Este día se
+          concede según la Ley 1857 de 2017.
+        </p>
+      </div>
+
+      <div class="info-box-user">
+        <i class="fas fa-user-circle"></i>
+        <div>
+          <strong>Solicitando para:</strong><br />
+          <span class="user-name">{{ userName }}</span>
+        </div>
+      </div>
+
+      <div class="simple-form">
+        <div class="form-row-simple">
+          <div class="input-group">
+            <label>
+              <i class="fas fa-calendar-day"></i>
+              ¿Qué día desea tomar?
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="certificadoConfig.fechaDiaFamilia"
+              class="input-simple"
+              placeholder="Ejemplo: 15/12/2025"
+            />
+            <small class="help-text">Escriba: día/mes/año</small>
+          </div>
+        </div>
+
+        <div class="info-box-help">
+          <i class="fas fa-info-circle"></i>
+          <div>
+            <strong>¿Qué es el Día de la Familia?</strong><br />
+            • Es un día concedido semestralmente para compartir con su
+            familia<br />
+            • No afecta sus días de descanso ni vacaciones<br />
+            • Está respaldado por la Ley 1857 de 2017
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- BOTÓN DE DESCARGA PARA USUARIOS NORMALES -->
     <div class="download-section">
       <button
@@ -274,10 +358,13 @@
             <option value="terminacion">Terminación de Contrato</option>
             <option value="desprendible">Desprendible de Pago</option>
             <option value="vacaciones">Certificado de Vacaciones</option>
+            <option value="notificacion-vacaciones">
+              Notificación de Vacaciones (Aprobación)
+            </option>
           </select>
         </div>
 
-        <!-- BUSCADOR DE USUARIOS (solo para admins en certificados personalizados, excepto vacaciones que todos pueden usar) -->
+        <!-- BUSCADOR DE USUARIOS (solo para admins en certificados personalizados) -->
         <div
           *ngIf="isAdmin && tipoCertificado !== 'laboral'"
           class="user-search-section"
@@ -405,6 +492,7 @@
           </div>
         </div>
 
+        <!-- CAMPOS PARA TERMINACIÓN -->
         <div *ngIf="tipoCertificado === 'terminacion'" class="custom-fields">
           <h4>📋 Datos para terminación de contrato</h4>
           <p class="info-text">
@@ -413,7 +501,6 @@
             usuario.
           </p>
 
-          <!-- Contenedor para los dos campos en línea -->
           <div class="form-row-inline">
             <div class="form-group">
               <label>Fecha de Salida:</label>
@@ -444,6 +531,7 @@
             </div>
           </div>
         </div>
+
         <!-- CAMPOS PARA DESPRENDIBLE DE PAGO -->
         <div *ngIf="tipoCertificado === 'desprendible'" class="custom-fields">
           <h4>💰 Datos para Desprendible de Pago</h4>
@@ -508,212 +596,337 @@
             />
           </div>
         </div>
-      </div>
+        <!-- FIN CAMPOS PARA DESPRENDIBLE DE PAGO -->
 
-      <!-- Formulario para VACACIONES -->
-      <div *ngIf="tipoCertificado === 'vacaciones'" class="vacaciones-fields">
-        <h4 style="margin-bottom: 15px">📅 Datos de Vacaciones</h4>
+        <!-- CAMPOS PARA VACACIONES (ADMIN) -->
+        <div *ngIf="tipoCertificado === 'vacaciones'" class="vacaciones-fields">
+          <h4 style="margin-bottom: 15px">📅 Datos de Vacaciones</h4>
 
-        <!-- Mostrar info del usuario: selectedUser para admin, userName para usuarios normales -->
-        <div
-          class="info-box"
-          *ngIf="isAdmin && selectedUser"
-          style="margin-bottom: 20px"
-        >
-          <strong>Empleado:</strong> {{ selectedUser.name }}
-          {{ selectedUser.lastName }}<br />
-          <strong>Área:</strong>
-          {{ certificadoConfig.areaName || "No especificada" }}
-          <br />
-          <span *ngIf="esGestionAdministrativa()" style="color: #4caf50">
-            ✓ Gestión Administrativa - Puede solicitar desde 1 día
-          </span>
-          <span *ngIf="!esGestionAdministrativa()" style="color: #ff9800">
-            ⚠ Mínimo 6 días de vacaciones para este área
-          </span>
-        </div>
-
-        <div
-          class="info-box"
-          *ngIf="!isAdmin"
-          style="
-            margin-bottom: 20px;
-            background-color: #e8f5e9;
-            border-left: 4px solid #4caf50;
-          "
-        >
-          <strong>👤 Solicitando vacaciones para:</strong> {{ userName }}
-        </div>
-
-        <!-- DATE PICKER VISUAL PERSONALIZADO -->
-        <div class="date-picker-container">
-          <div class="date-picker-header">
-            <i class="fas fa-calendar-alt"></i>
-            <h5>Seleccione el Período de Vacaciones</h5>
-          </div>
-
-          <div class="date-inputs-row">
-            <div class="date-input-group">
-              <label>📅 Fecha de Inicio</label>
-              <input
-                type="date"
-                [(ngModel)]="certificadoConfig.fechaInicioDate"
-                (change)="onDateChange()"
-                class="date-input-modern"
-              />
-              <div class="date-display" *ngIf="certificadoConfig.fechaInicio">
-                {{ certificadoConfig.fechaInicio }}
-              </div>
-            </div>
-
-            <div class="date-separator">
-              <i class="fas fa-arrow-right"></i>
-            </div>
-
-            <div class="date-input-group">
-              <label>📅 Fecha de Fin</label>
-              <input
-                type="date"
-                [(ngModel)]="certificadoConfig.fechaFinDate"
-                (change)="onDateChange()"
-                [min]="certificadoConfig.fechaInicioDate"
-                class="date-input-modern"
-              />
-              <div class="date-display" *ngIf="certificadoConfig.fechaFin">
-                {{ certificadoConfig.fechaFin }}
-              </div>
-            </div>
-          </div>
-
-          <!-- RESUMEN VISUAL DE DÍAS LABORALES -->
-          <div class="days-summary" *ngIf="certificadoConfig.diasSolicitados > 0">
-            <div class="summary-card total-days">
-              <div class="summary-icon">
-                <i class="fas fa-calendar-day"></i>
-              </div>
-              <div class="summary-info">
-                <div class="summary-number">{{ diasCalendario }}</div>
-                <div class="summary-label">Días Totales</div>
-              </div>
-            </div>
-
-            <div class="summary-arrow">
-              <i class="fas fa-minus"></i>
-            </div>
-
-            <div class="summary-card weekend-days">
-              <div class="summary-icon">
-                <i class="fas fa-calendar-times"></i>
-              </div>
-              <div class="summary-info">
-                <div class="summary-number">{{ diasNoLaborales }}</div>
-                <div class="summary-label">Fines de Semana y Festivos</div>
-              </div>
-            </div>
-
-            <div class="summary-arrow">
-              <i class="fas fa-equals"></i>
-            </div>
-
-            <div class="summary-card work-days">
-              <div class="summary-icon">
-                <i class="fas fa-briefcase"></i>
-              </div>
-              <div class="summary-info">
-                <div class="summary-number highlight">{{ certificadoConfig.diasSolicitados }}</div>
-                <div class="summary-label">Días Laborales</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- EXPLICACIÓN VISUAL -->
-          <div class="calculation-explanation" *ngIf="certificadoConfig.diasSolicitados > 0">
-            <div class="explanation-header">
-              <i class="fas fa-info-circle"></i>
-              <strong>¿Cómo se calcularon los días laborales?</strong>
-            </div>
-            <div class="explanation-items">
-              <div class="explanation-item included">
-                <i class="fas fa-check-circle"></i>
-                <span>Lunes a Viernes</span>
-              </div>
-              <div class="explanation-item included">
-                <i class="fas fa-check-circle"></i>
-                <span>Primer sábado de cada mes</span>
-              </div>
-              <div class="explanation-item excluded">
-                <i class="fas fa-times-circle"></i>
-                <span>Domingos</span>
-              </div>
-              <div class="explanation-item excluded">
-                <i class="fas fa-times-circle"></i>
-                <span>Sábados (excepto el primero)</span>
-              </div>
-              <div class="explanation-item excluded">
-                <i class="fas fa-times-circle"></i>
-                <span>Festivos colombianos</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-
-          <div class="form-group">
-            <label>Tipo de Vacaciones:</label>
-            <select
-              [(ngModel)]="certificadoConfig.tipoVacaciones"
-              class="form-control"
-            >
-              <option value="solo-vacaciones">
-                Solo Vacaciones (hasta 15 días)
-              </option>
-              <option value="vacaciones-pagos">
-                Vacaciones + Días Pagos (más de 15 días)
-              </option>
-            </select>
-          </div>
-        </div>
-
-        <!-- CHECKBOX PARA SOLICITAR CABAÑA (ADMIN) -->
-        <div class="checkbox-container" style="margin-top: 20px">
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [(ngModel)]="certificadoConfig.solicitaCabana"
-              class="checkbox-input"
-            />
-            <span class="checkbox-text">
-              <i class="fas fa-home"></i>
-              Solicitar cabaña de descanso
+          <!-- Mostrar info del usuario: selectedUser para admin -->
+          <div
+            class="info-box"
+            *ngIf="isAdmin && selectedUser"
+            style="margin-bottom: 20px"
+          >
+            <strong>Empleado:</strong> {{ selectedUser.name }}
+            {{ selectedUser.lastName }}<br />
+            <strong>Área:</strong>
+            {{ certificadoConfig.areaName || "No especificada" }}
+            <br />
+            <span *ngIf="esGestionAdministrativa()" style="color: #4caf50">
+              ✓ Gestión Administrativa - Puede solicitar desde 1 día
             </span>
-          </label>
-          <small class="help-text checkbox-help">
-            <i class="fas fa-info-circle"></i>
-            Marque esta casilla si el empleado desea hacer uso de la cabaña
-            durante sus vacaciones
-          </small>
-        </div>
+            <span *ngIf="!esGestionAdministrativa()" style="color: #ff9800">
+              ⚠ Mínimo 6 días de vacaciones para este área
+            </span>
+          </div>
 
-        <div
-          class="info-box"
-          style="background-color: #e3f2fd; border-left: 4px solid #2196f3"
-        >
-          <strong>ℹ️ Información:</strong><br />
-          • <strong>Solo Vacaciones:</strong> Hasta 15 días de vacaciones
-          legales<br />
-          • <strong>Vacaciones + Días Pagos:</strong> Los primeros 15 días son
-          vacaciones, el resto días pagos<br />
-          • <strong>Gestión Administrativa:</strong> Puede solicitar desde 1
-          día<br />
-          • <strong>Otras áreas:</strong> Mínimo 6 días de vacaciones<br />
-          • <strong>Cabaña:</strong> Si marca la casilla, aparecerá en el
-          certificado la solicitud de cabaña
+          <div
+            class="info-box"
+            *ngIf="!isAdmin"
+            style="
+              margin-bottom: 20px;
+              background-color: #e8f5e9;
+              border-left: 4px solid #4caf50;
+            "
+          >
+            <strong>👤 Solicitando vacaciones para:</strong> {{ userName }}
+          </div>
+
+          <!-- DATE PICKER VISUAL PERSONALIZADO -->
+          <div class="date-picker-container">
+            <div class="date-picker-header">
+              <i class="fas fa-calendar-alt"></i>
+              <h5>Seleccione el Período de Vacaciones</h5>
+            </div>
+
+            <div class="date-inputs-row">
+              <div class="date-input-group">
+                <label>📅 Fecha de Inicio</label>
+                <input
+                  type="date"
+                  [(ngModel)]="certificadoConfig.fechaInicioDate"
+                  (change)="onDateChange()"
+                  class="date-input-modern"
+                />
+                <div class="date-display" *ngIf="certificadoConfig.fechaInicio">
+                  {{ certificadoConfig.fechaInicio }}
+                </div>
+              </div>
+
+              <div class="date-separator">
+                <i class="fas fa-arrow-right"></i>
+              </div>
+
+              <div class="date-input-group">
+                <label>📅 Fecha de Fin</label>
+                <input
+                  type="date"
+                  [(ngModel)]="certificadoConfig.fechaFinDate"
+                  (change)="onDateChange()"
+                  [min]="certificadoConfig.fechaInicioDate"
+                  class="date-input-modern"
+                />
+                <div class="date-display" *ngIf="certificadoConfig.fechaFin">
+                  {{ certificadoConfig.fechaFin }}
+                </div>
+              </div>
+            </div>
+
+            <!-- RESUMEN VISUAL DE DÍAS LABORALES -->
+            <div
+              class="days-summary"
+              *ngIf="certificadoConfig.diasSolicitados > 0"
+            >
+              <div class="summary-card total-days">
+                <div class="summary-icon">
+                  <i class="fas fa-calendar-day"></i>
+                </div>
+                <div class="summary-info">
+                  <div class="summary-number">{{ diasCalendario }}</div>
+                  <div class="summary-label">Días Totales</div>
+                </div>
+              </div>
+
+              <div class="summary-arrow">
+                <i class="fas fa-minus"></i>
+              </div>
+
+              <div class="summary-card weekend-days">
+                <div class="summary-icon">
+                  <i class="fas fa-calendar-times"></i>
+                </div>
+                <div class="summary-info">
+                  <div class="summary-number">{{ diasNoLaborales }}</div>
+                  <div class="summary-label">Fines de Semana y Festivos</div>
+                </div>
+              </div>
+
+              <div class="summary-arrow">
+                <i class="fas fa-equals"></i>
+              </div>
+
+              <div class="summary-card work-days">
+                <div class="summary-icon">
+                  <i class="fas fa-briefcase"></i>
+                </div>
+                <div class="summary-info">
+                  <div class="summary-number highlight">
+                    {{ certificadoConfig.diasSolicitados }}
+                  </div>
+                  <div class="summary-label">Días Laborales</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- EXPLICACIÓN VISUAL -->
+            <div
+              class="calculation-explanation"
+              *ngIf="certificadoConfig.diasSolicitados > 0"
+            >
+              <div class="explanation-header">
+                <i class="fas fa-info-circle"></i>
+                <strong>¿Cómo se calcularon los días laborales?</strong>
+              </div>
+              <div class="explanation-items">
+                <div class="explanation-item included">
+                  <i class="fas fa-check-circle"></i>
+                  <span>Lunes a Viernes</span>
+                </div>
+                <div class="explanation-item included">
+                  <i class="fas fa-check-circle"></i>
+                  <span>Primer sábado de cada mes</span>
+                </div>
+                <div class="explanation-item excluded">
+                  <i class="fas fa-times-circle"></i>
+                  <span>Domingos</span>
+                </div>
+                <div class="explanation-item excluded">
+                  <i class="fas fa-times-circle"></i>
+                  <span>Sábados (excepto el primero)</span>
+                </div>
+                <div class="explanation-item excluded">
+                  <i class="fas fa-times-circle"></i>
+                  <span>Festivos colombianos</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TIPO DE VACACIONES - CORREGIDO -->
+          <div class="form-row">
+            <div class="form-group">
+              <label>Tipo de Vacaciones:</label>
+              <select
+                [(ngModel)]="certificadoConfig.tipoVacaciones"
+                class="form-control"
+              >
+                <option value="solo-vacaciones">
+                  Solo Vacaciones (hasta 15 días)
+                </option>
+                <option value="vacaciones-pagos">
+                  Vacaciones + Días Pagos (más de 15 días)
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- CHECKBOX PARA SOLICITAR CABAÑA (ADMIN) -->
+          <div class="checkbox-container" style="margin-top: 20px">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="certificadoConfig.solicitaCabana"
+                class="checkbox-input"
+              />
+              <span class="checkbox-text">
+                <i class="fas fa-home"></i>
+                Solicitar cabaña de descanso
+              </span>
+            </label>
+            <small class="help-text checkbox-help">
+              <i class="fas fa-info-circle"></i>
+              Marque esta casilla si el empleado desea hacer uso de la cabaña
+              durante sus vacaciones
+            </small>
+          </div>
+
+          <div
+            class="info-box"
+            style="background-color: #e3f2fd; border-left: 4px solid #2196f3"
+          >
+            <strong>ℹ️ Información:</strong><br />
+            • <strong>Solo Vacaciones:</strong> Hasta 15 días de vacaciones
+            legales<br />
+            • <strong>Vacaciones + Días Pagos:</strong> Los primeros 15 días son
+            vacaciones, el resto días pagos<br />
+            • <strong>Gestión Administrativa:</strong> Puede solicitar desde 1
+            día<br />
+            • <strong>Otras áreas:</strong> Mínimo 6 días de vacaciones<br />
+            • <strong>Cabaña:</strong> Si marca la casilla, aparecerá en el
+            certificado la solicitud de cabaña
+          </div>
         </div>
+        <!-- FIN CAMPOS PARA VACACIONES -->
+
+        <!-- FORMULARIO PARA NOTIFICACIÓN DE VACACIONES (SOLO ADMIN) -->
+        <div
+          *ngIf="$any(tipoCertificado) === 'notificacion-vacaciones'"
+          class="custom-fields"
+        >
+          <h4 style="margin-bottom: 15px">
+            📋 Notificación de Vacaciones (Aprobación)
+          </h4>
+
+          <div
+            style="
+              background-color: #fff3cd;
+              border-left: 4px solid #ff9800;
+              padding: 15px;
+              margin-bottom: 20px;
+              border-radius: 4px;
+            "
+          >
+            <strong>⚠️ Importante:</strong><br />
+            Este es el documento oficial de aprobación de vacaciones que se
+            entrega al empleado. Incluye las fechas aprobadas y la firma del
+            representante legal.
+          </div>
+
+          <!-- Campo para el Período -->
+          <div class="form-group">
+            <label>📆 Período de Vacaciones:</label>
+            <input
+              type="text"
+              [(ngModel)]="certificadoConfig.periodoVacaciones"
+              class="form-control"
+              placeholder="Ejemplo: 2024-2025"
+            />
+            <small style="color: #666; font-size: 0.9em">
+              Ingrese el período correspondiente (ej: 2023-2024, 2024-2025)
+            </small>
+          </div>
+
+          <h5 style="margin-top: 20px; margin-bottom: 10px">
+            Fechas de Vacaciones:
+          </h5>
+
+          <!-- Fecha de Inicio -->
+          <div class="form-group">
+            <label>📅 Fecha de Inicio de Vacaciones:</label>
+            <input
+              type="date"
+              [(ngModel)]="certificadoConfig.fechaInicioDate"
+              (change)="onDateChange()"
+              class="form-control"
+            />
+            <div
+              *ngIf="certificadoConfig.fechaInicio"
+              style="margin-top: 5px; color: #666"
+            >
+              Formato final: {{ certificadoConfig.fechaInicio }}
+            </div>
+          </div>
+
+          <!-- Fecha de Fin -->
+          <div class="form-group">
+            <label>📅 Fecha de Fin de Vacaciones:</label>
+            <input
+              type="date"
+              [(ngModel)]="certificadoConfig.fechaFinDate"
+              (change)="onDateChange()"
+              [min]="certificadoConfig.fechaInicioDate"
+              class="form-control"
+            />
+            <div
+              *ngIf="certificadoConfig.fechaFin"
+              style="margin-top: 5px; color: #666"
+            >
+              Formato final: {{ certificadoConfig.fechaFin }}
+            </div>
+          </div>
+
+          <!-- Resumen de días -->
+          <div
+            *ngIf="certificadoConfig.diasSolicitados > 0"
+            style="
+              background-color: #e3f2fd;
+              border-left: 4px solid #2196f3;
+              padding: 15px;
+              margin: 20px 0;
+              border-radius: 4px;
+            "
+          >
+            <strong
+              >📊 Días Laborales de Vacaciones:
+              {{ certificadoConfig.diasSolicitados }}</strong
+            >
+          </div>
+
+          <div
+            style="
+              background-color: #f5f5f5;
+              padding: 15px;
+              margin-top: 20px;
+              border-radius: 4px;
+              border: 1px solid #ddd;
+            "
+          >
+            <strong>ℹ️ El documento incluirá:</strong><br />
+            • Nombre completo y cédula del empleado<br />
+            • Período exacto de vacaciones con días de la semana<br />
+            • Fecha de retorno a labores (calculada automáticamente)<br />
+            • Firma del representante legal<br />
+            • Espacio para firma del empleado confirmando recibido
+          </div>
+        </div>
+        <!-- FIN FORMULARIO PARA NOTIFICACIÓN DE VACACIONES -->
       </div>
+      <!-- FIN card-body -->
     </div>
+    <!-- FIN admin-card -->
   </div>
+  <!-- FIN SECCIÓN ADMIN -->
 
   <!-- Botón de Generación -->
   <div *ngIf="isAdmin" class="actions-section">

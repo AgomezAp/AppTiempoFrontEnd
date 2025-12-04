@@ -27,7 +27,7 @@ export class CertificadoLaboralComponent implements OnInit {
   searching: boolean = false;
 
   // Campos para Admin
-  tipoCertificado: string = 'laboral'; // 'laboral', 'cesantias', 'terminacion', 'desprendible', 'vacaciones'
+  tipoCertificado: 'laboral' | 'cesantias' | 'terminacion' | 'desprendible' | 'vacaciones' | 'notificacion-vacaciones' | 'dia-familia' = 'laboral';
   versionConFirma: boolean = false; // Si se genera versión con campo de firma
   
   // Variables para el cálculo visual de días
@@ -73,7 +73,15 @@ export class CertificadoLaboralComponent implements OnInit {
     fechaFinDate: '',    // Para input type="date"
     diasSolicitados: 0,
     tipoVacaciones: 'solo-vacaciones', // 'solo-vacaciones' o 'vacaciones-pagos'
-    solicitaCabana: false // Nuevo campo para solicitar cabaña
+    solicitaCabana: false, // Nuevo campo para solicitar cabaña
+    
+    // Campos para Notificación de Vacaciones
+    ciudad: 'Pereira',
+    fechaNotificacion: '',
+    periodoVacaciones: '', // Período de las vacaciones (ej: "2024-2025")
+    
+    // Campos para Día de la Familia
+    fechaDiaFamilia: ''
   };
 
   constructor(
@@ -121,6 +129,12 @@ export class CertificadoLaboralComponent implements OnInit {
         this.searching = false;
       }
     });
+  }
+
+  // Helper para verificar tipo de certificado
+  esNotificacionVacaciones(): boolean {
+    console.log('Verificando notificacion vacaciones:', this.tipoCertificado, this.tipoCertificado === 'notificacion-vacaciones');
+    return this.tipoCertificado === 'notificacion-vacaciones';
   }
 
   // Seleccionar usuario del buscador
@@ -172,6 +186,10 @@ export class CertificadoLaboralComponent implements OnInit {
     const mes = String(hoy.getMonth() + 1).padStart(2, '0');
     const anio = hoy.getFullYear();
     this.certificadoConfig.fechaPago = `${dia}/${mes}/${anio}`;
+    // También establecer fecha de notificación automáticamente
+    this.certificadoConfig.fechaNotificacion = `${dia}/${mes}/${anio}`;
+    // Ciudad siempre será Pereira
+    this.certificadoConfig.ciudad = 'Pereira';
   }
 
   // Formatear número con puntos de miles en tiempo real
@@ -217,6 +235,18 @@ export class CertificadoLaboralComponent implements OnInit {
       return;
     }
     
+    // Notificación de Vacaciones: solo para admins
+    if (this.tipoCertificado === 'notificacion-vacaciones') {
+      this.generarNotificacionVacaciones();
+      return;
+    }
+    
+    // Día de la Familia: disponible para todos los usuarios
+    if (this.tipoCertificado === 'dia-familia') {
+      this.generarDiaFamilia();
+      return;
+    }
+    
     // Si es admin y NO es certificado laboral estándar
     if (this.isAdmin && this.tipoCertificado !== 'laboral') {
       // Validar que se haya seleccionado un usuario
@@ -247,6 +277,12 @@ export class CertificadoLaboralComponent implements OnInit {
     // Si es vacaciones, usar lógica de POST
     if (this.tipoCertificado === 'vacaciones') {
       this.generarVacaciones();
+      return;
+    }
+    
+    // Si es notificación de vacaciones, usar lógica de POST
+    if (this.tipoCertificado === 'notificacion-vacaciones') {
+      this.generarNotificacionVacaciones();
       return;
     }
     
@@ -636,6 +672,140 @@ export class CertificadoLaboralComponent implements OnInit {
     .catch(error => {
       console.error('Error:', error);
       this.error = error.message || 'Error al generar el certificado de vacaciones';
+      this.cargando = false;
+    });
+  }
+
+  generarNotificacionVacaciones() {
+    // Validar campos requeridos
+    if (!this.certificadoConfig.fechaInicio || !this.certificadoConfig.fechaFin) {
+      this.error = 'Las fechas de inicio y fin son requeridas';
+      this.cargando = false;
+      return;
+    }
+
+    if (!this.certificadoConfig.periodoVacaciones) {
+      this.error = 'El período de vacaciones es requerido (ej: 2024-2025)';
+      this.cargando = false;
+      return;
+    }
+
+    // Solo admin puede generar este certificado
+    if (!this.isAdmin || !this.selectedUser) {
+      this.error = 'Debe ser administrador y seleccionar un empleado';
+      this.cargando = false;
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    const body = {
+      Uid: this.selectedUser.Uid,
+      fechaInicio: this.certificadoConfig.fechaInicio,
+      fechaFin: this.certificadoConfig.fechaFin,
+      diasSolicitados: this.certificadoConfig.diasSolicitados,
+      ciudad: this.certificadoConfig.ciudad || 'Pereira',
+      fechaNotificacion: this.certificadoConfig.fechaNotificacion,
+      periodoVacaciones: this.certificadoConfig.periodoVacaciones
+    };
+
+    fetch(`${this.certificadoService['apiUrl']}/notificacion-vacaciones`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    })
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(err => {
+          throw new Error(err.error || 'Error al generar la notificación de vacaciones');
+        });
+      }
+      return response.blob();
+    })
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `notificacion_vacaciones_${this.selectedUser.Uid}_${this.certificadoConfig.fechaInicio.replace(/\//g, '-')}.png`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      this.cargando = false;
+      this.error = '';
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      this.error = error.message || 'Error al generar la notificación de vacaciones';
+      this.cargando = false;
+    });
+  }
+
+  generarDiaFamilia() {
+    // Validar campo requerido
+    if (!this.certificadoConfig.fechaDiaFamilia) {
+      this.error = 'La fecha del Día de la Familia es requerida';
+      this.cargando = false;
+      return;
+    }
+
+    // Determinar Uid: si es admin usa selectedUser, si no usa su propio uid
+    const uidAUsar = this.isAdmin && this.selectedUser ? this.selectedUser.Uid : this.uid;
+    
+    if (this.isAdmin && !this.selectedUser) {
+      this.error = 'Por favor, selecciona un empleado';
+      this.cargando = false;
+      return;
+    }
+
+    // Obtener fecha actual en formato DD/MM/YYYY
+    const hoy = new Date();
+    const dia = String(hoy.getDate()).padStart(2, '0');
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    const anio = hoy.getFullYear();
+    const fechaSolicitud = `${dia}/${mes}/${anio}`;
+
+    const token = localStorage.getItem('token');
+    const body = {
+      Uid: uidAUsar,
+      fechaSolicitud: fechaSolicitud,
+      fechaDiaFamilia: this.certificadoConfig.fechaDiaFamilia
+    };
+
+    fetch(`${this.certificadoService['apiUrl']}/dia-familia`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    })
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(err => {
+          throw new Error(err.error || 'Error al generar el certificado del Día de la Familia');
+        });
+      }
+      return response.blob();
+    })
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const uidParaNombre = this.isAdmin && this.selectedUser ? this.selectedUser.Uid : this.uid;
+      a.download = `dia_familia_${uidParaNombre}_${this.certificadoConfig.fechaDiaFamilia.replace(/\//g, '-')}.png`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      this.cargando = false;
+      this.error = '';
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      this.error = error.message || 'Error al generar el certificado del Día de la Familia';
       this.cargando = false;
     });
   }
