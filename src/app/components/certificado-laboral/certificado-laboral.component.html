@@ -216,7 +216,7 @@
                 Solo mis vacaciones (hasta 15 días)
               </option>
               <option value="vacaciones-pagos">
-                Vacaciones + días pagos (más de 15 días)
+                Vacaciones + días pagos (6 días de vacaciones y 9 pagos)
               </option>
             </select>
             <small class="help-text">Seleccione una opción</small>
@@ -492,7 +492,13 @@
           </div>
 
           <!-- Campo de fecha de retiro - Solo visible si el concepto es terminación de contrato -->
-          <div class="form-group" *ngIf="certificadoConfig.conceptoRetiro === 'TERMINACIÓN DEL CONTRATO DE TRABAJO'">
+          <div
+            class="form-group"
+            *ngIf="
+              certificadoConfig.conceptoRetiro ===
+              'TERMINACIÓN DEL CONTRATO DE TRABAJO'
+            "
+          >
             <label>Fecha de Retiro del Trabajador:</label>
             <input
               type="date"
@@ -748,17 +754,13 @@
                   <i class="fas fa-check-circle"></i>
                   <span>Lunes a Viernes</span>
                 </div>
-                <div class="explanation-item included">
-                  <i class="fas fa-check-circle"></i>
-                  <span>Primer sábado de cada mes</span>
+                <div class="explanation-item excluded">
+                  <i class="fas fa-times-circle"></i>
+                  <span>Sábados</span>
                 </div>
                 <div class="explanation-item excluded">
                   <i class="fas fa-times-circle"></i>
                   <span>Domingos</span>
-                </div>
-                <div class="explanation-item excluded">
-                  <i class="fas fa-times-circle"></i>
-                  <span>Sábados (excepto el primero)</span>
                 </div>
                 <div class="explanation-item excluded">
                   <i class="fas fa-times-circle"></i>
@@ -780,7 +782,7 @@
                   Solo Vacaciones (hasta 15 días)
                 </option>
                 <option value="vacaciones-pagos">
-                  Vacaciones + Días Pagos (más de 15 días)
+                  Vacaciones + Días Pagos (6 días de vacaciones y 9 pagos)
                 </option>
               </select>
             </div>
@@ -813,9 +815,10 @@
             <strong>ℹ️ Información:</strong><br />
             • <strong>Solo Vacaciones:</strong> Hasta 15 días de vacaciones
             legales<br />
-            • <strong>Vacaciones + Días Pagos:</strong> Los primeros 15 días son
-            vacaciones, el resto días pagos<br />
-            • <strong>Gestión Administrativa:</strong> Mínimo 3 días de vacaciones<br />
+            • <strong>Vacaciones + Días Pagos:</strong> 6 días de vacaciones y 9
+            días pagos<br />
+            • <strong>Gestión Administrativa:</strong> Mínimo 3 días de
+            vacaciones<br />
             • <strong>Otras áreas:</strong> Mínimo 6 días de vacaciones<br />
             • <strong>Cabaña:</strong> Si marca la casilla, aparecerá en el
             certificado la solicitud de cabaña
@@ -918,7 +921,10 @@
           </div>
 
           <!-- CHECKBOX PARA SOLICITAR CABAÑA (NOTIFICACIÓN) -->
-          <div class="checkbox-container" style="margin-top: 20px; margin-bottom: 20px">
+          <div
+            class="checkbox-container"
+            style="margin-top: 20px; margin-bottom: 20px"
+          >
             <label class="checkbox-label">
               <input
                 type="checkbox"
@@ -927,12 +933,14 @@
               />
               <span class="checkbox-text">
                 <i class="fas fa-home"></i>
-                El empleado aplicará al beneficio de la cabaña y bono de alimentación
+                El empleado aplicará al beneficio de la cabaña y bono de
+                alimentación
               </span>
             </label>
             <small class="help-text checkbox-help">
               <i class="fas fa-info-circle"></i>
-              Marque esta casilla si el empleado manifestó que aplicará al beneficio de uso de cabaña y bono de alimentación
+              Marque esta casilla si el empleado manifestó que aplicará al
+              beneficio de uso de cabaña y bono de alimentación
             </small>
           </div>
 
@@ -951,7 +959,10 @@
             • Fecha de retorno a labores (calculada automáticamente)<br />
             • Firma del representante legal<br />
             • Espacio para firma del empleado confirmando recibido<br />
-            <span *ngIf="certificadoConfig.solicitaCabana" style="color: #4caf50; font-weight: bold">
+            <span
+              *ngIf="certificadoConfig.solicitaCabana"
+              style="color: #4caf50; font-weight: bold"
+            >
               • Texto de beneficio de cabaña y bono de alimentación
             </span>
           </div>
