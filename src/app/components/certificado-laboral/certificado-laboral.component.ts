@@ -54,6 +54,7 @@ export class CertificadoLaboralComponent implements OnInit {
     conceptoRetiro: '',
     valorAutorizado: '',
     causa: '',
+    fechaRetiroCesantias: '', // Fecha de retiro para terminación de contrato
     
     // Campos para Terminación
     fechaSalida: '',
@@ -399,6 +400,11 @@ export class CertificadoLaboralComponent implements OnInit {
       return 'Para áreas diferentes a Gestión Administrativa, mínimo 6 días de vacaciones';
     }
     
+    // Para Gestión Administrativa, mínimo 3 días
+    if (esGestionAdmin && dias < 3) {
+      return 'Para Gestión Administrativa, mínimo 3 días de vacaciones';
+    }
+    
     if (dias < 1) {
       return 'Debe solicitar al menos 1 día';
     }
@@ -471,9 +477,16 @@ export class CertificadoLaboralComponent implements OnInit {
     // Si no es sábado, retornar false
     if (fecha.getDay() !== 6) return false;
     
-    // El primer sábado siempre cae entre el día 1 y el día 7
-    const dia = fecha.getDate();
-    return dia >= 1 && dia <= 7;
+    // Calcular cuándo es el primer sábado del mes
+    const primerDia = new Date(fecha.getFullYear(), fecha.getMonth(), 1);
+    const diaPrimerDia = primerDia.getDay();
+    
+    let diasHastaPrimerSabado = 6 - diaPrimerDia;
+    if (diasHastaPrimerSabado < 0) diasHastaPrimerSabado += 7;
+    
+    const primerSabado = 1 + diasHastaPrimerSabado;
+    
+    return fecha.getDate() === primerSabado;
   }
 
   // Calcular días laborales (excluyendo fines de semana y festivos)
@@ -705,7 +718,8 @@ export class CertificadoLaboralComponent implements OnInit {
       diasSolicitados: this.certificadoConfig.diasSolicitados,
       ciudad: this.certificadoConfig.ciudad || 'Pereira',
       fechaNotificacion: this.certificadoConfig.fechaNotificacion,
-      periodoVacaciones: this.certificadoConfig.periodoVacaciones
+      periodoVacaciones: this.certificadoConfig.periodoVacaciones,
+      solicitaCabana: this.certificadoConfig.solicitaCabana // Nuevo campo para cabaña
     };
 
     fetch(`${this.certificadoService['apiUrl']}/notificacion-vacaciones`, {
