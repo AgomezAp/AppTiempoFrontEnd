@@ -61,13 +61,25 @@
       <div class="col-md-6">
         <div class="form-group" *ngIf="mostrarSalida()">
           <label for="horaSalida">Hora de salida de la empresa:</label>
-            <input type="time" id="horaSalida" [(ngModel)]="permiso.horaSalida" name="horaSalida" class="form-control" required min="7:30" max="17:00">
+          <select id="horaSalida" [(ngModel)]="permiso.horaSalida" name="horaSalida" class="form-control" required>
+            <option value="" disabled>Seleccione hora de salida</option>
+            <option *ngFor="let hora of horasDisponibles" [value]="hora">{{ hora }}</option>
+          </select>
+          <small class="form-text text-muted">
+            Solo se permiten horas enteras o medias horas
+          </small>
         </div>
       </div>
       <div class="col-md-6">
         <div class="form-group" *ngIf="mostrarEntrada()">
           <label for="horaRegreso">Hora de entrada a la empresa:</label>
-          <input type="time" id="horaRegreso" [(ngModel)]="permiso.horaEntrada" name="horaRegreso" class="form-control" required min="7:30" max="17:00">
+          <select id="horaRegreso" [(ngModel)]="permiso.horaEntrada" name="horaRegreso" class="form-control" required>
+            <option value="" disabled>Seleccione hora de entrada</option>
+            <option *ngFor="let hora of horasDisponibles" [value]="hora">{{ hora }}</option>
+          </select>
+          <small class="form-text text-muted">
+            Solo se permiten horas enteras o medias horas
+          </small>
         </div>
       </div>
       <p *ngIf="mostrarEntrada() || mostrarSalida()"><strong>POR FAVOR REVISAR BIEN EL HORARIO</strong></p>

@@ -123,6 +123,34 @@ export class PermisoComponent implements OnInit {
 
   holidays: string[] = []
 
+  // Horas disponibles (solo horas enteras y medias horas)
+  horasDisponibles: string[] = [
+    '00:00', '00:30',
+    '01:00', '01:30',
+    '02:00', '02:30',
+    '03:00', '03:30',
+    '04:00', '04:30',
+    '05:00', '05:30',
+    '06:00', '06:30',
+    '07:00', '07:30',
+    '08:00', '08:30',
+    '09:00', '09:30',
+    '10:00', '10:30',
+    '11:00', '11:30',
+    '12:00', '12:30',
+    '13:00', '13:30',
+    '14:00', '14:30',
+    '15:00', '15:30',
+    '16:00', '16:30',
+    '17:00', '17:30',
+    '18:00', '18:30',
+    '19:00', '19:30',
+    '20:00', '20:30',
+    '21:00', '21:30',
+    '22:00', '22:30',
+    '23:00', '23:30'
+  ];
+
   mostrarSalida(): boolean {
     return this.permitidosSalida.includes(this.permiso.tipo);
   }
@@ -254,38 +282,27 @@ export class PermisoComponent implements OnInit {
       console.log(`📅 Permiso de rango: ${diasLaborales} días laborales`);
 
       // Crear UN SOLO permiso para el rango completo
-      let currentDate = new Date(fechaInicio);
-      const permisosRequests = [];
-
-      while (currentDate <= fechaFinDate) {
-        // Solo agregar días laborales
-        if (!this.isWeekend(currentDate) && !this.isHoliday(currentDate)) {
-          const formData = new FormData();
-          for (const key in this.permiso) {
-            if (this.permiso.hasOwnProperty(key)) {
-              if(key === 'fecha'){
-                formData.append(key, currentDate.toISOString().split('T')[0]);
-              } else {
-                formData.append(key, (this.permiso as any)[key]);
-              }
-            }
-          }
-          if (this.selectedFile) {
-            formData.append('soporte', this.selectedFile);
-          }
-          permisosRequests.push(this.permisoService.createPermiso(formData));
+      const formData = new FormData();
+      for (const key in this.permiso) {
+        if (this.permiso.hasOwnProperty(key)) {
+          formData.append(key, (this.permiso as any)[key]);
         }
-        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      // Agregar fecha de fin y días laborales
+      formData.append('fechaFin', this.fechaFin);
+      formData.append('diasLaborales', diasLaborales.toString());
+      
+      if (this.selectedFile) {
+        formData.append('soporte', this.selectedFile);
       }
 
-      // Ejecutar todas las solicitudes
-      Promise.all(permisosRequests.map(req => req.toPromise()))
+      this.permisoService.createPermiso(formData).toPromise()
         .then(() => {
-          this.toastr.success(`${diasLaborales} días de permiso creados con éxito`);
+          this.toastr.success(`Permiso de ${diasLaborales} días creado con éxito`);
           this.router.navigate(['/permisos']);
         })
         .catch(error => {
-          this.toastr.error('Error al crear los permisos');
+          this.toastr.error('Error al crear el permiso');
           console.error(error);
         })
         .finally(() => {
