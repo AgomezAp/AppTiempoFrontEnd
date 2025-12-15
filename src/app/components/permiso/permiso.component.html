@@ -87,8 +87,9 @@
     <div class="form-group">
       <label for="observaciones">Observaciones:</label>
       <textarea id="observaciones" required [(ngModel)]="permiso.observaciones" name="observaciones" class="form-control" rows="3" minlength="50" placeholder="Debe ingresar al menos 50 caracteres. Explique detalladamente el motivo de su permiso."></textarea>
-      <small class="form-text text-muted">
-        ⚠️ Mínimo 50 caracteres. Caracteres actuales: {{ permiso.observaciones?.length || 0 }}
+      <small class="form-text" [ngClass]="{'text-success': isObservacionesValid(), 'text-danger': !isObservacionesValid() && permiso.observaciones?.length > 0, 'text-muted': !permiso.observaciones || permiso.observaciones.length === 0}">
+        ⚠️ Mínimo 50 caracteres (sin contar espacios). Caracteres actuales: {{ permiso.observaciones?.trim().length || 0 }}
+        <span *ngIf="isObservacionesValid()"> ✓</span>
       </small>
     </div>
     <div class="form-group">
@@ -99,7 +100,7 @@
       </small>
     </div>
     <div class="button-group">
-      <button type="submit" class="btn btn-success" [disabled]="!permisoForm.form.valid">Solicitar Permiso</button>
+      <button type="submit" class="btn btn-success" [disabled]="!permisoForm.form.valid || !isObservacionesValid()">Solicitar Permiso</button>
       <button type="button" class="btn btn-secondary" (click)="cancel()">Cancelar</button>
     </div>
   </form>

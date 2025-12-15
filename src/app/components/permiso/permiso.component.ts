@@ -200,7 +200,9 @@ export class PermisoComponent implements OnInit {
 
   isObservacionesValid(): boolean {
     // Elimina los espacios en blanco al inicio y al final, y verifica la longitud
-    return this.permiso.observaciones?.trim().length >= 50;
+    // Esto evita que se pueda enviar un permiso con solo espacios
+    const observacionesTrimmed = this.permiso.observaciones?.trim() || '';
+    return observacionesTrimmed.length >= 50;
   }
 
   // Función para obtener instrucciones según el tipo de permiso
@@ -247,6 +249,12 @@ export class PermisoComponent implements OnInit {
   }
 
   createPermiso() {
+    // Validar observaciones antes de proceder
+    if (!this.isObservacionesValid()) {
+      this.toastr.error('Las observaciones deben tener al menos 50 caracteres (sin contar espacios)');
+      return;
+    }
+
     this.loading = true;
     const fechaInicio = new Date(this.permiso.fecha + "T00:00:00");
     
