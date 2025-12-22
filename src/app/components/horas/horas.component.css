@@ -1,7 +1,7 @@
 .horas-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 12px;
   background: #f8fafc;
   min-height: 100vh;
   max-height: 100vh;
@@ -12,11 +12,11 @@
 
 /* Header */
 .header-section {
-  margin-bottom: 20px;
+  margin-bottom: 6px;
 }
 
 .page-title {
-  font-size: 2.2rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: #1e293b;
   margin: 0;
@@ -33,19 +33,19 @@
 
 /* Filters Section */
 .filters-section {
-  margin-bottom: 20px;
+  margin-bottom: 8px;
 }
 
 .filters-card {
   background: white;
-  border-radius: 12px;
+  border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 20px;
+  padding: 10px 14px;
 }
 
 .filters-card h3 {
-  margin: 0 0 16px 0;
-  font-size: 1.2rem;
+  margin: 0 0 8px 0;
+  font-size: 0.95rem;
   font-weight: 600;
   color: #374151;
 }
@@ -53,13 +53,13 @@
 .filters-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  gap: 10px;
   align-items: start;
 }
 
 .filter-group {
   display: flex;
-  gap: 12px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
@@ -67,9 +67,9 @@
   background: #6366f1;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -92,11 +92,11 @@
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 3px;
 }
 
 .input-group label {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: #374151;
 }
@@ -104,10 +104,10 @@
 .date-input,
 .week-input,
 .text-input {
-  padding: 10px 14px;
+  padding: 6px 10px;
   border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 0.95rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
   transition: all 0.2s ease;
   background: white;
 }
@@ -124,7 +124,7 @@
 .week-filter,
 .name-filter {
   display: flex;
-  gap: 16px;
+  gap: 10px;
 }
 
 /* Content Grid */
@@ -132,16 +132,16 @@
   flex: 1;
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 20px;
+  gap: 12px;
   overflow: hidden;
 }
 
 /* Table Section */
 .table-section {
   background: white;
-  border-radius: 12px;
+  border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 20px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -151,25 +151,25 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .table-header h3 {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #1e293b;
 }
 
 .table-info {
   color: #64748b;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 .table-container {
   flex: 1;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 6px;
   border: 1px solid #e5e7eb;
 }
 
@@ -182,7 +182,7 @@
 .hours-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   background: white;
 }
 
@@ -194,16 +194,17 @@
 }
 
 .hours-table th {
-  padding: 16px 12px;
+  padding: 8px 6px;
   text-align: left;
   font-weight: 700;
   color: #374151;
   border-bottom: 2px solid #e5e7eb;
   position: relative;
+  font-size: 0.8rem;
 }
 
 .hours-table td {
-  padding: 14px 12px;
+  padding: 8px 6px;
   border-bottom: 1px solid #f1f5f9;
   color: #1e293b;
 }
@@ -337,9 +338,9 @@
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 20px;
+  padding: 16px;
   height: fit-content;
-  max-height: 500px;
+  max-height: 700px;
   overflow-y: auto;
 }
 
@@ -360,64 +361,65 @@
 .extra-hours-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .extra-item-positive {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px;
+  padding: 8px 10px;
   background: #f8fafc;
-  border-radius: 8px;
-  border-left: 4px solid #027902;
+  border-radius: 6px;
+  border-left: 3px solid #027902;
 }
 .extra-item-negative {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px;
+  padding: 8px 10px;
   background: #f8fafc;
-  border-radius: 8px;
-  border-left: 4px solid #dc2626;
+  border-radius: 6px;
+  border-left: 3px solid #dc2626;
 }
 .extra-item-neutral {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px;
+  padding: 8px 10px;
   background: #f8fafc;
-  border-radius: 8px;
-  border-left: 4px solid #b5b4be;
+  border-radius: 6px;
+  border-left: 3px solid #b5b4be;
 }
 
 .employee-name {
   font-weight: 600;
   color: #1e293b;
+  font-size: 0.9rem;
 }
 
 .hours-badge-positive{
   background: #027902;
   color: white;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.8rem;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
   font-weight: 600;
 }
 .hours-badge-negative {
   background: #dc2626;
   color: white;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.8rem;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
   font-weight: 600;
 }
 .hours-badge-neutral{
   background: #b5b4be;
   color: black;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.8rem;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
   font-weight: 600;
 }
 /* Responsive Design */

@@ -48,7 +48,7 @@ export class HorasComponent implements OnInit {
 
   // Nuevas propiedades para paginación
   paginatedHoras: any[] = [];
-  pageSize: number = 7;
+  pageSize: number = 20;
   currentPage: number = 1;
   totalPages: number = 1;
 
