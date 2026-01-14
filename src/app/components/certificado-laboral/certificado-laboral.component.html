@@ -788,26 +788,6 @@
             </div>
           </div>
 
-          <!-- CHECKBOX PARA SOLICITAR CABAÑA (ADMIN) -->
-          <div class="checkbox-container" style="margin-top: 20px">
-            <label class="checkbox-label">
-              <input
-                type="checkbox"
-                [(ngModel)]="certificadoConfig.solicitaCabana"
-                class="checkbox-input"
-              />
-              <span class="checkbox-text">
-                <i class="fas fa-home"></i>
-                Solicitar cabaña de descanso
-              </span>
-            </label>
-            <small class="help-text checkbox-help">
-              <i class="fas fa-info-circle"></i>
-              Marque esta casilla si el empleado desea hacer uso de la cabaña
-              durante sus vacaciones
-            </small>
-          </div>
-
           <div
             class="info-box"
             style="background-color: #e3f2fd; border-left: 4px solid #2196f3"
@@ -918,30 +898,6 @@
               >📊 Días Laborales de Vacaciones:
               {{ certificadoConfig.diasSolicitados }}</strong
             >
-          </div>
-
-          <!-- CHECKBOX PARA SOLICITAR CABAÑA (NOTIFICACIÓN) -->
-          <div
-            class="checkbox-container"
-            style="margin-top: 20px; margin-bottom: 20px"
-          >
-            <label class="checkbox-label">
-              <input
-                type="checkbox"
-                [(ngModel)]="certificadoConfig.solicitaCabana"
-                class="checkbox-input"
-              />
-              <span class="checkbox-text">
-                <i class="fas fa-home"></i>
-                El empleado aplicará al beneficio de la cabaña y bono de
-                alimentación
-              </span>
-            </label>
-            <small class="help-text checkbox-help">
-              <i class="fas fa-info-circle"></i>
-              Marque esta casilla si el empleado manifestó que aplicará al
-              beneficio de uso de cabaña y bono de alimentación
-            </small>
           </div>
 
           <div
