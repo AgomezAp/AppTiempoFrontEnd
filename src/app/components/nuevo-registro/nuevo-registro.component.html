@@ -1,39 +1,94 @@
 <app-navbar></app-navbar>
-<div class="body-container">
-    <div class="logo-container">
-        <img src="/LogoAP.png" alt="Logo de Andrés Publicidad">
+
+<div class="registro-container">
+  <!-- Header con logo -->
+  <div class="header-section">
+    <div class="logo-wrapper">
+      <img src="/LogoAP.png" alt="Logo de Andrés Publicidad" />
     </div>
-    <div class="edit-hora-form">
-        <h2>Agregar un registro</h2>
-        <form (ngSubmit)="addRegistro()">
-            <div class="form-group">
-                <label for="Hid">id</label>
-                <input type="text" id="Hid" name="Hid" required class="form-control" [(ngModel)]="newRegistro.Hid" readonly/>
-            </div>
-            <div class="form-group">
-                <label for="name">Nombre</label>
-                <select name="Name" id="name" required class="form-control" [(ngModel)]="newRegistro.Name" (change)="onNombreChange($event)">
-                    <input type="text"><option *ngFor="let usuario of usuarios" [value]="usuario.nombre">{{usuario.nombre}}</option>
-                </select>
-                <!-- <input type="text" id="name" name="Name" required class="form-control" [(ngModel)]="newRegistro.Name"/> -->
-            </div>
-            <div class="form-group">
-                <label for="entrada">Entrada</label>
-                <input type="time" id="entrada" name="Entrada" required class="form-control" [(ngModel)]="newRegistro.Entrada"/>
-            </div>
-            <div class="form-group">
-                <label for="fecha">Fecha</label>
-                <input type="text" id="fecha" name="Fecha" required class="form-control" [(ngModel)]="newRegistro.Fecha"/>
-            </div>
-            <div class="form-group">
-                <label for="salida">Salida</label>
-                <input type="time" id="salida" name="Salida" required class="form-control" [(ngModel)]="newRegistro.Salida"/>
-            </div>
-            <div class="button-group">
-                <button type="submit" class="btn btn-primary">Agregar</button>
-                <button type="button" class="btn btn-secondary" (click)="cancelEdit()">Cancelar</button>
-            </div>
-        </form>
-        <!-- <app-spinner *ngIf="loading"></app-spinner> -->
+    <h1 class="page-title">Agregar Registro de Horas</h1>
+  </div>
+
+  <!-- Formulario -->
+  <div class="form-card">
+    <div class="form-header">
+      <h2>Nuevo Registro</h2>
     </div>
+
+    <form (ngSubmit)="addRegistro()" class="form-body">
+      <!-- ID (oculto visualmente pero funcional) -->
+      <input type="hidden" id="Hid" name="Hid" [(ngModel)]="newRegistro.Hid" />
+
+      <!-- Fila 1: Nombre y Fecha -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="name">Nombre <span class="required">*</span></label>
+          <select
+            name="Name"
+            id="name"
+            required
+            [(ngModel)]="newRegistro.Name"
+            (change)="onNombreChange($event)"
+          >
+            <option value="" disabled selected>Seleccione un empleado</option>
+            <option *ngFor="let usuario of usuarios" [value]="usuario.nombre">
+              {{ usuario.nombre }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="fecha">Fecha <span class="required">*</span></label>
+          <input
+            type="text"
+            id="fecha"
+            name="Fecha"
+            required
+            [(ngModel)]="newRegistro.Fecha"
+            placeholder="DD/MM/YYYY"
+          />
+        </div>
+      </div>
+
+      <!-- Fila 2: Entrada y Salida -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="entrada"
+            >Hora Entrada <span class="required">*</span></label
+          >
+          <input
+            type="time"
+            id="entrada"
+            name="Entrada"
+            required
+            [(ngModel)]="newRegistro.Entrada"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="salida"
+            >Hora Salida <span class="required">*</span></label
+          >
+          <input
+            type="time"
+            id="salida"
+            name="Salida"
+            required
+            [(ngModel)]="newRegistro.Salida"
+          />
+        </div>
+      </div>
+
+      <!-- Botones -->
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">
+          <i class="fas fa-plus"></i> Agregar Registro
+        </button>
+        <button type="button" class="btn-secondary" (click)="cancelEdit()">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
+

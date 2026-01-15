@@ -31,6 +31,7 @@ import { AusentismoComponent } from './components/ausentismo/ausentismo.componen
 import { GestionArchivosComponent } from './components/gestion-archivos/gestion-archivos.component';
 import { CertificadoLaboralComponent } from './components/certificado-laboral/certificado-laboral.component';
 import { ConfiguracionNominaComponent } from './components/configuracion-nomina/configuracion-nomina.component';
+import { ReservasComponent } from './components/reservas/reservas.component';
 
 export const routes: Routes = [
   {
@@ -115,6 +116,12 @@ export const routes: Routes = [
     component: ConfiguracionNominaComponent, 
     canActivate: [tRolGuard], 
     data: { allowedRoles: ['Admin'] } 
+  },
+  { 
+    path: 'reservas', 
+    component: ReservasComponent, 
+    canActivate: [tRolGuard], 
+    data: { allowedRoles: ['Admin', 'User', 'Tecnologia'] } 
   },
   
   { path: '**', component: ErrorPageComponent },

@@ -1,0 +1,756 @@
+/* ========================================
+   SISTEMA DE RESERVAS DE SALAS
+   Principal: #141414 | Secundario: #FFD600
+   Fuente: Fira Sans
+   ======================================== */
+
+.reservas-container {
+  font-family: "Fira Sans", sans-serif;
+  padding: 15px 20px;
+  background-color: #fafafa;
+  min-height: calc(100vh - 70px);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+.reservas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.reservas-header h1 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #141414;
+  margin: 0;
+  padding-bottom: 5px;
+  border-bottom: 3px solid #ffd600;
+}
+
+.manage-rooms-btn {
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  background-color: #141414;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.manage-rooms-btn:hover {
+  background-color: #ffd600;
+  color: #141414;
+}
+
+/* ========================================
+   CONTROLES DE MES
+   ======================================== */
+.month-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 15px 20px;
+  background-color: #141414;
+  border-radius: 6px;
+}
+
+.month-controls h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffd600;
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.month-controls .btn-secondary {
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  background-color: transparent;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.month-controls .btn-secondary:hover {
+  background-color: #ffd600;
+  color: #141414;
+  border-color: #ffd600;
+}
+
+/* ========================================
+   CALENDARIO
+   ======================================== */
+.calendar-container {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+/* Header del calendario */
+.calendar-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background-color: #141414;
+}
+
+.calendar-day-header {
+  padding: 12px 8px;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffd600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Body del calendario */
+.calendar-body {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background-color: #e0e0e0;
+}
+
+/* Día individual */
+.calendar-day {
+  background-color: #ffffff;
+  min-height: 100px;
+  padding: 8px;
+  position: relative;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-day:hover {
+  z-index: 1;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+}
+
+.calendar-day.not-current-month {
+  opacity: 0.5;
+}
+
+/* Número del día */
+.day-number {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #141414;
+  margin-bottom: 5px;
+}
+
+/* Indicador de estado */
+.status-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.status-dot {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* Acciones del día */
+.day-actions {
+  display: flex;
+  gap: 5px;
+  margin-top: auto;
+  margin-bottom: 5px;
+}
+
+.btn-icon {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-new {
+  background-color: #e8f5e9;
+}
+
+.btn-new:hover {
+  background-color: #ffd600;
+  transform: scale(1.1);
+}
+
+.btn-view {
+  background-color: #e3f2fd;
+}
+
+.btn-view:hover {
+  background-color: #141414;
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+/* Info del día */
+.day-info {
+  margin-top: auto;
+}
+
+.day-info small {
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.day-info .available {
+  color: #2e7d32;
+}
+
+.day-info .not-working {
+  color: #999;
+}
+
+/* ========================================
+   LEYENDA
+   ======================================== */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  padding: 15px;
+  background-color: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+/* ========================================
+   MODALES - BASE
+   ======================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(20, 20, 20, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 15px;
+}
+
+.modal-content {
+  background-color: #ffffff;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 550px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content.modal-large {
+  max-width: 700px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #141414;
+}
+
+.modal-header h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffd600;
+  margin: 0;
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 5px;
+  transition: color 0.2s ease;
+}
+
+.btn-close:hover {
+  color: #ffd600;
+}
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 15px 20px;
+  border-top: 1px solid #eee;
+  background-color: #fafafa;
+}
+
+/* ========================================
+   FORMULARIOS
+   ======================================== */
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #141414;
+  margin-bottom: 5px;
+}
+
+.form-control {
+  width: 100%;
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.9rem;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  color: #141414;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #ffd600;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(255, 214, 0, 0.2);
+}
+
+textarea.form-control {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+/* Slots de horario */
+.available-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.slot-button {
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.8rem;
+  padding: 8px 12px;
+  background-color: #f5f5f5;
+  color: #141414;
+  border: 2px solid #e0e0e0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.slot-button:hover {
+  border-color: #141414;
+}
+
+.slot-button.selected {
+  background-color: #ffd600;
+  border-color: #ffd600;
+  color: #141414;
+  font-weight: 600;
+}
+
+/* Lista de participantes */
+.participants-list {
+  max-height: 150px;
+  overflow-y: auto;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.participant-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.participant-item:last-child {
+  border-bottom: none;
+}
+
+.participant-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #ffd600;
+}
+
+.participant-item label {
+  font-size: 0.85rem;
+  color: #141414;
+  margin: 0;
+  cursor: pointer;
+}
+
+/* ========================================
+   BOTONES
+   ======================================== */
+.btn {
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background-color: #141414;
+  color: #ffffff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #ffd600;
+  color: #141414;
+}
+
+.btn-primary:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: #141414;
+  border: 2px solid #141414;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #141414;
+  color: #ffffff;
+}
+
+.btn-sm {
+  font-size: 0.75rem;
+  padding: 6px 12px;
+}
+
+.btn-warning {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffc107;
+}
+
+.btn-warning:hover {
+  background-color: #ffc107;
+  color: #141414;
+}
+
+.btn-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #dc3545;
+}
+
+.btn-danger:hover {
+  background-color: #dc3545;
+  color: #ffffff;
+}
+
+/* ========================================
+   LISTA DE RESERVACIONES (MODAL)
+   ======================================== */
+.reservations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.reservation-card {
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  padding: 15px;
+  border-left: 4px solid #ffd600;
+}
+
+.reservation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.reservation-header h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #141414;
+  margin: 0;
+}
+
+.time-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  background-color: #141414;
+  color: #ffd600;
+  border-radius: 12px;
+}
+
+.reservation-details {
+  font-size: 0.85rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+.reservation-details p {
+  margin: 5px 0;
+}
+
+.reservation-details strong {
+  color: #141414;
+}
+
+.reservation-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+/* ========================================
+   ADMINISTRACIÓN DE SALAS
+   ======================================== */
+.create-room-section {
+  margin-bottom: 20px;
+}
+
+.create-room-section h3,
+.rooms-list-section h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #141414;
+  margin: 0 0 15px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #ffd600;
+}
+
+.create-room-section .form-group {
+  margin-bottom: 10px;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  background-color: #eee;
+  margin: 20px 0;
+}
+
+/* Tabla de salas */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.table thead {
+  background-color: #141414;
+}
+
+.table th {
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid #eee;
+}
+
+.table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.table td {
+  padding: 10px 12px;
+  color: #141414;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 900px) {
+  .calendar-day {
+    min-height: 80px;
+    padding: 5px;
+  }
+
+  .calendar-day-header {
+    font-size: 0.65rem;
+    padding: 8px 4px;
+  }
+
+  .day-number {
+    font-size: 0.85rem;
+  }
+
+  .btn-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+  }
+
+  .day-info small {
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .reservas-container {
+    padding: 10px;
+  }
+
+  .reservas-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .month-controls {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .month-controls h2 {
+    order: -1;
+  }
+
+  .calendar-day-header {
+    font-size: 0.55rem;
+    padding: 6px 2px;
+  }
+
+  .calendar-day {
+    min-height: 60px;
+    padding: 3px;
+  }
+
+  .day-number {
+    font-size: 0.75rem;
+  }
+
+  .day-actions {
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .btn-icon {
+    width: 22px;
+    height: 22px;
+    font-size: 0.65rem;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .legend {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .modal-content {
+    max-height: 95vh;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 500px) {
+  .day-info {
+    display: none;
+  }
+
+  .calendar-body {
+    font-size: 0.7rem;
+  }
+}

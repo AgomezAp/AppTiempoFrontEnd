@@ -1,71 +1,247 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f3f4f6;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column; /* Asegura que los elementos estén en columna */
-    align-items: center; /* Centra los elementos horizontalmente */
-    justify-content: center; /* Centra los elementos verticalmente */
-    height: 100vh;
+/* ========================================
+   LOGIN PAGE - IDENTIDAD DE MARCA
+   Principal: #141414 | Secundario: #FFD600
+   Fuente: Fira Sans
+   ======================================== */
+
+/* ========================================
+   PÁGINA COMPLETA
+   ======================================== */
+.login-page {
+  font-family: "Fira Sans", sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
 }
-.login-container {
-    background-color: #ffffff;
-    padding: 20px 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
+
+/* Patrón de fondo con logo */
+.login-page::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("/LogoAP-pattern.png"); /* Tu logo para el patrón */
+  background-repeat: repeat;
+  background-size: 80px;
+  background-position: center;
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 0;
 }
-.login-container h2 {
-    margin-bottom: 20px;
-    color: #333333;
-    text-align: center;
+
+/* ========================================
+   WRAPPER CENTRAL
+   ======================================== */
+.login-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+  width: 100%;
+  max-width: 400px;
 }
-.login-container label {
-    display: block;
-    margin-bottom: 8px;
-    color: #555555;
-    font-weight: bold;
-}
-.login-container input[type="text"],
-.login-container input[type="password"] {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #dddddd;
-    border-radius: 5px;
-    box-sizing: border-box;
-}
-.login-container input[type="submit"] {
-    width: 100%;
-    padding: 10px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-}
-.login-container input[type="submit"]:hover {
-    background-color: #0056b3;
-}
-.login-container .link {
-    text-align: center;
-    margin-top: 10px;
-}
-.login-container .link a {
-    color: #007BFF;
-    text-decoration: none;
-}
-.login-container .link a:hover {
-    text-decoration: underline;
-}
+
+/* ========================================
+   LOGO
+   ======================================== */
 .logo-container {
-    text-align: center;
-    margin-bottom: 20px;
+  margin-bottom: 30px;
+  text-align: center;
 }
+
 .logo-container img {
-    max-width: 150px; /* Ajusta el tamaño máximo de la imagen */
-    height: auto; /* Mantiene la proporción */
+  height: 80px;
+  width: auto;
+  transition: transform 0.3s ease;
+}
+
+.logo-container img:hover {
+  transform: scale(1.05);
+}
+
+/* ========================================
+   CARD DE LOGIN
+   ======================================== */
+.login-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 35px 40px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.login-card h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #141414;
+  text-align: center;
+  margin: 0 0 25px 0;
+}
+
+/* ========================================
+   FORMULARIO
+   ======================================== */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #141414;
+  margin-bottom: 8px;
+}
+
+.form-group input {
+  width: 100%;
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.95rem;
+  padding: 14px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #fafafa;
+  color: #141414;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #ffd600;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(255, 214, 0, 0.15);
+}
+
+.form-group input::placeholder {
+  color: #aaaaaa;
+}
+
+/* ========================================
+   BOTÓN DE LOGIN
+   ======================================== */
+.btn-login {
+  width: 100%;
+  font-family: "Fira Sans", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 14px 20px;
+  margin-top: 10px;
+  background-color: #141414;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-login:hover:not(:disabled) {
+  background-color: #ffd600;
+  color: #141414;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 214, 0, 0.4);
+}
+
+.btn-login:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-login:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ========================================
+   LINKS
+   ======================================== */
+.login-links {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.login-links a {
+  display: block;
+  font-size: 0.85rem;
+  color: #141414;
+  text-decoration: none;
+  padding: 8px 0;
+  transition: color 0.2s ease;
+}
+
+.login-links a:hover {
+  color: #ffd600;
+  text-decoration: underline;
+}
+
+/* ========================================
+   FOOTER
+   ======================================== */
+.login-footer {
+  margin-top: 25px;
+  font-size: 0.75rem;
+  color: #999999;
+  text-align: center;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 480px) {
+  .login-page {
+    padding: 15px;
+  }
+
+  .logo-container img {
+    height: 60px;
+  }
+
+  .login-card {
+    padding: 25px 20px;
+    border-radius: 10px;
+  }
+
+  .login-card h2 {
+    font-size: 1.3rem;
+  }
+
+  .form-group input {
+    padding: 12px 14px;
+    font-size: 0.9rem;
+  }
+
+  .btn-login {
+    padding: 12px 18px;
+    font-size: 0.95rem;
+  }
+}
+
+/* ========================================
+   ANIMACIONES
+   ======================================== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-card {
+  animation: fadeInUp 0.5s ease;
+}
+
+.logo-container {
+  animation: fadeInUp 0.5s ease 0.1s backwards;
 }

@@ -31,14 +31,30 @@ body {
   height: 100%;
 }
 
-body {
-  margin: 0;
+body { 
+  margin: 0; 
   font-family: var(--font-family);
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  line-height: 1.6;
+  padding-top: var(--navbar-height);
+  background-color: #f8f8f8;
+  position: relative;
 }
 
+/* Patrón de fondo con logo */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('/p1.webp'); /* Cambia por la ruta de tu logo */
+  background-repeat: repeat;
+  background-size: 90px; /* Ajusta según prefieras */
+  background-position: center;
+  opacity: 0.045; /* Muy sutil, como en la imagen de referencia */
+  pointer-events: none;
+  z-index: -1;
+}
 /* ========================================
    TIPOGRAFÍA
    ======================================== */
