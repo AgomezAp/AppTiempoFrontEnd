@@ -58,7 +58,7 @@
               <li><a class="dropdown-item" href="/informes">Informes</a></li>
               <li><a class="dropdown-item" href="/extras">Extras</a></li>
               <li>
-                <a class="dropdown-item" href="/ausentismo">Ausentismo</a>
+                <a class="dropdown-item"  *ngIf="userRole === 'Admin'" href="/ausentismo">Ausentismo</a>
               </li>
             </ul>
           </li>

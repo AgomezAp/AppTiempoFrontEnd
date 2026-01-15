@@ -177,7 +177,16 @@ export class ReservasComponent implements OnInit {
       },
     });
   }
-
+  getMonthYearSpanish(): string {
+    const date = this.currentMonth.toDate(); // Convertir dayjs a Date nativo
+    const options: Intl.DateTimeFormatOptions = {
+      month: 'long',
+      year: 'numeric',
+    };
+    const formatted = date.toLocaleDateString('es-ES', options);
+    // Capitalizar primera letra
+    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  }
   /**
    * Generar el calendario del mes actual
    */
@@ -195,7 +204,9 @@ export class ReservasComponent implements OnInit {
 
     while (current.isSameOrBefore(endDate)) {
       const dateStr = current.format('YYYY-MM-DD');
-      const dayReservations = this.reservations.filter((r) => r.date === dateStr);
+      const dayReservations = this.reservations.filter(
+        (r) => r.date === dateStr
+      );
 
       this.calendarDays.push({
         date: dateStr,
@@ -231,15 +242,16 @@ export class ReservasComponent implements OnInit {
    * Obtener el color de un día según su estado
    */
   getDayColor(day: any): string {
-    if (!day.isCurrentMonth) return '#f0f0f0'; // Gris para días fuera del mes
-    if (!day.isWorkDay) return '#e8f4f8'; // Azul claro para días no laborales
-
-    if (day.reservations.length === 0) {
-      return '#d4edda'; // Verde para disponible
-    } else {
-      // Rojo para reservado
-      return '#f8d7da';
+    if (!day.isCurrentMonth) {
+      return '#f0f0f0'; // Gris claro para otro mes
     }
+    if (!day.isWorkDay) {
+      return '#e8e8e8'; // Gris para no laboral
+    }
+    if (day.reservations.length > 0) {
+      return '#f8d7da'; // Rojo claro para reservado
+    }
+    return '#fff8e1'; // AMARILLO CLARO para disponible (antes era #d4edda verde)
   }
 
   /**
@@ -249,19 +261,26 @@ export class ReservasComponent implements OnInit {
     if (!day.isCurrentMonth) return '';
     if (!day.isWorkDay) return 'No laboral';
     if (day.reservations.length === 0) return 'Disponible';
-    return `${day.reservations.length} reserva${day.reservations.length > 1 ? 's' : ''}`;
+    return `${day.reservations.length} reserva${
+      day.reservations.length > 1 ? 's' : ''
+    }`;
   }
 
   /**
    * Obtener el color indicador según el estado
    */
   getStatusColor(day: any): string {
-    if (!day.isCurrentMonth) return '#ccc';
-    if (!day.isWorkDay) return '#6c757d';
-    if (day.reservations.length === 0) return '#28a745'; // Verde
-    return '#dc3545'; // Rojo
+    if (!day.isCurrentMonth) {
+      return '#cccccc';
+    }
+    if (!day.isWorkDay) {
+      return '#999999';
+    }
+    if (day.reservations.length > 0) {
+      return '#dc3545'; // Rojo para reservado
+    }
+    return '#FFD600'; // AMARILLO para disponible (antes era #28a745 verde)
   }
-
   /**
    * Abrir modal para crear nueva reserva
    */
@@ -337,30 +356,39 @@ export class ReservasComponent implements OnInit {
     }
 
     // Debug: log the date format being sent
-    console.log('Enviando solicitud de slots - Sala:', this.selectedRoom, 'Fecha:', this.selectedDate, 'Tipo:', typeof this.selectedDate);
+    console.log(
+      'Enviando solicitud de slots - Sala:',
+      this.selectedRoom,
+      'Fecha:',
+      this.selectedDate,
+      'Tipo:',
+      typeof this.selectedDate
+    );
 
-    this.reservationService.getAvailableSlots(this.selectedRoom, this.selectedDate).subscribe({
-      next: (res) => {
-        if (res.success && res.availableSlots) {
-          this.availableSlots = res.availableSlots;
-          if (this.availableSlots.length === 0) {
-            console.warn('No hay slots disponibles para esta sala y fecha');
+    this.reservationService
+      .getAvailableSlots(this.selectedRoom, this.selectedDate)
+      .subscribe({
+        next: (res) => {
+          if (res.success && res.availableSlots) {
+            this.availableSlots = res.availableSlots;
+            if (this.availableSlots.length === 0) {
+              console.warn('No hay slots disponibles para esta sala y fecha');
+            } else {
+              console.log('Slots cargados:', this.availableSlots);
+            }
           } else {
-            console.log('Slots cargados:', this.availableSlots);
+            this.availableSlots = [];
+            console.warn('Respuesta sin slots:', res);
           }
-        } else {
+        },
+        error: (err: any) => {
+          console.error('Error al cargar slots disponibles:', err);
           this.availableSlots = [];
-          console.warn('Respuesta sin slots:', res);
-        }
-      },
-      error: (err: any) => {
-        console.error('Error al cargar slots disponibles:', err);
-        this.availableSlots = [];
-        if (err.error?.message) {
-          console.log('Detalles del error:', err.error.message);
-        }
-      },
-    });
+          if (err.error?.message) {
+            console.log('Detalles del error:', err.error.message);
+          }
+        },
+      });
   }
 
   /**
@@ -376,7 +404,9 @@ export class ReservasComponent implements OnInit {
    */
   toggleParticipant(userId: number): void {
     if (this.selectedParticipants.includes(userId)) {
-      this.selectedParticipants = this.selectedParticipants.filter((id) => id !== userId);
+      this.selectedParticipants = this.selectedParticipants.filter(
+        (id) => id !== userId
+      );
     } else {
       this.selectedParticipants.push(userId);
     }
@@ -386,7 +416,13 @@ export class ReservasComponent implements OnInit {
    * Guardar la reserva (crear o actualizar)
    */
   saveReservation(): void {
-    if (!this.selectedRoom || !this.selectedDate || !this.startTime || !this.endTime || !this.reason) {
+    if (
+      !this.selectedRoom ||
+      !this.selectedDate ||
+      !this.startTime ||
+      !this.endTime ||
+      !this.reason
+    ) {
       alert('Por favor, completa todos los campos requeridos');
       return;
     }
@@ -415,7 +451,9 @@ export class ReservasComponent implements OnInit {
     this.reservationService.createReservation(data).subscribe({
       next: (res) => {
         if (res.success) {
-          alert('Reserva creada exitosamente. Se han enviado correos de confirmación.');
+          alert(
+            'Reserva creada exitosamente. Se han enviado correos de confirmación.'
+          );
           this.closeModal();
           this.loadAllReservations();
         }
@@ -442,21 +480,23 @@ export class ReservasComponent implements OnInit {
       participants: this.selectedParticipants,
     };
 
-    this.reservationService.updateReservation(this.editingReservationId!, data).subscribe({
-      next: (res) => {
-        if (res.success) {
-          alert('Reserva actualizada exitosamente');
-          this.closeModal();
-          this.loadAllReservations();
-        }
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error al actualizar reserva:', err);
-        alert(err.error?.message || 'Error al actualizar la reserva');
-        this.loading = false;
-      },
-    });
+    this.reservationService
+      .updateReservation(this.editingReservationId!, data)
+      .subscribe({
+        next: (res) => {
+          if (res.success) {
+            alert('Reserva actualizada exitosamente');
+            this.closeModal();
+            this.loadAllReservations();
+          }
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Error al actualizar reserva:', err);
+          alert(err.error?.message || 'Error al actualizar la reserva');
+          this.loading = false;
+        },
+      });
   }
 
   /**

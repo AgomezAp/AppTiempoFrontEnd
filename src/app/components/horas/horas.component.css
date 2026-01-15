@@ -7,7 +7,6 @@
 .horas-container {
   font-family: "Fira Sans", sans-serif;
   padding: 15px 20px;
-  background-color: #fafafa;
   min-height: calc(100vh - 60px);
 }
 

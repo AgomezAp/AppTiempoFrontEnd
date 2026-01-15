@@ -7,7 +7,6 @@
 .reservas-container {
   font-family: "Fira Sans", sans-serif;
   padding: 15px 20px;
-  background-color: #fafafa;
   min-height: calc(100vh - 70px);
   max-width: 1200px;
   margin: 0 auto;
@@ -190,15 +189,15 @@
   align-items: center;
   justify-content: center;
 }
-
 .btn-new {
-  background-color: #e8f5e9;
+  background-color: #fff8e1; /* Amarillo claro en vez de #e8f5e9 */
+  color: #141414;
 }
 
 .btn-new:hover {
   background-color: #ffd600;
   transform: scale(1.1);
-}
+}   
 
 .btn-view {
   background-color: #e3f2fd;
@@ -221,7 +220,7 @@
 }
 
 .day-info .available {
-  color: #2e7d32;
+  color: #c9a800; /* Amarillo dorado en vez de #2e7d32 */
 }
 
 .day-info .not-working {
@@ -237,7 +236,7 @@
   gap: 20px;
   justify-content: center;
   padding: 15px;
-  background-color: #ffffff;
+  background-color: #ffffff;    
   border-radius: 6px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
