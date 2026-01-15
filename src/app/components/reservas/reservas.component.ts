@@ -215,7 +215,7 @@ export class ReservasComponent implements OnInit {
         dayOfWeek: current.day(),
         reservations: dayReservations,
         reservationCount: dayReservations.length,
-        isWorkDay: current.day() >= 1 && current.day() <= 6,
+        isWorkDay: current.day() >= 0 && current.day() <= 5,
       });
 
       current = current.add(1, 'day');
