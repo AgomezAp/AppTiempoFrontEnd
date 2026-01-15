@@ -1,395 +1,403 @@
+/* ========================================
+   NOVEDADES DASHBOARD
+   Principal: #141414 | Secundario: #FFD600
+   Fuente: Fira Sans
+   ======================================== */
+
 .novedad-dashboard {
-  max-width: 100%;
-  margin: 0;
+  font-family: "Fira Sans", sans-serif;
   padding: 15px 20px;
-  background-color: #f8f9fa;
-  min-height: 100vh;
-  margin-top: 70px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #fafafa;
+  min-height: calc(100vh - 60px);
 }
 
-/* Título más compacto */
-.novedad-dashboard h1 {
-  color: #495057;
-  font-size: 1.4rem;
-  font-weight: 500;
-  text-align: left;
-  margin-bottom: 8px;
-  padding-bottom: 4px;
-  border-bottom: 2px solid #dee2e6;
-}
-
-/* Filtros más compactos */
-.filters {
-  background: white;
-  border-radius: 8px;
-  padding: 12px 18px;
-  margin-bottom: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+/* ========================================
+   HEADER SECTION
+   ======================================== */
+.header-section {
   display: flex;
-  gap: 18px;
-  align-items: end;
-  border: 1px solid #e9ecef;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
 }
 
-.filters > div {
-  flex: 1;
-  min-width: 160px;
+.header-section h1 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #141414;
+  margin: 0;
+  padding-bottom: 5px;
+  border-bottom: 3px solid #ffd600;
 }
 
-.filters label {
-  display: block;
-  font-weight: 600;
-  color: #495057;
-  margin-bottom: 4px;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+/* ========================================
+   FILTROS INLINE
+   ======================================== */
+.filters-inline {
+  display: flex;
+  align-items: flex-end;
+  gap: 15px;
+  flex-wrap: wrap;
 }
 
-.filters input {
-  width: 100%;
-  padding: 6px 10px;
-  border: 1px solid #ced4da;
-  border-radius: 5px;
-  font-size: 0.85rem;
-  transition: all 0.3s ease;
-  background: #fff;
-  color: #495057;
-  height: 32px;
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.filters input:focus {
-  outline: none;
-  border-color: #80bdff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-}
-
-.filters input:hover {
-  border-color: #adb5bd;
-}
-
-/* Botón actualizar más compacto */
-.btn-primary {
-  background-color: #007bff;
-  border: 1px solid #007bff;
-  color: white;
-  padding: 6px 14px;
-  border-radius: 5px;
-  font-weight: 500;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  height: 32px;
-  text-transform: none;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-  border-color: #0056b3;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-/* Contenedor de tabla - Máximo espacio */
-.table-container {
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e9ecef;
-  height: calc(100vh - 220px); /* Más espacio para la tabla */
-}
-
-.table-responsive {
-  overflow-x: auto;
-  height: 100%; /* Ocupa todo el contenedor */
-}
-
-/* Tabla con padding reducido */
-.table {
-  margin-bottom: 0;
-  font-size: 0.85rem;
-  width: 100%;
-}
-
-.table thead th {
-  background-color: #495057;
-  color: white;
-  border: none;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 10px 8px; /* Reducido significativamente */
+.filter-item label {
   font-size: 0.75rem;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  text-align: center;
-  border-bottom: 2px solid #6c757d;
+  font-weight: 600;
+  color: #141414;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* Distribución de columnas */
-.table th:nth-child(1), .table td:nth-child(1) { width: 15%; }
-.table th:nth-child(2), .table td:nth-child(2) { width: 18%; }
-.table th:nth-child(3), .table td:nth-child(3) { width: 10%; }
-.table th:nth-child(4), .table td:nth-child(4) { width: 30%; }
-.table th:nth-child(5), .table td:nth-child(5) { width: 12%; }
-.table th:nth-child(6), .table td:nth-child(6) { width: 10%; }
-.table th:nth-child(7), .table td:nth-child(7) { width: 5%; }
-
-.table tbody tr {
+.filter-item input {
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.85rem;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #141414;
   transition: all 0.2s ease;
-  border-bottom: 1px solid #e9ecef;
+  min-width: 150px;
 }
 
-.table tbody tr:hover {
-  background-color: #f8f9fa;
-  transform: translateX(2px);
+.filter-item input:focus {
+  outline: none;
+  border-color: #ffd600;
+  box-shadow: 0 0 0 2px rgba(255, 214, 0, 0.2);
 }
 
-.table tbody tr:nth-child(even) {
+.btn-actualizar {
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  background-color: #141414;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-actualizar:hover {
+  background-color: #ffd600;
+  color: #141414;
+}
+
+/* ========================================
+   TABLA
+   ======================================== */
+.table-container {
+  background-color: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+.novedades-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+/* Encabezado de tabla */
+.novedades-table thead {
+  background-color: #141414;
+}
+
+.novedades-table th {
+  padding: 12px 10px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* Filas */
+.novedades-table tbody tr {
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s ease;
+}
+
+.novedades-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.novedades-table tbody tr:nth-child(even) {
   background-color: #fafafa;
 }
 
-.table tbody tr:nth-child(even):hover {
-  background-color: #f1f3f4;
+.novedades-table tbody tr:nth-child(even):hover {
+  background-color: #f5f5f5;
 }
 
-.table td {
-  padding: 8px 6px; /* Reducido significativamente */
+/* Celdas */
+.novedades-table td {
+  padding: 10px;
+  color: #141414;
   vertical-align: middle;
-  border: none;
-  color: #495057;
+}
+
+.name-cell {
   font-weight: 500;
-  line-height: 1.2;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.table td:first-child {
-  font-weight: 600;
-  color: #343a40;
-}
-
-/* Input de horas más compacto */
-.table td input.form-control {
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  padding: 4px 6px;
+.type-cell {
   font-size: 0.8rem;
-  font-weight: 500;
+}
+
+.date-cell {
+  font-family: "Fira Sans", monospace;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.desc-cell {
+  font-size: 0.8rem;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Input de horas */
+.hours-cell {
+  width: 100px;
+}
+
+.hours-input {
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.8rem;
+  padding: 6px 8px;
+  width: 80px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
   text-align: center;
-  transition: all 0.3s ease;
-  background: white;
-  color: #495057;
-  width: 100%;
-  max-width: 80px;
-  height: 28px;
+  background-color: #f9f9f9;
+  transition: all 0.2s ease;
 }
 
-.table td input.form-control:focus {
+.hours-input:focus {
   outline: none;
-  border-color: #80bdff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  border-color: #ffd600;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(255, 214, 0, 0.2);
 }
 
-/* Estados más compactos */
-.table td span {
-  padding: 3px 6px;
-  border-radius: 10px;
+/* ========================================
+   STATUS BADGES
+   ======================================== */
+.status-cell {
+  white-space: nowrap;
+}
+
+.status-badge {
   font-size: 0.7rem;
   font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  display: inline-block;
-  min-width: 65px;
-  text-align: center;
-  border: 1px solid;
+  letter-spacing: 0.3px;
 }
 
-.table td span:not(.aceptado):not(.rechazado) {
+.status-badge.pendiente {
   background-color: #fff3cd;
   color: #856404;
-  border-color: #ffeaa7;
 }
 
-.table td span.aceptado {
+.status-badge.aceptado {
   background-color: #d4edda;
   color: #155724;
-  border-color: #c3e6cb;
 }
 
-.table td span.rechazado {
+.status-badge.rechazado {
   background-color: #f8d7da;
   color: #721c24;
-  border-color: #f5c6cb;
 }
 
-/* Botones de acción más compactos */
-.table td button {
-  background: white;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  padding: 4px 6px;
-  margin: 1px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.8rem;
-  min-width: 28px;
+/* Filas con estado */
+.row-aceptado {
+  border-left: 3px solid #28a745;
+}
+
+.row-rechazado {
+  border-left: 3px solid #dc3545;
+}
+
+.row-pendiente {
+  border-left: 3px solid #ffd600;
+}
+
+/* ========================================
+   BOTONES DE ACCIÓN
+   ======================================== */
+.actions-cell {
+  white-space: nowrap;
+  display: flex;
+  gap: 5px;
+}
+
+.action-btn {
+  width: 28px;
   height: 28px;
-  display: inline-flex;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 0.9rem;
 }
 
-.table td button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+.action-btn.accept {
+  background-color: #e8f5e9;
+  color: #2e7d32;
 }
 
-/* Botón Aceptar (check) */
-.table td button i.fa-check-circle {
-  color: #28a745;
-}
-
-.table td button:hover:has(i.fa-check-circle) {
+.action-btn.accept:hover {
   background-color: #28a745;
-  border-color: #28a745;
+  color: #ffffff;
 }
 
-.table td button:hover:has(i.fa-check-circle) i.fa-check-circle {
-  color: white;
+.action-btn.reject {
+  background-color: #ffebee;
+  color: #c62828;
 }
 
-/* Botón Rechazar (times) */
-.table td button i.fa-times-circle {
-  color: #dc3545;
-}
-
-.table td button:hover:has(i.fa-times-circle) {
+.action-btn.reject:hover {
   background-color: #dc3545;
-  border-color: #dc3545;
+  color: #ffffff;
 }
 
-.table td button:hover:has(i.fa-times-circle) i.fa-times-circle {
-  color: white;
+.action-btn.undo {
+  background-color: #fff8e1;
+  color: #f57f17;
 }
 
-/* Botón Pendiente (undo) */
-.table td button i.fa-undo {
-  color: #6c757d;
+.action-btn.undo:hover {
+  background-color: #ffd600;
+  color: #141414;
 }
 
-.table td button:hover:has(i.fa-undo) {
-  background-color: #6c757d;
-  border-color: #6c757d;
-}
-
-.table td button:hover:has(i.fa-undo) i.fa-undo {
-  color: white;
-}
-
-/* Botones de acción fuera de la tabla */
-.action-buttons {
+/* ========================================
+   FOOTER ACTIONS
+   ======================================== */
+.footer-actions {
   display: flex;
-  justify-content: center;
-  padding: 15px 0;
-  background-color: #f8f9fa;
+  justify-content: flex-end;
+  padding-top: 10px;
 }
 
-.btn-secondary {
-  background-color: #28a745;
-  border: 1px solid #28a745;
-  color: white;
+.btn-aceptar {
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
   padding: 12px 30px;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 1rem;
+  background-color: #141414;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.btn-secondary:hover {
-  background-color: #218838;
-  border-color: #1e7e34;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+.btn-aceptar:hover {
+  background-color: #ffd600;
+  color: #141414;
 }
 
-.btn-secondary:active {
-  transform: translateY(0);
-}
-
-/* Responsivo */
-@media (max-width: 1200px) {
-  .novedad-dashboard {
-    padding: 10px 15px;
-  }
-  
-  .table-container {
-    height: calc(100vh - 200px);
-  }
-  
-  .filters {
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-}
-
-@media (max-width: 768px) {
-  .novedad-dashboard {
-    padding: 8px 12px;
-  }
-  
-  .novedad-dashboard h1 {
-    font-size: 1.2rem;
-    margin-bottom: 6px;
-  }
-  
-  .filters {
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 900px) {
+  .header-section {
     flex-direction: column;
-    gap: 10px;
-    padding: 10px 12px;
+    align-items: flex-start;
   }
-  
-  .filters > div {
-    min-width: 100%;
+
+  .filters-inline {
+    width: 100%;
   }
-  
-  .table-container {
-    height: calc(100vh - 180px);
+
+  .desc-cell {
+    max-width: 120px;
   }
-  
-  .table {
+}
+
+@media (max-width: 600px) {
+  .novedad-dashboard {
+    padding: 10px;
+  }
+
+  .filters-inline {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-item input {
+    width: 100%;
+  }
+
+  .btn-actualizar {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .novedades-table th,
+  .novedades-table td {
+    padding: 8px 6px;
     font-size: 0.75rem;
   }
-  
-  .table th,
-  .table td {
-    padding: 6px 4px;
+
+  .name-cell,
+  .desc-cell {
+    max-width: 80px;
   }
-  
-  .table td input.form-control {
-    max-width: 60px;
-    font-size: 0.7rem;
+
+  .hours-input {
+    width: 60px;
+    padding: 4px;
+  }
+
+  .action-btn {
+    width: 24px;
     height: 24px;
+    font-size: 0.8rem;
   }
-  
-  .table td button {
-    min-width: 24px;
-    height: 24px;
-    font-size: 0.7rem;
+
+  .footer-actions {
+    justify-content: stretch;
   }
-  
-  .table td span {
-    font-size: 0.6rem;
-    padding: 2px 4px;
-    min-width: 50px;
+
+  .btn-aceptar {
+    width: 100%;
+    justify-content: center;
   }
 }

@@ -28,7 +28,10 @@ import { MatNativeDateModule } from '@angular/material/core';
   styleUrl: './ver-novedad.component.css',
 })
 export class VerNovedadComponent {
-  dateRange: { start: Date | null, end: Date | null } = { start: null, end: null };
+  dateRange: { start: Date | null; end: Date | null } = {
+    start: null,
+    end: null,
+  };
   loading: boolean = true;
   listNovedad: Novedad[] = [];
   filteredNovedad: Novedad[] = [];
@@ -69,7 +72,16 @@ export class VerNovedadComponent {
       { nombre: 'Usuario 3' },
     ];
   }
-
+  // Agregar este método en la clase VerNovedadComponent
+  getRowClass(aceptacion: boolean | null): string {
+    if (aceptacion === true) {
+      return 'row-aceptado';
+    } else if (aceptacion === false) {
+      return 'row-rechazado';
+    } else {
+      return 'row-pendiente';
+    }
+  }
   // Método para seleccionar el tipo de informe
   seleccionarTipoInforme(tipo: string): void {
     this.tipo = tipo;

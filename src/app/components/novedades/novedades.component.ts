@@ -29,7 +29,7 @@ export class NovedadComponent {
 
   // Variables para paginación - Simplificadas
   currentPage: number = 1;
-  itemsPerPage: number = 7; // Fijo en 7 elementos
+  itemsPerPage: number = 12; // Fijo en 7 elementos
   totalItems: number = 0;
   totalPages: number = 0;
   paginatedData: NovedadHistorico[] = [];

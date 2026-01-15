@@ -123,6 +123,34 @@ export class ExtraListComponent implements OnInit {
       });
     });
   }
+  isPositive(acumulado: string): boolean {
+    if (!acumulado) return false;
+    const value = this.parseHours(acumulado);
+    return value > 0;
+  }
+
+  isNegative(acumulado: string): boolean {
+    if (!acumulado) return false;
+    const value = this.parseHours(acumulado);
+    return value < 0;
+  }
+
+  isNeutral(acumulado: string): boolean {
+    if (!acumulado) return true;
+    const value = this.parseHours(acumulado);
+    return value === 0;
+  }
+
+  // Convertir formato HH:MM a número
+  private parseHours(timeString: string): number {
+    if (!timeString) return 0;
+    const isNegative = timeString.startsWith('-');
+    const cleanTime = timeString.replace('-', '');
+    const [hours, minutes] = cleanTime.split(':').map(Number);
+    const totalMinutes = hours * 60 + (minutes || 0);
+    return isNegative ? -totalMinutes : totalMinutes;
+  }
+
   openModal(extra: Extra): void {
     console.log('Open Modal', extra);
     const modal = document.createElement('div');

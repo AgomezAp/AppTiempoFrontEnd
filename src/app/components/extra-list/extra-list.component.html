@@ -1,41 +1,63 @@
 <app-navbar></app-navbar>
+
 <div class="extra-list-container">
-  <h1>Lista de Horas Extras</h1>
-  <div *ngIf="loading" class="loading-spinner">
-    <p>Cargando...</p>
-  </div>
-  <div class="table-container" *ngIf="!loading && filterdExtra.length > 0">
-    <div class="table-responsive">
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Horas Acumuladas</th>
-            <th>Dias Acumuladas</th>
-            <th>Observaciones</th>
-            <th>Actualizar</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let extra of filterdExtra">
-            <td>{{ extra.Name }}</td>
-            <td>{{ extra.Acumulado }}</td>
-            <td>{{ extra.acumuladoEnDias }}</td>
-            <td>{{ extra.observaciones }}</td>
-            <td>
-              <button class="btn btn-primary" (click)="openModal(extra)">
-                Actualizar
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      
-    </div>
+  <!-- Header -->
+  <div class="header-section">
+    <h1 class="page-title">Lista de Horas Extras</h1>
   </div>
 
-  <div *ngIf="!loading && filterdExtra.length === 0">
-    <p>No hay datos disponibles.</p>
+  <!-- Tabla -->
+  <div class="table-container" *ngIf="!loading && filterdExtra.length > 0">
+    <table class="extras-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Horas Acumuladas</th>
+          <th>Días Acumulados</th>
+          <th>Observaciones</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let extra of filterdExtra"
+          [ngClass]="{
+            'row-positive': isPositive(extra.Acumulado),
+            'row-negative': isNegative(extra.Acumulado),
+            'row-neutral': isNeutral(extra.Acumulado)
+          }"
+        >
+          <td class="name-cell">{{ extra.Name }}</td>
+          <td class="hours-cell">
+            <span
+              class="hours-badge"
+              [ngClass]="{
+                positive: isPositive(extra.Acumulado),
+                negative: isNegative(extra.Acumulado),
+                neutral: isNeutral(extra.Acumulado)
+              }"
+            >
+              {{ extra.Acumulado }}
+            </span>
+          </td>
+          <td class="days-cell">{{ extra.acumuladoEnDias }}</td>
+          <td class="obs-cell" [title]="extra.observaciones">
+            {{ extra.observaciones }}
+          </td>
+          <td class="action-cell">
+            <button class="btn-update" (click)="openModal(extra)">
+              <i class="fas fa-edit"></i> Actualizar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
-  
+
+  <!-- Sin datos -->
+  <div class="no-data" *ngIf="!loading && filterdExtra.length === 0">
+    <i class="fas fa-clock"></i>
+    <p>No hay datos disponibles</p>
+  </div>
 </div>
+

@@ -27,6 +27,7 @@ import { NovedadComponent } from './components/novedades/novedades.component';
 import { VerNovedadComponent } from './components/ver-novedad/ver-novedad.component'
 import { NuevoRegistroComponent } from './components/nuevo-registro/nuevo-registro.component';
 import { ExtraListComponent } from './components/extra-list/extra-list.component';
+import { AusentismoComponent } from './components/ausentismo/ausentismo.component';
 import { GestionArchivosComponent } from './components/gestion-archivos/gestion-archivos.component';
 import { CertificadoLaboralComponent } from './components/certificado-laboral/certificado-laboral.component';
 import { ConfiguracionNominaComponent } from './components/configuracion-nomina/configuracion-nomina.component';
@@ -90,6 +91,9 @@ export const routes: Routes = [
   {
     path: 'extras', component: ExtraListComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin']} //Pagina para ver las horas extras
   },
+    {
+      path: 'ausentismo', component: AusentismoComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin'] }
+    },
   { path: 'permisos', component: PermisoComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'User', 'Tecnologia'] } },
   { path: 'admin', component: AdminComponent, canActivate: [tRolGuard], data: { allowedRoles: ['Admin'] } },
   

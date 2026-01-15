@@ -1,55 +1,127 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top navbar-custom">
   <div class="container-fluid">
-    <img src="/LogoBlanco.png" alt="Logo de Andrés Publicidad" width="75px">
-    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+    <a href="/" class="navbar-brand">
+      <img src="/LogoBlanco.png" alt="Logo de Andrés Publicidad" width="75px" />
+    </a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="offcanvas"
+      data-bs-target="#offcanvasNavbar"
+      aria-controls="offcanvasNavbar"
+      aria-label="Toggle navigation"
+    >
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+    <div
+      class="offcanvas offcanvas-end text-bg-dark"
+      tabindex="-1"
+      id="offcanvasNavbar"
+      aria-labelledby="offcanvasNavbarLabel"
+    >
       <div class="offcanvas-header">
         <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menú</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="offcanvas"
+          aria-label="Close"
+        ></button>
       </div>
       <div class="offcanvas-body">
         <ul class="navbar-nav ms-auto justify-content-end flex-grow-1 pe-3">
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="horasDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="horasDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
               Horas
             </a>
             <ul class="dropdown-menu" aria-labelledby="horasDropdown">
-                <li><a class="dropdown-item" (click)="verHoras()" style="cursor: pointer;">Ver Horas</a></li>
-              <li><a class="dropdown-item" href="/subirArchivo">Subir Archivo XML</a></li>
+              <li>
+                <a
+                  class="dropdown-item"
+                  (click)="verHoras()"
+                  style="cursor: pointer"
+                  >Ver Horas</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="/subirArchivo"
+                  >Subir Archivo XML</a
+                >
+              </li>
               <li><a class="dropdown-item" href="/informes">Informes</a></li>
               <li><a class="dropdown-item" href="/extras">Extras</a></li>
+              <li>
+                <a class="dropdown-item" href="/ausentismo">Ausentismo</a>
+              </li>
             </ul>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="horasDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="novedadesDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
               Novedades
             </a>
-            <ul class="dropdown-menu" aria-labelledby="horasDropdown">
+            <ul class="dropdown-menu" aria-labelledby="novedadesDropdown">
               <li><a class="dropdown-item" href="/verNovedad">Novedades</a></li>
-              <li><a class="dropdown-item" href="/novedad">Historico Novedades</a></li>
+              <li>
+                <a class="dropdown-item" href="/novedad">Histórico Novedades</a>
+              </li>
             </ul>
           </li>
-          <li class="nav-item dropdown">
+          <li class="nav-item">
             <a class="nav-link" href="/admin">Usuarios</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="/permisos">Permisos</a>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="recursosDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="recursosDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
               Recursos
             </a>
             <ul class="dropdown-menu" aria-labelledby="recursosDropdown">
-              <li><a class="dropdown-item" href="/mi-certificado">Mi Certificado</a></li>
-              <li><a class="dropdown-item" href="/gestion-archivos">Gestión de Archivos</a></li>
-              <li *ngIf="userRole === 'Admin'"><hr class="dropdown-divider"></li>
-              <li *ngIf="userRole === 'Admin'"><a class="dropdown-item" href="/configuracion-nomina">Configuración de Nómina</a></li>
+              <li>
+                <a class="dropdown-item" href="/mi-certificado"
+                  >Mi Certificado</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="/gestion-archivos"
+                  >Gestión de Archivos</a
+                >
+              </li>
+              <li *ngIf="userRole === 'Admin'">
+                <hr class="dropdown-divider" />
+              </li>
+              <li *ngIf="userRole === 'Admin'">
+                <a class="dropdown-item" href="/configuracion-nomina"
+                  >Configuración de Nómina</a
+                >
+              </li>
             </ul>
           </li>
-          <li class="nav-item">
-            <button class="btn btn-outline-danger" type="button" (click)="logOut()">Cerrar sesión</button>
+          <li class="nav-item ms-lg-2">
+            <button class="btn btn-logout" type="button" (click)="logOut()">
+              Cerrar sesión
+            </button>
           </li>
         </ul>
       </div>

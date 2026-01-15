@@ -1,67 +1,121 @@
 <app-navbar></app-navbar>
+
 <div *ngIf="loading" class="novedad-dashboard">
+  <!-- Header con título y filtros en línea -->
+  <div class="header-section">
     <h1>Novedades</h1>
-    <div class="filters">
-        <div *ngIf="showList">
-            <label for="name">Nombre:</label>
-            <input id="name" [(ngModel)]="filterName" (input)="filterdByName()" type="text">
-        </div>
-        <div>
-            <label for="fecha">Fecha:</label>
-            <input id="fecha" type="date" [(ngModel)]="fecha" (change)="filterByData()">
-        </div>
-        <div>
-            <button type="button" class="btn btn-primary" (click)="crearNovedad()">Actualizar</button>
-        </div>
+
+    <div class="filters-inline">
+      <div class="filter-item" *ngIf="showList">
+        <label for="name">Nombre</label>
+        <input
+          id="name"
+          [(ngModel)]="filterName"
+          (input)="filterdByName()"
+          type="text"
+          placeholder="Buscar..."
+        />
+      </div>
+      <div class="filter-item">
+        <label for="fecha">Fecha</label>
+        <input
+          id="fecha"
+          type="date"
+          [(ngModel)]="fecha"
+          (change)="filterByData()"
+        />
+      </div>
+      <button type="button" class="btn-actualizar" (click)="crearNovedad()">
+        <i class="fas fa-sync-alt"></i> Actualizar
+      </button>
     </div>
-    
-    <div class="table-container">
-        <div class="table-responsive">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th scope="col">Nombre</th>
-                        <th scope="col">Tipo</th>
-                        <th scope="col">Fecha</th>
-                        <th scope="col">Descripcion</th>
-                        <th scope="col">Horas</th>
-                        <th scope="col">Estado</th>
-                        <th scope="col">Accion</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let item of filteredNovedad">
-                        <td>{{item.Name}}</td>
-                        <td>{{item.type}}</td>
-                        <td>{{item.Fecha}}</td>
-                        <td>{{item.description}}</td>
-                        <td>
-                            <input type="text" class="form-control" [(ngModel)]="item.horas" (blur)="validarYActualizarHora(item.id, item.horas)" placeholder="+/-HH:MM" pattern="^-?(0[0-9]|1[0-9]|2[0-3]):(00|30)$" title="Formato Valido: HH:MM">
-                        </td>
-                        <td>
-                            <span *ngIf="item.aceptacion === null">Pendiente</span>
-                            <span *ngIf="item.aceptacion === true" class="aceptado">Descontar</span>
-                            <span *ngIf="item.aceptacion === false" class="rechazado">No descontar</span>
-                        </td>
-                        <td>
-                            <button *ngIf="item.aceptacion === null || item.aceptacion === false" (click)="editarEstado(item, true)" title="Aceptar">
-                                <i class="fas fa-check-circle"></i>
-                            </button>
-                            <button *ngIf="item.aceptacion === null || item.aceptacion === true" (click)="editarEstado(item, false)" title="Rechazar">
-                                <i class="fas fa-times-circle"></i>
-                            </button>
-                            <button *ngIf="item.aceptacion !== null" (click)="editarEstado(item, null)" title="Pendiente">
-                                <i class="fas fa-undo"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    
-    <!-- Botón aceptar fuera de la tabla -->
-    <div class="action-buttons">
-        <button class="btn-secondary" (click)="enviarAceptacion()">ACEPTAR</button>
-    </div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="table-container">
+    <table class="novedades-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Tipo</th>
+          <th>Fecha</th>
+          <th>Descripción</th>
+          <th>Horas</th>
+          <th>Estado</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let item of filteredNovedad"
+          [class]="getRowClass(item.aceptacion)"
+        >
+          <td class="name-cell">{{ item.Name }}</td>
+          <td class="type-cell">{{ item.type }}</td>
+          <td class="date-cell">{{ item.Fecha }}</td>
+          <td class="desc-cell">{{ item.description }}</td>
+          <td class="hours-cell">
+            <input
+              type="text"
+              class="hours-input"
+              [(ngModel)]="item.horas"
+              (blur)="validarYActualizarHora(item.id, item.horas)"
+              placeholder="+/-HH:MM"
+              pattern="^-?(0[0-9]|1[0-9]|2[0-3]):(00|30)$"
+              title="Formato: HH:MM"
+            />
+          </td>
+          <td class="status-cell">
+            <span
+              class="status-badge pendiente"
+              *ngIf="item.aceptacion === null"
+              >Pendiente</span
+            >
+            <span class="status-badge aceptado" *ngIf="item.aceptacion === true"
+              >Descontar</span
+            >
+            <span
+              class="status-badge rechazado"
+              *ngIf="item.aceptacion === false"
+              >No descontar</span
+            >
+          </td>
+          <td class="actions-cell">
+            <button
+              class="action-btn accept"
+              *ngIf="item.aceptacion === null || item.aceptacion === false"
+              (click)="editarEstado(item, true)"
+              title="Aceptar"
+            >
+              <i class="fas fa-check-circle"></i>
+            </button>
+            <button
+              class="action-btn reject"
+              *ngIf="item.aceptacion === null || item.aceptacion === true"
+              (click)="editarEstado(item, false)"
+              title="Rechazar"
+            >
+              <i class="fas fa-times-circle"></i>
+            </button>
+            <button
+              class="action-btn undo"
+              *ngIf="item.aceptacion !== null"
+              (click)="editarEstado(item, null)"
+              title="Pendiente"
+            >
+              <i class="fas fa-undo"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Botón de acción principal -->
+  <div class="footer-actions">
+    <button class="btn-aceptar" (click)="enviarAceptacion()">
+      <i class="fas fa-paper-plane"></i> ACEPTAR
+    </button>
+  </div>
 </div>
+

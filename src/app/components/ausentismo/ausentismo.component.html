@@ -1,0 +1,138 @@
+<app-navbar></app-navbar>
+<div class="container">
+  <!-- Header with filters -->
+  <div class="header">
+    <h2>📊 Panel de Ausentismo y Estadísticas</h2>
+    <div class="filters">
+      <input type="date" [(ngModel)]="fromDate" placeholder="Desde" />
+      <input type="date" [(ngModel)]="toDate" placeholder="Hasta" />
+      <button class="btn-primary" (click)="applyFilters()">Aplicar Filtros</button>
+      <button class="btn-secondary" (click)="clearFilters()">Limpiar</button>
+      <button class="btn-export" (click)="exportCSV()">📥 Exportar CSV</button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-spinner">Cargando estadísticas...</div>
+
+  <div *ngIf="!loading && stats" class="stats-container">
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-value">{{ stats.summary.totalRecords }}</div>
+        <div class="kpi-label">Total de Ausencias</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value">{{ stats.summary.totalHours }}</div>
+        <div class="kpi-label">Horas Totales</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value">{{ stats.summary.uniqueUsers }}</div>
+        <div class="kpi-label">Empleados con Ausencias</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value">{{ stats.summary.averagePerRecord }}m</div>
+        <div class="kpi-label">Promedio por Ausencia</div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+      <div class="chart-container">
+        <h3>Ausencias por Tipo (Gráfico de Barras)</h3>
+        <canvas baseChart [data]="typeChartData" type="bar" [options]="typeChartOptions"></canvas>
+      </div>
+      <div class="chart-container">
+        <h3>Distribución de Ausencias (Gráfico Circular)</h3>
+        <canvas baseChart [data]="typeChartDataPie" type="doughnut" [options]="typeChartOptionsPie"></canvas>
+      </div>
+    </div>
+
+    <!-- Top Absentees Table -->
+    <div class="table-section">
+      <h3>🔴 Top 10 Empleados con Más Ausencias</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Horas Totales</th>
+            <th>Cantidad de Ausencias</th>
+            <th>Promedio (minutos)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of stats.topAbsentees">
+            <td>{{ user.Uid }}</td>
+            <td>{{ user.Name }}</td>
+            <td class="highlight">{{ user.totalHours }}</td>
+            <td>{{ user.count }}</td>
+            <td>{{ user.average }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Absence Types Summary Table -->
+    <div class="table-section">
+      <h3>📋 Resumen por Tipo de Ausencia</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Tipo de Ausencia</th>
+            <th>Cantidad</th>
+            <th>Horas Totales</th>
+            <th>Porcentaje</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let type of stats.byType">
+            <td>{{ type.type }}</td>
+            <td>{{ type.count }}</td>
+            <td>{{ type.hours }}</td>
+            <td>{{ type.percentage }}%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Complete Users Details Table -->
+    <div class="table-section">
+      <h3>📅 Detalle Completo por Empleado</h3>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Horas Totales</th>
+              <th>Cantidad</th>
+              <th>Promedio (min)</th>
+              <th>Detalles por Tipo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of stats.byUser">
+              <td>{{ user.Uid }}</td>
+              <td>{{ user.Name }}</td>
+              <td class="highlight">{{ user.totalHours }}</td>
+              <td>{{ user.count }}</td>
+              <td>{{ user.average }}</td>
+              <td>
+                <details>
+                  <summary>Ver tipos</summary>
+                  <ul>
+                    <li *ngFor="let t of user.byType">{{ t.type }}: {{ t.hours }} ({{ t.count }}x)</li>
+                  </ul>
+                </details>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && !stats" class="empty-state">
+    <p>No hay datos de ausentismo disponibles para los filtros seleccionados.</p>
+  </div>
+</div>

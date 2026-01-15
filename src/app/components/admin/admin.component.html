@@ -1,93 +1,79 @@
 <app-navbar></app-navbar>
 
 <div class="admin-container">
+  <!-- Header con título, búsqueda y botón volver -->
   <div class="header-section">
     <h1 class="page-title">Administrar Usuarios</h1>
-    <button class="btn-back" (click)="goBack()">
-      <i class="fas fa-arrow-left"></i> Volver
-    </button>
-  </div>
-
-  <!-- Filtro de búsqueda -->
-  <div class="search-container">
-    <div class="search-box">
-      <i class="fas fa-search search-icon"></i>
-      <input 
-        type="text" 
-        placeholder="Buscar por nombre, apellido o email..."
-        [(ngModel)]="searchTerm"
-        (input)="onSearchChange()"
-        class="search-input"
-      >
+    
+    <div class="header-actions">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input 
+          type="text" 
+          placeholder="Buscar por nombre, apellido o email..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+        >
+      </div>
+      <button class="btn-back" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i> Volver
+      </button>
     </div>
   </div>
 
-  <!-- Información de resultados -->
+  <!-- Info de resultados -->
   <div class="results-info" *ngIf="!loading && filteredUsers.length > 0">
-    <span>Mostrando {{ getStartIndex() }} - {{ getEndIndex() }} de {{ filteredUsers.length }} usuarios</span>
+    Mostrando {{ getStartIndex() }} - {{ getEndIndex() }} de {{ filteredUsers.length }} usuarios
   </div>
 
   <!-- Tabla de usuarios -->
   <div class="table-container" *ngIf="!loading">
-    <div class="table-responsive">
-      <table class="users-table">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>Email</th>
-            <th>Rol</th>
-            <th>Empresa</th>
-            <th>Certificados</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let user of paginatedUsers; let i = index" 
-              [class.current-user]="user.Uid === currentUserId">
-            <td>{{ user.name }}</td>
-            <td>{{ user.lastName }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ user.role?.Rname || 'Sin rol' }}</td>
-            <td>
-              <span class="empresa-badge" [class]="'empresa-' + user.empresa">
-                {{ user.empresa || 'N/A' }}
-              </span>
-            </td>
-            <td>
-              <span class="certificados-badge">
-                {{ user.certificadosGenerados || 0 }}
-              </span>
-            </td>
-            <td>
-              <div class="action-buttons">
-                <button 
-                  class="btn-edit" 
-                  (click)="editUser(user)"
-                  [title]="user.Uid === currentUserId ? 'Editar mi perfil' : 'Editar usuario'"
-                >
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button 
-                  *ngIf="user.Uid !== currentUserId" 
-                  class="btn-delete" 
-                  (click)="user.Uid && deleteUser(user.Uid)"
-                  title="Eliminar usuario"
-                >
-                  <i class="fas fa-trash"></i>
-                </button>
-                <span *ngIf="user.Uid === currentUserId" class="current-user-label">
-                  Tú
-                </span>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Empresa</th>
+          <th>Cert.</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of paginatedUsers" [class.current-user]="user.Uid === currentUserId">
+          <td class="name-cell">{{ user.name }}</td>
+          <td class="name-cell">{{ user.lastName }}</td>
+          <td class="email-cell">{{ user.email }}</td>
+          <td class="role-cell">{{ user.role?.Rname || 'Sin rol' }}</td>
+          <td class="empresa-cell">
+            <span class="empresa-badge" [ngClass]="'empresa-' + user.empresa">
+              {{ user.empresa || 'N/A' }}
+            </span>
+          </td>
+          <td class="cert-cell">
+            <span class="cert-badge">{{ user.certificadosGenerados || 0 }}</span>
+          </td>
+          <td class="actions-cell">
+            <button class="btn-action edit" (click)="editUser(user)" title="Editar">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button 
+              *ngIf="user.Uid !== currentUserId" 
+              class="btn-action delete" 
+              (click)="user.Uid && deleteUser(user.Uid)"
+              title="Eliminar"
+            >
+              <i class="fas fa-trash"></i>
+            </button>
+            <span *ngIf="user.Uid === currentUserId" class="current-label">Tú</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-    <!-- Mensaje cuando no hay usuarios -->
-    <div class="no-users" *ngIf="filteredUsers.length === 0 && !loading">
+    <!-- Sin usuarios -->
+    <div class="no-users" *ngIf="filteredUsers.length === 0">
       <i class="fas fa-users"></i>
       <p>No se encontraron usuarios</p>
     </div>
@@ -95,14 +81,9 @@
 
   <!-- Paginación -->
   <div class="pagination-container" *ngIf="totalPages > 1 && !loading">
-    <button 
-      class="pagination-btn" 
-      (click)="goToPage(currentPage - 1)"
-      [disabled]="currentPage === 1"
-    >
+    <button class="pagination-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
       <i class="fas fa-chevron-left"></i>
     </button>
-    
     <button 
       class="pagination-btn"
       *ngFor="let page of getPageNumbers()"
@@ -111,12 +92,7 @@
     >
       {{ page }}
     </button>
-    
-    <button 
-      class="pagination-btn"
-      (click)="goToPage(currentPage + 1)"
-      [disabled]="currentPage === totalPages"
-    >
+    <button class="pagination-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
       <i class="fas fa-chevron-right"></i>
     </button>
   </div>
@@ -125,7 +101,7 @@
   <div class="modal-overlay" *ngIf="editingUser" (click)="cancelEdit()">
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h2>✏️ Editar Usuario</h2>
+        <h2>Editar Usuario</h2>
         <button class="btn-close" (click)="cancelEdit()">
           <i class="fas fa-times"></i>
         </button>
@@ -133,221 +109,107 @@
 
       <div class="modal-body">
         <form>
+          <!-- Fila 1: Nombre y Apellido -->
           <div class="form-row">
             <div class="form-group">
-              <label for="name">
-                <i class="fas fa-user"></i> Nombre *
-              </label>
-              <input 
-                type="text" 
-                id="name" 
-                [(ngModel)]="editForm.name"
-                name="name"
-                class="form-control"
-                placeholder="Ingrese el nombre"
-                required
-              >
+              <label for="name">Nombre *</label>
+              <input type="text" id="name" [(ngModel)]="editForm.name" name="name" placeholder="Nombre" required>
             </div>
-
             <div class="form-group">
-              <label for="lastName">
-                <i class="fas fa-user"></i> Apellido *
-              </label>
-              <input 
-                type="text" 
-                id="lastName" 
-                [(ngModel)]="editForm.lastName"
-                name="lastName"
-                class="form-control"
-                placeholder="Ingrese el apellido"
-                required
-              >
+              <label for="lastName">Apellido *</label>
+              <input type="text" id="lastName" [(ngModel)]="editForm.lastName" name="lastName" placeholder="Apellido" required>
             </div>
           </div>
 
-          <div class="form-group">
-            <label for="email">
-              <i class="fas fa-envelope"></i> Email *
-            </label>
-            <input 
-              type="email" 
-              id="email" 
-              [(ngModel)]="editForm.email"
-              name="email"
-              class="form-control"
-              placeholder="correo@ejemplo.com"
-              required
-            >
-          </div>
-
-          <div class="form-group">
-            <label for="documentoIdentificacion">
-              <i class="fas fa-id-card"></i> Documento de Identificación
-            </label>
-            <input 
-              type="text" 
-              id="documentoIdentificacion" 
-              [(ngModel)]="editForm.documentoIdentificacion"
-              name="documentoIdentificacion"
-              class="form-control"
-              placeholder="Ej: 1234567890"
-            >
-          </div>
-
-          <div class="form-group">
-            <label for="fechaIngreso">
-              <i class="fas fa-calendar-check"></i> Fecha de Ingreso
-            </label>
-            <input 
-              type="date" 
-              id="fechaIngreso" 
-              [(ngModel)]="editForm.fechaIngreso"
-              name="fechaIngreso"
-              class="form-control"
-            >
-          </div>
-
+          <!-- Fila 2: Email y Documento -->
           <div class="form-row">
             <div class="form-group">
-              <label for="Rid">
-                <i class="fas fa-user-tag"></i> Rol *
-              </label>
-              <select 
-                id="Rid" 
-                [(ngModel)]="editForm.Rid"
-                name="Rid"
-                class="form-control"
-                required
-              >
+              <label for="email">Email *</label>
+              <input type="email" id="email" [(ngModel)]="editForm.email" name="email" placeholder="correo@ejemplo.com" required>
+            </div>
+            <div class="form-group">
+              <label for="documentoIdentificacion">Documento</label>
+              <input type="text" id="documentoIdentificacion" [(ngModel)]="editForm.documentoIdentificacion" name="documentoIdentificacion" placeholder="1234567890">
+            </div>
+          </div>
+
+          <!-- Fila 3: Rol y Área -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="Rid">Rol *</label>
+              <select id="Rid" [(ngModel)]="editForm.Rid" name="Rid" required>
                 <option [value]="0" disabled>Seleccione un rol</option>
-                <option *ngFor="let role of roles" [value]="role.Rid">
-                  {{ role.Rname }}
-                </option>
+                <option *ngFor="let role of roles" [value]="role.Rid">{{ role.Rname }}</option>
               </select>
             </div>
-
             <div class="form-group">
-              <label for="Aid">
-                <i class="fas fa-building"></i> Área *
-              </label>
-              <select 
-                id="Aid" 
-                [(ngModel)]="editForm.Aid"
-                name="Aid"
-                class="form-control"
-                required
-              >
+              <label for="Aid">Área *</label>
+              <select id="Aid" [(ngModel)]="editForm.Aid" name="Aid" required>
                 <option [value]="0" disabled>Seleccione un área</option>
-                <option *ngFor="let area of areas" [value]="area.Aid">
-                  {{ area.Aname }}
-                </option>
+                <option *ngFor="let area of areas" [value]="area.Aid">{{ area.Aname }}</option>
               </select>
             </div>
           </div>
 
+          <!-- Fila 4: Empresa y Cargo -->
           <div class="form-row">
             <div class="form-group">
-              <label for="empresa">
-                <i class="fas fa-briefcase"></i> Empresa
-              </label>
-              <select 
-                id="empresa" 
-                [(ngModel)]="editForm.empresa"
-                name="empresa"
-                class="form-control"
-              >
+              <label for="empresa">Empresa</label>
+              <select id="empresa" [(ngModel)]="editForm.empresa" name="empresa">
                 <option value="AP">AP - Andrés Publicidad</option>
                 <option value="AT">AT - Andrés Tobón</option>
                 <option value="ME">ME - María Evangelina</option>
               </select>
             </div>
-
             <div class="form-group">
-              <label for="salario">
-                <i class="fas fa-dollar-sign"></i> Salario
-              </label>
-              <input 
-                type="text" 
-                id="salario" 
-                [value]="formatSalario(editForm.salario)"
-                (input)="onSalarioChange($event)"
-                name="salario"
-                class="form-control"
-                placeholder="Ej: 1.500.000"
-              >
+              <label for="cargo">Cargo</label>
+              <input type="text" id="cargo" [(ngModel)]="editForm.cargo" name="cargo" placeholder="Desarrollador, Diseñador...">
             </div>
           </div>
 
-          <div class="form-group">
-            <label for="cargo">
-              <i class="fas fa-user-tie"></i> Cargo
-            </label>
-            <input 
-              type="text" 
-              id="cargo" 
-              [(ngModel)]="editForm.cargo"
-              name="cargo"
-              class="form-control"
-              placeholder="Ej: Desarrollador, Diseñador, etc."
-            >
+          <!-- Fila 5: Salario y Fecha Ingreso -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="salario">Salario</label>
+              <input type="text" id="salario" [value]="formatSalario(editForm.salario)" (input)="onSalarioChange($event)" name="salario" placeholder="1.500.000">
+            </div>
+            <div class="form-group">
+              <label for="fechaIngreso">Fecha Ingreso</label>
+              <input type="date" id="fechaIngreso" [(ngModel)]="editForm.fechaIngreso" name="fechaIngreso">
+            </div>
           </div>
 
-          <div class="form-group">
-            <label for="tipoContrato">
-              <i class="fas fa-file-contract"></i> Tipo de Contrato
-            </label>
-            <select 
-              id="tipoContrato" 
-              [(ngModel)]="editForm.tipoContrato"
-              name="tipoContrato"
-              class="form-control"
-            >
-              <option value="termino-indefinido">A Término Indefinido</option>
-              <option value="termino-fijo">A Término Fijo</option>
-            </select>
+          <!-- Fila 6: Tipo Contrato -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="tipoContrato">Tipo de Contrato</label>
+              <select id="tipoContrato" [(ngModel)]="editForm.tipoContrato" name="tipoContrato">
+                <option value="termino-indefinido">A Término Indefinido</option>
+                <option value="termino-fijo">A Término Fijo</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="fondoPension">Fondo Pensión</label>
+              <input type="text" id="fondoPension" [(ngModel)]="editForm.fondoPension" name="fondoPension" placeholder="PORVENIR, PROTECCIÓN...">
+            </div>
           </div>
 
-          <div class="form-group">
-            <label for="fondoPension">
-              <i class="fas fa-piggy-bank"></i> Fondo de Pensión
-            </label>
-            <input 
-              type="text" 
-              id="fondoPension" 
-              [(ngModel)]="editForm.fondoPension"
-              name="fondoPension"
-              class="form-control"
-              placeholder="Ej: PORVENIR, PROTECCIÓN, COLFONDOS"
-            >
-          </div>
-
-          <div class="form-group">
-            <label for="fondoCesantias">
-              <i class="fas fa-wallet"></i> Fondo de Cesantías
-            </label>
-            <input 
-              type="text" 
-              id="fondoCesantias" 
-              [(ngModel)]="editForm.fondoCesantias"
-              name="fondoCesantias"
-              class="form-control"
-              placeholder="Ej: PORVENIR, PROTECCIÓN, COLFONDOS"
-            >
+          <!-- Fila 7: Fondo Cesantías -->
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label for="fondoCesantias">Fondo Cesantías</label>
+              <input type="text" id="fondoCesantias" [(ngModel)]="editForm.fondoCesantias" name="fondoCesantias" placeholder="PORVENIR, PROTECCIÓN...">
+            </div>
           </div>
         </form>
       </div>
 
       <div class="modal-footer">
-        <button class="btn-cancel" (click)="cancelEdit()">
-          <i class="fas fa-times"></i> Cancelar
-        </button>
-        <button class="btn-save" (click)="saveUser()">
-          <i class="fas fa-save"></i> Guardar Cambios
-        </button>
+        <button class="btn-cancel" (click)="cancelEdit()">Cancelar</button>
+        <button class="btn-save" (click)="saveUser()">Guardar</button>
       </div>
     </div>
   </div>
 
-  <!-- Spinner -->
   <app-spinner *ngIf="loading"></app-spinner>
 </div>

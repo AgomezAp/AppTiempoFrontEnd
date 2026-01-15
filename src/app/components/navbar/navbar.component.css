@@ -1,72 +1,223 @@
-.navbar {
-    background-color: #6c757d; /* Gris claro personalizado */
-    color: white;
-    padding: 10px 20px;
-    width: 100%;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .navbar .container-fluid {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .navbar-brand {
-    font-size: 24px;
-    color: white;
-    text-decoration: none;
-  }
-  
-  .navbar-nav {
-    list-style: none;
-    display: flex;
-    gap: 20px;
-  }
-  
-  .navbar-nav .nav-item {
-    display: inline;
-  }
-  
-  .navbar-nav .nav-link {
-    color: white;
-    text-decoration: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-  }
-  
-  .navbar-nav .nav-link:hover {
-    background-color: #5a6268;
-  }
-  
-  .btn-outline-danger {
-    color: #dc3545;
-    border-color: #dc3545;
-  }
-  
-  .btn-outline-danger:hover {
-    background-color: #dc3545;
-    color: white;
-    border-color: #dc3545;
-  }
-  
-  /* Media query para dispositivos móviles */
-  @media (max-width: 768px) {
-    .navbar .container-fluid {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-  
-    .navbar-nav {
-      flex-direction: column;
-      width: 100%;
-    }
-  
-    .navbar-nav .nav-link {
-      width: 100%;
-      text-align: left;
-    }
-  }
+/* ========================================
+   NAVBAR - IDENTIDAD DE MARCA
+   Principal: #141414 | Secundario: #FFD600
+   Fuente: Fira Sans
+   ======================================== */
+
+/* Navbar base */
+.navbar-custom {
+  font-family: "Fira Sans", sans-serif;
+  background-color: #141414 !important;
+  padding: 8px 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Logo */
+.navbar-custom .navbar-brand img {
+  height: 40px;
+  width: auto;
+}
+
+/* Links del navbar */
+.navbar-custom .nav-link {
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #ffffff !important;
+  padding: 8px 15px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.navbar-custom .nav-link:hover {
+  background-color: rgba(255, 214, 0, 0.15);
+  color: #ffd600 !important;
+}
+
+/* Dropdown toggle arrow */
+.navbar-custom .dropdown-toggle::after {
+  border-top-color: #ffd600;
+}
+
+/* Dropdown menu */
+.navbar-custom .dropdown-menu {
+  background-color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  padding: 8px 0;
+  margin-top: 5px;
+}
+
+.navbar-custom .dropdown-item {
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.85rem;
+  color: #141414;
+  padding: 10px 20px;
+  transition: all 0.2s ease;
+}
+
+.navbar-custom .dropdown-item:hover {
+  background-color: #f5f5f5;
+  color: #141414;
+  padding-left: 25px;
+}
+
+.navbar-custom .dropdown-item:active,
+.navbar-custom .dropdown-item:focus {
+  background-color: #ffd600;
+  color: #141414;
+}
+
+.navbar-custom .dropdown-divider {
+  border-color: #eee;
+}
+
+/* Botón cerrar sesión */
+.navbar-custom .btn-logout {
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ffd600;
+  background-color: transparent;
+  border: 2px solid #ffd600;
+  padding: 6px 16px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.navbar-custom .btn-logout:hover {
+  background-color: #ffd600;
+  color: #141414;
+}
+
+/* Toggler (hamburguesa) */
+.navbar-custom .navbar-toggler {
+  border-color: #ffd600;
+}
+
+.navbar-custom .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23FFD600' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* ========================================
+   OFFCANVAS (MÓVIL)
+   ======================================== */
+.navbar-custom .offcanvas {
+  background-color: #141414 !important;
+}
+
+.navbar-custom .offcanvas-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navbar-custom .offcanvas-title {
+  color: #ffd600;
+  font-weight: 700;
+}
+
+/* Links en móvil */
+.navbar-custom .offcanvas .nav-link {
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Dropdown en móvil */
+.navbar-custom .offcanvas .dropdown-menu {
+  background-color: rgba(255, 255, 255, 0.05);
+  box-shadow: none;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-custom .offcanvas .dropdown-item {
+  color: #cccccc;
+  padding-left: 30px;
+}
+
+.navbar-custom .offcanvas .dropdown-item:hover {
+  background-color: rgba(255, 214, 0, 0.1);
+  color: #ffd600;
+  padding-left: 35px;
+}
+
+/* Botón logout en móvil */
+.navbar-custom .offcanvas .btn-logout {
+  width: 100%;
+  margin-top: 15px;
+}
+/* ========================================
+   DROPDOWN - FONDO SÓLIDO (FORZADO)
+   ======================================== */
+
+/* Contenedor del dropdown */
+.navbar .dropdown-menu,
+.navbar-custom .dropdown-menu,
+nav .dropdown-menu,
+.navbar-dark .dropdown-menu,
+.navbar-expand-lg .dropdown-menu {
+  background-color: #ffffff !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+  padding: 8px 0 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Lista dentro del dropdown */
+.navbar .dropdown-menu li,
+.navbar-custom .dropdown-menu li,
+nav .dropdown-menu li {
+  background-color: #ffffff !important;
+}
+
+/* Items del dropdown */
+.navbar .dropdown-item,
+.navbar-custom .dropdown-item,
+nav .dropdown-item,
+.navbar-dark .dropdown-item {
+  font-family: 'Fira Sans', sans-serif !important;
+  font-size: 0.85rem !important;
+  color: #141414 !important;
+  padding: 10px 20px !important;
+  background-color: #ffffff !important;
+  transition: all 0.2s ease !important;
+  display: block !important;
+}
+
+/* Hover en items */
+.navbar .dropdown-item:hover,
+.navbar-custom .dropdown-item:hover,
+nav .dropdown-item:hover,
+.navbar-dark .dropdown-item:hover {
+  background-color: #f5f5f5 !important;
+  color: #141414 !important;
+  padding-left: 25px !important;
+}
+
+/* Active/Focus en items */
+.navbar .dropdown-item:active,
+.navbar .dropdown-item:focus,
+.navbar-custom .dropdown-item:active,
+.navbar-custom .dropdown-item:focus,
+.navbar-dark .dropdown-item:active,
+.navbar-dark .dropdown-item:focus {
+  background-color: #FFD600 !important;
+  color: #141414 !important;
+}
+
+/* Divisor */
+.navbar .dropdown-divider,
+.navbar-custom .dropdown-divider {
+  border-color: #eeeeee !important;
+  margin: 5px 0 !important;
+  background-color: transparent !important;
+}
+
+/* Asegurar que no haya transparencia */
+.dropdown-menu::before,
+.dropdown-menu::after {
+  display: none !important;
+}

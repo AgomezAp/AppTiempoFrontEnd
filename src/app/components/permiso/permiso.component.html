@@ -2,31 +2,111 @@
 <div class="permisos-form">
   <h2>Solicitar Permiso</h2>
   <form (ngSubmit)="createPermiso()" #permisoForm="ngForm">
-    <div class="form-group">
-      <label for="emailPersonal">Correo electrónico personal:</label>
-      <input type="email" id="emailPersonal" [(ngModel)]="permiso.emailPersonal" name="emailPersonal" class="form-control" readonly>
+    <!-- FILA 1: Correos -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="emailPersonal">Correo electrónico personal:</label>
+          <input
+            type="email"
+            id="emailPersonal"
+            [(ngModel)]="permiso.emailPersonal"
+            name="emailPersonal"
+            class="form-control"
+            readonly
+          />
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="emailLider"
+            >Correo electrónico del líder o directivo:</label
+          >
+          <input
+            type="email"
+            id="emailLider"
+            [(ngModel)]="permiso.emailLider"
+            name="emailLider"
+            class="form-control"
+            required
+          />
+        </div>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="emailLider">Correo electrónico del líder o directivo:</label>
-      <input type="email" id="emailLider" [(ngModel)]="permiso.emailLider" name="emailLider" class="form-control" required>
+
+    <!-- FILA 2: Nombre y Documento -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="nombre">Nombre:</label>
+          <input
+            type="text"
+            id="nombre"
+            [(ngModel)]="permiso.nombre"
+            name="nombre"
+            class="form-control"
+            readonly
+          />
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="numeroDocumento">Número de documento:</label>
+          <input
+            type="text"
+            id="numeroDocumento"
+            [(ngModel)]="permiso.numeroDocumento"
+            name="numeroDocumento"
+            class="form-control"
+            readonly
+          />
+        </div>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="nombre">Nombre:</label>
-      <input type="text" id="nombre" [(ngModel)]="permiso.nombre" name="nombre" class="form-control" readonly>
-    </div>
-    <div class="form-group">
-      <label for="numeroDocumento">Número de documento:</label>
-      <input type="text" id="numeroDocumento" [(ngModel)]="permiso.numeroDocumento" name="numeroDocumento" class="form-control" readonly>
-    </div>
-    <div class="form-group">
-      <label for="tipo">Tipo de permiso:</label>
-      <select id="tipo" [(ngModel)]="permiso.tipo" name="tipo" class="form-control" required (ngModelChange)="onTipoPermisoChange()">
-        <option value="" disabled selected>Seleccione un tipo de permiso</option>
-        <option *ngFor="let tipo of tiposPermiso" [value]="tipo">{{ tipo }}</option>
-      </select>
-      <small class="form-text text-muted">
-        💡 Seleccione el tipo de permiso que necesita solicitar
-      </small>
+
+    <!-- FILA 3: Tipo de permiso y Fecha -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="tipo">Tipo de permiso:</label>
+          <select
+            id="tipo"
+            [(ngModel)]="permiso.tipo"
+            name="tipo"
+            class="form-control"
+            required
+            (ngModelChange)="onTipoPermisoChange()"
+          >
+            <option value="" disabled selected>
+              Seleccione un tipo de permiso
+            </option>
+            <option *ngFor="let tipo of tiposPermiso" [value]="tipo">
+              {{ tipo }}
+            </option>
+          </select>
+          <small class="form-text text-muted">
+            💡 Seleccione el tipo de permiso que necesita solicitar
+          </small>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="fechaInicio">
+            {{ mostrarDias() ? "Fecha de inicio:" : "Fecha del permiso:" }}
+          </label>
+          <input
+            type="date"
+            id="fechaInicio"
+            [(ngModel)]="permiso.fecha"
+            name="fechaInicio"
+            class="form-control"
+            required
+          />
+          <small class="form-text text-muted" *ngIf="!mostrarDias()">
+            Seleccione la fecha en que necesita el permiso
+          </small>
+        </div>
+      </div>
     </div>
 
     <!-- Instrucciones según el tipo de permiso -->
@@ -35,73 +115,127 @@
       <p>{{ getInstrucciones() }}</p>
     </div>
 
+    <!-- FILA 4: Fecha fin (condicional) y Horas -->
+    <div
+      class="row"
+      *ngIf="mostrarDias() || mostrarSalida() || mostrarEntrada()"
+    >
+      <div class="col-md-6" *ngIf="mostrarDias()">
+        <div class="form-group">
+          <label for="fechaFin">Fecha de finalización:</label>
+          <input
+            type="date"
+            id="fechaFin"
+            [(ngModel)]="fechaFin"
+            name="fechaFin"
+            class="form-control"
+            required
+            [min]="permiso.fecha"
+          />
+          <small class="form-text text-muted">
+            Último día del permiso (solo días laborales)
+          </small>
+        </div>
+      </div>
+      <div class="col-md-6" *ngIf="mostrarSalida()">
+        <div class="form-group">
+          <label for="horaSalida">Hora de salida:</label>
+          <select
+            id="horaSalida"
+            [(ngModel)]="permiso.horaSalida"
+            name="horaSalida"
+            class="form-control"
+            required
+          >
+            <option value="" disabled>Seleccione hora de salida</option>
+            <option *ngFor="let hora of horasDisponibles" [value]="hora">
+              {{ hora }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="col-md-6" *ngIf="mostrarEntrada()">
+        <div class="form-group">
+          <label for="horaRegreso">Hora de entrada:</label>
+          <select
+            id="horaRegreso"
+            [(ngModel)]="permiso.horaEntrada"
+            name="horaRegreso"
+            class="form-control"
+            required
+          >
+            <option value="" disabled>Seleccione hora de entrada</option>
+            <option *ngFor="let hora of horasDisponibles" [value]="hora">
+              {{ hora }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advertencia de horario -->
+    <p class="warning-horario" *ngIf="mostrarEntrada() || mostrarSalida()">
+      <strong>⚠️ POR FAVOR REVISAR BIEN EL HORARIO</strong>
+    </p>
+
+    <!-- FILA 5: Observaciones y Soporte -->
     <div class="row">
       <div class="col-md-6">
         <div class="form-group">
-          <label for="fechaInicio">
-            {{ mostrarDias() ? 'Fecha de inicio:' : 'Fecha del permiso:' }}
-          </label>
-          <input type="date" id="fechaInicio" [(ngModel)]="permiso.fecha" name="fechaInicio" class="form-control" required>
-          <small class="form-text text-muted" *ngIf="!mostrarDias()">
-            Seleccione la fecha en que necesita el permiso
+          <label for="observaciones">Observaciones:</label>
+          <textarea
+            id="observaciones"
+            required
+            [(ngModel)]="permiso.observaciones"
+            name="observaciones"
+            class="form-control"
+            rows="3"
+            minlength="50"
+            placeholder="Mínimo 50 caracteres. Explique el motivo de su permiso."
+          ></textarea>
+          <small
+            class="form-text"
+            [ngClass]="{
+              'text-success': isObservacionesValid(),
+              'text-danger':
+                !isObservacionesValid() && permiso.observaciones?.length > 0,
+              'text-muted':
+                !permiso.observaciones || permiso.observaciones.length === 0
+            }"
+          >
+            ⚠️ Mínimo 50 caracteres:
+            {{ permiso.observaciones?.trim().length || 0 }}
+            <span *ngIf="isObservacionesValid()"> ✓</span>
           </small>
         </div>
       </div>
       <div class="col-md-6">
-        <div class="form-group" *ngIf="mostrarDias()">
-          <label for="fechaFin">Fecha de finalización:</label>
-          <input type="date" id="fechaFin" [(ngModel)]="fechaFin" name="fechaFin" class="form-control" required [min]="permiso.fecha">
-          <small class="form-text text-muted">
-            Seleccione el último día del permiso (se calcularán solo días laborales)
-          </small>
+        <div class="form-group">
+          <label for="soporte">Subir soporte (opcional):</label>
+          <input
+            type="file"
+            id="soporte"
+            name="soporte"
+            class="form-control"
+            (change)="onFileSelected($event)"
+          />
+          <small class="form-text text-muted"> 📎 PDF, imágenes, etc. </small>
         </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col-md-6">
-        <div class="form-group" *ngIf="mostrarSalida()">
-          <label for="horaSalida">Hora de salida de la empresa:</label>
-          <select id="horaSalida" [(ngModel)]="permiso.horaSalida" name="horaSalida" class="form-control" required>
-            <option value="" disabled>Seleccione hora de salida</option>
-            <option *ngFor="let hora of horasDisponibles" [value]="hora">{{ hora }}</option>
-          </select>
-          <small class="form-text text-muted">
-            Solo se permiten horas enteras o medias horas
-          </small>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="form-group" *ngIf="mostrarEntrada()">
-          <label for="horaRegreso">Hora de entrada a la empresa:</label>
-          <select id="horaRegreso" [(ngModel)]="permiso.horaEntrada" name="horaRegreso" class="form-control" required>
-            <option value="" disabled>Seleccione hora de entrada</option>
-            <option *ngFor="let hora of horasDisponibles" [value]="hora">{{ hora }}</option>
-          </select>
-          <small class="form-text text-muted">
-            Solo se permiten horas enteras o medias horas
-          </small>
-        </div>
-      </div>
-      <p *ngIf="mostrarEntrada() || mostrarSalida()"><strong>POR FAVOR REVISAR BIEN EL HORARIO</strong></p>
-    </div>
-    <div class="form-group">
-      <label for="observaciones">Observaciones:</label>
-      <textarea id="observaciones" required [(ngModel)]="permiso.observaciones" name="observaciones" class="form-control" rows="3" minlength="50" placeholder="Debe ingresar al menos 50 caracteres. Explique detalladamente el motivo de su permiso."></textarea>
-      <small class="form-text" [ngClass]="{'text-success': isObservacionesValid(), 'text-danger': !isObservacionesValid() && permiso.observaciones?.length > 0, 'text-muted': !permiso.observaciones || permiso.observaciones.length === 0}">
-        ⚠️ Mínimo 50 caracteres (sin contar espacios). Caracteres actuales: {{ permiso.observaciones?.trim().length || 0 }}
-        <span *ngIf="isObservacionesValid()"> ✓</span>
-      </small>
-    </div>
-    <div class="form-group">
-      <label for="soporte">Subir autorizaciones o soporte del permiso:</label>
-      <input type="file" id="soporte" name="soporte" class="form-control" (change)="onFileSelected($event)">
-      <small class="form-text text-muted">
-        📎 Opcional: Suba documentos que respalden su solicitud (PDF, imágenes, etc.)
-      </small>
-    </div>
+
+    <!-- Botones -->
     <div class="button-group">
-      <button type="submit" class="btn btn-success" [disabled]="!permisoForm.form.valid || !isObservacionesValid()">Solicitar Permiso</button>
-      <button type="button" class="btn btn-secondary" (click)="cancel()">Cancelar</button>
+      <button
+        type="submit"
+        class="btn btn-success"
+        [disabled]="!permisoForm.form.valid || !isObservacionesValid()"
+      >
+        Solicitar Permiso
+      </button>
+      <button type="button" class="btn btn-secondary" (click)="cancel()">
+        Cancelar
+      </button>
     </div>
   </form>
   <app-spinner *ngIf="loading"></app-spinner>

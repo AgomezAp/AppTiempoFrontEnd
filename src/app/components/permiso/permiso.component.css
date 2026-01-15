@@ -1,54 +1,219 @@
+/* ========================================
+   FORMULARIO DE PERMISOS - COMPACTO
+   ======================================== */
+
 .permisos-form {
-  max-width: 600px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px 30px;
+  background-color: #ffffff;
 }
 
+/* Título principal */
 .permisos-form h2 {
-  text-align: center;
-  margin-bottom: 20px;
+  font-family: "Fira Sans", sans-serif;
+  color: #141414;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+  padding-bottom: 8px;
+  border-bottom: 3px solid #ffd600;
+  display: inline-block;
 }
 
+/* ========================================
+   GRID - FILAS Y COLUMNAS
+   ======================================== */
+.row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 5px;
+}
+
+.col-md-6 {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ========================================
+   CAMPOS DEL FORMULARIO
+   ======================================== */
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 12px;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 5px;
-  text-transform: uppercase;
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #141414;
+  margin-bottom: 4px;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
+.form-control {
   width: 100%;
-  padding: 8px;
+  padding: 10px 12px;
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.9rem;
+  color: #141414;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   box-sizing: border-box;
 }
 
-.row {
-  display: flex;
-  justify-content: space-between;
+.form-control:focus {
+  outline: none;
+  border-color: #ffd600;
+  box-shadow: 0 0 0 2px rgba(255, 214, 0, 0.2);
+  background-color: #ffffff;
 }
 
-.row p {
-  color: red;
-  text-align: center;
-
+.form-control:read-only {
+  background-color: #e9e9e9;
+  color: #555;
+  cursor: not-allowed;
 }
 
-.col-md-6 {
-  flex: 0 0 48%;
+/* Textarea */
+textarea.form-control {
+  resize: vertical;
+  min-height: 80px;
 }
 
+/* Textos de ayuda */
+.form-text {
+  font-size: 0.75rem;
+  margin-top: 3px;
+  display: block;
+}
+
+.text-muted {
+  color: #666;
+}
+.text-success {
+  color: #28a745;
+}
+.text-danger {
+  color: #dc3545;
+}
+
+/* ========================================
+   ALERTA DE INSTRUCCIONES
+   ======================================== */
+.alert-info {
+  background-color: #141414;
+  color: #ffffff;
+  padding: 12px 15px;
+  border-radius: 4px;
+  margin: 10px 0 15px 0;
+  border-left: 4px solid #ffd600;
+}
+
+.alert-info strong {
+  color: #ffd600;
+  font-size: 0.85rem;
+}
+
+.alert-info p {
+  margin: 5px 0 0 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+/* ========================================
+   ADVERTENCIA HORARIO
+   ======================================== */
+.warning-horario {
+  margin: 5px 0 10px 0;
+}
+
+.warning-horario strong {
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.8rem;
+  color: #ffd600;
+  background-color: #141414;
+  padding: 5px 12px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+/* ========================================
+   BOTONES
+   ======================================== */
 .button-group {
-  text-align: center;
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
 }
 
-.button-group button {
-  margin: 5px;
+.btn {
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 12px 30px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-success {
+  background-color: #141414;
+  color: #ffffff;
+}
+
+.btn-success:hover:not(:disabled) {
+  background-color: #ffd600;
+  color: #141414;
+}
+
+.btn-success:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: #141414;
+  border: 2px solid #141414;
+}
+
+.btn-secondary:hover {
+  border-color: #ffd600;
+  color: #ffd600;
+}
+
+/* Input file */
+input[type="file"].form-control {
+  padding: 8px;
+  font-size: 0.8rem;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 700px) {
+  .permisos-form {
+    padding: 15px;
+  }
+
+  .row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
 }

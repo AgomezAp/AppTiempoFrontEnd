@@ -1,326 +1,330 @@
+/* ========================================
+   REGISTRO DE HORAS - IDENTIDAD DE MARCA
+   Principal: #141414 | Secundario: #FFD600
+   Fuente: Fira Sans
+   ======================================== */
+
 .horas-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 12px;
-  background: #f8fafc;
-  min-height: 100vh;
-  max-height: 100vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  font-family: "Fira Sans", sans-serif;
+  padding: 15px 20px;
+  background-color: #fafafa;
+  min-height: calc(100vh - 60px);
 }
 
-/* Header */
+/* ========================================
+   HEADER
+   ======================================== */
 .header-section {
-  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .page-title {
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 700;
-  color: #1e293b;
+  color: #141414;
   margin: 0;
-  letter-spacing: -0.5px;
+  padding-bottom: 5px;
+  border-bottom: 3px solid #ffd600;
 }
 
-/* Main Content */
-.main-content {
-  flex: 1;
+/* Filtros inline (botones) */
+.filters-inline {
   display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-/* Filters Section */
-.filters-section {
-  margin-bottom: 8px;
-}
-
-.filters-card {
-  background: white;
-  border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 10px 14px;
-}
-
-.filters-card h3 {
-  margin: 0 0 8px 0;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #374151;
-}
-
-.filters-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 10px;
-  align-items: start;
-}
-
-.filter-group {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .filter-btn {
-  background: #6366f1;
-  color: white;
-  border: none;
-  padding: 6px 14px;
-  border-radius: 6px;
+  font-family: "Fira Sans", sans-serif;
   font-size: 0.8rem;
   font-weight: 600;
+  padding: 8px 16px;
+  border: 2px solid #141414;
+  background-color: transparent;
+  color: #141414;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .filter-btn:hover {
-  background: #4f46e5;
-  transform: translateY(-2px);
+  background-color: #141414;
+  color: #ffffff;
 }
 
 .filter-btn.add-btn {
-  background: #10b981;
+  background-color: #141414;
+  color: #ffffff;
 }
 
 .filter-btn.add-btn:hover {
-  background: #059669;
+  background-color: #ffd600;
+  color: #141414;
+  border-color: #ffd600;
 }
 
-/* Input Groups */
-.input-group {
+/* ========================================
+   BARRA DE FILTROS
+   ======================================== */
+.filters-bar {
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+  margin-bottom: 15px;
+  padding: 12px 15px;
+  background-color: #ffffff;
+  border-radius: 6px;
+  border-left: 4px solid #ffd600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  flex-wrap: wrap;
+}
+
+.filter-item {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 
-.input-group label {
-  font-size: 0.8rem;
+.filter-item label {
+  font-size: 0.75rem;
   font-weight: 600;
-  color: #374151;
+  color: #141414;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.date-input,
-.week-input,
-.text-input {
-  padding: 6px 10px;
-  border: 2px solid #e5e7eb;
-  border-radius: 6px;
+.input-field {
+  font-family: "Fira Sans", sans-serif;
   font-size: 0.85rem;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  color: #141414;
   transition: all 0.2s ease;
-  background: white;
 }
 
-.date-input:focus,
-.week-input:focus,
-.text-input:focus {
+.input-field:focus {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  border-color: #ffd600;
+  box-shadow: 0 0 0 2px rgba(255, 214, 0, 0.2);
+  background-color: #ffffff;
 }
 
-.date-filters,
-.week-filter,
-.name-filter {
-  display: flex;
-  gap: 10px;
-}
-
-/* Content Grid */
-.content-grid {
+.filter-name {
   flex: 1;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
-  overflow: hidden;
+  min-width: 150px;
 }
 
-/* Table Section */
-.table-section {
-  background: white;
-  border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 10px 12px;
+.filter-name .input-field {
+  width: 100%;
+}
+
+/* ========================================
+   CONTENT WRAPPER
+   ======================================== */
+.content-wrapper {
   display: flex;
-  flex-direction: column;
+  gap: 20px;
+}
+
+.table-section {
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   overflow: hidden;
 }
 
+.table-section.full-width {
+  width: 100%;
+}
+
+/* Table Header */
 .table-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
-}
-
-.table-header h3 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #1e293b;
+  padding: 10px 15px;
+  background-color: #141414;
+  color: #ffffff;
 }
 
 .table-info {
-  color: #64748b;
   font-size: 0.8rem;
+  color: #ccc;
 }
 
+/* ========================================
+   TABLA
+   ======================================== */
 .table-container {
-  flex: 1;
-  overflow: hidden;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
+  overflow-x: auto;
 }
 
-.table-responsive {
-  height: 100%;
-  overflow-y: auto;
-}
-
-/* Table Styles */
 .hours-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.85rem;
-  background: white;
 }
 
 .hours-table thead {
-  background: #f8fafc;
-  position: sticky;
-  top: 0;
-  z-index: 1;
+  background-color: #141414;
+  color: #ffffff;
 }
 
 .hours-table th {
-  padding: 8px 6px;
+  padding: 10px 12px;
   text-align: left;
-  font-weight: 700;
-  color: #374151;
-  border-bottom: 2px solid #e5e7eb;
-  position: relative;
+  font-weight: 600;
   font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
-.hours-table td {
-  padding: 8px 6px;
-  border-bottom: 1px solid #f1f5f9;
-  color: #1e293b;
-}
-
-.hours-table tbody tr:hover {
-  background: #f8fafc;
-}
-
-/* Cell Styles */
-.id-cell {
-  font-weight: 600;
-  color: #6366f1;
-}
-
-.name-cell {
-  font-weight: 600;
-}
-
-.time-cell {
-  font-family: monospace;
-  font-size: 0.85rem;
-}
-
-.date-cell {
-  font-size: 0.85rem;
-}
-
-.total-cell {
-  font-weight: 600;
-  color: #059669;
-}
-
-.extra-cell {
-  font-weight: 600;
-  color: #dc2626;
-}
-
-.actions-cell {
-  text-align: center;
-}
-
-/* Sort Buttons */
-.sort-buttons {
-  display: inline-block;
-  margin-left: 8px;
+.hours-table th.sortable-th {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .sort-btn {
-  background: none;
+  background: transparent;
   border: none;
-  color: #64748b;
+  color: #ffd600;
   cursor: pointer;
+  padding: 2px 5px;
   font-size: 0.8rem;
-  padding: 2px 4px;
-  transition: color 0.2s ease;
 }
 
 .sort-btn:hover,
 .sort-btn.active {
-  color: #6366f1;
+  color: #ffffff;
 }
 
-/* Action Buttons */
-.btn-modify {
-  background: #f59e0b;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
+.hours-table tbody tr {
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s ease;
+}
+
+.hours-table tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+.hours-table tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.hours-table tbody tr:nth-child(even):hover {
+  background-color: #f0f0f0;
+}
+
+.hours-table td {
+  padding: 10px 12px;
+  color: #141414;
+}
+
+/* Celdas específicas */
+.name-cell {
+  font-weight: 500;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.time-cell,
+.date-cell,
+.total-cell {
+  font-family: "Fira Sans", monospace;
   font-size: 0.8rem;
+}
+
+.extra-cell {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.extra-value {
+  font-weight: 600;
+}
+
+.extra-icon {
+  font-size: 0.75rem;
+}
+
+/* Clases para extras positivas/negativas */
+.extra-positive {
+  color: #28a745;
+}
+
+.extra-negative {
+  color: #dc3545;
+}
+
+.extra-neutral {
+  color: #666;
+}
+
+/* Botón modificar */
+.btn-modify {
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.75rem;
+  padding: 5px 10px;
+  background-color: transparent;
+  color: #141414;
+  border: 1px solid #141414;
+  border-radius: 3px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .btn-modify:hover {
-  background: #d97706;
-  transform: translateY(-1px);
+  background-color: #ffd600;
+  border-color: #ffd600;
+  color: #141414;
 }
 
-/* Pagination */
+/* ========================================
+   PAGINACIÓN
+   ======================================== */
 .pagination-container {
   display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 8px;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #e5e7eb;
+  gap: 5px;
+  padding: 12px;
+  border-top: 1px solid #eee;
 }
 
 .pagination-btn {
-  background: white;
-  border: 2px solid #e5e7eb;
-  color: #64748b;
-  padding: 8px 12px;
-  border-radius: 6px;
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  background-color: #ffffff;
+  color: #141414;
+  border-radius: 3px;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-weight: 600;
-  min-width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .pagination-btn:hover:not(:disabled) {
-  background: #f8fafc;
-  border-color: #6366f1;
-  color: #6366f1;
+  background-color: #141414;
+  color: #ffffff;
+  border-color: #141414;
 }
 
 .pagination-btn.active {
-  background: #6366f1;
-  border-color: #6366f1;
-  color: white;
+  background-color: #ffd600;
+  border-color: #ffd600;
+  color: #141414;
+  font-weight: 600;
 }
 
 .pagination-btn:disabled {
@@ -328,156 +332,144 @@
   cursor: not-allowed;
 }
 
-/* Extra Hours Section */
-.extra-hours-section {
-  width: 280px;
+/* ========================================
+   SIDEBAR HORAS EXTRAS
+   ======================================== */
+.extra-hours-sidebar {
+  width: 250px;
   flex-shrink: 0;
+  background-color: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
 }
 
-.extra-hours-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 16px;
-  height: fit-content;
-  max-height: 700px;
-  overflow-y: auto;
-}
-
-.extra-hours-card h3 {
-  margin: 0 0 16px 0;
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #1e293b;
+.extra-hours-sidebar h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffffff;
+  background-color: #141414;
+  margin: 0;
+  padding: 12px 15px;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.extra-hours-card h3 i {
-  color: #6366f1;
+.extra-hours-sidebar h3 i {
+  color: #ffd600;
 }
 
 .extra-hours-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
-.extra-item-positive {
+.extra-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 10px;
-  background: #f8fafc;
-  border-radius: 6px;
-  border-left: 3px solid #027902;
+  padding: 10px 15px;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s ease;
 }
-.extra-item-negative {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 10px;
-  background: #f8fafc;
-  border-radius: 6px;
-  border-left: 3px solid #dc2626;
-}
-.extra-item-neutral {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 10px;
-  background: #f8fafc;
-  border-radius: 6px;
-  border-left: 3px solid #b5b4be;
+
+.extra-item:hover {
+  background-color: #f9f9f9;
 }
 
 .employee-name {
-  font-weight: 600;
-  color: #1e293b;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  color: #141414;
+  font-weight: 500;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.hours-badge-positive{
-  background: #027902;
-  color: white;
-  padding: 3px 8px;
-  border-radius: 10px;
+.hours-badge {
   font-size: 0.75rem;
-  font-weight: 600;
-}
-.hours-badge-negative {
-  background: #dc2626;
-  color: white;
+  font-weight: 700;
   padding: 3px 8px;
-  border-radius: 10px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-.hours-badge-neutral{
-  background: #b5b4be;
-  color: black;
-  padding: 3px 8px;
-  border-radius: 10px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-/* Responsive Design */
-@media (max-width: 1200px) {
-  .content-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .extra-hours-section {
-    width: 100%;
-  }
-  
-  .extra-hours-card {
-    max-height: 300px;
-  }
+  border-radius: 12px;
 }
 
-@media (max-width: 768px) {
-  .horas-container {
-    padding: 12px;
-  }
-  
-  .page-title {
-    font-size: 1.8rem;
-  }
-  
-  .filters-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .date-filters,
-  .week-filter,
-  .name-filter {
+/* Badges por estado */
+.hours-badge.positive {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.hours-badge.negative {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.hours-badge.neutral {
+  background-color: #e9e9e9;
+  color: #666;
+}
+
+.extra-item.positive {
+  border-left: 3px solid #28a745;
+}
+
+.extra-item.negative {
+  border-left: 3px solid #dc3545;
+}
+
+.extra-item.neutral {
+  border-left: 3px solid #ddd;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 900px) {
+  .content-wrapper {
     flex-direction: column;
   }
-  
-  .hours-table {
-    font-size: 0.8rem;
+
+  .extra-hours-sidebar {
+    width: 100%;
   }
-  
-  .hours-table th,
-  .hours-table td {
-    padding: 8px 6px;
-  }
-  
-  .pagination-btn {
-    padding: 6px 10px;
-    min-width: 36px;
-    height: 36px;
+
+  .extra-hours-list {
+    max-height: 200px;
   }
 }
 
 @media (max-width: 600px) {
-  .table-responsive {
-    overflow-x: auto;
+  .horas-container {
+    padding: 10px;
   }
-  
-  .hours-table {
-    min-width: 600px;
+
+  .header-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filters-bar {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .filter-item {
+    width: 100%;
+  }
+
+  .input-field {
+    width: 100%;
+  }
+
+  .hours-table th,
+  .hours-table td {
+    padding: 8px;
+    font-size: 0.75rem;
+  }
+
+  .name-cell {
+    max-width: 100px;
   }
 }

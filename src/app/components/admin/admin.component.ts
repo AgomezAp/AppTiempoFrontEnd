@@ -49,7 +49,7 @@ export class AdminComponent implements OnInit {
   roles: Role[] = [];
 
   // Paginación
-  pageSize = 7;
+  pageSize = 12;
   currentPage = 1;
   totalPages = 1;
 

@@ -1,18 +1,184 @@
-/* You can add global styles to this file, and also import other style files */
+/* ========================================
+   IMPORTACIÓN DE FUENTE - FIRA SANS
+   ======================================== */
+@import url("https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600;700&display=swap");
 
-html, body { 
-  height: 100%; 
+/* ========================================
+   VARIABLES DE MARCA
+   ======================================== */
+:root {
+  /* Colores principales */
+  --color-primary: #141414;
+  --color-secondary: #ffd600;
+
+  /* Colores de texto */
+  --color-text: #141414;
+  --color-text-light: #ffffff;
+
+  /* Fondos */
+  --color-bg: #ffffff;
+  --color-bg-dark: #141414;
+
+  /* Fuente */
+  --font-family: "Fira Sans", sans-serif;
 }
 
-body { 
-  margin: 0; 
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+/* ========================================
+   ESTILOS BASE
+   ======================================== */
+html,
+body {
+  height: 100%;
 }
 
-/* Navbar sticky */
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+/* ========================================
+   TIPOGRAFÍA
+   ======================================== */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-family);
+  color: var(--color-primary);
+  font-weight: 700;
+  margin-top: 0;
+}
+
+/* Subtítulos y detalles con color secundario */
+h3,
+h4,
+h5,
+h6 {
+  color: var(--color-primary);
+}
+
+/* Clase para acentos amarillos (subtítulos, detalles) */
+.text-accent {
+  color: var(--color-secondary);
+}
+
+.subtitle {
+  color: var(--color-secondary);
+  font-weight: 500;
+}
+
+/* ========================================
+   ENLACES
+   ======================================== */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--color-secondary);
+}
+
+/* ========================================
+   BOTONES (utilidades)
+   ======================================== */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-text-light);
+  border: none;
+  padding: 12px 24px;
+  font-family: var(--font-family);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-secondary);
+  color: var(--color-primary);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+  padding: 10px 22px;
+  font-family: var(--font-family);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+}
+
+/* ========================================
+   CLASES UTILITARIAS
+   ======================================== */
+.bg-primary {
+  background-color: var(--color-primary);
+  color: var(--color-text-light);
+}
+
+.bg-secondary {
+  background-color: var(--color-secondary);
+  color: var(--color-primary);
+}
+
+.highlight {
+  color: var(--color-secondary);
+  font-weight: 600;
+}
+
+/* Bordes y detalles decorativos */
+.border-accent {
+  border-color: var(--color-secondary);
+}
+
+.underline-accent {
+  border-bottom: 3px solid var(--color-secondary);
+  display: inline-block;
+}
+
+/* ========================================
+   NAVBAR STICKY
+   ======================================== */
 app-navbar {
   position: sticky;
   top: 0;
   z-index: 1000;
   display: block;
+  background-color: var(--color-primary);
+}
+
+/* ========================================
+   SELECCIÓN DE TEXTO
+   ======================================== */
+::selection {
+  background-color: var(--color-secondary);
+  color: var(--color-primary);
+}
+body {
+  padding-top: 70px; /* Altura del navbar + un poco de espacio */
+}
+
+/* O si prefieres que cada contenedor tenga su espacio */
+/* Opción 2: Margen en los contenedores principales */
+.admin-container,
+.horas-container,
+.novedad-dashboard,
+.permisos-form,
+.informes-container,
+.extra-list-container,
+.certificado-container,
+.gestion-archivos-container {
+  margin-top: 5px;
 }

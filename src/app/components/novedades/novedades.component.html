@@ -1,77 +1,137 @@
 <app-navbar></app-navbar>
+
 <div *ngIf="loading" class="novedad-dashboard">
-    <h1>Novedades Historico</h1>
-    <div class="filters">
-        <div *ngIf="showList">
-            <label for="name">Nombre:</label>
-            <input id="name" [(ngModel)]="filterName" (input)="filterdByName()" type="text">
-        </div>
-        <div>
-            <label for="fecha">Fecha:</label>
-            <input id="fecha" type="date" [(ngModel)]="fecha" (change)="filterByData()">
-        </div>
+  <!-- Header con título y filtros en línea -->
+  <div class="header-section">
+    <h1>Novedades Histórico</h1>
+
+    <div class="filters-inline">
+      <div class="filter-item" *ngIf="showList">
+        <label for="name">Nombre</label>
+        <input
+          id="name"
+          [(ngModel)]="filterName"
+          (input)="filterdByName()"
+          type="text"
+          placeholder="Buscar..."
+        />
+      </div>
+      <div class="filter-item">
+        <label for="fecha">Fecha</label>
+        <input
+          id="fecha"
+          type="date"
+          [(ngModel)]="fecha"
+          (change)="filterByData()"
+        />
+      </div>
     </div>
-    
-    <div class="table-container">
-        <div class="table-responsive">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th scope="col">Nombre</th>
-                        <th scope="col">Tipo</th>
-                        <th scope="col">Fecha</th>
-                        <th scope="col">Descripcion</th>
-                        <th scope="col">Horas</th>
-                        <th scope="col">Estado</th>
-                        <th scope="col">Accion</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let item of paginatedData">
-                        <td>{{item.Name}}</td>
-                        <td>{{item.type}}</td>
-                        <td>{{item.Fecha}}</td>
-                        <td>{{item.description}}</td>
-                        <td>{{item.horas}}</td>
-                        <td>
-                            <span *ngIf="item.aceptacion === true" class="aceptado">Desconto</span>
-                            <span *ngIf="item.aceptacion === false" class="rechazado">No Desconto</span>
-                        </td>
-                        <td><button class="btn btn-warning" (click)="revision(item.Cid)">*</button></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        
-        <!-- Controles de paginación simplificados -->
-        <div class="pagination-container">
-            <div class="pagination-info">
-                Página {{currentPage}} de {{totalPages}} - Mostrando {{getStartIndex()}} - {{getEndIndex()}} de {{totalItems}} elementos
-            </div>
-            
-            <div class="pagination-controls">
-                <button class="pagination-btn" (click)="goToPage(1)" [disabled]="currentPage === 1">
-                    <i class="fas fa-angle-double-left"></i> Primera
-                </button>
-                <button class="pagination-btn" (click)="previousPage()" [disabled]="currentPage === 1">
-                    <i class="fas fa-angle-left"></i> Anterior
-                </button>
-                
-                <button 
-                    *ngFor="let page of getVisiblePages()" 
-                    class="pagination-btn page-number" 
-                    [class.active]="page === currentPage"
-                    (click)="goToPage(page)">
-                    {{page}}
-                </button>
-                
-                <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
-                    Siguiente <i class="fas fa-angle-right"></i>
-                </button>
-                <button class="pagination-btn" (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages">
-                    Última <i class="fas fa-angle-double-right"></i>
-                </button>
-            </div>
-        </div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="table-container">
+    <table class="novedades-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Tipo</th>
+          <th>Fecha</th>
+          <th>Descripción</th>
+          <th>Horas</th>
+          <th>Estado</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let item of paginatedData"
+          [ngClass]="{
+            'row-aceptado': item.aceptacion === true,
+            'row-rechazado': item.aceptacion === false
+          }"
+        >
+          <td class="name-cell">{{ item.Name }}</td>
+          <td class="type-cell">{{ item.type }}</td>
+          <td class="date-cell">{{ item.Fecha }}</td>
+          <td class="desc-cell" [title]="item.description">
+            {{ item.description }}
+          </td>
+          <td class="hours-cell">{{ item.horas }}</td>
+          <td class="status-cell">
+            <span class="status-badge aceptado" *ngIf="item.aceptacion === true"
+              >Descontó</span
+            >
+            <span
+              class="status-badge rechazado"
+              *ngIf="item.aceptacion === false"
+              >No Descontó</span
+            >
+          </td>
+          <td class="actions-cell">
+            <button
+              class="btn-revision"
+              (click)="revision(item.Cid)"
+              title="Revisar"
+            >
+              <i class="fas fa-eye"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Paginación -->
+    <div class="pagination-container">
+      <span class="pagination-info">
+        Mostrando {{ getStartIndex() }} - {{ getEndIndex() }} de
+        {{ totalItems }}
+      </span>
+
+      <div class="pagination-controls">
+        <button
+          class="pagination-btn"
+          (click)="goToPage(1)"
+          [disabled]="currentPage === 1"
+          title="Primera"
+        >
+          <i class="fas fa-angle-double-left"></i>
+        </button>
+        <button
+          class="pagination-btn"
+          (click)="previousPage()"
+          [disabled]="currentPage === 1"
+          title="Anterior"
+        >
+          <i class="fas fa-angle-left"></i>
+        </button>
+
+        <button
+          *ngFor="let page of getVisiblePages()"
+          class="pagination-btn page-number"
+          [class.active]="page === currentPage"
+          (click)="goToPage(page)"
+        >
+          {{ page }}
+        </button>
+
+        <button
+          class="pagination-btn"
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages"
+          title="Siguiente"
+        >
+          <i class="fas fa-angle-right"></i>
+        </button>
+        <button
+          class="pagination-btn"
+          (click)="goToPage(totalPages)"
+          [disabled]="currentPage === totalPages"
+          title="Última"
+        >
+          <i class="fas fa-angle-double-right"></i>
+        </button>
+      </div>
     </div>
+  </div>
 </div>
+
