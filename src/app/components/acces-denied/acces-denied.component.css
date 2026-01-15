@@ -1,19 +1,110 @@
-.access-denied {
+/* ========================================
+   ACCESO DENEGADO
+   Principal: #141414 | Secundario: #FFD600
+   Fuente: Fira Sans
+   ======================================== */
+
+.access-denied-container {
+  font-family: 'Fira Sans', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* Card central */
+.access-denied-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 40px 50px;
   text-align: center;
-  padding: 50px;
+  max-width: 450px;
+  width: 100%;
 }
 
-.access-denied h1 {
-  font-size: 48px;
-  margin-bottom: 20px;
+/* Contenedor del icono/imagen */
+.icon-container {
+  margin-bottom: 25px;
 }
 
-.access-denied p {
-  font-size: 18px;
-  margin-bottom: 30px;
+.icon-container img {
+  max-width: 120px;  /* Ajusta este valor para el tamaño deseado */
+  max-height: 120px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
 }
 
-.access-denied .btn {
-  padding: 10px 20px;
-  font-size: 16px;
+/* Título */
+.access-denied-card h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #141414;
+  margin: 0 0 15px 0;
+}
+
+/* Mensaje */
+.access-denied-card p {
+  font-size: 0.95rem;
+  color: #666666;
+  line-height: 1.6;
+  margin: 0 0 25px 0;
+}
+
+/* Botón */
+.btn-redirect {
+  font-family: 'Fira Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 12px 30px;
+  background-color: #141414;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-redirect:hover {
+  background-color: #FFD600;
+  color: #141414;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 214, 0, 0.4);
+}
+
+.btn-redirect:active {
+  transform: translateY(0);
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 500px) {
+  .access-denied-card {
+    padding: 30px 25px;
+  }
+
+  .icon-container img {
+    max-width: 80px;
+    max-height: 80px;
+  }
+
+  .access-denied-card h1 {
+    font-size: 1.3rem;
+  }
+
+  .access-denied-card p {
+    font-size: 0.9rem;
+  }
+
+  .btn-redirect {
+    width: 100%;
+    padding: 12px 20px;
+  }
 }

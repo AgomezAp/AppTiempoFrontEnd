@@ -1,6 +1,15 @@
-<div class="access-denied">
-  <img src="/NoPermitido.png" alt="Acceso Denegado">
-  <h1>Acceso Denegado</h1>
-  <p>No tienes permiso para acceder a esta página. Serás redirigido a la página de horas en unos momentos.</p>
-  <button class="btn btn-primary" (click)="redirectToHoras()">Ir a Horas Ahora</button>
+<div class="access-denied-container">
+  <div class="access-denied-card">
+    <div class="icon-container">
+      <img src="/NoPermitido.png" alt="Acceso Denegado" />
+    </div>
+    <h1>Acceso Denegado</h1>
+    <p>
+      No tienes permiso para acceder a esta página.<br />Serás redirigido a la
+      página de horas en unos momentos.
+    </p>
+    <button class="btn-redirect" (click)="redirectToHoras()">
+      <i class="fas fa-arrow-left"></i> Ir a Horas Ahora
+    </button>
+  </div>
 </div>
