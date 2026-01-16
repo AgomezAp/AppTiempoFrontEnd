@@ -196,8 +196,15 @@ export class ReservasComponent implements OnInit {
 
     const firstDay = dayjs(`${year}-${String(month + 1).padStart(2, '0')}-01`);
     const lastDay = firstDay.endOf('month');
-    const startDate = firstDay.startOf('week');
-    const endDate = lastDay.endOf('week');
+
+    // Ajustar para que la semana comience en lunes (día 1 en dayjs: domingo=0, lunes=1, ..., sábado=6)
+    const dayOfWeekFirstDay = firstDay.day();
+    const daysToSubtract = dayOfWeekFirstDay === 0 ? 6 : dayOfWeekFirstDay - 1;
+    const startDate = firstDay.subtract(daysToSubtract, 'day');
+
+    const dayOfWeekLastDay = lastDay.day();
+    const daysToAdd = dayOfWeekLastDay === 0 ? 0 : 7 - dayOfWeekLastDay;
+    const endDate = lastDay.add(daysToAdd, 'day');
 
     this.calendarDays = [];
     let current = startDate;
@@ -215,7 +222,7 @@ export class ReservasComponent implements OnInit {
         dayOfWeek: current.day(),
         reservations: dayReservations,
         reservationCount: dayReservations.length,
-        isWorkDay: current.day() >= 0 && current.day() <= 5,
+        isWorkDay: current.day() >= 1 && current.day() <= 6,
       });
 
       current = current.add(1, 'day');
