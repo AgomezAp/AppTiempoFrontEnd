@@ -88,6 +88,7 @@
               <option value="documentos">Documentos</option>
               <option value="capacitaciones">Capacitaciones</option>
               <option value="manuales">Manuales</option>
+              <option value="capacitaciones_seguridad_salud">Capacitaciones seguridad y salud</option>
             </select>
           </div>
 
@@ -173,6 +174,13 @@
             (click)="filtrarPorCategoria('capacitaciones')"
           >
             Capacitaciones
+          </button>
+           <button 
+            class="filtro-btn"
+            [class.active]="categoriaActual === 'capacitaciones_seguridad_salud'"
+            (click)="filtrarPorCategoria('capacitaciones_seguridad_salud')"
+          >
+            Capacitaciones seguridad y salud
           </button>
         </div>
       </div>
