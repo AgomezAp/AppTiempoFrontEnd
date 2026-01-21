@@ -222,7 +222,7 @@ export class ReservasComponent implements OnInit {
         dayOfWeek: current.day(),
         reservations: dayReservations,
         reservationCount: dayReservations.length,
-        isWorkDay: current.day() >= 1 && current.day() <= 6,
+        isWorkDay: current.day() === 1 || current.day() === 5, // Solo lunes y viernes
       });
 
       current = current.add(1, 'day');
@@ -266,7 +266,7 @@ export class ReservasComponent implements OnInit {
    */
   getDayStatus(day: any): string {
     if (!day.isCurrentMonth) return '';
-    if (!day.isWorkDay) return 'No laboral';
+    if (!day.isWorkDay) return 'No disponible';
     if (day.reservations.length === 0) return 'Disponible';
     return `${day.reservations.length} reserva${
       day.reservations.length > 1 ? 's' : ''
@@ -338,6 +338,11 @@ export class ReservasComponent implements OnInit {
    * Cuando se selecciona una sala, cargar los slots disponibles
    */
   onRoomSelected(): void {
+    if (this.selectedRoom && this.selectedDate && !this.isDateAllowedForSelectedRoom()) {
+      this.resetTimeSelection();
+      return;
+    }
+
     if (this.selectedRoom && this.selectedDate) {
       this.loadAvailableSlots();
     }
@@ -348,9 +353,41 @@ export class ReservasComponent implements OnInit {
    */
   onDateSelected(): void {
     console.log('Fecha seleccionada en input:', this.selectedDate);
+    if (this.selectedRoom && this.selectedDate && !this.isDateAllowedForSelectedRoom()) {
+      this.resetTimeSelection();
+      return;
+    }
+
     if (this.selectedRoom && this.selectedDate) {
       this.loadAvailableSlots();
     }
+  }
+
+  private isDateAllowedForSelectedRoom(): boolean {
+    if (!this.selectedRoom || !this.selectedDate) {
+      return true;
+    }
+
+    const room = this.rooms.find((r) => r.Rid === this.selectedRoom);
+    if (!room) {
+      return true;
+    }
+
+    const dayOfWeek = dayjs(this.selectedDate).day();
+    // Solo permitir lunes (1) y viernes (5)
+    const isAllowed = dayOfWeek === 1 || dayOfWeek === 5;
+
+    if (!isAllowed) {
+      alert('Las reservas de salas solo están disponibles los lunes y viernes.');
+    }
+
+    return isAllowed;
+  }
+
+  private resetTimeSelection(): void {
+    this.availableSlots = [];
+    this.startTime = '';
+    this.endTime = '';
   }
 
   /**
@@ -359,6 +396,11 @@ export class ReservasComponent implements OnInit {
   loadAvailableSlots(): void {
     if (!this.selectedRoom || !this.selectedDate) {
       this.availableSlots = [];
+      return;
+    }
+
+    if (!this.isDateAllowedForSelectedRoom()) {
+      this.resetTimeSelection();
       return;
     }
 
@@ -431,6 +473,10 @@ export class ReservasComponent implements OnInit {
       !this.reason
     ) {
       alert('Por favor, completa todos los campos requeridos');
+      return;
+    }
+
+    if (!this.isDateAllowedForSelectedRoom()) {
       return;
     }
 

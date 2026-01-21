@@ -148,8 +148,8 @@
             required
           >
             <option value="" disabled>Seleccione hora de salida</option>
-            <option *ngFor="let hora of horasDisponibles" [value]="hora">
-              {{ hora }}
+            <option *ngFor="let hora of horasOptions" [value]="hora.value">
+              {{ hora.label }}
             </option>
           </select>
         </div>
@@ -165,8 +165,8 @@
             required
           >
             <option value="" disabled>Seleccione hora de entrada</option>
-            <option *ngFor="let hora of horasDisponibles" [value]="hora">
-              {{ hora }}
+            <option *ngFor="let hora of horasOptions" [value]="hora.value">
+              {{ hora.label }}
             </option>
           </select>
         </div>

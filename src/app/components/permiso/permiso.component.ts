@@ -118,8 +118,8 @@ export class PermisoComponent implements OnInit {
 
   holidays: string[] = [];
 
-  // Horas disponibles (solo horas enteras y medias horas)
-  horasDisponibles: string[] = [
+  // Base de horas en formato 12h (etiqueta). Generamos AM/PM y valores 24h al mostrar.
+  private baseHoras: string[] = [
     '12:00',
     '12:30',
     '1:00',
@@ -145,6 +145,30 @@ export class PermisoComponent implements OnInit {
     '11:00',
     '11:30',
   ];
+
+  // Devuelve una lista de opciones con label (12h + AM/PM) y value (HH:mm 24h)
+  get horasOptions(): Array<{ value: string; label: string }> {
+    const amOptions: Array<{ value: string; label: string }> = [];
+    const pmOptions: Array<{ value: string; label: string }> = [];
+    for (const h of this.baseHoras) {
+      const [hhStr, mm] = h.split(':');
+      let hh = parseInt(hhStr, 10);
+      // AM value (00-11)
+      const amHour = hh === 12 ? 0 : hh;
+      const amValue = `${amHour.toString().padStart(2, '0')}:${mm}`;
+      // Only include AM times at or after 07:30 (07:30 == 450 minutes)
+      const amMinutes = amHour * 60 + parseInt(mm, 10);
+      if (amMinutes >= 7 * 60 + 30) {
+        amOptions.push({ value: amValue, label: `${h} AM` });
+      }
+      // PM value (12-23)
+      const pmHour = hh === 12 ? 12 : hh + 12;
+      const pmValue = `${pmHour.toString().padStart(2, '0')}:${mm}`;
+      pmOptions.push({ value: pmValue, label: `${h} PM` });
+    }
+    // Order: AM (from 07:30) then PM
+    return [...amOptions, ...pmOptions];
+  }
 
   mostrarSalida(): boolean {
     return this.permitidosSalida.includes(this.permiso.tipo);
