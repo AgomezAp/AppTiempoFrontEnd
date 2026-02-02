@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CertificadoService } from '../../services/certificado.service';
 import { UserService } from '../../services/user.service';
 import { NavbarComponent } from '../navbar/navbar.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-certificado-laboral',
@@ -258,49 +259,49 @@ export class CertificadoLaboralComponent implements OnInit {
       this.tipoCertificado === 'cesantias' ? 'cesantias' : 'terminacion';
     const token = localStorage.getItem('token');
 
-    const versiones = [
-      { conFirma: 'false', sufijo: 'digital' },
-      { conFirma: 'true', sufijo: 'manual' },
-    ];
+    // Usar el UID del usuario seleccionado (no del admin)
+    const uidAUsar = this.selectedUser ? this.selectedUser.Uid : this.uid;
 
-    versiones.forEach((version, index) => {
-      const params = new URLSearchParams({
-        uid: this.uid.toString(),
-        conFirma: version.conFirma,
-        ...this.certificadoConfig,
-      });
-
-      const url = `${this.certificadoService['apiUrl']}/${
-        this.uid
-      }/${endpoint}?${params.toString()}`;
-
-      setTimeout(() => {
-        fetch(url, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-          .then((response) => response.blob())
-          .then((blob) => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            // ✅ CAMBIO: .png → .pdf
-            a.download = `certificado_${this.tipoCertificado}_${version.sufijo}_${this.uid}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-
-            if (index === versiones.length - 1) {
-              this.cargando = false;
-            }
-          })
-          .catch((error) => {
-            console.error('Error:', error);
-            this.error = 'Error al generar el certificado personalizado';
-            this.cargando = false;
-          });
-      }, index * 500);
+    // Ahora solo se hace UNA llamada, el backend genera ambas versiones en un solo PDF
+    const params = new URLSearchParams({
+      uid: uidAUsar.toString(),
+      ...this.certificadoConfig,
     });
+
+    // Construir URL correctamente usando environment
+    const url = `${environment.apiUrl}/api/certificados/${uidAUsar}/${endpoint}?${params.toString()}`;
+    console.log('URL de descarga:', url);
+
+    fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Error del servidor: ${response.status}`);
+        }
+        return response.blob();
+      })
+      .then((blob) => {
+        // Verificar que el blob sea válido
+        if (blob.size === 0) {
+          throw new Error('El archivo descargado está vacío');
+        }
+        console.log('PDF descargado, tamaño:', blob.size, 'bytes');
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `certificado_${this.tipoCertificado}_${this.uid}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        this.cargando = false;
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        this.error = 'Error al generar el certificado personalizado';
+        this.cargando = false;
+      });
   }
 
   generarDesprendible() {
