@@ -16,8 +16,8 @@ export class UploadService {
   constructor(private http: HttpClient) {
     this.appUrl = environment.apiUrl;
     this.apiUrl = 'api/horario';
-    this.uploadUrl = `${this.appUrl}${this.apiUrl}/subirData`;
-    this.uploadConcatUrl = `${this.appUrl}${this.apiUrl}/concatenar`
+    this.uploadUrl = `${this.appUrl}/${this.apiUrl}/subirData`;
+    this.uploadConcatUrl = `${this.appUrl}/${this.apiUrl}/concatenar`
   }
 
   upload(file: File): Observable<HttpEvent<any>> {
