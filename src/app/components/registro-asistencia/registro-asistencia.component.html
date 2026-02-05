@@ -1,0 +1,568 @@
+<app-navbar></app-navbar>
+
+<div class="asistencia-container">
+  <!-- ===== HEADER PRINCIPAL ===== -->
+  <header class="page-header">
+    <div class="header-content">
+      <div class="header-title-group">
+        <div class="header-icon">
+          <i class="fas fa-clipboard-list"></i>
+        </div>
+        <div class="header-text">
+          <h1>Registro de Asistencia</h1>
+          <p class="header-subtitle">
+            Gestión de eventos y control de participantes
+          </p>
+        </div>
+      </div>
+
+      <nav class="header-tabs">
+        <button
+          class="tab-button"
+          [class.active]="activeTab === 'lista'"
+          (click)="activeTab = 'lista'"
+        >
+          <i class="fas fa-list-ul"></i>
+          <span>Ver Registros</span>
+          <span class="tab-badge" *ngIf="registros.length > 0">{{
+            registros.length
+          }}</span>
+        </button>
+        <button
+          class="tab-button"
+          [class.active]="activeTab === 'crear'"
+          (click)="activeTab = 'crear'"
+        >
+          <i class="fas fa-plus-circle"></i>
+          <span>Crear Nuevo</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Decoración del header -->
+    <div class="header-decoration"></div>
+  </header>
+
+  <!-- ===== SPINNER ===== -->
+  <app-spinner *ngIf="loading"></app-spinner>
+
+  <!-- ===== TAB: CREAR REGISTRO ===== -->
+  <main class="main-content" *ngIf="activeTab === 'crear' && !loading">
+    <div class="create-form-container">
+      <!-- Sección: Información del Evento -->
+      <section class="form-card">
+        <div class="form-card-header">
+          <div class="form-card-icon">
+            <i class="fas fa-calendar-alt"></i>
+          </div>
+          <div class="form-card-title">
+            <h2>Información del Evento</h2>
+            <p>Complete los datos básicos del registro</p>
+          </div>
+        </div>
+
+        <div class="form-card-body">
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="fecha" class="form-label">
+                <i class="fas fa-calendar-day"></i>
+                Fecha del Evento
+                <span class="required">*</span>
+              </label>
+              <div class="input-wrapper">
+                <input
+                  type="date"
+                  id="fecha"
+                  [(ngModel)]="fechaEvento"
+                  class="form-input"
+                />
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="facilitador" class="form-label">
+                <i class="fas fa-user-tie"></i>
+                Facilitador
+                <span class="required">*</span>
+              </label>
+              <div class="select-wrapper">
+                <select
+                  id="facilitador"
+                  [(ngModel)]="facilitadorId"
+                  class="form-select"
+                >
+                  <option [ngValue]="null">Seleccione un facilitador</option>
+                  <option *ngFor="let user of usuarios" [ngValue]="user.Uid">
+                    {{ user.name }} {{ user.lastName }}
+                  </option>
+                </select>
+                <i class="fas fa-chevron-down select-arrow"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-field form-field-full">
+            <label for="tema" class="form-label">
+              <i class="fas fa-bookmark"></i>
+              Tema del Evento
+              <span class="required">*</span>
+            </label>
+            <div class="input-wrapper">
+              <textarea
+                id="tema"
+                [(ngModel)]="tema"
+                class="form-textarea"
+                rows="3"
+                placeholder="Describa el tema o contenido del evento..."
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sección: Selección de Participantes -->
+      <section class="form-card">
+        <div class="form-card-header">
+          <div class="form-card-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="form-card-title">
+            <h2>Seleccionar Participantes</h2>
+            <p>Elija los asistentes al evento</p>
+          </div>
+        </div>
+
+        <div class="form-card-body">
+          <!-- Toolbar de búsqueda y acciones -->
+          <div class="participants-toolbar">
+            <div class="search-container">
+              <i class="fas fa-search search-icon"></i>
+              <input
+                type="text"
+                class="search-input"
+                placeholder="Buscar por nombre o correo..."
+                [(ngModel)]="searchTerm"
+                (input)="onSearchChange()"
+              />
+              <button
+                class="search-clear"
+                *ngIf="searchTerm"
+                (click)="searchTerm = ''; onSearchChange()"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+
+            <div class="toolbar-actions">
+              <button
+                class="action-btn action-btn-select"
+                (click)="seleccionarTodos()"
+              >
+                <i class="fas fa-check-double"></i>
+                <span>Todos</span>
+              </button>
+              <button
+                class="action-btn action-btn-deselect"
+                (click)="deseleccionarTodos()"
+              >
+                <i class="fas fa-times"></i>
+                <span>Ninguno</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Contador de selección -->
+          <div class="selection-indicator">
+            <div class="selection-icon">
+              <i class="fas fa-user-check"></i>
+            </div>
+            <div class="selection-text">
+              <span class="selection-count">{{
+                participantesSeleccionados.length
+              }}</span>
+              <span class="selection-label"
+                >participante(s) seleccionado(s)</span
+              >
+            </div>
+            <div class="selection-progress">
+              <div
+                class="selection-progress-bar"
+                [style.width.%]="
+                  (participantesSeleccionados.length /
+                    filteredUsuarios.length) *
+                  100
+                "
+              ></div>
+            </div>
+          </div>
+
+          <!-- Grid de usuarios -->
+          <div class="users-grid" *ngIf="filteredUsuarios.length > 0">
+            <article
+              *ngFor="let user of filteredUsuarios"
+              class="user-card"
+              [class.selected]="isSelected(user.Uid!)"
+              (click)="toggleParticipante(user.Uid!)"
+              tabindex="0"
+              (keydown.enter)="toggleParticipante(user.Uid!)"
+              (keydown.space)="
+                toggleParticipante(user.Uid!); $event.preventDefault()
+              "
+            >
+              <div class="user-card-check">
+                <div
+                  class="checkbox-custom"
+                  [class.checked]="isSelected(user.Uid!)"
+                >
+                  <i class="fas fa-check" *ngIf="isSelected(user.Uid!)"></i>
+                </div>
+              </div>
+
+              <div class="user-card-avatar" [class]="'avatar-' + user.empresa">
+                {{ user.name.charAt(0) }}{{ user.lastName.charAt(0) }}
+              </div>
+
+              <div class="user-card-info">
+                <h4 class="user-card-name">
+                  {{ user.name }} {{ user.lastName }}
+                </h4>
+                <p class="user-card-email">{{ user.email }}</p>
+              </div>
+
+              <span class="user-card-badge" [class]="'badge-' + user.empresa">
+                {{ user.empresa }}
+              </span>
+            </article>
+          </div>
+
+          <!-- Estado vacío -->
+          <div class="empty-state" *ngIf="filteredUsuarios.length === 0">
+            <div class="empty-state-icon">
+              <i class="fas fa-user-slash"></i>
+            </div>
+            <h3>No se encontraron usuarios</h3>
+            <p>Intente con otros términos de búsqueda</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Acciones del formulario -->
+      <div class="form-actions-bar">
+        <button class="btn btn-outline" (click)="limpiarFormulario()">
+          <i class="fas fa-eraser"></i>
+          <span>Limpiar Formulario</span>
+        </button>
+        <button
+          class="btn btn-primary"
+          (click)="crearRegistro()"
+          [disabled]="
+            !fechaEvento ||
+            !facilitadorId ||
+            !tema ||
+            participantesSeleccionados.length === 0
+          "
+        >
+          <i class="fas fa-paper-plane"></i>
+          <span>Crear y Enviar Correos</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== TAB: LISTA DE REGISTROS ===== -->
+  <main class="main-content" *ngIf="activeTab === 'lista' && !loading">
+    <!-- Lista de registros -->
+    <div class="registros-grid" *ngIf="registros.length > 0">
+      <article
+        *ngFor="let registro of registros; let i = index"
+        class="registro-card"
+        (click)="verDetalle(registro)"
+        [style.animation-delay.ms]="i * 50"
+      >
+        <div class="registro-card-accent"></div>
+
+        <header class="registro-card-header">
+          <div class="registro-date">
+            <i class="fas fa-calendar-alt"></i>
+            <span>{{ formatDate(registro.fecha) }}</span>
+          </div>
+          <span
+            class="estado-badge"
+            [ngClass]="getEstadoBadgeClass(registro.estado)"
+          >
+            <i class="fas fa-circle estado-dot"></i>
+            {{ getEstadoTexto(registro.estado) }}
+          </span>
+        </header>
+
+        <div class="registro-card-body">
+          <h3 class="registro-tema">{{ registro.tema }}</h3>
+        </div>
+
+        <footer class="registro-card-footer">
+          <div class="registro-info-item">
+            <i class="fas fa-user-tie"></i>
+            <span>{{ registro.facilitadorNombre }}</span>
+          </div>
+          <div class="registro-info-item registro-firmados">
+            <i class="fas fa-signature"></i>
+            <span class="firmados-count">{{
+              getFirmadosCount(registro.participantes)
+            }}</span>
+            <span class="firmados-separator">/</span>
+            <span class="firmados-total">{{
+              registro.participantes?.length || 0
+            }}</span>
+            <span class="firmados-label">firmados</span>
+          </div>
+        </footer>
+
+        <div class="registro-card-arrow">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </article>
+    </div>
+
+    <!-- Estado vacío -->
+    <div class="empty-state-large" *ngIf="registros.length === 0">
+      <div class="empty-state-illustration">
+        <div class="empty-icon-container">
+          <i class="fas fa-folder-open"></i>
+        </div>
+        <div class="empty-decoration-1"></div>
+        <div class="empty-decoration-2"></div>
+      </div>
+      <h2>No hay registros de asistencia</h2>
+      <p>Comience creando su primer registro de asistencia</p>
+      <button class="btn btn-primary btn-lg" (click)="activeTab = 'crear'">
+        <i class="fas fa-plus-circle"></i>
+        <span>Crear Primer Registro</span>
+      </button>
+    </div>
+  </main>
+
+  <!-- ===== MODAL: DETALLE DEL REGISTRO ===== -->
+  <div class="modal-backdrop" *ngIf="registroDetalle" (click)="cerrarDetalle()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <!-- Modal Header -->
+      <header class="modal-header">
+        <div class="modal-header-content">
+          <div class="modal-icon">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <div class="modal-title-group">
+            <h2>Detalle del Registro</h2>
+            <p>
+              {{ registroDetalle.codigo }} • Versión
+              {{ registroDetalle.version }}
+            </p>
+          </div>
+        </div>
+        <button class="modal-close" (click)="cerrarDetalle()">
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <!-- Info Cards -->
+        <div class="info-cards-grid">
+          <div class="info-card">
+            <div class="info-card-icon">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="info-card-content">
+              <span class="info-card-label">Fecha del Evento</span>
+              <span class="info-card-value">{{
+                formatDate(registroDetalle.fecha)
+              }}</span>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-card-icon">
+              <i class="fas fa-user-tie"></i>
+            </div>
+            <div class="info-card-content">
+              <span class="info-card-label">Facilitador</span>
+              <span class="info-card-value">{{
+                registroDetalle.facilitadorNombre
+              }}</span>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-card-icon">
+              <i class="fas fa-tasks"></i>
+            </div>
+            <div class="info-card-content">
+              <span class="info-card-label">Estado</span>
+              <span class="info-card-value">
+                <span
+                  class="estado-badge estado-badge-sm"
+                  [ngClass]="getEstadoBadgeClass(registroDetalle.estado)"
+                >
+                  {{ getEstadoTexto(registroDetalle.estado) }}
+                </span>
+              </span>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-card-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <div class="info-card-content">
+              <span class="info-card-label">Participantes</span>
+              <span class="info-card-value">
+                <span class="highlight">{{
+                  getFirmadosCount(registroDetalle.participantes)
+                }}</span>
+                / {{ registroDetalle.participantes?.length }} firmados
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tema -->
+        <div class="tema-section">
+          <h4><i class="fas fa-bookmark"></i> Tema del Evento</h4>
+          <p>{{ registroDetalle.tema }}</p>
+        </div>
+
+        <!-- Tabla de Participantes -->
+        <section class="participants-section">
+          <header class="section-header">
+            <h3>
+              <i class="fas fa-users"></i>
+              Lista de Participantes
+            </h3>
+          </header>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Participante</th>
+                  <th>Documento</th>
+                  <th>Cargo</th>
+                  <th>Empresa</th>
+                  <th>Estado</th>
+                  <th class="th-actions">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let p of registroDetalle.participantes"
+                  [class.row-firmado]="p.firmado"
+                >
+                  <td>
+                    <div class="participant-cell">
+                      <div
+                        class="participant-avatar"
+                        [class]="'avatar-' + p.empresa"
+                      >
+                        {{ p.nombreCompleto.charAt(0) }}
+                      </div>
+                      <span class="participant-name">{{
+                        p.nombreCompleto
+                      }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="cell-mono">{{
+                      p.documentoIdentificacion || "—"
+                    }}</span>
+                  </td>
+                  <td>{{ p.cargo || "—" }}</td>
+                  <td>
+                    <span class="empresa-badge" [class]="'badge-' + p.empresa">
+                      {{ p.empresa }}
+                    </span>
+                  </td>
+                  <td>
+                    <span *ngIf="p.firmado" class="status-badge status-firmado">
+                      <i class="fas fa-check-circle"></i>
+                      Firmado
+                    </span>
+                    <span
+                      *ngIf="!p.firmado"
+                      class="status-badge status-pendiente"
+                    >
+                      <i class="fas fa-clock"></i>
+                      Pendiente
+                    </span>
+                  </td>
+                  <td class="td-actions">
+                    <button
+                      *ngIf="!p.firmado"
+                      class="btn-table-action"
+                      title="Reenviar correo de firma"
+                      (click)="reenviarCorreo(p); $event.stopPropagation()"
+                    >
+                      <i class="fas fa-envelope"></i>
+                    </button>
+                    <span *ngIf="p.firmado" class="action-placeholder">—</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Acciones PDF -->
+        <section
+          class="pdf-section"
+          *ngIf="
+            registroDetalle.participantes &&
+            registroDetalle.participantes.length > 0
+          "
+        >
+          <header class="section-header">
+            <h3>
+              <i class="fas fa-file-pdf"></i>
+              Descargar Actas por Empresa
+            </h3>
+          </header>
+
+          <div class="pdf-buttons-grid">
+            <button
+              *ngFor="
+                let empresa of getEmpresasEnRegistro(
+                  registroDetalle.participantes
+                )
+              "
+              class="btn-pdf"
+              [class]="'btn-pdf-' + empresa"
+              (click)="descargarPDF(registroDetalle, $any(empresa))"
+            >
+              <i class="fas fa-file-pdf"></i>
+              <span class="pdf-btn-text">
+                <span class="pdf-btn-label">Descargar Acta</span>
+                <span class="pdf-btn-empresa">{{
+                  getEmpresaNombre(empresa)
+                }}</span>
+              </span>
+              <i class="fas fa-download pdf-btn-download"></i>
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <!-- Modal Footer -->
+      <footer class="modal-footer">
+        <button
+          class="btn btn-danger"
+          (click)="eliminarRegistro(registroDetalle)"
+        >
+          <i class="fas fa-trash-alt"></i>
+          <span>Eliminar Registro</span>
+        </button>
+        <button class="btn btn-secondary" (click)="cerrarDetalle()">
+          <i class="fas fa-times"></i>
+          <span>Cerrar</span>
+        </button>
+      </footer>
+    </div>
+  </div>
+</div>

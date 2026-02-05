@@ -32,6 +32,8 @@ import { GestionArchivosComponent } from './components/gestion-archivos/gestion-
 import { CertificadoLaboralComponent } from './components/certificado-laboral/certificado-laboral.component';
 import { ConfiguracionNominaComponent } from './components/configuracion-nomina/configuracion-nomina.component';
 import { ReservasComponent } from './components/reservas/reservas.component';
+import { RegistroAsistenciaComponent } from './components/registro-asistencia/registro-asistencia.component';
+import { FirmarAsistenciaComponent } from './components/firmar-asistencia/firmar-asistencia.component';
 
 export const routes: Routes = [
   {
@@ -122,6 +124,19 @@ export const routes: Routes = [
     component: ReservasComponent, 
     canActivate: [tRolGuard], 
     data: { allowedRoles: ['Admin', 'User', 'Tecnologia'] } 
+  },
+  
+  // Rutas de Registro de Asistencia
+  { 
+    path: 'registro-asistencia', 
+    component: RegistroAsistenciaComponent, 
+    canActivate: [tRolGuard], 
+    data: { allowedRoles: ['Admin'] } 
+  },
+  // Ruta pública para firmar (sin guard)
+  { 
+    path: 'firmar-asistencia/:token', 
+    component: FirmarAsistenciaComponent
   },
   
   { path: '**', component: ErrorPageComponent },

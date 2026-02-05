@@ -1,0 +1,132 @@
+<div class="firma-container">
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando información...</p>
+  </div>
+
+  <!-- Error -->
+  <div class="error-state" *ngIf="error && !loading">
+    <div class="error-icon">
+      <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    <h2>Error</h2>
+    <p>{{ error }}</p>
+    <p class="error-hint">El enlace puede ser inválido o ya fue utilizado.</p>
+  </div>
+
+  <!-- Success -->
+  <div class="success-state" *ngIf="success">
+    <div class="success-icon">
+      <i class="fas fa-check-circle"></i>
+    </div>
+    <h2>¡Firma Registrada!</h2>
+    <p>Tu asistencia ha sido confirmada exitosamente.</p>
+    <p class="success-hint">Puedes cerrar esta ventana.</p>
+  </div>
+
+  <!-- Firma Form -->
+  <div class="firma-content" *ngIf="infoFirma && !error && !success && !loading">
+    <!-- Header -->
+    <div class="firma-header">
+      <div class="logo-container">
+        <img src="assets/LogoAP.png" alt="Logo" class="logo" onerror="this.style.display='none'">
+      </div>
+      <h1>Registro de Asistencia</h1>
+      <p class="subtitle">Firma Digital</p>
+    </div>
+
+    <!-- Info del Evento -->
+    <div class="evento-info">
+      <div class="info-card">
+        <div class="info-item">
+          <span class="label"><i class="fas fa-calendar"></i> Fecha</span>
+          <span class="value">{{ formatDate(infoFirma.registro.fecha) }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label"><i class="fas fa-bookmark"></i> Tema</span>
+          <span class="value">{{ infoFirma.registro.tema }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label"><i class="fas fa-user-tie"></i> Facilitador</span>
+          <span class="value">{{ infoFirma.registro.facilitadorNombre }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info del Participante -->
+    <div class="participante-info">
+      <h3><i class="fas fa-user"></i> Datos del Participante</h3>
+      <div class="participante-card">
+        <div class="participante-row">
+          <span class="label">Nombre:</span>
+          <span class="value">{{ infoFirma.participante.nombreCompleto }}</span>
+        </div>
+        <div class="participante-row">
+          <span class="label">Cédula:</span>
+          <span class="value">{{ infoFirma.participante.documentoIdentificacion || 'No registrado' }}</span>
+        </div>
+        <div class="participante-row">
+          <span class="label">Cargo:</span>
+          <span class="value">{{ infoFirma.participante.cargo || 'No registrado' }}</span>
+        </div>
+        <div class="participante-row">
+          <span class="label">Empresa:</span>
+          <span class="value empresa-badge badge-{{ infoFirma.participante.empresa }}">
+            {{ getEmpresaNombre(infoFirma.participante.empresa) }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canvas de Firma -->
+    <div class="firma-section">
+      <h3><i class="fas fa-signature"></i> Firma</h3>
+      <p class="firma-instruction">Firme en el recuadro utilizando el mouse o su dedo (pantalla táctil)</p>
+      
+      <div class="canvas-container">
+        <canvas 
+          #signatureCanvas
+          (mousedown)="onMouseDown($event)"
+          (mousemove)="onMouseMove($event)"
+          (mouseup)="onMouseUp()"
+          (mouseleave)="onMouseLeave()"
+          (touchstart)="onTouchStart($event)"
+          (touchmove)="onTouchMove($event)"
+          (touchend)="onTouchEnd()"
+        ></canvas>
+      </div>
+
+      <button class="btn-limpiar" (click)="limpiarFirma()">
+        <i class="fas fa-eraser"></i> Limpiar Firma
+      </button>
+    </div>
+
+    <!-- Botón de Enviar -->
+    <div class="firma-actions">
+      <button 
+        class="btn-firmar" 
+        (click)="firmar()" 
+        [disabled]="firmando"
+      >
+        <span *ngIf="!firmando">
+          <i class="fas fa-check"></i> Confirmar y Firmar
+        </span>
+        <span *ngIf="firmando">
+          <i class="fas fa-spinner fa-spin"></i> Procesando...
+        </span>
+      </button>
+    </div>
+
+    <!-- Footer Info -->
+    <div class="firma-footer">
+      <p>
+        <i class="fas fa-info-circle"></i>
+        Al firmar, confirmas tu participación en esta actividad.
+      </p>
+      <p class="codigo-info">
+        Código: {{ infoFirma.registro.codigo }} | Versión: {{ infoFirma.registro.version }}
+      </p>
+    </div>
+  </div>
+</div>
