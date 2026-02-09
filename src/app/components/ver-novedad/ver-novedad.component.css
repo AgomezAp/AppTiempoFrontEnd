@@ -173,15 +173,253 @@
   white-space: nowrap;
 }
 
+/* ========================================
+   CELDA DE DESCRIPCIÓN - MEJORADA
+   ======================================== */
 .desc-cell {
   font-size: 0.8rem;
   max-width: 200px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.desc-cell:hover {
+  background-color: #fffde7;
+}
+
+.desc-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.desc-text {
+  display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
+  position: relative;
 }
 
-/* Input de horas */
+/* Icono de expandir */
+.expand-icon {
+  font-size: 0.7rem;
+  color: #999;
+  opacity: 0;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.desc-cell:hover .expand-icon {
+  opacity: 1;
+  color: #ffd600;
+}
+
+/* ========================================
+   TOOLTIP PERSONALIZADO CSS
+   ======================================== */
+.desc-text::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 0;
+  background-color: #141414;
+  color: #ffffff;
+  padding: 12px 15px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 400;
+  white-space: normal;
+  word-wrap: break-word;
+  min-width: 280px;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  line-height: 1.5;
+  text-align: left;
+  pointer-events: none;
+}
+
+/* Flecha del tooltip */
+.desc-text::before {
+  content: "";
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 20px;
+  border: 8px solid transparent;
+  border-top-color: #141414;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 1001;
+  pointer-events: none;
+}
+
+/* Mostrar tooltip en hover */
+.desc-cell:hover .desc-text::after,
+.desc-cell:hover .desc-text::before {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Ajuste para tooltips que quedan fuera de la pantalla */
+.novedades-table tbody tr:first-child .desc-text::after,
+.novedades-table tbody tr:nth-child(2) .desc-text::after {
+  bottom: auto;
+  top: calc(100% + 10px);
+}
+
+.novedades-table tbody tr:first-child .desc-text::before,
+.novedades-table tbody tr:nth-child(2) .desc-text::before {
+  bottom: auto;
+  top: calc(100% + 4px);
+  border-top-color: transparent;
+  border-bottom-color: #141414;
+  transform: rotate(180deg);
+}
+
+/* ========================================
+   MODAL PARA DESCRIPCIÓN COMPLETA
+   ======================================== */
+.desc-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+.titulo{
+  color: #d4edda;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.desc-modal {
+  background-color: #ffffff;
+  border-radius: 12px;
+  max-width: 550px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.desc-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 25px;
+  background-color: #141414;
+  color: #ffffff;
+}
+
+.desc-modal-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.desc-modal-header h3 i {
+  color: #ffd600;
+}
+
+.desc-modal-close-btn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.desc-modal-close-btn:hover {
+  background-color: rgba(255, 214, 0, 0.2);
+  color: #ffd600;
+}
+
+.desc-modal-body {
+  padding: 25px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.desc-modal-body p {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #333;
+  margin: 0;
+  text-align: justify;
+}
+
+.desc-modal-footer {
+  padding: 15px 25px;
+  background-color: #f8f8f8;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-cerrar-modal {
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 10px 25px;
+  background-color: #141414;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-cerrar-modal:hover {
+  background-color: #ffd600;
+  color: #141414;
+}
+
+/* ========================================
+   INPUT DE HORAS
+   ======================================== */
 .hours-cell {
   width: 100px;
 }
@@ -347,7 +585,13 @@
   }
 
   .desc-cell {
-    max-width: 120px;
+    max-width: 150px;
+  }
+
+  /* Ocultar tooltip en tablets/móviles, usar solo modal */
+  .desc-text::after,
+  .desc-text::before {
+    display: none;
   }
 }
 
@@ -400,4 +644,49 @@
     width: 100%;
     justify-content: center;
   }
+
+  /* Modal responsive */
+  .desc-modal {
+    margin: 10px;
+    max-width: 100%;
+  }
+
+  .desc-modal-header {
+    padding: 15px 20px;
+  }
+
+  .desc-modal-body {
+    padding: 20px;
+    max-height: 300px;
+  }
+
+  .desc-modal-footer {
+    padding: 12px 20px;
+  }
+
+  .btn-cerrar-modal {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ========================================
+   SCROLLBAR PERSONALIZADA PARA MODAL
+   ======================================== */
+.desc-modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.desc-modal-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.desc-modal-body::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+.desc-modal-body::-webkit-scrollbar-thumb:hover {
+  background: #999;
 }

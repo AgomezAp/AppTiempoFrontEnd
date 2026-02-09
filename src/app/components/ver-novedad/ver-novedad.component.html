@@ -53,7 +53,17 @@
           <td class="name-cell">{{ item.Name }}</td>
           <td class="type-cell">{{ item.type }}</td>
           <td class="date-cell">{{ item.Fecha }}</td>
-          <td class="desc-cell">{{ item.description }}</td>
+
+          <!-- CELDA DE DESCRIPCIÓN CON TOOLTIP Y MODAL -->
+          <td class="desc-cell" (click)="mostrarDescripcion(item.description)">
+            <div class="desc-content">
+              <span class="desc-text" [attr.data-tooltip]="item.description">
+                {{ item.description }}
+              </span>
+              <i class="fas fa-expand-alt expand-icon"></i>
+            </div>
+          </td>
+
           <td class="hours-cell">
             <input
               type="text"
@@ -119,3 +129,26 @@
   </div>
 </div>
 
+<!-- MODAL PARA DESCRIPCIÓN COMPLETA -->
+<div
+  class="desc-modal-overlay"
+  *ngIf="descripcionSeleccionada"
+  (click)="cerrarModal()"
+>
+  <div class="desc-modal" (click)="$event.stopPropagation()">
+    <div class="desc-modal-header">
+      <h3 class="titulo"><i class="fas fa-file-alt"></i> Descripción completa</h3>
+      <button class="desc-modal-close-btn" (click)="cerrarModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="desc-modal-body">
+      <p>{{ descripcionSeleccionada }}</p>
+    </div>
+    <div class="desc-modal-footer">
+      <button class="btn-cerrar-modal" (click)="cerrarModal()">
+        <i class="fas fa-check"></i> Entendido
+      </button>
+    </div>
+  </div>
+</div>

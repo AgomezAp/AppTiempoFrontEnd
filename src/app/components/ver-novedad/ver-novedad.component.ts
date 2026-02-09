@@ -32,6 +32,7 @@ export class VerNovedadComponent {
     start: null,
     end: null,
   };
+  descripcionSeleccionada: string | null = null;
   loading: boolean = true;
   listNovedad: Novedad[] = [];
   filteredNovedad: Novedad[] = [];
@@ -55,7 +56,7 @@ export class VerNovedadComponent {
   constructor(
     private router: Router,
     private novedadService: NovedadService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
   ) {}
 
   ngOnInit(): void {
@@ -131,7 +132,7 @@ export class VerNovedadComponent {
   filterdByName(): void {
     if (this.filterName) {
       this.filteredNovedad = this.listNovedad.filter((novedad) =>
-        novedad.Name.toLowerCase().includes(this.filterName.toLowerCase())
+        novedad.Name.toLowerCase().includes(this.filterName.toLowerCase()),
       );
     } else {
       this.filteredNovedad = this.listNovedad;
@@ -183,9 +184,9 @@ export class VerNovedadComponent {
       (error) => {
         console.error('Error al crear novedad', error);
         this.toastr.error(
-          'Error al crear la novedad, inténtalo de nuevo más tarde'
+          'Error al crear la novedad, inténtalo de nuevo más tarde',
         );
-      }
+      },
     );
   }
 
@@ -200,7 +201,13 @@ export class VerNovedadComponent {
       },
     });
   }
+  mostrarDescripcion(descripcion: string): void {
+    this.descripcionSeleccionada = descripcion;
+  }
 
+  cerrarModal(): void {
+    this.descripcionSeleccionada = null;
+  }
   enviarAceptacion(): void {
     this.novedadService.aceptar().subscribe({
       next: (response: Novedad) => {

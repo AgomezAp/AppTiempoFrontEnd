@@ -155,27 +155,6 @@
             [max]="getMaxDate()"
           />
         </div>
-
-        <!-- Selección de Horario -->
-        <div class="form-group">
-          <label>Horario *</label>
-          <div class="available-slots" *ngIf="availableSlots.length > 0">
-            <button
-              *ngFor="let slot of availableSlots"
-              class="slot-button"
-              (click)="setTimeSlot(slot)"
-              [class.selected]="startTime === slot.start"
-            >
-              {{ slot.start }} - {{ slot.end }}
-            </button>
-          </div>
-          <small
-            *ngIf="availableSlots.length === 0 && selectedRoom && selectedDate"
-          >
-            No hay horarios disponibles para esta sala y fecha
-          </small>
-        </div>
-
         <!-- Horas personalizadas (si es necesario) -->
         <div class="form-row">
           <div class="form-group">
