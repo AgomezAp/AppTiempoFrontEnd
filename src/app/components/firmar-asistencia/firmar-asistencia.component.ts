@@ -204,7 +204,7 @@ export class FirmarAsistenciaComponent implements OnInit, AfterViewInit {
 
   formatDate(date: string | undefined): string {
     if (!date) return '';
-    return new Date(date).toLocaleDateString('es-CO', {
+    return new Date(date + 'T12:00:00').toLocaleDateString('es-CO', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',

@@ -1,8 +1,9 @@
 <app-navbar></app-navbar>
 <div class="container">
-  <!-- Header with filters -->
+  <!-- Header con filtros -->
   <div class="header">
-    <h2>📊 Panel de Ausentismo y Estadísticas</h2>
+    <h2>💰 Costo de Permisos Médicos y Odontológicos</h2>
+    <p class="subtitle">Cada cita médica u odontológica equivale a <strong>2 horas</strong> de permiso. El costo se calcula según el salario de cada colaborador.</p>
     <div class="filters">
       <input type="date" [(ngModel)]="fromDate" placeholder="Desde" />
       <input type="date" [(ngModel)]="toDate" placeholder="Hasta" />
@@ -18,121 +19,132 @@
     <!-- KPI Cards -->
     <div class="kpi-grid">
       <div class="kpi-card">
-        <div class="kpi-value">{{ stats.summary.totalRecords }}</div>
-        <div class="kpi-label">Total de Ausencias</div>
+        <div class="kpi-icon">🩺</div>
+        <div class="kpi-value">{{ stats.summary.totalPermisos || 0 }}</div>
+        <div class="kpi-label">Total de Permisos</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-value">{{ stats.summary.totalHours }}</div>
+        <div class="kpi-icon">🕐</div>
+        <div class="kpi-value">{{ stats.summary.totalHoras || 0 }}h</div>
         <div class="kpi-label">Horas Totales</div>
       </div>
-      <div class="kpi-card">
-        <div class="kpi-value">{{ stats.summary.uniqueUsers }}</div>
-        <div class="kpi-label">Empleados con Ausencias</div>
+      <div class="kpi-card kpi-highlight">
+        <div class="kpi-icon">💲</div>
+        <div class="kpi-value">{{ formatCOP(stats.summary.totalCosto) }}</div>
+        <div class="kpi-label">Costo Total para la Empresa</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-value">{{ stats.summary.averagePerRecord }}m</div>
-        <div class="kpi-label">Promedio por Ausencia</div>
+        <div class="kpi-icon">👥</div>
+        <div class="kpi-value">{{ stats.summary.empleadosAfectados || 0 }}</div>
+        <div class="kpi-label">Colaboradores con Permisos</div>
       </div>
     </div>
 
-    <!-- Charts Section -->
-    <div class="charts-section">
-      <div class="chart-container">
-        <h3>Ausencias por Tipo (Gráfico de Barras)</h3>
-        <canvas baseChart [data]="typeChartData" type="bar" [options]="typeChartOptions"></canvas>
-      </div>
-      <div class="chart-container">
-        <h3>Distribución de Ausencias (Gráfico Circular)</h3>
-        <canvas baseChart [data]="typeChartDataPie" type="doughnut" [options]="typeChartOptionsPie"></canvas>
-      </div>
-    </div>
-
-    <!-- Top Absentees Table -->
+    <!-- Tabla de costos por empleado -->
     <div class="table-section">
-      <h3>🔴 Top 10 Empleados con Más Ausencias</h3>
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Horas Totales</th>
-            <th>Cantidad de Ausencias</th>
-            <th>Promedio (minutos)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let user of stats.topAbsentees">
-            <td>{{ user.Uid }}</td>
-            <td>{{ user.Name }}</td>
-            <td class="highlight">{{ user.totalHours }}</td>
-            <td>{{ user.count }}</td>
-            <td>{{ user.average }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Absence Types Summary Table -->
-    <div class="table-section">
-      <h3>📋 Resumen por Tipo de Ausencia</h3>
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Tipo de Ausencia</th>
-            <th>Cantidad</th>
-            <th>Horas Totales</th>
-            <th>Porcentaje</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let type of stats.byType">
-            <td>{{ type.type }}</td>
-            <td>{{ type.count }}</td>
-            <td>{{ type.hours }}</td>
-            <td>{{ type.percentage }}%</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Complete Users Details Table -->
-    <div class="table-section">
-      <h3>📅 Detalle Completo por Empleado</h3>
+      <h3>📋 Desglose de Costos por Colaborador</h3>
       <div class="table-scroll">
         <table class="data-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Horas Totales</th>
-              <th>Cantidad</th>
-              <th>Promedio (min)</th>
-              <th>Detalles por Tipo</th>
+              <th>Colaborador</th>
+              <th>Cargo</th>
+              <th>Empresa</th>
+              <th>Salario Mensual</th>
+              <th>Tarifa/Hora</th>
+              <th>Citas Médicas</th>
+              <th>Citas Odonto.</th>
+              <th>Total Permisos</th>
+              <th>Horas</th>
+              <th>Costo Total</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let user of stats.byUser">
-              <td>{{ user.Uid }}</td>
-              <td>{{ user.Name }}</td>
-              <td class="highlight">{{ user.totalHours }}</td>
-              <td>{{ user.count }}</td>
-              <td>{{ user.average }}</td>
-              <td>
-                <details>
-                  <summary>Ver tipos</summary>
-                  <ul>
-                    <li *ngFor="let t of user.byType">{{ t.type }}: {{ t.hours }} ({{ t.count }}x)</li>
-                  </ul>
-                </details>
-              </td>
-            </tr>
+            <ng-container *ngFor="let user of stats.byUser || []">
+              <tr>
+                <td class="name-cell">{{ user?.nombre || 'N/A' }}</td>
+                <td>{{ user?.cargo || 'N/A' }}</td>
+                <td>
+                  <span class="badge" [ngClass]="{
+                    'badge-ap': user?.empresa === 'AP',
+                    'badge-at': user?.empresa === 'AT',
+                    'badge-me': user?.empresa === 'ME'
+                  }">{{ user?.empresa || 'N/A' }}</span>
+                </td>
+                <td>{{ formatCOP(user?.salario) }}</td>
+                <td>{{ formatCOP(user?.tarifaHora) }}</td>
+                <td class="center">{{ user?.citasMedicas || 0 }}</td>
+                <td class="center">{{ user?.citasOdontologicas || 0 }}</td>
+                <td class="center"><strong>{{ user?.totalPermisos || 0 }}</strong></td>
+                <td class="center">{{ user?.totalHoras || 0 }}h</td>
+                <td class="highlight">{{ formatCOP(user?.costoTotal) }}</td>
+                <td>
+                  <button class="btn-detalle" (click)="toggleDetalle(user?.Uid)" *ngIf="user?.Uid">
+                    {{ expandedUid === user?.Uid ? '▲' : '▼' }}
+                  </button>
+                </td>
+              </tr>
+              <!-- Fila expandible con detalle de permisos -->
+              <tr *ngIf="expandedUid === user?.Uid && user?.permisos?.length" class="detalle-row">
+                <td colspan="11">
+                  <div class="detalle-content">
+                    <h4>Detalle de permisos — {{ user?.nombre }}</h4>
+                    <div class="detalle-info">
+                      <span>Cálculo: Salario {{ formatCOP(user?.salario) }} ÷ 30 días ÷ 9.5h = <strong>{{ formatCOP(user?.tarifaHora) }}/hora</strong></span>
+                      <span>Costo por permiso (2h): <strong>{{ formatCOP((user?.tarifaHora || 0) * 2) }}</strong></span>
+                    </div>
+                    <table class="detalle-table">
+                      <thead>
+                        <tr>
+                          <th>Fecha</th>
+                          <th>Tipo</th>
+                          <th>Costo</th>
+                          <th>Estado</th>
+                          <th>Acción</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let p of user?.permisos || []" [class.permiso-cancelado]="p?.cancelado">
+                          <td>{{ p?.fecha || 'N/A' }}</td>
+                          <td>{{ p?.tipo || 'N/A' }}</td>
+                          <td>{{ p?.cancelado ? '$ 0' : formatCOP(p?.costo) }}</td>
+                          <td>
+                            <span class="estado-badge" [class.cancelado]="p?.cancelado" [class.activo]="!p?.cancelado">
+                              {{ p?.cancelado ? '❌ No tomado' : '✅ Tomado' }}
+                            </span>
+                          </td>
+                          <td>
+                            <button class="btn-toggle-cancelado" (click)="toggleCancelado(p.id)" [title]="p?.cancelado ? 'Restaurar permiso' : 'Marcar como no tomado'">
+                              {{ p?.cancelado ? '🔄 Restaurar' : '🚫 No tomado' }}
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </td>
+              </tr>
+            </ng-container>
           </tbody>
+          <!-- Fila de totales -->
+          <tfoot *ngIf="stats.byUser && stats.byUser.length > 0">
+            <tr class="totals-row">
+              <td colspan="5"><strong>TOTALES</strong></td>
+              <td class="center"><strong>{{ getTotalCitasMedicas() }}</strong></td>
+              <td class="center"><strong>{{ getTotalCitasOdonto() }}</strong></td>
+              <td class="center"><strong>{{ stats.summary.totalPermisos }}</strong></td>
+              <td class="center"><strong>{{ stats.summary.totalHoras }}h</strong></td>
+              <td class="highlight"><strong>{{ formatCOP(stats.summary.totalCosto) }}</strong></td>
+              <td></td>
+            </tr>
+          </tfoot>
         </table>
       </div>
     </div>
   </div>
 
   <div *ngIf="!loading && !stats" class="empty-state">
-    <p>No hay datos de ausentismo disponibles para los filtros seleccionados.</p>
+    <p>No hay permisos médicos u odontológicos registrados para los filtros seleccionados.</p>
   </div>
 </div>

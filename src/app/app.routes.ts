@@ -34,6 +34,8 @@ import { ConfiguracionNominaComponent } from './components/configuracion-nomina/
 import { ReservasComponent } from './components/reservas/reservas.component';
 import { RegistroAsistenciaComponent } from './components/registro-asistencia/registro-asistencia.component';
 import { FirmarAsistenciaComponent } from './components/firmar-asistencia/firmar-asistencia.component';
+import { ActasRecargasComponent } from './components/actas-recargas/actas-recargas.component';
+import { FirmarActaComponent } from './components/firmar-acta/firmar-acta.component';
 
 export const routes: Routes = [
   {
@@ -137,6 +139,19 @@ export const routes: Routes = [
   { 
     path: 'firmar-asistencia/:token', 
     component: FirmarAsistenciaComponent
+  },
+  
+  // Actas de Recargas
+  { 
+    path: 'actas-recargas', 
+    component: ActasRecargasComponent, 
+    canActivate: [tRolGuard], 
+    data: { allowedRoles: ['Admin', 'User', 'Tecnologia'] } 
+  },
+  // Ruta pública para firmar acta de recarga (sin guard)
+  { 
+    path: 'firmar-acta/:token', 
+    component: FirmarActaComponent
   },
   
   { path: '**', component: ErrorPageComponent },

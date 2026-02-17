@@ -319,7 +319,7 @@ export class RegistroAsistenciaComponent implements OnInit {
 
   formatDate(date: string | undefined): string {
     if (!date) return '';
-    return new Date(date).toLocaleDateString('es-CO', {
+    return new Date(date + 'T12:00:00').toLocaleDateString('es-CO', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',

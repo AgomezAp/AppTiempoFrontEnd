@@ -1,0 +1,867 @@
+/* ========================================
+   FIRMA COMPONENT - IDENTIDAD DE MARCA
+   ======================================== */
+
+/* ---- CONTENEDOR PRINCIPAL ---- */
+.firma-container {
+  min-height: 100vh;
+  padding: 32px 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  font-family: var(--font-family);
+}
+
+/* ---- CARD PRINCIPAL ---- */
+.firma-card {
+  width: 100%;
+  max-width: 900px;
+  background: var(--color-bg);
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(20, 20, 20, 0.12);
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+}
+
+/* ---- HEADER ---- */
+.firma-card-header {
+  background: var(--color-primary);
+  color: var(--color-text-light);
+  text-align: center;
+  padding: 28px 24px 20px;
+  position: relative;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.header-logo {
+  font-family: var(--font-family);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-light);
+  letter-spacing: -0.5px;
+}
+
+.header-company {
+  font-family: var(--font-family);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+}
+
+.header-title {
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin: 0;
+  color: var(--color-text-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-title i {
+  color: var(--color-secondary);
+}
+
+.header-accent-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--color-secondary);
+}
+
+/* ---- BODY ---- */
+.firma-card-body {
+  padding: 32px;
+}
+
+/* ---- ESTADOS (loading, error, success) ---- */
+.state-container {
+  text-align: center;
+  padding: 48px 32px;
+}
+
+.brand-spinner {
+  margin-bottom: 8px;
+}
+
+.brand-spinner .spinner-border {
+  color: var(--color-secondary);
+  width: 3rem;
+  height: 3rem;
+}
+
+.state-text {
+  color: #888;
+  font-size: 0.95rem;
+  margin-top: 12px;
+}
+
+.state-icon {
+  font-size: 4.5rem;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.state-icon-error {
+  color: #dc3545;
+}
+
+.state-icon-success {
+  color: var(--color-secondary);
+}
+
+.state-icon-success i {
+  display: inline-block;
+  animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.state-title {
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 1.3rem;
+  margin-top: 12px;
+}
+
+.state-title-error {
+  color: #dc3545;
+}
+
+.state-title-success {
+  color: var(--color-primary);
+}
+
+.state-description {
+  color: #777;
+  font-size: 0.95rem;
+  max-width: 450px;
+  margin: 8px auto 0;
+}
+
+/* ---- RESUMEN DEL ACTA (éxito) ---- */
+.resumen-acta {
+  margin-top: 28px;
+  text-align: left;
+  background: #fafafa;
+  border-radius: 12px;
+  border-left: 5px solid var(--color-secondary);
+  padding: 20px 24px;
+  max-width: 550px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.resumen-title {
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-primary);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.resumen-title i {
+  color: var(--color-secondary);
+}
+
+.resumen-divider {
+  height: 2px;
+  background: linear-gradient(to right, var(--color-secondary), transparent);
+  margin-bottom: 14px;
+  border-radius: 2px;
+}
+
+.resumen-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 0.88rem;
+  border-bottom: 1px solid #eee;
+}
+
+.resumen-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.resumen-label {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.resumen-value {
+  color: #555;
+}
+
+.resumen-value-money {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+/* ---- BADGE DE MARCA ---- */
+.brand-badge {
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: var(--font-family);
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+}
+
+.badge-completado {
+  background: var(--color-secondary);
+  color: var(--color-primary);
+  border: none;
+}
+
+/* ---- ALERTAS DE MARCA ---- */
+.brand-alert {
+  padding: 16px 20px;
+  border-radius: 12px;
+  font-family: var(--font-family);
+  font-size: 0.88rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  line-height: 1.6;
+}
+
+.alert-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.alert-content {
+  flex: 1;
+}
+
+.brand-alert-warning {
+  background: rgba(255, 214, 0, 0.1);
+  border: 1px solid rgba(255, 214, 0, 0.4);
+  border-left: 5px solid var(--color-secondary);
+  color: var(--color-primary);
+}
+
+.brand-alert-warning .alert-icon {
+  color: var(--color-secondary);
+}
+
+.brand-alert-info {
+  background: rgba(255, 214, 0, 0.06);
+  border: 1px solid rgba(255, 214, 0, 0.3);
+  border-left: 5px solid var(--color-secondary);
+  color: var(--color-primary);
+}
+
+.brand-alert-info .alert-icon {
+  color: var(--color-secondary);
+}
+
+/* ========================================
+   VISTA PREVIA COMPACTA DEL ACTA
+   ======================================== */
+.acta-preview-compact {
+  padding: 28px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  background: #fefefe;
+  margin-bottom: 28px;
+  position: relative;
+}
+
+.acta-preview-compact::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--color-secondary);
+  border-radius: 12px 0 0 12px;
+}
+
+.acta-preview-header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #eee;
+}
+
+.acta-logo {
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--color-primary);
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.acta-company {
+  font-family: var(--font-family);
+  font-size: 9px;
+  letter-spacing: 3px;
+  font-weight: 700;
+  color: #888;
+  margin: 0 0 12px;
+  text-transform: uppercase;
+}
+
+.acta-title-preview {
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-primary);
+  margin: 0;
+  display: inline-block;
+  padding-bottom: 6px;
+  border-bottom: 3px solid var(--color-secondary);
+}
+
+.acta-periodo {
+  margin-top: 14px;
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0;
+}
+
+.acta-fecha-valor {
+  border-bottom: 2px solid var(--color-primary);
+  padding: 0 6px 1px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* ---- Textos del acta ---- */
+.acta-body-text {
+  text-align: justify;
+  font-size: 0.84rem;
+  color: #555;
+  line-height: 1.7;
+  margin: 14px 0;
+}
+
+.acta-comparacion-text {
+  text-align: justify;
+  font-size: 0.84rem;
+  font-style: italic;
+  color: #666;
+  margin: 18px 0;
+  padding: 12px 16px;
+  background: rgba(255, 214, 0, 0.05);
+  border-left: 3px solid var(--color-secondary);
+  border-radius: 0 8px 8px 0;
+  line-height: 1.7;
+}
+
+/* ---- Montos del acta ---- */
+.acta-monto-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  margin: 6px 0;
+  background: #fafafa;
+  border-radius: 8px;
+  border-left: 4px solid var(--color-secondary);
+  font-size: 0.84rem;
+}
+
+.acta-monto-label {
+  font-weight: 600;
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.accent-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  background: var(--color-secondary);
+  border-radius: 50%;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+.acta-monto-value {
+  font-weight: 700;
+  color: var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
+  padding: 0 8px 2px;
+  font-size: 0.86rem;
+}
+
+/* ---- Firmas del acta preview ---- */
+.acta-firmas-preview {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 28px;
+  gap: 24px;
+}
+
+.acta-firma-col {
+  flex: 1;
+}
+
+.acta-firma-col-right {
+  text-align: right;
+}
+
+.acta-firma-label-text {
+  font-size: 0.78rem;
+  color: #888;
+  font-weight: 500;
+}
+
+.acta-firma-line {
+  border-top: 2px solid var(--color-primary);
+  margin-top: 24px;
+  padding-top: 8px;
+  position: relative;
+}
+
+.acta-firma-line::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 0;
+  width: 30px;
+  height: 2px;
+  background: var(--color-secondary);
+}
+
+.acta-firma-col-right .acta-firma-line::before {
+  left: auto;
+  right: 0;
+}
+
+.acta-firma-img {
+  max-width: 150px;
+  max-height: 60px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.acta-firma-col-right .acta-firma-img {
+  margin-left: auto;
+}
+
+.acta-firma-nombre {
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 0.84rem;
+  color: var(--color-primary);
+  margin: 4px 0 0;
+}
+
+.acta-firma-cargo {
+  font-size: 0.78rem;
+  color: #999;
+  margin: 2px 0 0;
+}
+
+.acta-firma-pendiente {
+  font-weight: 600;
+  color: var(--color-secondary);
+  font-size: 0.84rem;
+  margin: 4px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.acta-firma-col-right .acta-firma-pendiente {
+  justify-content: flex-end;
+}
+
+/* ========================================
+   SECCIÓN DEL FORMULARIO DE FIRMA
+   ======================================== */
+.firma-form-section {
+  background: var(--color-bg);
+  border: 2px solid #e8e8e8;
+  border-radius: 14px;
+  padding: 28px;
+  position: relative;
+}
+
+.firma-form-section::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 30px;
+  right: 30px;
+  height: 4px;
+  background: var(--color-secondary);
+  border-radius: 0 0 4px 4px;
+}
+
+.firma-form-title {
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--color-primary);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.firma-form-title i {
+  color: var(--color-secondary);
+}
+
+.firma-form-content {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ---- Labels y inputs ---- */
+.brand-label {
+  display: block;
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--color-primary);
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+
+.required {
+  color: #e53e3e;
+  font-weight: 700;
+}
+
+.brand-input {
+  width: 100%;
+  padding: 10px 14px;
+  font-family: var(--font-family);
+  font-size: 0.9rem;
+  color: var(--color-primary);
+  background: var(--color-bg);
+  border: 2px solid #d4d4d4;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.brand-input:focus {
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 3px rgba(255, 214, 0, 0.25);
+}
+
+.brand-input::placeholder {
+  color: #a0a0a0;
+}
+
+.brand-input-lg {
+  padding: 14px 16px;
+  font-size: 1rem;
+}
+
+.brand-hint {
+  display: block;
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+/* ---- Selector tipo de firma ---- */
+.firma-type-selector {
+  display: flex;
+  gap: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid var(--color-primary);
+}
+
+.firma-type-option {
+  flex: 1;
+  padding: 12px 16px;
+  text-align: center;
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: transparent;
+  color: var(--color-primary);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+}
+
+.firma-type-option input[type="radio"] {
+  display: none;
+}
+
+.firma-type-option:first-child {
+  border-right: 2px solid var(--color-primary);
+}
+
+.firma-type-option.active,
+.firma-type-option:hover {
+  background: var(--color-primary);
+  color: var(--color-secondary);
+}
+
+/* ---- Preview de firma ---- */
+.firma-preview-box {
+  margin-top: 16px;
+  text-align: center;
+  padding: 18px;
+  border: 2px dashed var(--color-secondary);
+  border-radius: 10px;
+  background: rgba(255, 214, 0, 0.04);
+}
+
+.firma-preview-label {
+  color: #999;
+  font-size: 0.82rem;
+  margin-bottom: 8px;
+}
+
+.firma-preview-box img {
+  max-width: 250px;
+  max-height: 100px;
+}
+
+/* ---- Botón de envío ---- */
+.firma-submit-section {
+  margin-top: 24px;
+}
+
+.btn-brand-accent {
+  background-color: var(--color-secondary);
+  color: var(--color-primary);
+  border: 2px solid var(--color-secondary);
+  padding: 10px 22px;
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-brand-accent:hover {
+  background-color: var(--color-primary);
+  color: var(--color-secondary);
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(20, 20, 20, 0.25);
+}
+
+.btn-brand-accent:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-firma-submit {
+  width: 100%;
+  justify-content: center;
+  padding: 16px 24px;
+  font-size: 1rem;
+  border-radius: 10px;
+  letter-spacing: 0.02em;
+}
+
+/* ---- Botón primario ---- */
+.btn-brand-primary {
+  background-color: var(--color-primary);
+  color: var(--color-text-light);
+  border: 2px solid var(--color-primary);
+  padding: 10px 22px;
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+}
+
+.btn-brand-primary:hover {
+  background-color: var(--color-secondary);
+  color: var(--color-primary);
+  border-color: var(--color-secondary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 214, 0, 0.35);
+}
+
+/* ---- FOOTER ---- */
+.firma-card-footer {
+  background: #fafafa;
+  text-align: center;
+  padding: 16px 24px;
+  border-top: 1px solid #eee;
+  font-size: 0.82rem;
+  color: #999;
+  position: relative;
+}
+
+.firma-card-footer::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: var(--color-secondary);
+  border-radius: 0 0 3px 3px;
+}
+
+.firma-card-footer strong {
+  color: var(--color-primary);
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  .firma-container {
+    padding: 16px 12px;
+  }
+
+  .firma-card-body {
+    padding: 20px 16px;
+  }
+
+  .firma-card-header {
+    padding: 22px 16px 16px;
+  }
+
+  .header-title {
+    font-size: 1rem;
+  }
+
+  .acta-preview-compact {
+    padding: 18px;
+  }
+
+  .acta-firmas-preview {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .acta-firma-col-right {
+    text-align: left;
+  }
+
+  .acta-firma-col-right .acta-firma-line::before {
+    left: 0;
+    right: auto;
+  }
+
+  .acta-firma-col-right .acta-firma-img {
+    margin-left: 0;
+  }
+
+  .acta-firma-col-right .acta-firma-pendiente {
+    justify-content: flex-start;
+  }
+
+  .acta-monto-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .firma-form-section {
+    padding: 20px 16px;
+  }
+
+  .firma-form-content {
+    max-width: 100%;
+  }
+
+  .firma-type-selector {
+    flex-direction: column;
+  }
+
+  .firma-type-option:first-child {
+    border-right: none;
+    border-bottom: 2px solid var(--color-primary);
+  }
+
+  .resumen-acta {
+    max-width: 100%;
+  }
+
+  .resumen-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .state-container {
+    padding: 32px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-brand {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .header-title {
+    font-size: 0.9rem;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .brand-alert {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn-firma-submit {
+    padding: 14px 20px;
+    font-size: 0.92rem;
+  }
+}

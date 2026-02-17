@@ -5,7 +5,7 @@
    ======================================== */
 
 .extra-list-container {
-  font-family: 'Fira Sans', sans-serif;
+  font-family: "Fira Sans", sans-serif;
   padding: 15px 20px;
   background-color: #fafafa;
   min-height: calc(100vh - 60px);
@@ -24,7 +24,7 @@
   color: #141414;
   margin: 0;
   padding-bottom: 5px;
-  border-bottom: 3px solid #FFD600;
+  border-bottom: 3px solid #ffd600;
   display: inline-block;
 }
 
@@ -34,7 +34,7 @@
 .table-container {
   background-color: #ffffff;
   border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   overflow: hidden;
 }
 
@@ -88,7 +88,7 @@
 }
 
 .row-neutral {
-  border-left: 4px solid #FFD600;
+  border-left: 4px solid #ffd600;
 }
 
 /* Celdas */
@@ -140,22 +140,278 @@
   text-align: center;
 }
 
+/* ========================================
+   CELDA DE OBSERVACIONES - MEJORADA
+   ======================================== */
 .obs-cell {
   font-size: 0.8rem;
   color: #555;
   max-width: 250px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.obs-cell:hover {
+  background-color: #fffde7;
+}
+
+.obs-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.obs-text {
+  display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
+  position: relative;
 }
 
+.no-obs {
+  color: #ccc;
+  font-style: italic;
+}
+
+/* Icono de expandir */
+.expand-icon {
+  font-size: 0.7rem;
+  color: #999;
+  opacity: 0;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.obs-cell:hover .expand-icon {
+  opacity: 1;
+  color: #ffd600;
+}
+
+/* ========================================
+   TOOLTIP PERSONALIZADO CSS
+   ======================================== */
+.obs-text::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 0;
+  background-color: #141414;
+  color: #ffffff;
+  padding: 12px 15px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 400;
+  white-space: normal;
+  word-wrap: break-word;
+  min-width: 280px;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  line-height: 1.5;
+  text-align: left;
+  pointer-events: none;
+}
+
+/* Flecha del tooltip */
+.obs-text::before {
+  content: "";
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 20px;
+  border: 8px solid transparent;
+  border-top-color: #141414;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 1001;
+  pointer-events: none;
+}
+
+/* Mostrar tooltip en hover */
+.obs-cell:hover .obs-text::after,
+.obs-cell:hover .obs-text::before {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Ajuste para tooltips en primeras filas (mostrar abajo) */
+.extras-table tbody tr:first-child .obs-text::after,
+.extras-table tbody tr:nth-child(2) .obs-text::after {
+  bottom: auto;
+  top: calc(100% + 10px);
+}
+
+.extras-table tbody tr:first-child .obs-text::before,
+.extras-table tbody tr:nth-child(2) .obs-text::before {
+  bottom: auto;
+  top: calc(100% + 4px);
+  border-top-color: transparent;
+  border-bottom-color: #141414;
+}
+
+/* ========================================
+   MODAL PARA OBSERVACIÓN COMPLETA
+   ======================================== */
+.obs-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.obs-modal {
+  background-color: #ffffff;
+  border-radius: 12px;
+  max-width: 550px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.obs-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 25px;
+  background-color: #141414;
+  color: #ffffff;
+}
+
+.obs-modal-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.obs-modal-header h3 i {
+  color: #ffd600;
+}
+
+.obs-modal-close-btn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.obs-modal-close-btn:hover {
+  background-color: rgba(255, 214, 0, 0.2);
+  color: #ffd600;
+}
+
+.obs-modal-subheader {
+  padding: 12px 25px;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #eee;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #141414;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.obs-modal-subheader i {
+  color: #ffd600;
+}
+
+.obs-modal-body {
+  padding: 25px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.obs-modal-body p {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #333;
+  margin: 0;
+  text-align: justify;
+}
+
+.obs-modal-footer {
+  padding: 15px 25px;
+  background-color: #f8f8f8;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-cerrar-modal {
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 10px 25px;
+  background-color: #141414;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-cerrar-modal:hover {
+  background-color: #ffd600;
+  color: #141414;
+}
+
+/* ========================================
+   BOTÓN ACTUALIZAR
+   ======================================== */
 .action-cell {
   text-align: center;
 }
 
-/* Botón Actualizar */
 .btn-update {
-  font-family: 'Fira Sans', sans-serif;
+  font-family: "Fira Sans", sans-serif;
   font-size: 0.8rem;
   font-weight: 600;
   padding: 8px 16px;
@@ -171,7 +427,7 @@
 }
 
 .btn-update:hover {
-  background-color: #FFD600;
+  background-color: #ffd600;
   color: #141414;
 }
 
@@ -187,7 +443,7 @@
   padding: 60px 20px;
   background-color: #ffffff;
   border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .no-data i {
@@ -230,7 +486,9 @@
     font-size: 0.75rem;
   }
 
-  .btn-update span {
+  /* Ocultar tooltip en tablets/móviles, usar solo modal */
+  .obs-text::after,
+  .obs-text::before {
     display: none;
   }
 }
@@ -248,8 +506,7 @@
     min-width: 50px;
   }
 
-  .name-cell,
-  .obs-cell {
+  .name-cell {
     max-width: 80px;
   }
 
@@ -258,4 +515,53 @@
   .extras-table th:nth-child(4) {
     display: none;
   }
+
+  /* Modal responsive */
+  .obs-modal {
+    margin: 10px;
+    max-width: 100%;
+  }
+
+  .obs-modal-header {
+    padding: 15px 20px;
+  }
+
+  .obs-modal-subheader {
+    padding: 10px 20px;
+  }
+
+  .obs-modal-body {
+    padding: 20px;
+    max-height: 300px;
+  }
+
+  .obs-modal-footer {
+    padding: 12px 20px;
+  }
+
+  .btn-cerrar-modal {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ========================================
+   SCROLLBAR PERSONALIZADA PARA MODAL
+   ======================================== */
+.obs-modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.obs-modal-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.obs-modal-body::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+.obs-modal-body::-webkit-scrollbar-thumb:hover {
+  background: #999;
 }

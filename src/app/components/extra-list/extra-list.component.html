@@ -24,7 +24,7 @@
           [ngClass]="{
             'row-positive': isPositive(extra.Acumulado),
             'row-negative': isNegative(extra.Acumulado),
-            'row-neutral': isNeutral(extra.Acumulado)
+            'row-neutral': isNeutral(extra.Acumulado),
           }"
         >
           <td class="name-cell">{{ extra.Name }}</td>
@@ -34,16 +34,28 @@
               [ngClass]="{
                 positive: isPositive(extra.Acumulado),
                 negative: isNegative(extra.Acumulado),
-                neutral: isNeutral(extra.Acumulado)
+                neutral: isNeutral(extra.Acumulado),
               }"
             >
               {{ extra.Acumulado }}
             </span>
           </td>
           <td class="days-cell">{{ extra.acumuladoEnDias }}</td>
-          <td class="obs-cell" [title]="extra.observaciones">
-            {{ extra.observaciones }}
+
+          <!-- CELDA DE OBSERVACIONES CON TOOLTIP Y MODAL -->
+          <td
+            class="obs-cell"
+            (click)="mostrarObservacion(extra.observaciones, extra.Name)"
+          >
+            <div class="obs-content" *ngIf="extra.observaciones">
+              <span class="obs-text" [attr.data-tooltip]="extra.observaciones">
+                {{ extra.observaciones }}
+              </span>
+              <i class="fas fa-expand-alt expand-icon"></i>
+            </div>
+            <span class="no-obs" *ngIf="!extra.observaciones">—</span>
           </td>
+
           <td class="action-cell">
             <button class="btn-update" (click)="openModal(extra)">
               <i class="fas fa-edit"></i> Actualizar
@@ -61,3 +73,29 @@
   </div>
 </div>
 
+<!-- MODAL PARA OBSERVACIÓN COMPLETA -->
+<div
+  class="obs-modal-overlay"
+  *ngIf="observacionSeleccionada"
+  (click)="cerrarModalObservacion()"
+>
+  <div class="obs-modal" (click)="$event.stopPropagation()">
+    <div class="obs-modal-header">
+      <h3><i class="fas fa-comment-alt"></i> Observaciones</h3>
+      <button class="obs-modal-close-btn" (click)="cerrarModalObservacion()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="obs-modal-subheader" *ngIf="nombreSeleccionado">
+      <i class="fas fa-user"></i> {{ nombreSeleccionado }}
+    </div>
+    <div class="obs-modal-body">
+      <p>{{ observacionSeleccionada }}</p>
+    </div>
+    <div class="obs-modal-footer">
+      <button class="btn-cerrar-modal" (click)="cerrarModalObservacion()">
+        <i class="fas fa-check"></i> Entendido
+      </button>
+    </div>
+  </div>
+</div>

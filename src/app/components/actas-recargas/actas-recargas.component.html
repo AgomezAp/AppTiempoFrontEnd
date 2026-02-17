@@ -1,0 +1,981 @@
+<app-navbar></app-navbar>
+
+<div class="container-fluid main-content">
+  <!-- Sin acceso -->
+  <div *ngIf="sinAcceso && !loading" class="text-center py-5">
+    <div class="access-denied-card mx-auto">
+      <div class="card-body p-5">
+        <div class="icon-lock">
+          <i class="bi bi-lock-fill"></i>
+        </div>
+        <h3 class="mt-3 underline-accent">Acceso Restringido</h3>
+        <p class="text-muted-custom">
+          No tienes permisos para acceder a este módulo.
+        </p>
+        <p class="text-muted-custom">
+          Contacta al administrador si necesitas acceso.
+        </p>
+        <a href="/mantenimiento" class="btn-brand-primary mt-3">
+          <i class="bi bi-arrow-left me-1"></i>Volver al Inicio
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenido principal -->
+  <div *ngIf="!sinAcceso">
+    <!-- Header -->
+    <div class="page-header">
+      <div class="page-header-info">
+        <h2 class="page-title">
+          <i class="bi bi-file-earmark-text me-2"></i>
+          Actas de Validación y Cierre de Recargas
+        </h2>
+        <p class="page-subtitle">
+          Gestión de actas semanales de pauta publicitaria
+        </p>
+      </div>
+      <div class="page-header-actions">
+        <button
+          *ngIf="miAcceso?.esAdmin"
+          class="btn-brand-secondary"
+          (click)="abrirModalAccesos()"
+        >
+          <i class="bi bi-people-fill me-1"></i>
+          Gestionar Accesos
+        </button>
+        <button class="btn-brand-primary" (click)="abrirModalCrear()">
+          <i class="bi bi-plus-lg me-1"></i>
+          Nueva Acta
+        </button>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="brand-card mb-4">
+      <div class="brand-card-body">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-3">
+            <label class="brand-label">Año</label>
+            <input
+              type="number"
+              class="brand-input"
+              [(ngModel)]="filtroAnio"
+              min="2020"
+              max="2030"
+            />
+          </div>
+          <div class="col-md-3">
+            <label class="brand-label">Estado</label>
+            <select class="brand-select" [(ngModel)]="filtroEstado">
+              <option value="">Todos</option>
+              <option value="borrador">Borrador</option>
+              <option value="pendiente_revision">Pendiente de Revisión</option>
+              <option value="completado">Completado</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <button class="btn-brand-primary me-2" (click)="aplicarFiltros()">
+              <i class="bi bi-search me-1"></i>Filtrar
+            </button>
+            <button class="btn-brand-secondary" (click)="limpiarFiltros()">
+              <i class="bi bi-x-lg me-1"></i>Limpiar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="text-center py-5">
+      <div class="brand-spinner">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+      <p class="mt-2 text-muted-custom">Cargando actas...</p>
+    </div>
+
+    <!-- Tabla de actas -->
+    <div *ngIf="!loading" class="brand-card">
+      <div class="brand-card-body p-0">
+        <div class="table-responsive">
+          <table class="brand-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Periodo</th>
+                <th>Total Req. Proyectado</th>
+                <th>Total Ingresado</th>
+                <th>Estado</th>
+                <th>Emisor</th>
+                <th>Revisor</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="actas.length === 0">
+                <td colspan="8" class="text-center py-4 empty-state">
+                  <i class="bi bi-inbox"></i>
+                  <p class="mt-2 mb-0">No hay actas registradas</p>
+                </td>
+              </tr>
+              <tr *ngFor="let acta of actas">
+                <td>
+                  <span class="id-badge">{{ acta.id }}</span>
+                </td>
+                <td>
+                  {{ formatearFecha(acta.periodoInicio) }} -
+                  {{ formatearFecha(acta.periodoFin) }}, {{ acta.anio }}
+                </td>
+                <td class="fw-600">
+                  {{ formatearMonto(acta.totalRequeridoProyectado) }}
+                </td>
+                <td class="fw-600">
+                  {{ formatearMonto(acta.totalIngresadoTarjetas) }}
+                </td>
+                <td>
+                  <span
+                    class="brand-badge"
+                    [ngClass]="getEstadoClass(acta.estado)"
+                  >
+                    {{ getEstadoTexto(acta.estado) }}
+                  </span>
+                </td>
+                <td>{{ acta.emisor?.name }} {{ acta.emisor?.lastName }}</td>
+                <td>{{ acta.revisor?.name }} {{ acta.revisor?.lastName }}</td>
+                <td class="text-center">
+                  <div class="action-btn-group">
+                    <button
+                      class="action-btn action-btn-view"
+                      (click)="verActa(acta)"
+                      title="Ver"
+                    >
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    <button
+                      *ngIf="puedeEditar(acta)"
+                      class="action-btn action-btn-edit"
+                      (click)="editarActa(acta)"
+                      title="Editar"
+                    >
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button
+                      *ngIf="puedeEnviar(acta)"
+                      class="action-btn action-btn-send"
+                      (click)="abrirModalFirmaEmisor(acta)"
+                      [disabled]="enviando"
+                      title="Enviar para revisión"
+                    >
+                      <i class="bi bi-send"></i>
+                    </button>
+                    <button
+                      *ngIf="acta.estado === 'completado'"
+                      class="action-btn action-btn-pdf"
+                      (click)="generarPDF(acta)"
+                      [disabled]="generandoPdf"
+                      title="Descargar PDF"
+                    >
+                      <i class="bi bi-file-pdf"></i>
+                    </button>
+                    <button
+                      *ngIf="puedeEliminar(acta)"
+                      class="action-btn action-btn-delete"
+                      (click)="eliminarActa(acta)"
+                      title="Eliminar"
+                    >
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Paginación -->
+      <div *ngIf="totalPaginas > 1" class="brand-card-footer">
+        <nav>
+          <ul class="brand-pagination">
+            <li [class.disabled]="paginaActual === 1">
+              <a (click)="cambiarPagina(paginaActual - 1)">
+                <i class="bi bi-chevron-left"></i> Anterior
+              </a>
+            </li>
+            <li
+              *ngFor="let p of [].constructor(totalPaginas); let i = index"
+              [class.active]="paginaActual === i + 1"
+            >
+              <a (click)="cambiarPagina(i + 1)">{{ i + 1 }}</a>
+            </li>
+            <li [class.disabled]="paginaActual === totalPaginas">
+              <a (click)="cambiarPagina(paginaActual + 1)">
+                Siguiente <i class="bi bi-chevron-right"></i>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Crear/Editar Acta -->
+<div
+  class="brand-modal-overlay"
+  *ngIf="mostrarModalCrear"
+  (click)="cerrarModalCrear()"
+>
+  <div class="brand-modal brand-modal-lg" (click)="$event.stopPropagation()">
+    <div class="brand-modal-header">
+      <h5 class="brand-modal-title">
+        <i class="bi bi-file-earmark-plus me-2"></i>
+        {{ actaSeleccionada ? "Editar Acta" : "Nueva Acta de Recargas" }}
+      </h5>
+      <button
+        type="button"
+        class="brand-modal-close"
+        (click)="cerrarModalCrear()"
+      >
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="brand-modal-body">
+      <form [formGroup]="formCrear">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="brand-label"
+              >Año <span class="required">*</span></label
+            >
+            <input
+              type="number"
+              class="brand-input"
+              formControlName="anio"
+              min="2020"
+              max="2030"
+            />
+          </div>
+          <div class="col-md-4">
+            <label class="brand-label"
+              >Fecha Inicio <span class="required">*</span></label
+            >
+            <input
+              type="date"
+              class="brand-input"
+              formControlName="periodoInicio"
+            />
+          </div>
+          <div class="col-md-4">
+            <label class="brand-label"
+              >Fecha Fin <span class="required">*</span></label
+            >
+            <input
+              type="date"
+              class="brand-input"
+              formControlName="periodoFin"
+            />
+          </div>
+          <div class="col-md-6">
+            <label class="brand-label">Total Requerido Proyectado</label>
+            <div class="brand-input-group">
+              <span class="brand-input-prefix">$</span>
+              <input
+                type="text"
+                inputmode="numeric"
+                class="brand-input with-prefix"
+                formControlName="totalRequeridoProyectado"
+                min="0"
+                placeholder="0"
+                (input)="onMontoInput('totalRequeridoProyectado', $event)"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="brand-label">Total Ingresado a las Tarjetas</label>
+            <div class="brand-input-group">
+              <span class="brand-input-prefix">$</span>
+              <input
+                type="text"
+                inputmode="numeric"
+                class="brand-input with-prefix"
+                formControlName="totalIngresadoTarjetas"
+                min="0"
+                placeholder="0"
+                (input)="onMontoInput('totalIngresadoTarjetas', $event)"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="brand-label">Total Recargado Google ADS</label>
+            <div class="brand-input-group">
+              <span class="brand-input-prefix">$</span>
+              <input
+                type="text"
+                inputmode="numeric"
+                class="brand-input with-prefix"
+                formControlName="totalRecargadoGoogleAds"
+                min="0"
+                placeholder="0"
+                (input)="onMontoInput('totalRecargadoGoogleAds', $event)"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="brand-label">Total Reportado en Formularios</label>
+            <div class="brand-input-group">
+              <span class="brand-input-prefix">$</span>
+              <input
+                type="text"
+                inputmode="numeric"
+                class="brand-input with-prefix"
+                formControlName="totalReportadoFormularios"
+                min="0"
+                placeholder="0"
+                (input)="onMontoInput('totalReportadoFormularios', $event)"
+              />
+            </div>
+          </div>
+          <div class="col-md-12">
+            <label class="brand-label"
+              >Revisor <span class="required">*</span></label
+            >
+            <select class="brand-select" formControlName="revisorId">
+              <option [ngValue]="null">Seleccione un revisor...</option>
+              <option
+                *ngFor="let usuario of usuariosDisponibles"
+                [value]="usuario.Uid"
+              >
+                {{ usuario.name }} {{ usuario.lastName }} - {{ usuario.email }}
+              </option>
+            </select>
+            <small class="brand-hint"
+              >Persona que recibirá y firmará el acta</small
+            >
+          </div>
+          <div class="col-md-12">
+            <label class="brand-label"
+              >Firma del emisor <span class="required">*</span></label
+            >
+            <div class="firma-card">
+              <div class="firma-tabs">
+                <label class="firma-tab">
+                  <input
+                    type="radio"
+                    name="tipoFirmaEmisorCrear"
+                    value="dibujo"
+                    [(ngModel)]="firmaEmisorCrearTipo"
+                    [ngModelOptions]="{ standalone: true }"
+                  />
+                  <span><i class="bi bi-pen"></i> Dibujar</span>
+                </label>
+                <label class="firma-tab">
+                  <input
+                    type="radio"
+                    name="tipoFirmaEmisorCrear"
+                    value="imagen"
+                    [(ngModel)]="firmaEmisorCrearTipo"
+                    [ngModelOptions]="{ standalone: true }"
+                  />
+                  <span><i class="bi bi-upload"></i> Subir archivo</span>
+                </label>
+                <label class="firma-tab">
+                  <input
+                    type="radio"
+                    name="tipoFirmaEmisorCrear"
+                    value="texto"
+                    [(ngModel)]="firmaEmisorCrearTipo"
+                    [ngModelOptions]="{ standalone: true }"
+                  />
+                  <span><i class="bi bi-fonts"></i> Escribir nombre</span>
+                </label>
+              </div>
+
+              <div *ngIf="firmaEmisorCrearTipo === 'dibujo'" class="firma-panel">
+                <canvas
+                  #firmaCanvasCrear
+                  class="firma-canvas"
+                  width="560"
+                  height="160"
+                  (mousedown)="iniciarFirmaEmisorCrear($event)"
+                  (mousemove)="moverFirmaEmisorCrear($event)"
+                  (mouseup)="terminarFirmaEmisorCrear()"
+                  (mouseleave)="terminarFirmaEmisorCrear()"
+                ></canvas>
+                <div class="firma-actions">
+                  <button type="button" class="btn-brand-secondary" (click)="limpiarFirmaEmisorCrear()">
+                    <i class="bi bi-eraser"></i> Limpiar
+                  </button>
+                  <span class="brand-hint">Use el mouse para firmar.</span>
+                </div>
+              </div>
+
+              <div *ngIf="firmaEmisorCrearTipo === 'imagen'" class="firma-panel">
+                <input
+                  type="file"
+                  class="brand-input"
+                  accept="image/*,application/pdf"
+                  (change)="onFirmaEmisorCrearArchivoSeleccionado($event)"
+                />
+                <small class="brand-hint">Formatos permitidos: PNG, JPG, PDF. Máximo 4MB.</small>
+                <div *ngIf="firmaEmisorImagenBase64Crear" class="firma-preview">
+                  <img
+                    *ngIf="firmaEmisorArchivoTipoCrear?.startsWith('image/')"
+                    [src]="firmaEmisorImagenBase64Crear"
+                    alt="Firma emisor"
+                  />
+                  <div *ngIf="!firmaEmisorArchivoTipoCrear?.startsWith('image/')" class="firma-file">
+                    <i class="bi bi-file-earmark-pdf"></i>
+                    <span>{{ firmaEmisorArchivoNombreCrear }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="firmaEmisorCrearTipo === 'texto'" class="firma-panel">
+                <input
+                  type="text"
+                  class="brand-input"
+                  placeholder="Nombre completo"
+                  [(ngModel)]="firmaEmisorTextoCrear"
+                  [ngModelOptions]="{ standalone: true }"
+                />
+                <small class="brand-hint">Este nombre quedará como firma del emisor.</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="brand-modal-footer">
+      <button
+        type="button"
+        class="btn-brand-secondary"
+        (click)="cerrarModalCrear()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="btn-brand-primary"
+        (click)="actaSeleccionada ? guardarEdicion() : crearActa()"
+        [disabled]="formCrear.invalid || guardando || !firmaEmisorCrearValida()"
+      >
+        <span
+          *ngIf="guardando"
+          class="spinner-border spinner-border-sm me-1"
+        ></span>
+        {{ actaSeleccionada ? "Guardar Cambios" : "Crear Acta" }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ver Acta -->
+<div
+  class="brand-modal-overlay"
+  *ngIf="mostrarModalVer"
+  (click)="cerrarModalVer()"
+>
+  <div
+    class="brand-modal brand-modal-xl"
+    (click)="$event.stopPropagation()"
+    *ngIf="actaSeleccionada"
+  >
+    <div class="brand-modal-header">
+      <h5 class="brand-modal-title">
+        <i class="bi bi-file-earmark-text me-2"></i>
+        Acta de Validación y Cierre de Recargas
+      </h5>
+      <button
+        type="button"
+        class="brand-modal-close"
+        (click)="cerrarModalVer()"
+      >
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="brand-modal-body">
+      <!-- Vista previa del acta -->
+      <div class="acta-preview">
+        <div class="acta-header-section">
+          <p class="acta-logo">ap</p>
+          <p class="acta-company-name">ANDRESPUBLICIDAD</p>
+          <h4 class="acta-title">
+            Acta semanal de Validación y Cierre de Recargas
+          </h4>
+          <p class="acta-period">
+            Periodo de Revisión:
+            <span class="acta-date-value">{{
+              formatearFecha(actaSeleccionada.periodoInicio)
+            }}</span>
+            al
+            <span class="acta-date-value">{{
+              formatearFecha(actaSeleccionada.periodoFin)
+            }}</span>
+            de {{ actaSeleccionada.anio }}
+          </p>
+        </div>
+
+        <p class="acta-body-text">
+          En la presente fecha, se procede a validar la correspondencia de los
+          montos totales de las recargas.
+        </p>
+
+        <div class="acta-amount-row">
+          <span class="acta-amount-label">Total Requerido Proyectado:</span>
+          <span class="acta-amount-value"
+            >$
+            {{
+              formatearMonto(actaSeleccionada.totalRequeridoProyectado)
+            }}</span
+          >
+        </div>
+        <div class="acta-amount-row">
+          <span class="acta-amount-label">Total Ingresado a las Tarjetas:</span>
+          <span class="acta-amount-value"
+            >$
+            {{ formatearMonto(actaSeleccionada.totalIngresadoTarjetas) }}</span
+          >
+        </div>
+
+        <p class="acta-body-text acta-italic">
+          Comparación entre los montos reportados por los pautadores mediante
+          formulario y los efectivamente debitados de las cuentas
+          bancarias/tarjetas.
+        </p>
+
+        <div class="acta-amount-row">
+          <span class="acta-amount-label">Total Recargado Google ADS:</span>
+          <span class="acta-amount-value"
+            >$
+            {{ formatearMonto(actaSeleccionada.totalRecargadoGoogleAds) }}</span
+          >
+        </div>
+        <div class="acta-amount-row">
+          <span class="acta-amount-label"
+            >Total reportado en formularios de recarga:</span
+          >
+          <span class="acta-amount-value"
+            >$
+            {{
+              formatearMonto(actaSeleccionada.totalReportadoFormularios)
+            }}</span
+          >
+        </div>
+
+        <p class="acta-body-text">
+          Los montos arriba descritos deben coincidir al revisar y verificar las
+          novedades de activación, presupuestos y otras, en las cuentas
+          correspondientes al periodo.
+        </p>
+
+        <div class="acta-signatures">
+          <div class="acta-signature-block">
+            <p class="acta-signature-label">
+              Montos y novedades revisadas y certificadas por:
+            </p>
+            <div class="acta-signature-line">
+              <img
+                *ngIf="actaSeleccionada.firmaEmisorImagen"
+                [src]="actaSeleccionada.firmaEmisorImagen"
+                alt="Firma Emisor"
+                class="acta-firma-img"
+              />
+              <p class="acta-signer-name">
+                {{
+                  actaSeleccionada.firmaEmisor || "Alexandra Castrillón Arias"
+                }}
+              </p>
+              <p class="acta-signer-role">Especialista ADS</p>
+              <p
+                class="acta-signer-date"
+                *ngIf="actaSeleccionada.fechaFirmaEmisor"
+              >
+                Firmado:
+                {{
+                  actaSeleccionada.fechaFirmaEmisor | date: "dd/MM/yyyy HH:mm"
+                }}
+              </p>
+            </div>
+          </div>
+          <div class="acta-signature-block text-end">
+            <p class="acta-signature-label">Recibido por:</p>
+            <div class="acta-signature-line">
+              <img
+                *ngIf="actaSeleccionada.firmaRevisorImagen"
+                [src]="actaSeleccionada.firmaRevisorImagen"
+                alt="Firma Revisor"
+                class="acta-firma-img"
+              />
+              <p class="acta-signer-name">
+                {{ actaSeleccionada.firmaRevisor || "Camila Burbano Muñoz" }}
+              </p>
+              <p class="acta-signer-role">Líder de Pauta o Encargado</p>
+              <p
+                class="acta-signer-date"
+                *ngIf="actaSeleccionada.fechaFirmaRevisor"
+              >
+                Firmado:
+                {{
+                  actaSeleccionada.fechaFirmaRevisor | date: "dd/MM/yyyy HH:mm"
+                }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acta-footer">
+          <small
+            >📍 Pereira, Risaralda - Colombia &nbsp; 📞 (+57) 324 234 1917
+            &nbsp; ✉️ andrespublicidad&#64;andrespublicidadtg.com</small
+          >
+        </div>
+      </div>
+
+      <!-- Info adicional -->
+      <div class="acta-meta-info">
+        <div class="row">
+          <div class="col-md-6">
+            <small>
+              <strong>Estado:</strong>
+              <span
+                class="brand-badge"
+                [ngClass]="getEstadoClass(actaSeleccionada.estado)"
+              >
+                {{ getEstadoTexto(actaSeleccionada.estado) }}
+              </span>
+            </small>
+          </div>
+          <div class="col-md-6 text-end">
+            <small>
+              <strong>Creada:</strong>
+              {{ actaSeleccionada.createdAt | date: "dd/MM/yyyy HH:mm" }}
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="brand-modal-footer">
+      <button
+        type="button"
+        class="btn-brand-secondary"
+        (click)="cerrarModalVer()"
+      >
+        Cerrar
+      </button>
+      <button
+        *ngIf="actaSeleccionada.estado === 'completado'"
+        type="button"
+        class="btn-brand-primary"
+        (click)="generarPDF(actaSeleccionada)"
+        [disabled]="generandoPdf"
+      >
+        <i class="bi bi-file-pdf me-1"></i>
+        Descargar PDF
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Gestionar Accesos -->
+<div
+  class="brand-modal-overlay"
+  *ngIf="mostrarModalAccesos"
+  (click)="cerrarModalAccesos()"
+>
+  <div class="brand-modal brand-modal-lg" (click)="$event.stopPropagation()">
+    <div class="brand-modal-header">
+      <h5 class="brand-modal-title">
+        <i class="bi bi-people-fill me-2"></i>
+        Gestionar Accesos al Módulo
+      </h5>
+      <button
+        type="button"
+        class="brand-modal-close"
+        (click)="cerrarModalAccesos()"
+      >
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="brand-modal-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <p class="mb-0 text-muted-custom">
+          Usuarios con acceso al módulo de Actas de Recargas
+        </p>
+        <button class="btn-brand-accent" (click)="abrirModalAgregarAcceso()">
+          <i class="bi bi-plus-lg me-1"></i>
+          Agregar Usuario
+        </button>
+      </div>
+
+      <div *ngIf="loadingAccesos" class="text-center py-4">
+        <div class="brand-spinner">
+          <div class="spinner-border spinner-border-sm"></div>
+        </div>
+        <span class="ms-2 text-muted-custom">Cargando...</span>
+      </div>
+
+      <div *ngIf="!loadingAccesos" class="table-responsive">
+        <table class="brand-table brand-table-sm">
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Email</th>
+              <th class="text-center">Puede Ver</th>
+              <th class="text-center">Puede Editar</th>
+              <th class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="accesos.length === 0">
+              <td colspan="5" class="text-center py-3 empty-state">
+                No hay usuarios con acceso configurado
+              </td>
+            </tr>
+            <tr *ngFor="let acceso of accesos">
+              <td>{{ acceso.usuario?.name }} {{ acceso.usuario?.lastName }}</td>
+              <td>{{ acceso.usuario?.email }}</td>
+              <td class="text-center">
+                <div class="brand-switch">
+                  <input
+                    class="brand-switch-input"
+                    type="checkbox"
+                    [checked]="acceso.puedeVer"
+                    (change)="toggleAcceso(acceso, 'ver')"
+                  />
+                </div>
+              </td>
+              <td class="text-center">
+                <div class="brand-switch">
+                  <input
+                    class="brand-switch-input"
+                    type="checkbox"
+                    [checked]="acceso.puedeEditar"
+                    (change)="toggleAcceso(acceso, 'editar')"
+                  />
+                </div>
+              </td>
+              <td class="text-center">
+                <button
+                  class="action-btn action-btn-delete"
+                  (click)="eliminarAcceso(acceso)"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="brand-modal-footer">
+      <button
+        type="button"
+        class="btn-brand-secondary"
+        (click)="cerrarModalAccesos()"
+      >
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Agregar Acceso -->
+<div
+  class="brand-modal-overlay"
+  *ngIf="mostrarModalAgregarAcceso"
+  (click)="cerrarModalAgregarAcceso()"
+>
+  <div class="brand-modal" (click)="$event.stopPropagation()">
+    <div class="brand-modal-header brand-modal-header-accent">
+      <h5 class="brand-modal-title">
+        <i class="bi bi-person-plus me-2"></i>
+        Agregar Usuario
+      </h5>
+      <button
+        type="button"
+        class="brand-modal-close"
+        (click)="cerrarModalAgregarAcceso()"
+      >
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="brand-modal-body">
+      <form [formGroup]="formAcceso">
+        <div class="mb-3">
+          <label class="brand-label"
+            >Usuario <span class="required">*</span></label
+          >
+          <select class="brand-select" formControlName="usuarioId">
+            <option [ngValue]="null">Seleccione un usuario...</option>
+            <option
+              *ngFor="let usuario of usuariosSinAcceso"
+              [value]="usuario.Uid"
+            >
+              {{ usuario.name }} {{ usuario.lastName }} - {{ usuario.email }}
+            </option>
+          </select>
+        </div>
+        <div class="row">
+          <div class="col-6">
+            <label class="brand-checkbox">
+              <input type="checkbox" formControlName="puedeVer" />
+              <span class="brand-checkbox-mark"></span>
+              Puede Ver
+            </label>
+          </div>
+          <div class="col-6">
+            <label class="brand-checkbox">
+              <input type="checkbox" formControlName="puedeEditar" />
+              <span class="brand-checkbox-mark"></span>
+              Puede Editar
+            </label>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="brand-modal-footer">
+      <button
+        type="button"
+        class="btn-brand-secondary"
+        (click)="cerrarModalAgregarAcceso()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="btn-brand-accent"
+        (click)="agregarAcceso()"
+        [disabled]="formAcceso.invalid"
+      >
+        <i class="bi bi-plus-lg me-1"></i>Agregar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Firmar y Enviar Acta -->
+<div
+  class="brand-modal-overlay"
+  *ngIf="mostrarModalFirmaEmisor"
+  (click)="cerrarModalFirmaEmisor()"
+>
+  <div class="brand-modal" (click)="$event.stopPropagation()">
+    <div class="brand-modal-header brand-modal-header-accent">
+      <h5 class="brand-modal-title">
+        <i class="bi bi-pen me-2"></i>
+        Firmar y Enviar Acta
+      </h5>
+      <button
+        type="button"
+        class="brand-modal-close"
+        (click)="cerrarModalFirmaEmisor()"
+      >
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="brand-modal-body">
+      <p class="text-muted-custom mb-3">
+        Seleccione cómo desea firmar el acta:
+      </p>
+
+      <!-- Selector tipo de firma -->
+      <div class="firma-type-selector">
+        <label
+          class="firma-type-option"
+          [class.active]="tipoFirmaEmisor === 'texto'"
+        >
+          <input
+            type="radio"
+            name="tipoFirmaEmisor"
+            value="texto"
+            [(ngModel)]="tipoFirmaEmisor"
+          />
+          <i class="bi bi-fonts me-1"></i> Escribir Nombre
+        </label>
+        <label
+          class="firma-type-option"
+          [class.active]="tipoFirmaEmisor === 'imagen'"
+        >
+          <input
+            type="radio"
+            name="tipoFirmaEmisor"
+            value="imagen"
+            [(ngModel)]="tipoFirmaEmisor"
+          />
+          <i class="bi bi-image me-1"></i> Subir Imagen de Firma
+        </label>
+      </div>
+
+      <!-- Firma por texto -->
+      <div *ngIf="tipoFirmaEmisor === 'texto'" class="mt-3">
+        <label class="brand-label"
+          >Su nombre completo <span class="required">*</span></label
+        >
+        <input
+          type="text"
+          class="brand-input brand-input-lg"
+          [(ngModel)]="firmaEmisorTexto"
+          placeholder="Ej: Andrea Castrillón"
+        />
+        <small class="brand-hint"
+          >Este nombre aparecerá como su firma en el acta</small
+        >
+      </div>
+
+      <!-- Firma por imagen -->
+      <div *ngIf="tipoFirmaEmisor === 'imagen'" class="mt-3">
+        <label class="brand-label"
+          >Imagen de su firma <span class="required">*</span></label
+        >
+        <input
+          type="file"
+          class="brand-input"
+          accept="image/*"
+          (change)="onFirmaEmisorImagenSeleccionada($event)"
+        />
+        <small class="brand-hint"
+          >Suba una imagen de su firma (PNG, JPG). Máximo 2MB.</small
+        >
+
+        <!-- Preview -->
+        <div *ngIf="firmaEmisorImagenPreview" class="firma-preview">
+          <p class="text-muted-custom small mb-2">Vista previa:</p>
+          <img [src]="firmaEmisorImagenPreview" alt="Vista previa firma" />
+        </div>
+      </div>
+
+      <div class="brand-alert brand-alert-info mt-3">
+        <i class="bi bi-shield-check me-2"></i>
+        Al firmar, el acta se enviará al revisor para su validación y firma.
+      </div>
+    </div>
+    <div class="brand-modal-footer">
+      <button
+        type="button"
+        class="btn-brand-secondary"
+        (click)="cerrarModalFirmaEmisor()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="btn-brand-accent"
+        (click)="confirmarEnvioActa()"
+        [disabled]="
+          enviando ||
+          (tipoFirmaEmisor === 'texto' && !firmaEmisorTexto.trim()) ||
+          (tipoFirmaEmisor === 'imagen' && !firmaEmisorImagenBase64)
+        "
+      >
+        <span
+          *ngIf="enviando"
+          class="spinner-border spinner-border-sm me-1"
+        ></span>
+        <i *ngIf="!enviando" class="bi bi-send me-1"></i>
+        {{ enviando ? "Enviando..." : "Firmar y Enviar" }}
+      </button>
+    </div>
+  </div>
+</div>

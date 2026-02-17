@@ -1,0 +1,1113 @@
+/* ========================================
+   ACTAS COMPONENT - IDENTIDAD DE MARCA
+   ======================================== */
+
+/* ---- CONTENEDOR PRINCIPAL ---- */
+.main-content {
+  padding: 24px 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+  font-family: var(--font-family);
+}
+
+/* ---- TARJETA SIN ACCESO ---- */
+.access-denied-card {
+  max-width: 500px;
+  background: var(--color-bg);
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(20, 20, 20, 0.08);
+  border-left: 5px solid var(--color-secondary);
+  overflow: hidden;
+}
+
+.access-denied-card .card-body {
+  text-align: center;
+}
+
+.icon-lock {
+  font-size: 4rem;
+  color: var(--color-primary);
+  opacity: 0.7;
+}
+
+.icon-lock i {
+  display: inline-block;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* ---- HEADER DE PÁGINA ---- */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 3px solid var(--color-secondary);
+}
+
+.page-title {
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 1.65rem;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.page-title i {
+  color: var(--color-secondary);
+}
+
+.page-subtitle {
+  color: #6b6b6b;
+  font-size: 0.92rem;
+  margin-bottom: 0;
+  font-weight: 400;
+}
+
+.page-header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* ---- BOTONES DE MARCA ---- */
+.btn-brand-primary {
+  background-color: var(--color-primary);
+  color: var(--color-text-light);
+  border: 2px solid var(--color-primary);
+  padding: 10px 22px;
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+}
+
+.btn-brand-primary:hover {
+  background-color: var(--color-secondary);
+  color: var(--color-primary);
+  border-color: var(--color-secondary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 214, 0, 0.35);
+}
+
+.btn-brand-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-brand-secondary {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+  padding: 10px 22px;
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-brand-secondary:hover {
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+  transform: translateY(-1px);
+}
+
+.btn-brand-accent {
+  background-color: var(--color-secondary);
+  color: var(--color-primary);
+  border: 2px solid var(--color-secondary);
+  padding: 10px 22px;
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-brand-accent:hover {
+  background-color: var(--color-primary);
+  color: var(--color-secondary);
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(20, 20, 20, 0.25);
+}
+
+.btn-brand-accent:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ---- CARDS DE MARCA ---- */
+.brand-card {
+  background: var(--color-bg);
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(20, 20, 20, 0.06);
+  border: 1px solid #e8e8e8;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.brand-card:hover {
+  box-shadow: 0 4px 24px rgba(20, 20, 20, 0.1);
+}
+
+.brand-card-body {
+  padding: 20px 24px;
+}
+
+.brand-card-footer {
+  padding: 12px 24px;
+  background: #fafafa;
+  border-top: 1px solid #e8e8e8;
+}
+
+/* ---- INPUTS Y SELECTS ---- */
+.brand-label {
+  display: block;
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--color-primary);
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+
+.brand-label .required {
+  color: #e53e3e;
+  font-weight: 700;
+}
+
+.brand-input,
+.brand-select {
+  width: 100%;
+  padding: 10px 14px;
+  font-family: var(--font-family);
+  font-size: 0.9rem;
+  color: var(--color-primary);
+  background: var(--color-bg);
+  border: 2px solid #d4d4d4;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.brand-input:focus,
+.brand-select:focus {
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 3px rgba(255, 214, 0, 0.25);
+}
+
+.brand-input::placeholder {
+  color: #a0a0a0;
+}
+
+.brand-input-lg {
+  padding: 14px 16px;
+  font-size: 1rem;
+}
+
+.brand-input-group {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+.brand-input-prefix {
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  background: var(--color-primary);
+  color: var(--color-secondary);
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: 8px 0 0 8px;
+  border: 2px solid var(--color-primary);
+  border-right: none;
+}
+
+.brand-input.with-prefix {
+  border-radius: 0 8px 8px 0;
+}
+
+.brand-hint {
+  display: block;
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* ---- TABLA DE MARCA ---- */
+.brand-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-family);
+}
+
+.brand-table thead {
+  background-color: var(--color-primary);
+}
+
+.brand-table thead tr th {
+  color: var(--color-text-light);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 14px 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: none;
+  white-space: nowrap;
+}
+
+.brand-table thead tr th:first-child {
+  border-left: 4px solid var(--color-secondary);
+}
+
+.brand-table tbody tr {
+  border-bottom: 1px solid #eee;
+  transition: all 0.2s ease;
+}
+
+.brand-table tbody tr:hover {
+  background-color: rgba(255, 214, 0, 0.06);
+}
+
+.brand-table tbody td {
+  padding: 12px 16px;
+  font-size: 0.88rem;
+  color: var(--color-text);
+  vertical-align: middle;
+}
+
+.brand-table-sm tbody td,
+.brand-table-sm thead th {
+  padding: 10px 12px;
+  font-size: 0.84rem;
+}
+
+.fw-600 {
+  font-weight: 600;
+}
+
+/* ---- BADGES DE ESTADO ---- */
+.id-badge {
+  background: var(--color-primary);
+  color: var(--color-text-light);
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.brand-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: var(--font-family);
+  letter-spacing: 0.02em;
+}
+
+.badge-borrador {
+  background: #f0f0f0;
+  color: #555;
+  border: 1px solid #d0d0d0;
+}
+
+.badge-pendiente {
+  background: rgba(255, 214, 0, 0.15);
+  color: #8a7200;
+  border: 1px solid var(--color-secondary);
+}
+
+.badge-completado {
+  background: rgba(20, 20, 20, 0.08);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+/* ---- ESTADO VACÍO ---- */
+.empty-state {
+  color: #999;
+}
+
+.empty-state i {
+  font-size: 2rem;
+  color: #ccc;
+  display: block;
+}
+
+/* ---- BOTONES DE ACCIÓN EN TABLA ---- */
+.action-btn-group {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+
+.action-btn {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 2px solid;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.action-btn-view {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.action-btn-view:hover {
+  background: var(--color-primary);
+  color: var(--color-text-light);
+}
+
+.action-btn-edit {
+  border-color: var(--color-secondary);
+  color: #8a7200;
+}
+.action-btn-edit:hover {
+  background: var(--color-secondary);
+  color: var(--color-primary);
+}
+
+.action-btn-send {
+  border-color: #28a745;
+  color: #28a745;
+}
+.action-btn-send:hover {
+  background: #28a745;
+  color: white;
+}
+
+.action-btn-pdf {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.action-btn-pdf:hover {
+  background: var(--color-secondary);
+  color: var(--color-primary);
+  border-color: var(--color-secondary);
+}
+
+.action-btn-delete {
+  border-color: #dc3545;
+  color: #dc3545;
+}
+.action-btn-delete:hover {
+  background: #dc3545;
+  color: white;
+}
+
+/* ---- PAGINACIÓN ---- */
+.brand-pagination {
+  list-style: none;
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+}
+
+.brand-pagination li a {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 14px;
+  font-family: var(--font-family);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-primary);
+  background: var(--color-bg);
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.brand-pagination li a:hover {
+  border-color: var(--color-secondary);
+  background: rgba(255, 214, 0, 0.08);
+}
+
+.brand-pagination li.active a {
+  background: var(--color-primary);
+  color: var(--color-text-light);
+  border-color: var(--color-primary);
+}
+
+.brand-pagination li.disabled a {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ---- SPINNER DE MARCA ---- */
+.brand-spinner .spinner-border {
+  color: var(--color-secondary);
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.brand-spinner .spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* ---- TEXTOS ---- */
+.text-muted-custom {
+  color: #777;
+  font-size: 0.9rem;
+}
+
+/* ========================================
+   MODALES DE MARCA
+   ======================================== */
+.brand-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(20, 20, 20, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 20px;
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.brand-modal {
+  background: var(--color-bg);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 550px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(20, 20, 20, 0.25);
+  animation: slideUp 0.3s ease;
+}
+
+.brand-modal-lg {
+  max-width: 800px;
+}
+
+.brand-modal-xl {
+  max-width: 1100px;
+}
+
+.brand-modal-header {
+  background: var(--color-primary);
+  color: var(--color-text-light);
+  padding: 18px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 3px solid var(--color-secondary);
+}
+
+.brand-modal-header-accent {
+  background: var(--color-primary);
+  border-bottom-color: var(--color-secondary);
+}
+
+.brand-modal-title {
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  color: var(--color-text-light);
+}
+
+.brand-modal-title i {
+  color: var(--color-secondary);
+}
+
+.brand-modal-close {
+  background: transparent;
+  border: none;
+  color: var(--color-text-light);
+  font-size: 1.1rem;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.brand-modal-close:hover {
+  background: var(--color-secondary);
+  color: var(--color-primary);
+}
+
+.brand-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.brand-modal-footer {
+  padding: 16px 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid #eee;
+  background: #fafafa;
+}
+
+/* ---- CHECKBOXES DE MARCA ---- */
+.brand-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-primary);
+  padding: 10px 0;
+  user-select: none;
+}
+
+.brand-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--color-secondary);
+  cursor: pointer;
+}
+
+/* ---- SWITCH ---- */
+.brand-switch {
+  display: inline-block;
+}
+
+.brand-switch-input {
+  width: 42px;
+  height: 22px;
+  appearance: none;
+  background: #ccc;
+  border-radius: 22px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+  border: none;
+}
+
+.brand-switch-input::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.brand-switch-input:checked {
+  background: var(--color-secondary);
+}
+
+.brand-switch-input:checked::before {
+  transform: translateX(20px);
+  background: var(--color-primary);
+}
+
+/* ---- ALERTAS ---- */
+.brand-alert {
+  padding: 14px 18px;
+  border-radius: 10px;
+  font-family: var(--font-family);
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+}
+
+.brand-alert-info {
+  background: rgba(255, 214, 0, 0.1);
+  border: 1px solid var(--color-secondary);
+  border-left: 4px solid var(--color-secondary);
+  color: var(--color-primary);
+}
+
+.brand-alert-info i {
+  color: var(--color-secondary);
+  font-size: 1.1rem;
+}
+
+/* ========================================
+   SELECTOR DE TIPO DE FIRMA
+   ======================================== */
+.firma-type-selector {
+  display: flex;
+  gap: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid var(--color-primary);
+}
+
+.firma-type-option {
+  flex: 1;
+  padding: 12px 16px;
+  text-align: center;
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: transparent;
+  color: var(--color-primary);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.firma-type-option input[type="radio"] {
+  display: none;
+}
+
+.firma-type-option:first-child {
+  border-right: 2px solid var(--color-primary);
+}
+
+.firma-type-option.active,
+.firma-type-option:hover {
+  background: var(--color-primary);
+  color: var(--color-secondary);
+}
+
+/* ---- PREVIEW DE FIRMA ---- */
+.firma-preview {
+  margin-top: 16px;
+  text-align: center;
+  padding: 16px;
+  border: 2px dashed var(--color-secondary);
+  border-radius: 10px;
+  background: rgba(255, 214, 0, 0.04);
+}
+
+.firma-preview img {
+  max-width: 250px;
+  max-height: 100px;
+}
+
+/* ========================================
+   ACTA PREVIEW (VISTA PREVIA)
+   ======================================== */
+.acta-preview {
+  padding: 40px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  background: white;
+  position: relative;
+}
+
+.acta-preview::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--color-secondary);
+  border-radius: 12px 0 0 12px;
+}
+
+.acta-header-section {
+  text-align: center;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #eee;
+}
+
+.acta-logo {
+  font-weight: 700;
+  font-size: 28px;
+  color: var(--color-primary);
+  margin-bottom: 0;
+  font-family: var(--font-family);
+}
+
+.acta-company-name {
+  letter-spacing: 3px;
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 10px;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.acta-title {
+  font-family: var(--font-family);
+  font-weight: 700;
+  color: var(--color-primary);
+  text-decoration: none;
+  border-bottom: 3px solid var(--color-secondary);
+  display: inline-block;
+  padding-bottom: 6px;
+  font-size: 1.15rem;
+}
+
+.acta-period {
+  margin-top: 16px;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.acta-date-value {
+  border-bottom: 2px solid var(--color-primary);
+  padding: 0 8px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.acta-body-text {
+  text-align: justify;
+  margin: 20px 0;
+  font-size: 0.92rem;
+  color: #444;
+  line-height: 1.7;
+}
+
+.acta-italic {
+  font-style: italic;
+  color: #666;
+}
+
+.acta-amount-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  margin: 8px 0;
+  background: #fafafa;
+  border-radius: 8px;
+  border-left: 4px solid var(--color-secondary);
+}
+
+.acta-amount-label {
+  font-weight: 600;
+  color: var(--color-primary);
+  font-size: 0.9rem;
+}
+
+.acta-amount-value {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
+  padding: 0 12px 2px;
+}
+
+/* ---- FIRMAS ---- */
+.acta-signatures {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 48px;
+  gap: 40px;
+}
+
+.acta-signature-block {
+  flex: 1;
+}
+
+.acta-signature-label {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.acta-signature-line {
+  margin-top: 50px;
+  padding-top: 12px;
+  border-top: 2px solid var(--color-primary);
+}
+
+.acta-firma-img {
+  max-width: 200px;
+  max-height: 80px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.text-end .acta-firma-img {
+  margin-left: auto;
+}
+
+.acta-signer-name {
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 2px;
+  font-size: 0.92rem;
+}
+
+.acta-signer-role {
+  font-size: 0.82rem;
+  color: #888;
+  margin-bottom: 2px;
+}
+
+.acta-signer-date {
+  font-size: 0.78rem;
+  color: #aaa;
+}
+
+.acta-footer {
+  text-align: center;
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 2px solid #eee;
+  color: #999;
+  font-size: 0.8rem;
+}
+
+/* ---- META INFO ---- */
+.acta-meta-info {
+  margin-top: 16px;
+  padding: 14px 18px;
+  background: #fafafa;
+  border-radius: 10px;
+  border-left: 4px solid var(--color-secondary);
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 16px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .page-header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .page-header-actions .btn-brand-primary,
+  .page-header-actions .btn-brand-secondary {
+    flex: 1;
+    justify-content: center;
+    min-width: 140px;
+  }
+
+  .page-title {
+    font-size: 1.3rem;
+  }
+
+  .brand-modal {
+    max-width: 95%;
+    margin: 10px;
+  }
+
+  .brand-modal-xl {
+    max-width: 98%;
+  }
+
+  .acta-preview {
+    padding: 20px;
+  }
+
+  .acta-signatures {
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .acta-amount-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .action-btn-group {
+    flex-wrap: wrap;
+  }
+
+  .firma-type-selector {
+    flex-direction: column;
+  }
+
+  .firma-type-option:first-child {
+    border-right: none;
+    border-bottom: 2px solid var(--color-primary);
+  }
+}
+
+@media (max-width: 576px) {
+  .brand-modal-body {
+    padding: 16px;
+  }
+
+  .brand-modal-footer {
+    flex-direction: column;
+  }
+
+  .brand-modal-footer button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ---- FIRMA EMISOR (CREAR/EDITAR) ---- */
+.firma-card {
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  background: #fff;
+  padding: 14px;
+  box-shadow: 0 2px 10px rgba(20, 20, 20, 0.05);
+}
+
+.firma-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.firma-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #dcdcdc;
+  cursor: pointer;
+  font-size: 0.85rem;
+  background: #fafafa;
+}
+
+.firma-tab input {
+  margin-right: 6px;
+}
+
+.firma-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.firma-canvas {
+  width: 100%;
+  height: 160px;
+  border: 2px dashed #cfcfcf;
+  border-radius: 10px;
+  background: #fff;
+  cursor: crosshair;
+}
+
+.firma-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.firma-preview {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  background: #f9f9f9;
+  padding: 10px;
+  text-align: center;
+}
+
+.firma-preview img {
+  max-width: 240px;
+  max-height: 120px;
+}
+
+.firma-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #b00020;
+  font-weight: 600;
+}

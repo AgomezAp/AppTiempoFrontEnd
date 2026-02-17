@@ -1,0 +1,326 @@
+<div class="firma-container">
+  <div class="firma-card">
+    <!-- Header -->
+    <div class="firma-card-header">
+      <div class="header-brand">
+        <span class="header-logo">ap</span>
+        <span class="header-company">ANDRESPUBLICIDAD</span>
+      </div>
+      <h4 class="header-title">
+        <i class="bi bi-file-earmark-text me-2"></i>
+        Acta de Validación y Cierre de Recargas
+      </h4>
+      <div class="header-accent-line"></div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="firma-card-body state-container">
+      <div class="brand-spinner">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+      <p class="state-text">Cargando acta...</p>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error && !loading" class="firma-card-body state-container">
+      <div class="state-icon state-icon-error">
+        <i class="bi bi-exclamation-circle"></i>
+      </div>
+      <h4 class="state-title state-title-error">Error</h4>
+      <p class="state-description">{{ error }}</p>
+      <a href="/" class="btn-brand-primary mt-3">
+        <i class="bi bi-arrow-left me-1"></i>Volver al inicio
+      </a>
+    </div>
+
+    <!-- Éxito -->
+    <div
+      *ngIf="success && !loading && !error"
+      class="firma-card-body state-container"
+    >
+      <div class="state-icon state-icon-success">
+        <i class="bi bi-check-circle"></i>
+      </div>
+      <h4 class="state-title state-title-success">
+        ¡Acta Firmada Exitosamente!
+      </h4>
+      <p class="state-description">
+        El acta ha sido completada y se ha notificado al emisor.
+      </p>
+
+      <div class="resumen-acta" *ngIf="acta">
+        <h6 class="resumen-title">
+          <i class="bi bi-clipboard-data me-2"></i>Resumen del Acta
+        </h6>
+        <div class="resumen-divider"></div>
+        <div class="resumen-row">
+          <span class="resumen-label">Periodo:</span>
+          <span class="resumen-value"
+            >{{ formatearFecha(acta.periodoInicio) }} al
+            {{ formatearFecha(acta.periodoFin) }} de {{ acta.anio }}</span
+          >
+        </div>
+        <div class="resumen-row">
+          <span class="resumen-label">Total Requerido Proyectado:</span>
+          <span class="resumen-value resumen-value-money">{{
+            formatearMonto(acta.totalRequeridoProyectado)
+          }}</span>
+        </div>
+        <div class="resumen-row">
+          <span class="resumen-label">Total Ingresado a Tarjetas:</span>
+          <span class="resumen-value resumen-value-money">{{
+            formatearMonto(acta.totalIngresadoTarjetas)
+          }}</span>
+        </div>
+        <div class="resumen-row">
+          <span class="resumen-label">Total Recargado Google ADS:</span>
+          <span class="resumen-value resumen-value-money">{{
+            formatearMonto(acta.totalRecargadoGoogleAds)
+          }}</span>
+        </div>
+        <div class="resumen-row">
+          <span class="resumen-label">Total Reportado Formularios:</span>
+          <span class="resumen-value resumen-value-money">{{
+            formatearMonto(acta.totalReportadoFormularios)
+          }}</span>
+        </div>
+        <div class="resumen-row">
+          <span class="resumen-label">Estado:</span>
+          <span class="resumen-value">
+            <span class="brand-badge badge-completado">
+              <i class="bi bi-check-circle-fill me-1"></i>Completado
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <button class="btn-brand-primary mt-4" (click)="generarPDF()">
+        <i class="bi bi-file-pdf me-1"></i>
+        Descargar PDF
+      </button>
+    </div>
+
+    <!-- Formulario de firma -->
+    <div *ngIf="!loading && !error && !success && acta" class="firma-card-body">
+      <!-- Info del acta -->
+      <div class="brand-alert brand-alert-warning mb-4">
+        <div class="alert-icon">
+          <i class="bi bi-info-circle"></i>
+        </div>
+        <div class="alert-content">
+          <strong>{{ acta.emisor?.name }} {{ acta.emisor?.lastName }}</strong>
+          te ha enviado esta acta para tu revisión y firma.
+        </div>
+      </div>
+
+      <!-- Vista previa del acta -->
+      <div class="acta-preview-compact">
+        <div class="acta-preview-header">
+          <p class="acta-logo">ap</p>
+          <p class="acta-company">ANDRESPUBLICIDAD</p>
+          <h5 class="acta-title-preview">
+            Acta semanal de Validación y Cierre de Recargas
+          </h5>
+          <p class="acta-periodo">
+            Periodo de Revisión:
+            <span class="acta-fecha-valor">{{
+              formatearFecha(acta.periodoInicio)
+            }}</span>
+            al
+            <span class="acta-fecha-valor">{{
+              formatearFecha(acta.periodoFin)
+            }}</span>
+            de {{ acta.anio }}
+          </p>
+        </div>
+
+        <p class="acta-body-text">
+          En la presente fecha, se procede a validar la correspondencia de los
+          montos totales de las recargas.
+        </p>
+
+        <div class="acta-monto-row">
+          <span class="acta-monto-label"
+            ><span class="accent-dot"></span>Total Requerido Proyectado:</span
+          >
+          <span class="acta-monto-value"
+            >$ {{ formatearMonto(acta.totalRequeridoProyectado) }}</span
+          >
+        </div>
+        <div class="acta-monto-row">
+          <span class="acta-monto-label"
+            ><span class="accent-dot"></span>Total Ingresado a las
+            Tarjetas:</span
+          >
+          <span class="acta-monto-value"
+            >$ {{ formatearMonto(acta.totalIngresadoTarjetas) }}</span
+          >
+        </div>
+
+        <p class="acta-comparacion-text">
+          Comparación entre los montos reportados por los pautadores mediante
+          formulario y los efectivamente debitados de las cuentas
+          bancarias/tarjetas.
+        </p>
+
+        <div class="acta-monto-row">
+          <span class="acta-monto-label"
+            ><span class="accent-dot"></span>Total Recargado Google ADS:</span
+          >
+          <span class="acta-monto-value"
+            >$ {{ formatearMonto(acta.totalRecargadoGoogleAds) }}</span
+          >
+        </div>
+        <div class="acta-monto-row">
+          <span class="acta-monto-label"
+            ><span class="accent-dot"></span>Total reportado en formularios de
+            recarga:</span
+          >
+          <span class="acta-monto-value"
+            >$ {{ formatearMonto(acta.totalReportadoFormularios) }}</span
+          >
+        </div>
+
+        <div class="acta-firmas-preview">
+          <div class="acta-firma-col">
+            <small class="acta-firma-label-text"
+              >Montos y novedades revisadas y certificadas por:</small
+            >
+            <div class="acta-firma-line">
+              <img
+                *ngIf="acta.firmaEmisorImagen"
+                [src]="acta.firmaEmisorImagen"
+                alt="Firma Emisor"
+                class="acta-firma-img"
+              />
+              <p class="acta-firma-nombre">
+                {{ acta.firmaEmisor || "Alexandra Castrillón Arias" }}
+              </p>
+              <p class="acta-firma-cargo">Especialista ADS</p>
+            </div>
+          </div>
+          <div class="acta-firma-col acta-firma-col-right">
+            <small class="acta-firma-label-text">Recibido por:</small>
+            <div class="acta-firma-line">
+              <p class="acta-firma-pendiente">
+                <i class="bi bi-pen me-1"></i>Pendiente de firma
+              </p>
+              <p class="acta-firma-cargo">Líder de Pauta o Encargado</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulario -->
+      <div class="firma-form-section">
+        <h5 class="firma-form-title">
+          <i class="bi bi-pen me-2"></i>
+          Firme el acta para completar la validación
+        </h5>
+
+        <div class="firma-form-content">
+          <label class="brand-label mb-2">
+            Tipo de Firma <span class="required">*</span>
+          </label>
+
+          <div class="firma-type-selector mb-4">
+            <label
+              class="firma-type-option"
+              [class.active]="tipoFirmaRevisor === 'texto'"
+            >
+              <input
+                type="radio"
+                name="tipoFirmaRevisor"
+                value="texto"
+                [(ngModel)]="tipoFirmaRevisor"
+              />
+              <i class="bi bi-fonts me-1"></i> Escribir Nombre
+            </label>
+            <label
+              class="firma-type-option"
+              [class.active]="tipoFirmaRevisor === 'imagen'"
+            >
+              <input
+                type="radio"
+                name="tipoFirmaRevisor"
+                value="imagen"
+                [(ngModel)]="tipoFirmaRevisor"
+              />
+              <i class="bi bi-image me-1"></i> Subir Imagen
+            </label>
+          </div>
+
+          <!-- Firma por texto -->
+          <div *ngIf="tipoFirmaRevisor === 'texto'">
+            <input
+              type="text"
+              class="brand-input brand-input-lg"
+              [(ngModel)]="firmaRevisor"
+              placeholder="Ej: Camila Burbano Muñoz"
+              required
+            />
+            <small class="brand-hint"
+              >Este nombre aparecerá como su firma en el acta</small
+            >
+          </div>
+
+          <!-- Firma por imagen -->
+          <div *ngIf="tipoFirmaRevisor === 'imagen'">
+            <input
+              type="file"
+              class="brand-input"
+              accept="image/*"
+              (change)="onFirmaRevisorImagenSeleccionada($event)"
+            />
+            <small class="brand-hint"
+              >Suba una imagen de su firma (PNG, JPG). Máximo 2MB.</small
+            >
+            <div *ngIf="firmaRevisorImagenPreview" class="firma-preview-box">
+              <p class="firma-preview-label">Vista previa:</p>
+              <img [src]="firmaRevisorImagenPreview" alt="Vista previa firma" />
+            </div>
+          </div>
+        </div>
+
+        <div class="brand-alert brand-alert-info mt-4">
+          <div class="alert-icon">
+            <i class="bi bi-shield-check"></i>
+          </div>
+          <div class="alert-content">
+            Al firmar este documento, confirma que ha verificado los montos y
+            novedades de activación, presupuestos y otras, en las cuentas
+            correspondientes a esta semana.
+          </div>
+        </div>
+
+        <div class="firma-submit-section">
+          <button
+            class="btn-brand-accent btn-firma-submit"
+            (click)="firmarActa()"
+            [disabled]="
+              firmando ||
+              (tipoFirmaRevisor === 'texto' && !firmaRevisor.trim()) ||
+              (tipoFirmaRevisor === 'imagen' && !firmaRevisorImagenBase64)
+            "
+          >
+            <span
+              *ngIf="firmando"
+              class="spinner-border spinner-border-sm me-2"
+            ></span>
+            <i *ngIf="!firmando" class="bi bi-check2-circle me-2"></i>
+            {{ firmando ? "Firmando..." : "Firmar y Completar Acta" }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="firma-card-footer">
+      <small>
+        Sistema de Actas de Recargas — <strong>Andrés Publicidad</strong>
+      </small>
+    </div>
+  </div>
+</div>

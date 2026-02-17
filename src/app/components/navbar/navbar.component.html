@@ -118,6 +118,11 @@
                   >Registro de Asistencia</a
                 >
               </li>
+              <li *ngIf="tieneAccesoActas">
+                <a class="dropdown-item" href="/actas-recargas"
+                  >Actas de Recargas</a
+                >
+              </li>
               <li *ngIf="userRole === 'Admin'">
                 <hr class="dropdown-divider" />
               </li>

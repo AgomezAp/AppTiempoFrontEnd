@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { ActaRecargaService } from '../../services/acta-recarga.service';
 
 @Component({
   selector: 'app-navbar',
@@ -13,11 +14,16 @@ export class NavbarComponent implements OnInit {
   esAdmin = false;
   userName = '';
   userRole = '';
+  tieneAccesoActas = false;
 
-  constructor(private router:Router){}
+  constructor(
+    private router: Router,
+    private actaService: ActaRecargaService
+  ) {}
 
   ngOnInit() {
     this.verificarRol();
+    this.verificarAccesoActas();
   }
 
   verificarRol() {
@@ -32,6 +38,17 @@ export class NavbarComponent implements OnInit {
         this.esAdmin = false;
       }
     }
+  }
+
+  verificarAccesoActas() {
+    this.actaService.verificarMiAcceso().subscribe({
+      next: (res) => {
+        this.tieneAccesoActas = res.tieneAcceso;
+      },
+      error: () => {
+        this.tieneAccesoActas = false;
+      }
+    });
   }
 
   logOut(){

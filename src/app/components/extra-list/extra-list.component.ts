@@ -18,13 +18,15 @@ export class ExtraListComponent implements OnInit {
   listNovedad: Novedad[] = [];
   filterdExtra: any[] = [];
   filterdNovedad: any[] = [];
+  observacionSeleccionada: string | null = null;
+  nombreSeleccionado: string | null = null;
 
   constructor(
     private horaService: HoraService,
     private novedadService: NovedadService,
     private route: ActivatedRoute,
     private router: Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
   ) {}
 
   pageSize = 7;
@@ -34,11 +36,20 @@ export class ExtraListComponent implements OnInit {
 
   updatePagination() {
     this.totalPages = Math.ceil(
-      this.filterdExtraOriginal.length / this.pageSize
+      this.filterdExtraOriginal.length / this.pageSize,
     );
     this.goToPage(1);
   }
-
+  mostrarObservacion(observacion: string, nombre: string): void {
+    if (observacion) {
+      this.observacionSeleccionada = observacion;
+      this.nombreSeleccionado = nombre;
+    }
+  }
+  cerrarModalObservacion(): void {
+    this.observacionSeleccionada = null;
+    this.nombreSeleccionado = null;
+  }
   goToPage(page: number) {
     if (page < 1 || page > this.totalPages) return;
     this.currentPage = page;
@@ -62,7 +73,7 @@ export class ExtraListComponent implements OnInit {
   getEndIndex(): number {
     return Math.min(
       this.currentPage * this.pageSize,
-      this.filterdExtraOriginal.length
+      this.filterdExtraOriginal.length,
     );
   }
   ngOnInit(): void {
