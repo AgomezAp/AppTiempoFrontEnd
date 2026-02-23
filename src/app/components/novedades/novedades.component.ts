@@ -20,7 +20,8 @@ export class NovedadComponent {
   filteredNovedad: NovedadHistorico[] = [];
   showList: boolean = true;
   filterName: string = '';
-  fecha: string = '';
+  fechaInicio: string = '';
+  fechaFin: string = '';
   horas: string = '';
   id: number = 0;
   editandoHoras: any = {};
@@ -53,34 +54,59 @@ export class NovedadComponent {
       .subscribe((data: NovedadHistorico[]) => {
         this.listNovedad = data;
         this.filteredNovedad = data;
+        this.applyFilters();
         this.updatePagination();
       });
   }
 
   filterdByName(): void {
-    if (this.filterName) {
-      this.filteredNovedad = this.listNovedad.filter((novedad) =>
-        novedad.Name.toLowerCase().includes(this.filterName.toLowerCase())
-      );
-    } else {
-      this.filteredNovedad = this.listNovedad;
-    }
+    this.applyFilters();
+  }
+
+  filterByData(): void {
+    this.applyFilters();
+  }
+
+  clearDateRange(): void {
+    this.fechaInicio = '';
+    this.fechaFin = '';
+    this.applyFilters();
+  }
+
+  private applyFilters(): void {
+    const nameFilter = this.filterName.trim().toLowerCase();
+    const start = this.fechaInicio ? this.toDateOnlyTime(this.fechaInicio) : null;
+    const end = this.fechaFin ? this.toDateOnlyTime(this.fechaFin) : null;
+
+    this.filteredNovedad = this.listNovedad.filter((novedad) => {
+      const matchesName = !nameFilter
+        ? true
+        : novedad.Name.toLowerCase().includes(nameFilter);
+
+      const novedadDate = this.toDateOnlyTime(novedad.Fecha);
+      if (novedadDate === null) {
+        return false;
+      }
+
+      const matchesStart = start === null ? true : novedadDate >= start;
+      const matchesEnd = end === null ? true : novedadDate <= end;
+
+      return matchesName && matchesStart && matchesEnd;
+    });
+
     this.currentPage = 1;
     this.updatePagination();
   }
 
-  filterByData(): void {
-    if (this.fecha) {
-      const fecha = new Date(this.fecha).getTime();
-      this.filteredNovedad = this.listNovedad.filter((novedad) => {
-        const fechaN = new Date(novedad.Fecha).getTime();
-        return fechaN === fecha;
-      });
-    } else {
-      this.filteredNovedad = this.listNovedad;
+  private toDateOnlyTime(value: string): number | null {
+    const parsedDate = new Date(value);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+      return null;
     }
-    this.currentPage = 1;
-    this.updatePagination();
+
+    parsedDate.setHours(0, 0, 0, 0);
+    return parsedDate.getTime();
   }
 
   // Métodos para paginación

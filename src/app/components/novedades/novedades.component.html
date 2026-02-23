@@ -17,13 +17,34 @@
         />
       </div>
       <div class="filter-item">
-        <label for="fecha">Fecha</label>
+        <label for="fechaInicio">Desde</label>
         <input
-          id="fecha"
+          id="fechaInicio"
           type="date"
-          [(ngModel)]="fecha"
+          [(ngModel)]="fechaInicio"
           (change)="filterByData()"
         />
+      </div>
+
+      <div class="filter-item">
+        <label for="fechaFin">Hasta</label>
+        <input
+          id="fechaFin"
+          type="date"
+          [(ngModel)]="fechaFin"
+          (change)="filterByData()"
+        />
+      </div>
+
+      <div class="filter-item actions-filter">
+        <button
+          type="button"
+          class="btn-clear-filters"
+          (click)="clearDateRange()"
+          [disabled]="!fechaInicio && !fechaFin"
+        >
+          Limpiar rango
+        </button>
       </div>
     </div>
   </div>

@@ -74,6 +74,33 @@
   box-shadow: 0 0 0 2px rgba(255, 214, 0, 0.2);
 }
 
+.actions-filter {
+  justify-content: flex-end;
+}
+
+.btn-clear-filters {
+  font-family: "Fira Sans", sans-serif;
+  font-size: 0.8rem;
+  padding: 8px 12px;
+  border: 1px solid #141414;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #141414;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 36px;
+}
+
+.btn-clear-filters:hover:not(:disabled) {
+  background-color: #141414;
+  color: #ffffff;
+}
+
+.btn-clear-filters:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* ========================================
    TABLA CONTAINER
    ======================================== */
