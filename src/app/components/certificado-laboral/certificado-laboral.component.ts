@@ -221,6 +221,11 @@ export class CertificadoLaboralComponent implements OnInit {
       return;
     }
 
+    if (this.tipoCertificado === 'desprendible') {
+      this.generarDesprendible();
+      return;
+    }
+
     if (this.isAdmin && this.tipoCertificado !== 'laboral') {
       if (!this.selectedUser) {
         this.error =
@@ -311,9 +316,18 @@ export class CertificadoLaboralComponent implements OnInit {
       return;
     }
 
+    // Para admin se requiere un usuario seleccionado, para no-admin se usa su propio UID
+    const uidAUsar = this.isAdmin && this.selectedUser ? this.selectedUser.Uid : this.uid;
+
+    if (this.isAdmin && !this.selectedUser) {
+      this.error = 'Por favor, selecciona un empleado';
+      this.cargando = false;
+      return;
+    }
+
     const token = localStorage.getItem('token');
     const body = {
-      Uid: this.selectedUser.Uid,
+      Uid: uidAUsar,
       numeroDias: this.certificadoConfig.numeroDias || 30,
       extras: this.getNumericValue(this.certificadoConfig.extras),
       otrasDeducciones: this.getNumericValue(
@@ -341,10 +355,7 @@ export class CertificadoLaboralComponent implements OnInit {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        // ✅ CAMBIO: .png → .pdf
-        a.download = `desprendible_${
-          this.selectedUser.Uid
-        }_${this.certificadoConfig.fechaPago.replace(/\//g, '-')}.pdf`;
+        a.download = `desprendible_${uidAUsar}_${this.certificadoConfig.fechaPago.replace(/\//g, '-')}.pdf`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);

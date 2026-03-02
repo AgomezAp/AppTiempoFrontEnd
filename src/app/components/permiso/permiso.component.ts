@@ -180,6 +180,12 @@ export class PermisoComponent implements OnInit {
   mostrarDias(): boolean {
     return this.variosDias.includes(this.permiso.tipo);
   }
+
+  requiereSoporte(): boolean {
+    const tiposConSoporteObligatorio = ['Vacaciones', 'Día de la familia'];
+    return tiposConSoporteObligatorio.includes(this.permiso.tipo);
+  }
+
   selectedFile: File | null = null;
   today: string;
 
@@ -300,6 +306,14 @@ export class PermisoComponent implements OnInit {
     if (!this.isObservacionesValid()) {
       this.toastr.error(
         'Las observaciones deben tener al menos 50 caracteres (sin contar espacios)'
+      );
+      return;
+    }
+
+    // Validar soporte obligatorio para Vacaciones y Día de la familia
+    if (this.requiereSoporte() && !this.selectedFile) {
+      this.toastr.error(
+        'Debe adjuntar un soporte para este tipo de permiso (Vacaciones / Día de la familia)'
       );
       return;
     }

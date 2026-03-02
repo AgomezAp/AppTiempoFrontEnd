@@ -211,7 +211,13 @@
       </div>
       <div class="col-md-6">
         <div class="form-group">
-          <label for="soporte">Subir soporte (opcional):</label>
+          <label for="soporte">
+            Subir soporte
+            <span *ngIf="requiereSoporte()" style="color: red; font-weight: bold">
+              (obligatorio) *
+            </span>
+            <span *ngIf="!requiereSoporte()">(opcional)</span>:
+          </label>
           <input
             type="file"
             id="soporte"
@@ -219,7 +225,14 @@
             class="form-control"
             (change)="onFileSelected($event)"
           />
-          <small class="form-text text-muted"> 📎 PDF, imágenes, etc. </small>
+          <small class="form-text" [ngClass]="{'text-danger': requiereSoporte() && !selectedFile, 'text-muted': !requiereSoporte() || selectedFile}">
+            <span *ngIf="requiereSoporte() && !selectedFile">
+              Debe adjuntar un soporte para este tipo de permiso
+            </span>
+            <span *ngIf="!requiereSoporte() || selectedFile">
+              PDF, imagenes, etc.
+            </span>
+          </small>
         </div>
       </div>
     </div>
@@ -229,7 +242,7 @@
       <button
         type="submit"
         class="btn btn-success"
-        [disabled]="!permisoForm.form.valid || !isObservacionesValid()"
+        [disabled]="!permisoForm.form.valid || !isObservacionesValid() || (requiereSoporte() && !selectedFile)"
       >
         Solicitar Permiso
       </button>

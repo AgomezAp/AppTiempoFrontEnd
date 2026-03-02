@@ -121,6 +121,39 @@
           <i class="fas fa-check-circle"></i> SELECCIONADO
         </div>
       </div>
+
+      <!-- TARJETA: DESPRENDIBLE DE PAGO -->
+      <div
+        class="certificate-card"
+        [class.selected]="tipoCertificado === 'desprendible'"
+        (click)="tipoCertificado = 'desprendible'"
+      >
+        <div class="card-icon" style="background-color: #e8f5e9; color: #2e7d32">
+          <i class="fas fa-money-bill-wave"></i>
+        </div>
+        <h3>Desprendible de Pago</h3>
+        <p class="card-description">
+          Descargue su desprendible de pago (colilla de pago) con el detalle de
+          su salario, deducciones y total a recibir.
+        </p>
+        <div class="card-steps">
+          <div class="step">
+            <span class="step-number">1</span>
+            <span class="step-text">Haga clic en esta tarjeta</span>
+          </div>
+          <div class="step">
+            <span class="step-number">2</span>
+            <span class="step-text">Llene los datos abajo</span>
+          </div>
+          <div class="step">
+            <span class="step-number">3</span>
+            <span class="step-text">Presione "Descargar"</span>
+          </div>
+        </div>
+        <div class="card-badge" *ngIf="tipoCertificado === 'desprendible'">
+          <i class="fas fa-check-circle"></i> SELECCIONADO
+        </div>
+      </div>
     </div>
 
     <!-- FORMULARIO PARA VACACIONES (USUARIOS NORMALES) -->
@@ -282,6 +315,121 @@
             familia<br />
             • No afecta sus días de descanso ni vacaciones<br />
             • Está respaldado por la Ley 1857 de 2017
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORMULARIO PARA DESPRENDIBLE DE PAGO (USUARIOS NORMALES) -->
+    <div *ngIf="tipoCertificado === 'desprendible'" class="form-container">
+      <div class="form-header">
+        <h3>
+          <i class="fas fa-money-bill-wave"></i>
+          Desprendible de Pago
+        </h3>
+        <p>
+          Complete los datos para generar su desprendible de pago. El sistema
+          calculará automáticamente las deducciones de salud y pensión.
+        </p>
+      </div>
+
+      <div class="info-box-user">
+        <i class="fas fa-user-circle"></i>
+        <div>
+          <strong>Generando desprendible para:</strong><br />
+          <span class="user-name">{{ userName }}</span>
+        </div>
+      </div>
+
+      <div class="simple-form">
+        <div class="form-row-simple">
+          <div class="input-group">
+            <label>
+              <i class="fas fa-calendar-alt"></i>
+              Fecha de Pago
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="certificadoConfig.fechaPago"
+              class="input-simple"
+              placeholder="Ejemplo: 28/02/2026"
+            />
+            <small class="help-text">Escriba: día/mes/año</small>
+          </div>
+
+          <div class="input-group">
+            <label>
+              <i class="fas fa-calendar-day"></i>
+              Número de Días Trabajados
+            </label>
+            <input
+              type="number"
+              [(ngModel)]="certificadoConfig.numeroDias"
+              class="input-simple"
+              min="1"
+              max="30"
+              placeholder="30"
+            />
+            <small class="help-text">Normalmente 30 o 15 días</small>
+          </div>
+        </div>
+
+        <div class="form-row-simple">
+          <div class="input-group">
+            <label>
+              <i class="fas fa-plus-circle"></i>
+              Extras (opcional)
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="certificadoConfig.extras"
+              (input)="formatNumberWithDots($event, 'extras')"
+              class="input-simple"
+              placeholder="0"
+            />
+            <small class="help-text">Horas extras u otros ingresos adicionales</small>
+          </div>
+
+          <div class="input-group">
+            <label>
+              <i class="fas fa-minus-circle"></i>
+              Otras Deducciones (opcional)
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="certificadoConfig.otrasDeducciones"
+              (input)="formatNumberWithDots($event, 'otrasDeducciones')"
+              class="input-simple"
+              placeholder="0"
+            />
+            <small class="help-text">Deducciones adicionales</small>
+          </div>
+        </div>
+
+        <div class="form-row-simple">
+          <div class="input-group">
+            <label>
+              <i class="fas fa-hand-holding-usd"></i>
+              Préstamos (opcional)
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="certificadoConfig.prestamos"
+              (input)="formatNumberWithDots($event, 'prestamos')"
+              class="input-simple"
+              placeholder="0"
+            />
+            <small class="help-text">Descuentos por préstamos</small>
+          </div>
+        </div>
+
+        <div class="info-box-help">
+          <i class="fas fa-info-circle"></i>
+          <div>
+            <strong>¿Cómo se calcula?</strong><br />
+            • El salario se calcula según los días trabajados<br />
+            • Se descuenta automáticamente salud (4%) y pensión (4%)<br />
+            • Si su salario es menor a 2 salarios mínimos, se incluye auxilio de transporte
           </div>
         </div>
       </div>
