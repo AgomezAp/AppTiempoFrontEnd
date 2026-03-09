@@ -3,7 +3,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
 import { HoraService } from '../../services/hora.service';
 import { NovedadService } from '../../services/novedad.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Extra, Novedad } from '../../interfaces/hora';
+import { Extra, Novedad, HistoricoExtra, Hora } from '../../interfaces/hora';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 @Component({
@@ -20,6 +20,18 @@ export class ExtraListComponent implements OnInit {
   filterdNovedad: any[] = [];
   observacionSeleccionada: string | null = null;
   nombreSeleccionado: string | null = null;
+  historicoData: HistoricoExtra[] = [];
+  historicoNombre: string = '';
+  historicoVisible: boolean = false;
+  historicoLoading: boolean = false;
+
+  // Detalle diario de horas extras
+  detalleData: Hora[] = [];
+  detalleNombre: string = '';
+  detalleSid: number = 0;
+  detalleVisible: boolean = false;
+  detalleLoading: boolean = false;
+  detallePeriodo: string = 'semana'; // 'semana' | 'semanaAnterior' | 'mes'
 
   constructor(
     private horaService: HoraService,
@@ -288,5 +300,128 @@ export class ExtraListComponent implements OnInit {
 
     document.body.appendChild(overlay);
     document.body.appendChild(modal);
+  }
+
+  verHistorial(extra: any): void {
+    this.historicoNombre = extra.Name;
+    this.historicoVisible = true;
+    this.historicoLoading = true;
+    this.horaService.getHistoricoExtras(extra.Sid).subscribe({
+      next: (data: HistoricoExtra[]) => {
+        this.historicoData = data;
+        this.historicoLoading = false;
+      },
+      error: () => {
+        this.historicoData = [];
+        this.historicoLoading = false;
+        this.toastr.error('Error al cargar historial');
+      }
+    });
+  }
+
+  cerrarHistorial(): void {
+    this.historicoVisible = false;
+    this.historicoData = [];
+    this.historicoNombre = '';
+  }
+
+  formatearFechaHistorico(fecha: string): string {
+    const d = new Date(fecha + 'T12:00:00');
+    const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    return `${dias[d.getDay()]} ${d.getDate()} ${meses[d.getMonth()]} ${d.getFullYear()}`;
+  }
+
+  // === DETALLE DIARIO DE HORAS EXTRAS ===
+
+  verDetalle(extra: any): void {
+    this.detalleNombre = extra.Name;
+    this.detalleSid = extra.Sid;
+    this.detalleVisible = true;
+    this.detallePeriodo = 'semana';
+    this.cargarDetalle();
+  }
+
+  cerrarDetalle(): void {
+    this.detalleVisible = false;
+    this.detalleData = [];
+    this.detalleNombre = '';
+  }
+
+  cambiarPeriodo(periodo: string): void {
+    this.detallePeriodo = periodo;
+    this.cargarDetalle();
+  }
+
+  private calcularRangoFechas(): { desde: string; hasta: string } {
+    const hoy = new Date();
+    let desde: Date;
+    let hasta: Date = new Date(hoy);
+
+    if (this.detallePeriodo === 'semana') {
+      // Lunes de esta semana
+      const dia = hoy.getDay();
+      const diff = dia === 0 ? 6 : dia - 1;
+      desde = new Date(hoy);
+      desde.setDate(hoy.getDate() - diff);
+    } else if (this.detallePeriodo === 'semanaAnterior') {
+      // Lunes a domingo de la semana pasada
+      const dia = hoy.getDay();
+      const diff = dia === 0 ? 6 : dia - 1;
+      hasta = new Date(hoy);
+      hasta.setDate(hoy.getDate() - diff - 1); // Domingo anterior
+      desde = new Date(hasta);
+      desde.setDate(hasta.getDate() - 6); // Lunes anterior
+    } else {
+      // Este mes
+      desde = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    }
+
+    const formatDate = (d: Date) => {
+      const y = d.getFullYear();
+      const m = (d.getMonth() + 1).toString().padStart(2, '0');
+      const dd = d.getDate().toString().padStart(2, '0');
+      return `${y}-${m}-${dd}`;
+    };
+
+    return { desde: formatDate(desde), hasta: formatDate(hasta) };
+  }
+
+  cargarDetalle(): void {
+    this.detalleLoading = true;
+    const { desde, hasta } = this.calcularRangoFechas();
+    this.horaService.getDetalleExtras(this.detalleSid, desde, hasta).subscribe({
+      next: (data: Hora[]) => {
+        this.detalleData = data;
+        this.detalleLoading = false;
+      },
+      error: () => {
+        this.detalleData = [];
+        this.detalleLoading = false;
+        this.toastr.error('Error al cargar detalle');
+      }
+    });
+  }
+
+  formatearFechaDetalle(fecha: string): string {
+    const d = new Date(fecha);
+    const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    return `${dias[d.getDay()]} ${d.getDate()} ${meses[d.getMonth()]}`;
+  }
+
+  formatearHora(fecha: string): string {
+    const d = new Date(fecha);
+    const h = d.getHours().toString().padStart(2, '0');
+    const m = d.getMinutes().toString().padStart(2, '0');
+    return `${h}:${m}`;
+  }
+
+  getPeriodoLabel(): string {
+    const { desde, hasta } = this.calcularRangoFechas();
+    const d1 = new Date(desde + 'T12:00:00');
+    const d2 = new Date(hasta + 'T12:00:00');
+    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    return `${d1.getDate()} ${meses[d1.getMonth()]} - ${d2.getDate()} ${meses[d2.getMonth()]} ${d2.getFullYear()}`;
   }
 }

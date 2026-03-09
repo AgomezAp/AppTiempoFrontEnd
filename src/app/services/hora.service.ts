@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment.development';
-import { Hora, Extra, Novedad} from '../interfaces/hora';
+import { Hora, Extra, Novedad, HistoricoExtra} from '../interfaces/hora';
 import { response } from 'express';
 
 @Injectable({
@@ -104,5 +104,13 @@ export class HoraService {
     };
     return this.http.put<Blob>(`${this.appUrl}${this.apiUrl}/updateExtra`, body);
   }
-  
+
+  getHistoricoExtras(id: number): Observable<HistoricoExtra[]> {
+    return this.http.get<HistoricoExtra[]>(`${this.appUrl}${this.apiUrl}/historicoExtras/${id}`);
+  }
+
+  getDetalleExtras(id: number, desde: string, hasta: string): Observable<Hora[]> {
+    return this.http.get<Hora[]>(`${this.appUrl}${this.apiUrl}/detalleExtras/${id}?desde=${desde}&hasta=${hasta}`);
+  }
+
 }

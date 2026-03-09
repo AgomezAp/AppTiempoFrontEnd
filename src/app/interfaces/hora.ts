@@ -40,3 +40,11 @@ export interface NovedadHistorico {
   horas: string;
   aceptacion: boolean;
 }
+
+export interface HistoricoExtra {
+  id: number;
+  Sid: number;
+  Name: string;
+  Acumulado: string;
+  fecha: string;
+}

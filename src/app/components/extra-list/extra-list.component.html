@@ -60,6 +60,12 @@
             <button class="btn-update" (click)="openModal(extra)">
               <i class="fas fa-edit"></i> Actualizar
             </button>
+            <button class="btn-historial" (click)="verHistorial(extra)">
+              <i class="fas fa-history"></i> Historial
+            </button>
+            <button class="btn-detalle" (click)="verDetalle(extra)">
+              <i class="fas fa-calendar-alt"></i> Detalle
+            </button>
           </td>
         </tr>
       </tbody>
@@ -73,7 +79,149 @@
   </div>
 </div>
 
-<!-- MODAL PARA OBSERVACIÓN COMPLETA -->
+<!-- MODAL PARA HISTORIAL DE HORAS EXTRAS -->
+<div
+  class="obs-modal-overlay"
+  *ngIf="historicoVisible"
+  (click)="cerrarHistorial()"
+>
+  <div class="historico-modal" (click)="$event.stopPropagation()">
+    <div class="obs-modal-header">
+      <h3><i class="fas fa-history"></i> Historial de Horas Extras</h3>
+      <button class="obs-modal-close-btn" (click)="cerrarHistorial()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="obs-modal-subheader">
+      <i class="fas fa-user"></i> {{ historicoNombre }}
+    </div>
+    <div class="historico-modal-body">
+      <div *ngIf="historicoLoading" class="historico-loading">
+        <i class="fas fa-spinner fa-spin"></i> Cargando historial...
+      </div>
+      <div *ngIf="!historicoLoading && historicoData.length === 0" class="historico-empty">
+        <i class="fas fa-inbox"></i>
+        <p>No hay registros de historial</p>
+      </div>
+      <table class="historico-table" *ngIf="!historicoLoading && historicoData.length > 0">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Horas Acumuladas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of historicoData">
+            <td>{{ formatearFechaHistorico(item.fecha) }}</td>
+            <td>
+              <span
+                class="hours-badge"
+                [ngClass]="{
+                  positive: isPositive(item.Acumulado),
+                  negative: isNegative(item.Acumulado),
+                  neutral: isNeutral(item.Acumulado),
+                }"
+              >
+                {{ item.Acumulado }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="obs-modal-footer">
+      <button class="btn-cerrar-modal" (click)="cerrarHistorial()">
+        <i class="fas fa-check"></i> Cerrar
+      </button>
+    </div>
+  </div>
+</div>
+<!-- MODAL PARA DETALLE DIARIO DE HORAS EXTRAS -->
+<div
+  class="obs-modal-overlay"
+  *ngIf="detalleVisible"
+  (click)="cerrarDetalle()"
+>
+  <div class="detalle-modal" (click)="$event.stopPropagation()">
+    <div class="obs-modal-header">
+      <h3><i class="fas fa-calendar-alt"></i> Detalle de Horas Extras</h3>
+      <button class="obs-modal-close-btn" (click)="cerrarDetalle()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="obs-modal-subheader">
+      <i class="fas fa-user"></i> {{ detalleNombre }}
+    </div>
+
+    <!-- Filtros de período -->
+    <div class="detalle-filtros">
+      <button
+        class="filtro-btn"
+        [ngClass]="{ active: detallePeriodo === 'semana' }"
+        (click)="cambiarPeriodo('semana')"
+      >
+        Esta Semana
+      </button>
+      <button
+        class="filtro-btn"
+        [ngClass]="{ active: detallePeriodo === 'semanaAnterior' }"
+        (click)="cambiarPeriodo('semanaAnterior')"
+      >
+        Semana Anterior
+      </button>
+      <button
+        class="filtro-btn"
+        [ngClass]="{ active: detallePeriodo === 'mes' }"
+        (click)="cambiarPeriodo('mes')"
+      >
+        Este Mes
+      </button>
+    </div>
+    <div class="detalle-periodo-label">
+      <i class="fas fa-calendar-week"></i> {{ getPeriodoLabel() }}
+    </div>
+
+    <div class="historico-modal-body">
+      <div *ngIf="detalleLoading" class="historico-loading">
+        <i class="fas fa-spinner fa-spin"></i> Cargando detalle...
+      </div>
+      <div *ngIf="!detalleLoading && detalleData.length === 0" class="historico-empty">
+        <i class="fas fa-inbox"></i>
+        <p>No hay días con horas extras en este período</p>
+      </div>
+      <table class="historico-table" *ngIf="!detalleLoading && detalleData.length > 0">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Entrada</th>
+            <th>Salida</th>
+            <th>Total</th>
+            <th>Extra</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of detalleData">
+            <td>{{ formatearFechaDetalle(item.Fecha) }}</td>
+            <td>{{ item.Entrada }}</td>
+            <td>{{ item.Salida }}</td>
+            <td>{{ item.Total }}</td>
+            <td>
+              <span class="hours-badge positive">
+                {{ item.Extra }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="obs-modal-footer">
+      <button class="btn-cerrar-modal" (click)="cerrarDetalle()">
+        <i class="fas fa-check"></i> Cerrar
+      </button>
+    </div>
+  </div>
+</div>
+
 <div
   class="obs-modal-overlay"
   *ngIf="observacionSeleccionada"
