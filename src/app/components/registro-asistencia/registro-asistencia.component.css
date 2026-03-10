@@ -1576,6 +1576,180 @@
   border-top: 1px solid #e0e0e0;
 }
 
+/* ========================================
+   PARTICIPANTES EXTERNOS
+   ======================================== */
+.form-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.external-form {
+  margin-bottom: 20px;
+}
+
+.external-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.external-indicator {
+  border-color: #2196f3;
+  background-color: #e3f2fd;
+}
+
+.external-indicator .selection-icon {
+  background-color: #2196f3;
+}
+
+.external-indicator .selection-icon i {
+  color: #ffffff;
+}
+
+.external-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.external-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background-color: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-left: 4px solid #2196f3;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.external-card:hover {
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.external-card-avatar {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #2196f3;
+  border-radius: 100px;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.external-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.external-card-name {
+  color: #141414;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+}
+
+.external-card-detail {
+  color: #757575;
+  font-size: 0.8125rem;
+  margin: 0;
+}
+
+.external-card-detail .separator {
+  margin: 0 6px;
+  color: #e0e0e0;
+}
+
+.external-card-email {
+  color: #9e9e9e;
+  font-size: 0.75rem;
+  margin: 4px 0 0 0;
+}
+
+.external-card-remove {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  color: #9e9e9e;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.external-card-remove:hover {
+  background-color: #f44336;
+  border-color: #f44336;
+  color: #ffffff;
+}
+
+.external-empty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  background-color: #fafafa;
+  border: 1px dashed #e0e0e0;
+  border-radius: 10px;
+  color: #9e9e9e;
+  font-size: 0.875rem;
+}
+
+.external-empty i {
+  font-size: 1rem;
+  color: #bdbdbd;
+}
+
+/* Estilos para el detalle modal: participantes externos */
+.row-externo {
+  background-color: #e3f2fd !important;
+}
+
+.row-externo:hover {
+  background-color: #bbdefb !important;
+}
+
+.avatar-externo {
+  background-color: #2196f3 !important;
+  color: #ffffff !important;
+}
+
+.badge-externo {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.participant-external-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 6px;
+  background-color: #2196f3;
+  color: #ffffff;
+  border-radius: 4px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.status-externo {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.status-externo i {
+  font-size: 0.875rem;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
   .info-cards-grid {
@@ -1732,6 +1906,18 @@
 
   .modal-footer .btn {
     width: 100%;
+  }
+
+  .form-grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .external-card-detail .separator {
+    display: none;
+  }
+
+  .external-card-detail span {
+    display: block;
   }
 }
 

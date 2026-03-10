@@ -1,0 +1,147 @@
+<app-navbar></app-navbar>
+
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h2>Dashboard SST</h2>
+    <div class="anio-selector">
+      <label>Año:</label>
+      <select [(ngModel)]="anioSeleccionado" (change)="cambiarAnio()">
+        <option *ngFor="let a of aniosDisponibles" [value]="a">{{ a }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando indicadores...</p>
+  </div>
+
+  <div *ngIf="!loading && dashboard" class="dashboard-content">
+    <!-- KPIs principales -->
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-accidentes">
+        <div class="kpi-icon">&#9888;</div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ dashboard.totalAccidentes }}</span>
+          <span class="kpi-label">Accidentes</span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-incidentes">
+        <div class="kpi-icon">&#9888;</div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ dashboard.totalIncidentes }}</span>
+          <span class="kpi-label">Incidentes</span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-dias">
+        <div class="kpi-icon">&#128197;</div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ dashboard.totalDiasIncapacidad }}</span>
+          <span class="kpi-label">Días Incapacidad</span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-seguimientos">
+        <div class="kpi-icon">&#9998;</div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ dashboard.seguimientosPendientes }}</span>
+          <span class="kpi-label">Seguimientos Pendientes</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráficas y desglose -->
+    <div class="charts-grid">
+      <!-- Por Severidad -->
+      <div class="chart-card">
+        <h4>Por Severidad</h4>
+        <div class="severity-bars">
+          <div class="severity-row">
+            <span class="severity-label">Leve</span>
+            <div class="severity-bar-container">
+              <div class="severity-bar bar-leve" [style.width.%]="dashboard.totalAccidentes + dashboard.totalIncidentes > 0 ? (getSeveridadTotal('leve') / (dashboard.totalAccidentes + dashboard.totalIncidentes)) * 100 : 0"></div>
+            </div>
+            <span class="severity-count">{{ getSeveridadTotal('leve') }}</span>
+          </div>
+          <div class="severity-row">
+            <span class="severity-label">Grave</span>
+            <div class="severity-bar-container">
+              <div class="severity-bar bar-grave" [style.width.%]="dashboard.totalAccidentes + dashboard.totalIncidentes > 0 ? (getSeveridadTotal('grave') / (dashboard.totalAccidentes + dashboard.totalIncidentes)) * 100 : 0"></div>
+            </div>
+            <span class="severity-count">{{ getSeveridadTotal('grave') }}</span>
+          </div>
+          <div class="severity-row">
+            <span class="severity-label">Mortal</span>
+            <div class="severity-bar-container">
+              <div class="severity-bar bar-mortal" [style.width.%]="dashboard.totalAccidentes + dashboard.totalIncidentes > 0 ? (getSeveridadTotal('mortal') / (dashboard.totalAccidentes + dashboard.totalIncidentes)) * 100 : 0"></div>
+            </div>
+            <span class="severity-count">{{ getSeveridadTotal('mortal') }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Por Estado -->
+      <div class="chart-card">
+        <h4>Por Estado</h4>
+        <div class="estado-indicators">
+          <div class="estado-item">
+            <div class="estado-circle estado-reportado">{{ getEstadoTotal('reportado') }}</div>
+            <span>Reportados</span>
+          </div>
+          <div class="estado-item">
+            <div class="estado-circle estado-investigacion">{{ getEstadoTotal('en_investigacion') }}</div>
+            <span>En Investigación</span>
+          </div>
+          <div class="estado-item">
+            <div class="estado-circle estado-cerrado">{{ getEstadoTotal('cerrado') }}</div>
+            <span>Cerrados</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Por Mes -->
+      <div class="chart-card chart-card-wide">
+        <h4>Eventos por Mes - {{ anioSeleccionado }}</h4>
+        <div class="chart-mensual" *ngIf="getMesTotales().length > 0">
+          <div class="chart-bars">
+            <div class="chart-bar-group" *ngFor="let m of getMesTotales()">
+              <div class="bar-stack">
+                <div class="bar bar-accidente" [style.height]="getBarHeight(m.accidentes)" title="Accidentes: {{ m.accidentes }}"></div>
+                <div class="bar bar-incidente" [style.height]="getBarHeight(m.incidentes)" title="Incidentes: {{ m.incidentes }}"></div>
+              </div>
+              <span class="bar-label">{{ m.mes }}</span>
+            </div>
+          </div>
+          <div class="chart-legend">
+            <span class="legend-item"><span class="legend-color bg-accidente"></span> Accidentes</span>
+            <span class="legend-item"><span class="legend-color bg-incidente"></span> Incidentes</span>
+          </div>
+        </div>
+        <div *ngIf="getMesTotales().length === 0" class="empty-chart">
+          <p>No hay datos para el año seleccionado</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Módulos próximos -->
+    <div class="modulos-proximos">
+      <h4>Módulos en desarrollo</h4>
+      <div class="modulo-grid">
+        <div class="modulo-card">
+          <span class="modulo-icon">&#128717;</span>
+          <span class="modulo-nombre">EPP y Dotación</span>
+          <span class="modulo-estado">Próximamente</span>
+        </div>
+        <div class="modulo-card">
+          <span class="modulo-icon">&#128269;</span>
+          <span class="modulo-nombre">Inspecciones y Riesgos</span>
+          <span class="modulo-estado">Próximamente</span>
+        </div>
+        <div class="modulo-card">
+          <span class="modulo-icon">&#127891;</span>
+          <span class="modulo-nombre">Capacitaciones SST</span>
+          <span class="modulo-estado">Próximamente</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

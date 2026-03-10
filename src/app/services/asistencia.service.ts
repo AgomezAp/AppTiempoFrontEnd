@@ -54,7 +54,7 @@ export class AsistenciaService {
   }
 
   // Descargar PDF del acta
-  descargarPDF(id: number, empresa: 'AP' | 'AT' | 'ME'): Observable<Blob> {
+  descargarPDF(id: number, empresa: string): Observable<Blob> {
     return this.http.get(`${this.appUrl}${this.apiUrl}/pdf/${id}?empresa=${empresa}`, {
       responseType: 'blob',
     });

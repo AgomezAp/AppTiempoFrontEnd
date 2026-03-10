@@ -15,16 +15,25 @@ export interface RegistroAsistencia {
 export interface ParticipanteAsistencia {
   id?: number;
   registroId?: number;
-  usuarioId: number;
+  usuarioId: number | null;
   nombreCompleto: string;
   documentoIdentificacion?: string;
   cargo?: string;
-  empresa: 'AP' | 'AT' | 'ME';
+  empresa: string;
   email: string;
   firma?: string | null;
   fechaFirma?: string | null;
   tokenFirma?: string;
   firmado: boolean;
+  esExterno?: boolean;
+}
+
+export interface ParticipanteExterno {
+  nombreCompleto: string;
+  documentoIdentificacion: string;
+  cargo: string;
+  empresa: string;
+  email: string;
 }
 
 export interface CrearRegistroRequest {
@@ -32,6 +41,7 @@ export interface CrearRegistroRequest {
   tema: string;
   facilitadorId: number;
   participantesIds: number[];
+  participantesExternos?: ParticipanteExterno[];
 }
 
 export interface InfoFirmaResponse {
@@ -40,7 +50,7 @@ export interface InfoFirmaResponse {
     nombreCompleto: string;
     documentoIdentificacion: string;
     cargo: string;
-    empresa: 'AP' | 'AT' | 'ME';
+    empresa: string;
   };
   registro: {
     fecha: string;

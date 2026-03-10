@@ -36,6 +36,8 @@ import { RegistroAsistenciaComponent } from './components/registro-asistencia/re
 import { FirmarAsistenciaComponent } from './components/firmar-asistencia/firmar-asistencia.component';
 import { ActasRecargasComponent } from './components/actas-recargas/actas-recargas.component';
 import { FirmarActaComponent } from './components/firmar-acta/firmar-acta.component';
+import { SsgtAccidentesComponent } from './components/ssgt-accidentes/ssgt-accidentes.component';
+import { SsgtDashboardComponent } from './components/ssgt-dashboard/ssgt-dashboard.component';
 
 export const routes: Routes = [
   {
@@ -149,10 +151,24 @@ export const routes: Routes = [
     data: { allowedRoles: ['Admin', 'User', 'Tecnologia'] } 
   },
   // Ruta pública para firmar acta de recarga (sin guard)
-  { 
-    path: 'firmar-acta/:token', 
+  {
+    path: 'firmar-acta/:token',
     component: FirmarActaComponent
   },
-  
+
+  // SSGT - Seguridad y Salud en el Trabajo
+  {
+    path: 'ssgt-dashboard',
+    component: SsgtDashboardComponent,
+    canActivate: [tRolGuard],
+    data: { allowedRoles: ['Admin'] }
+  },
+  {
+    path: 'ssgt-accidentes',
+    component: SsgtAccidentesComponent,
+    canActivate: [tRolGuard],
+    data: { allowedRoles: ['Admin'] }
+  },
+
   { path: '**', component: ErrorPageComponent },
 ];

@@ -1,0 +1,404 @@
+<app-navbar></app-navbar>
+
+<div class="ssgt-container">
+  <div class="ssgt-header">
+    <h2>Accidentes e Incidentes</h2>
+    <button class="btn-nuevo" (click)="abrirFormulario()">+ Nuevo Reporte</button>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="filtros-section">
+    <div class="filtros-grid">
+      <div class="filtro-group">
+        <label>Tipo</label>
+        <select [(ngModel)]="filtros.tipoEvento" (change)="aplicarFiltros()">
+          <option value="">Todos</option>
+          <option value="accidente">Accidente</option>
+          <option value="incidente">Incidente</option>
+        </select>
+      </div>
+      <div class="filtro-group">
+        <label>Severidad</label>
+        <select [(ngModel)]="filtros.severidad" (change)="aplicarFiltros()">
+          <option value="">Todas</option>
+          <option value="leve">Leve</option>
+          <option value="grave">Grave</option>
+          <option value="mortal">Mortal</option>
+        </select>
+      </div>
+      <div class="filtro-group">
+        <label>Estado</label>
+        <select [(ngModel)]="filtros.estado" (change)="aplicarFiltros()">
+          <option value="">Todos</option>
+          <option value="reportado">Reportado</option>
+          <option value="en_investigacion">En Investigación</option>
+          <option value="cerrado">Cerrado</option>
+        </select>
+      </div>
+      <div class="filtro-group">
+        <label>Desde</label>
+        <input type="date" [(ngModel)]="filtros.fechaDesde" (change)="aplicarFiltros()">
+      </div>
+      <div class="filtro-group">
+        <label>Hasta</label>
+        <input type="date" [(ngModel)]="filtros.fechaHasta" (change)="aplicarFiltros()">
+      </div>
+      <div class="filtro-group filtro-actions">
+        <button class="btn-limpiar" (click)="limpiarFiltros()">Limpiar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando...</p>
+  </div>
+
+  <!-- LISTA DE ACCIDENTES -->
+  <div *ngIf="!loading && !mostrarDetalle" class="accidentes-lista">
+    <div *ngIf="accidentes.length === 0" class="empty-state">
+      <p>No se encontraron registros</p>
+    </div>
+
+    <div class="table-responsive" *ngIf="accidentes.length > 0">
+      <table class="tabla-accidentes">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Tipo</th>
+            <th>Severidad</th>
+            <th>Lugar</th>
+            <th>Estado</th>
+            <th>Reportado por</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let acc of accidentes" (click)="verDetalle(acc.id!)">
+            <td>{{ formatFecha(acc.fecha) }}</td>
+            <td>{{ acc.hora }}</td>
+            <td><span class="badge" [ngClass]="getTipoClass(acc.tipoEvento)">{{ acc.tipoEvento }}</span></td>
+            <td><span class="badge" [ngClass]="getSeveridadClass(acc.severidad)">{{ acc.severidad }}</span></td>
+            <td>{{ acc.lugar }}</td>
+            <td><span class="badge" [ngClass]="getEstadoClass(acc.estado!)">{{ acc.estado?.replace('_', ' ') }}</span></td>
+            <td>{{ acc.reportante ? acc.reportante.name + ' ' + acc.reportante.lastName : 'N/A' }}</td>
+            <td class="acciones-cell" (click)="$event.stopPropagation()">
+              <button class="btn-accion btn-editar" title="Editar" (click)="abrirFormulario(acc)">&#9998;</button>
+              <button class="btn-accion btn-eliminar" title="Eliminar" (click)="eliminarAccidente(acc.id!)">&#10005;</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODAL FORMULARIO -->
+  <div *ngIf="mostrarFormulario" class="modal-overlay" (click)="cerrarFormulario()">
+    <div class="modal-content modal-lg" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ editandoId ? 'Editar Reporte' : 'Nuevo Reporte de Accidente/Incidente' }}</h3>
+        <button class="btn-cerrar" (click)="cerrarFormulario()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Fecha *</label>
+            <input type="date" [(ngModel)]="nuevoAccidente.fecha" required>
+          </div>
+          <div class="form-group">
+            <label>Hora *</label>
+            <input type="time" [(ngModel)]="nuevoAccidente.hora" required>
+          </div>
+          <div class="form-group">
+            <label>Tipo de evento *</label>
+            <select [(ngModel)]="nuevoAccidente.tipoEvento">
+              <option value="accidente">Accidente</option>
+              <option value="incidente">Incidente</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Severidad *</label>
+            <select [(ngModel)]="nuevoAccidente.severidad">
+              <option value="leve">Leve</option>
+              <option value="grave">Grave</option>
+              <option value="mortal">Mortal</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Lugar *</label>
+          <input type="text" [(ngModel)]="nuevoAccidente.lugar" placeholder="Lugar del evento" required>
+        </div>
+
+        <div class="form-group">
+          <label>Descripción *</label>
+          <textarea [(ngModel)]="nuevoAccidente.descripcion" rows="3" placeholder="Descripción detallada del evento" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Empresa</label>
+          <select [(ngModel)]="nuevoAccidente.empresa">
+            <option value="">Sin especificar</option>
+            <option value="AP">Andrés Publicidad</option>
+            <option value="AT">Andrés Trading</option>
+            <option value="ME">ME</option>
+          </select>
+        </div>
+
+        <div class="form-grid" *ngIf="esSevero()">
+          <div class="form-group">
+            <label>Tipo de lesión *</label>
+            <input type="text" [(ngModel)]="nuevoAccidente.tipoLesion" placeholder="Ej: Fractura, corte, quemadura">
+          </div>
+          <div class="form-group">
+            <label>Parte afectada *</label>
+            <input type="text" [(ngModel)]="nuevoAccidente.parteAfectada" placeholder="Ej: Mano derecha, espalda">
+          </div>
+        </div>
+
+        <div class="form-grid" *ngIf="!esSevero()">
+          <div class="form-group">
+            <label>Tipo de lesión</label>
+            <input type="text" [(ngModel)]="nuevoAccidente.tipoLesion" placeholder="Opcional para eventos leves">
+          </div>
+          <div class="form-group">
+            <label>Parte afectada</label>
+            <input type="text" [(ngModel)]="nuevoAccidente.parteAfectada" placeholder="Opcional para eventos leves">
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Días de incapacidad</label>
+            <input type="number" [(ngModel)]="nuevoAccidente.diasIncapacidad" min="0" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label>Reportado por</label>
+            <select [(ngModel)]="nuevoAccidente.reportadoPor">
+              <option *ngFor="let u of usuarios" [value]="u.Uid">{{ u.name }} {{ u.lastName }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Testigos</label>
+          <textarea [(ngModel)]="nuevoAccidente.testigos" rows="2" placeholder="Nombres de los testigos (opcional)"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" (click)="cerrarFormulario()">Cancelar</button>
+        <button class="btn-guardar" (click)="guardarAccidente()">{{ editandoId ? 'Actualizar' : 'Crear Reporte' }}</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA DETALLE -->
+  <div *ngIf="mostrarDetalle && accidenteSeleccionado" class="detalle-container">
+    <button class="btn-volver" (click)="cerrarDetalle()">&#8592; Volver a la lista</button>
+
+    <div class="detalle-header">
+      <div class="detalle-titulo">
+        <h3>
+          <span class="badge" [ngClass]="getTipoClass(accidenteSeleccionado.tipoEvento)">{{ accidenteSeleccionado.tipoEvento }}</span>
+          {{ accidenteSeleccionado.lugar }}
+        </h3>
+        <span class="badge" [ngClass]="getSeveridadClass(accidenteSeleccionado.severidad)">{{ accidenteSeleccionado.severidad }}</span>
+        <span class="badge" [ngClass]="getEstadoClass(accidenteSeleccionado.estado!)">{{ accidenteSeleccionado.estado?.replace('_', ' ') }}</span>
+      </div>
+      <div class="detalle-acciones">
+        <select [(ngModel)]="accidenteSeleccionado.estado" (change)="cambiarEstado(accidenteSeleccionado, accidenteSeleccionado.estado!)">
+          <option value="reportado">Reportado</option>
+          <option value="en_investigacion">En Investigación</option>
+          <option value="cerrado">Cerrado</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="detalle-info-grid">
+      <div class="info-card">
+        <label>Fecha</label>
+        <p>{{ formatFecha(accidenteSeleccionado.fecha) }}</p>
+      </div>
+      <div class="info-card">
+        <label>Hora</label>
+        <p>{{ accidenteSeleccionado.hora }}</p>
+      </div>
+      <div class="info-card">
+        <label>Empresa</label>
+        <p>{{ accidenteSeleccionado.empresa || 'No especificada' }}</p>
+      </div>
+      <div class="info-card">
+        <label>Reportado por</label>
+        <p>{{ accidenteSeleccionado.reportante ? accidenteSeleccionado.reportante.name + ' ' + accidenteSeleccionado.reportante.lastName : 'N/A' }}</p>
+      </div>
+      <div class="info-card" *ngIf="accidenteSeleccionado.tipoLesion">
+        <label>Tipo de lesión</label>
+        <p>{{ accidenteSeleccionado.tipoLesion }}</p>
+      </div>
+      <div class="info-card" *ngIf="accidenteSeleccionado.parteAfectada">
+        <label>Parte afectada</label>
+        <p>{{ accidenteSeleccionado.parteAfectada }}</p>
+      </div>
+      <div class="info-card" *ngIf="accidenteSeleccionado.diasIncapacidad">
+        <label>Días de incapacidad</label>
+        <p>{{ accidenteSeleccionado.diasIncapacidad }}</p>
+      </div>
+    </div>
+
+    <div class="info-card info-card-full">
+      <label>Descripción</label>
+      <p>{{ accidenteSeleccionado.descripcion }}</p>
+    </div>
+
+    <div class="info-card info-card-full" *ngIf="accidenteSeleccionado.testigos">
+      <label>Testigos</label>
+      <p>{{ accidenteSeleccionado.testigos }}</p>
+    </div>
+
+    <!-- TABS DETALLE -->
+    <div class="detalle-tabs">
+      <button class="tab-btn" [class.active]="!mostrarInvestigacion && !mostrarEvidencias && !mostrarSeguimiento" (click)="mostrarInvestigacion=false;mostrarEvidencias=false;mostrarSeguimiento=false">Resumen</button>
+      <button class="tab-btn" [class.active]="mostrarInvestigacion" (click)="abrirInvestigacion();mostrarEvidencias=false;mostrarSeguimiento=false">Investigación</button>
+      <button class="tab-btn" [class.active]="mostrarEvidencias" (click)="abrirEvidencias();mostrarInvestigacion=false;mostrarSeguimiento=false">Evidencias ({{ accidenteSeleccionado.evidencias?.length || 0 }})</button>
+      <button class="tab-btn" [class.active]="mostrarSeguimiento" (click)="mostrarSeguimiento=true;mostrarInvestigacion=false;mostrarEvidencias=false">Seguimiento ({{ accidenteSeleccionado.seguimientos?.length || 0 }})</button>
+    </div>
+
+    <!-- TAB: INVESTIGACION -->
+    <div *ngIf="mostrarInvestigacion" class="tab-content">
+      <h4>Investigación del evento</h4>
+      <div class="form-group">
+        <label>Responsable de investigación *</label>
+        <select [(ngModel)]="investigacion.responsableInvestigacion">
+          <option [value]="0" disabled>Seleccione...</option>
+          <option *ngFor="let u of usuarios" [value]="u.Uid">{{ u.name }} {{ u.lastName }}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Fecha de investigación *</label>
+        <input type="date" [(ngModel)]="investigacion.fechaInvestigacion">
+      </div>
+      <div class="form-group">
+        <label>Causas inmediatas</label>
+        <textarea [(ngModel)]="investigacion.causasInmediatas" rows="3" placeholder="Actos y condiciones subestándar"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Causas básicas</label>
+        <textarea [(ngModel)]="investigacion.causasBasicas" rows="3" placeholder="Factores personales y del trabajo"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Acciones correctivas</label>
+        <textarea [(ngModel)]="investigacion.accionesCorrectivas" rows="3" placeholder="Medidas correctivas a implementar"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Conclusiones</label>
+        <textarea [(ngModel)]="investigacion.conclusiones" rows="3" placeholder="Conclusiones de la investigación"></textarea>
+      </div>
+      <button class="btn-guardar" (click)="guardarInvestigacion()">Guardar Investigación</button>
+    </div>
+
+    <!-- TAB: EVIDENCIAS -->
+    <div *ngIf="mostrarEvidencias" class="tab-content">
+      <h4>Evidencias</h4>
+
+      <div class="evidencia-upload">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Tipo de evidencia</label>
+            <select [(ngModel)]="tipoEvidencia">
+              <option value="foto">Foto</option>
+              <option value="documento_medico">Documento médico</option>
+              <option value="formato_reporte">Formato de reporte</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Archivo</label>
+            <input type="file" (change)="onArchivoSeleccionado($event)">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <input type="text" [(ngModel)]="descripcionEvidencia" placeholder="Descripción breve del archivo">
+        </div>
+        <button class="btn-guardar" (click)="subirEvidencia()" [disabled]="!archivoEvidencia">Subir Evidencia</button>
+      </div>
+
+      <div class="evidencias-lista" *ngIf="accidenteSeleccionado.evidencias && accidenteSeleccionado.evidencias.length > 0">
+        <div class="evidencia-item" *ngFor="let ev of accidenteSeleccionado.evidencias">
+          <div class="evidencia-info">
+            <span class="evidencia-nombre">{{ ev.nombreArchivo }}</span>
+            <span class="badge badge-tipo">{{ ev.tipo.replace('_', ' ') }}</span>
+            <span class="evidencia-desc" *ngIf="ev.descripcion">{{ ev.descripcion }}</span>
+          </div>
+          <button class="btn-accion btn-eliminar" (click)="eliminarEvidencia(ev.id!)">&#10005;</button>
+        </div>
+      </div>
+
+      <div *ngIf="!accidenteSeleccionado.evidencias || accidenteSeleccionado.evidencias.length === 0" class="empty-state">
+        <p>No hay evidencias adjuntas</p>
+      </div>
+    </div>
+
+    <!-- TAB: SEGUIMIENTO -->
+    <div *ngIf="mostrarSeguimiento" class="tab-content">
+      <h4>Seguimiento de acciones</h4>
+
+      <button class="btn-nuevo btn-sm" (click)="abrirSeguimiento()">+ Nueva Acción</button>
+
+      <!-- Formulario nueva accion -->
+      <div *ngIf="mostrarSeguimiento && nuevoSeguimiento.descripcion !== undefined" class="seguimiento-form">
+        <div class="form-group">
+          <label>Descripción de la acción *</label>
+          <textarea [(ngModel)]="nuevoSeguimiento.descripcion" rows="2" placeholder="Descripción de la acción correctiva"></textarea>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Responsable *</label>
+            <select [(ngModel)]="nuevoSeguimiento.responsableId">
+              <option [value]="0" disabled>Seleccione...</option>
+              <option *ngFor="let u of usuarios" [value]="u.Uid">{{ u.name }} {{ u.lastName }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Fecha límite *</label>
+            <input type="date" [(ngModel)]="nuevoSeguimiento.fechaLimite">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Observaciones</label>
+          <textarea [(ngModel)]="nuevoSeguimiento.observaciones" rows="2" placeholder="Notas adicionales"></textarea>
+        </div>
+        <button class="btn-guardar" (click)="guardarSeguimiento()">Guardar Acción</button>
+      </div>
+
+      <!-- Lista seguimientos -->
+      <div class="seguimientos-lista" *ngIf="accidenteSeleccionado.seguimientos && accidenteSeleccionado.seguimientos.length > 0">
+        <div class="seguimiento-item" *ngFor="let seg of accidenteSeleccionado.seguimientos">
+          <div class="seguimiento-info">
+            <p class="seguimiento-desc">{{ seg.descripcion }}</p>
+            <div class="seguimiento-meta">
+              <span>Responsable: {{ seg.responsable ? seg.responsable.name + ' ' + seg.responsable.lastName : getNombreUsuario(seg.responsableId) }}</span>
+              <span>Fecha límite: {{ formatFecha(seg.fechaLimite) }}</span>
+              <span *ngIf="seg.observaciones">Obs: {{ seg.observaciones }}</span>
+            </div>
+          </div>
+          <div class="seguimiento-estado">
+            <select [ngModel]="seg.estado" (ngModelChange)="actualizarEstadoSeguimiento(seg.id!, $event)">
+              <option value="pendiente">Pendiente</option>
+              <option value="en_progreso">En progreso</option>
+              <option value="completado">Completado</option>
+            </select>
+            <span class="badge" [ngClass]="getEstadoSeguimientoClass(seg.estado)">{{ seg.estado.replace('_', ' ') }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!accidenteSeleccionado.seguimientos || accidenteSeleccionado.seguimientos.length === 0" class="empty-state">
+        <p>No hay acciones de seguimiento</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -133,6 +133,30 @@
               </li>
             </ul>
           </li>
+          <li class="nav-item dropdown" *ngIf="userRole === 'Admin'">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="ssgtDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              SSGT
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="ssgtDropdown">
+              <li>
+                <a class="dropdown-item" href="/ssgt-dashboard"
+                  >Dashboard SST</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="/ssgt-accidentes"
+                  >Accidentes e Incidentes</a
+                >
+              </li>
+            </ul>
+          </li>
           <li class="nav-item ms-lg-2">
             <button class="btn btn-logout" type="button" (click)="logOut()">
               Cerrar sesión
