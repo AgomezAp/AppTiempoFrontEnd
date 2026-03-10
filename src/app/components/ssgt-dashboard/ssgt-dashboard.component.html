@@ -1,16 +1,27 @@
 <app-navbar></app-navbar>
 
 <div class="dashboard-container">
-  <div class="dashboard-header">
-    <h2>Dashboard SST</h2>
-    <div class="anio-selector">
-      <label>Año:</label>
-      <select [(ngModel)]="anioSeleccionado" (change)="cambiarAnio()">
-        <option *ngFor="let a of aniosDisponibles" [value]="a">{{ a }}</option>
-      </select>
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title-group">
+        <div class="header-icon">&#128202;</div>
+        <div class="header-text">
+          <h2>Dashboard SST</h2>
+          <p class="header-subtitle">Indicadores de Seguridad y Salud en el Trabajo</p>
+        </div>
+      </div>
+      <div class="anio-selector">
+        <label>Periodo:</label>
+        <select [(ngModel)]="anioSeleccionado" (change)="cambiarAnio()">
+          <option *ngFor="let a of aniosDisponibles" [value]="a">{{ a }}</option>
+        </select>
+      </div>
     </div>
+    <div class="header-decoration"></div>
   </div>
 
+  <!-- LOADING -->
   <div *ngIf="loading" class="loading-container">
     <div class="spinner"></div>
     <p>Cargando indicadores...</p>
@@ -20,6 +31,7 @@
     <!-- KPIs principales -->
     <div class="kpi-grid">
       <div class="kpi-card kpi-accidentes">
+        <div class="kpi-card-accent"></div>
         <div class="kpi-icon">&#9888;</div>
         <div class="kpi-info">
           <span class="kpi-value">{{ dashboard.totalAccidentes }}</span>
@@ -27,6 +39,7 @@
         </div>
       </div>
       <div class="kpi-card kpi-incidentes">
+        <div class="kpi-card-accent"></div>
         <div class="kpi-icon">&#9888;</div>
         <div class="kpi-info">
           <span class="kpi-value">{{ dashboard.totalIncidentes }}</span>
@@ -34,6 +47,7 @@
         </div>
       </div>
       <div class="kpi-card kpi-dias">
+        <div class="kpi-card-accent"></div>
         <div class="kpi-icon">&#128197;</div>
         <div class="kpi-info">
           <span class="kpi-value">{{ dashboard.totalDiasIncapacidad }}</span>
@@ -41,6 +55,7 @@
         </div>
       </div>
       <div class="kpi-card kpi-seguimientos">
+        <div class="kpi-card-accent"></div>
         <div class="kpi-icon">&#9998;</div>
         <div class="kpi-info">
           <span class="kpi-value">{{ dashboard.seguimientosPendientes }}</span>
