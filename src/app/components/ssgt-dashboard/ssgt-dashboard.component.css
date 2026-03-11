@@ -499,6 +499,13 @@
   transition: all 0.3s ease;
 }
 
+.modulo-link {
+  text-decoration: none;
+  cursor: pointer;
+  border-style: solid;
+  border-color: #e0e0e0;
+}
+
 .modulo-card:hover {
   border-color: #ffd600;
   border-style: solid;
@@ -534,6 +541,11 @@
   padding: 4px 14px;
   border-radius: 100px;
   font-weight: 500;
+}
+
+.modulo-activo {
+  background-color: #d4edda;
+  color: #155724;
 }
 
 /* ===== ANIMATIONS ===== */

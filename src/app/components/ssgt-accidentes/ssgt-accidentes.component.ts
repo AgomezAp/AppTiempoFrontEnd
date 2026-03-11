@@ -427,7 +427,7 @@ export class SsgtAccidentesComponent implements OnInit {
 
   getNombreUsuario(uid: number): string {
     const user = this.usuarios.find((u) => u.Uid === uid);
-    return user ? `${user.name} ${user.lastName}` : 'Desconocido';
+    return user ? user.nombre : 'Desconocido';
   }
 
   getSeveridadClass(severidad: string): string {

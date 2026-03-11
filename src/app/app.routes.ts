@@ -38,6 +38,14 @@ import { ActasRecargasComponent } from './components/actas-recargas/actas-recarg
 import { FirmarActaComponent } from './components/firmar-acta/firmar-acta.component';
 import { SsgtAccidentesComponent } from './components/ssgt-accidentes/ssgt-accidentes.component';
 import { SsgtDashboardComponent } from './components/ssgt-dashboard/ssgt-dashboard.component';
+import { SsgtEppCatalogoComponent } from './components/ssgt-epp-catalogo/ssgt-epp-catalogo.component';
+import { SsgtEppEntregasComponent } from './components/ssgt-epp-entregas/ssgt-epp-entregas.component';
+import { SsgtEppFirmarComponent } from './components/ssgt-epp-firmar/ssgt-epp-firmar.component';
+import { SsgtDocumentosFirmaComponent } from './components/ssgt-documentos-firma/ssgt-documentos-firma.component';
+import { SsgtDocumentoFirmarComponent } from './components/ssgt-documento-firmar/ssgt-documento-firmar.component';
+import { SsgtInspeccionesComponent } from './components/ssgt-inspecciones/ssgt-inspecciones.component';
+import { SsgtCapacitacionesComponent } from './components/ssgt-capacitaciones/ssgt-capacitaciones.component';
+import { SsgtEvaluacionComponent } from './components/ssgt-evaluacion/ssgt-evaluacion.component';
 
 export const routes: Routes = [
   {
@@ -166,6 +174,60 @@ export const routes: Routes = [
   {
     path: 'ssgt-accidentes',
     component: SsgtAccidentesComponent,
+    canActivate: [tRolGuard],
+    data: { allowedRoles: ['Admin'] }
+  },
+
+  // SSGT - EPP (Elementos de Protección Personal)
+  {
+    path: 'ssgt-epp-catalogo',
+    component: SsgtEppCatalogoComponent,
+    canActivate: [tRolGuard],
+    data: { allowedRoles: ['Admin'] }
+  },
+  {
+    path: 'ssgt-epp-entregas',
+    component: SsgtEppEntregasComponent,
+    canActivate: [tRolGuard],
+    data: { allowedRoles: ['Admin'] }
+  },
+  // Ruta pública para firmar entrega EPP (sin guard)
+  {
+    path: 'firmar-epp/:token',
+    component: SsgtEppFirmarComponent
+  },
+
+  // SSGT - Documentos para Firmar
+  {
+    path: 'ssgt-documentos-firma',
+    component: SsgtDocumentosFirmaComponent,
+    canActivate: [tRolGuard],
+    data: { allowedRoles: ['Admin'] }
+  },
+  // Ruta pública para firmar documento (sin guard)
+  {
+    path: 'firmar-documento/:token',
+    component: SsgtDocumentoFirmarComponent
+  },
+
+  // SSGT - Inspecciones y Riesgos
+  {
+    path: 'ssgt-inspecciones',
+    component: SsgtInspeccionesComponent,
+    canActivate: [tRolGuard],
+    data: { allowedRoles: ['Admin'] }
+  },
+
+  // SSGT - Capacitaciones SST
+  {
+    path: 'ssgt-capacitaciones',
+    component: SsgtCapacitacionesComponent,
+    canActivate: [tRolGuard],
+    data: { allowedRoles: ['Admin'] }
+  },
+  {
+    path: 'ssgt-evaluacion/:id',
+    component: SsgtEvaluacionComponent,
     canActivate: [tRolGuard],
     data: { allowedRoles: ['Admin'] }
   },

@@ -188,7 +188,7 @@
           <div class="form-group">
             <label>Reportado por</label>
             <select [(ngModel)]="nuevoAccidente.reportadoPor">
-              <option *ngFor="let u of usuarios" [value]="u.Uid">{{ u.name }} {{ u.lastName }}</option>
+              <option *ngFor="let u of usuarios" [value]="u.Uid">{{ u.nombre }}</option>
             </select>
           </div>
         </div>
@@ -283,7 +283,7 @@
         <label>Responsable de investigación *</label>
         <select [(ngModel)]="investigacion.responsableInvestigacion">
           <option [value]="0" disabled>Seleccione...</option>
-          <option *ngFor="let u of usuarios" [value]="u.Uid">{{ u.name }} {{ u.lastName }}</option>
+          <option *ngFor="let u of usuarios" [value]="u.Uid">{{ u.nombre }}</option>
         </select>
       </div>
       <div class="form-group">
@@ -369,7 +369,7 @@
             <label>Responsable *</label>
             <select [(ngModel)]="nuevoSeguimiento.responsableId">
               <option [value]="0" disabled>Seleccione...</option>
-              <option *ngFor="let u of usuarios" [value]="u.Uid">{{ u.name }} {{ u.lastName }}</option>
+              <option *ngFor="let u of usuarios" [value]="u.Uid">{{ u.nombre }}</option>
             </select>
           </div>
           <div class="form-group">

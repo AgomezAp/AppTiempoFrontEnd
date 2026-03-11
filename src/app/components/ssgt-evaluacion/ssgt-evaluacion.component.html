@@ -1,0 +1,98 @@
+<app-navbar></app-navbar>
+
+<div class="eval-container">
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando evaluación...</p>
+  </div>
+
+  <!-- Resultado -->
+  <div class="resultado-container" *ngIf="mostrarResultado && resultado">
+    <div class="resultado-card">
+      <div class="resultado-header" [class.aprobado]="resultado.calificacion >= 70" [class.reprobado]="resultado.calificacion < 70">
+        <div class="resultado-icon">
+          <i class="fas" [ngClass]="resultado.calificacion >= 70 ? 'fa-check-circle' : 'fa-times-circle'"></i>
+        </div>
+        <h2>{{ resultado.calificacion >= 70 ? 'Aprobado' : 'No Aprobado' }}</h2>
+      </div>
+      <div class="resultado-body">
+        <div class="resultado-score">
+          <span class="score-number">{{ resultado.calificacion | number: '1.0-0' }}%</span>
+        </div>
+        <div class="resultado-stats">
+          <div class="stat">
+            <span class="stat-value">{{ resultado.correctas }}</span>
+            <span class="stat-label">Correctas</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">{{ resultado.total - resultado.correctas }}</span>
+            <span class="stat-label">Incorrectas</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">{{ resultado.total }}</span>
+            <span class="stat-label">Total</span>
+          </div>
+        </div>
+        <button class="btn-primary" (click)="volverACapacitaciones()" style="margin-top: 20px;">
+          <i class="fas fa-arrow-left"></i> Volver a Capacitaciones
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Evaluación Form -->
+  <div class="eval-form" *ngIf="!loading && !mostrarResultado && evaluacion">
+    <div class="eval-header">
+      <div>
+        <h1>{{ evaluacion.titulo }}</h1>
+        <p>{{ preguntas.length }} preguntas | {{ getPreguntasRespondidas() }} respondidas</p>
+      </div>
+      <div class="timer" *ngIf="tiempoLimite > 0" [class.warning]="tiempoRestante < 120">
+        <i class="fas fa-clock"></i>
+        {{ getMinutos() }}:{{ getSegundos().toString().padStart(2, '0') }}
+      </div>
+    </div>
+
+    <div class="preguntas-list">
+      <div class="pregunta-card" *ngFor="let p of preguntas; let i = index">
+        <div class="pregunta-num">{{ i + 1 }}</div>
+        <div class="pregunta-content">
+          <p class="pregunta-text">{{ p.pregunta }}</p>
+
+          <!-- Opción múltiple -->
+          <div class="opciones-list" *ngIf="p.tipo === 'opcion_multiple'">
+            <label class="opcion-item" *ngFor="let opt of getOpciones(p)"
+                   [class.selected]="respuestas[p.id] === opt">
+              <input type="radio" [name]="'pregunta_' + p.id" [value]="opt"
+                     [(ngModel)]="respuestas[p.id]">
+              <span class="opcion-text">{{ opt }}</span>
+            </label>
+          </div>
+
+          <!-- Verdadero/Falso -->
+          <div class="opciones-list" *ngIf="p.tipo === 'verdadero_falso'">
+            <label class="opcion-item" [class.selected]="respuestas[p.id] === 'verdadero'">
+              <input type="radio" [name]="'pregunta_' + p.id" value="verdadero"
+                     [(ngModel)]="respuestas[p.id]">
+              <span class="opcion-text">Verdadero</span>
+            </label>
+            <label class="opcion-item" [class.selected]="respuestas[p.id] === 'falso'">
+              <input type="radio" [name]="'pregunta_' + p.id" value="falso"
+                     [(ngModel)]="respuestas[p.id]">
+              <span class="opcion-text">Falso</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="eval-footer">
+      <button class="btn-secondary" (click)="volverACapacitaciones()">Cancelar</button>
+      <button class="btn-primary btn-enviar" (click)="enviarRespuestas()" [disabled]="enviando">
+        <span *ngIf="!enviando"><i class="fas fa-paper-plane"></i> Enviar Respuestas</span>
+        <span *ngIf="enviando"><i class="fas fa-spinner fa-spin"></i> Enviando...</span>
+      </button>
+    </div>
+  </div>
+</div>

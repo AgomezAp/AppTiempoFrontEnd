@@ -1,0 +1,130 @@
+<app-navbar></app-navbar>
+<div class="ssgt-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title-group">
+        <div class="header-icon"><i class="fas fa-hard-hat"></i></div>
+        <div class="header-text">
+          <h2>Catálogo EPP</h2>
+          <p class="header-subtitle">Gestión de Elementos de Protección Personal</p>
+        </div>
+      </div>
+      <button class="btn-primary-accent" (click)="abrirFormulario()">
+        <i class="fas fa-plus"></i> Nuevo EPP
+      </button>
+    </div>
+    <div class="header-decoration"></div>
+  </div>
+
+  <!-- Alertas Panel -->
+  <div class="alertas-panel" *ngIf="alertas.length > 0">
+    <h4><i class="fas fa-bell"></i> Alertas ({{alertas.length}})</h4>
+    <div class="alerta-item" *ngFor="let alerta of alertas" [class.stock-bajo]="alerta.tipo === 'stock_bajo'" [class.vencimiento]="alerta.tipo === 'vencimiento_proximo'">
+      <div class="alerta-info">
+        <strong>{{alerta.epp?.nombre}}</strong>
+        <span>{{alerta.mensaje}}</span>
+      </div>
+      <button class="btn-sm" (click)="marcarAlertaLeida(alerta.id!)"><i class="fas fa-check"></i></button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando catálogo...</p>
+  </div>
+
+  <!-- Grid of EPP Cards -->
+  <div class="cards-grid" *ngIf="!loading">
+    <div class="epp-card" *ngFor="let epp of epps">
+      <div class="card-accent-strip"></div>
+      <div class="card-body">
+        <div class="card-header-row">
+          <h3>{{epp.nombre}}</h3>
+          <span class="badge-categoria">{{epp.categoria || 'Sin categoría'}}</span>
+        </div>
+        <p class="card-descripcion" *ngIf="epp.descripcion">{{epp.descripcion}}</p>
+        <div class="stock-info" [ngClass]="getStockClass(epp)">
+          <div class="stock-row">
+            <span class="stock-label">Stock actual:</span>
+            <span class="stock-value">{{epp.stockActual}}</span>
+          </div>
+          <div class="stock-row">
+            <span class="stock-label">Stock mínimo:</span>
+            <span class="stock-value">{{epp.stockMinimo}}</span>
+          </div>
+        </div>
+        <div class="card-meta" *ngIf="epp.proveedor">
+          <span><i class="fas fa-truck"></i> {{epp.proveedor}}</span>
+        </div>
+        <div class="card-meta" *ngIf="epp.fechaVencimiento">
+          <span><i class="fas fa-calendar-times"></i> Vence: {{epp.fechaVencimiento}}</span>
+        </div>
+        <div class="card-actions">
+          <button class="btn-action btn-edit" (click)="editarEpp(epp)"><i class="fas fa-edit"></i></button>
+          <button class="btn-action btn-delete" (click)="eliminarEpp(epp.id!)"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+    </div>
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="epps.length === 0">
+      <i class="fas fa-hard-hat"></i>
+      <h3>No hay elementos EPP registrados</h3>
+      <p>Comienza agregando elementos al catálogo</p>
+    </div>
+  </div>
+
+  <!-- Modal Formulario -->
+  <div class="modal-overlay" *ngIf="mostrarFormulario" (click)="cancelar()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{editandoId ? 'Editar' : 'Nuevo'}} EPP</h3>
+        <button class="btn-close-modal" (click)="cancelar()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Nombre *</label>
+          <input type="text" [(ngModel)]="nuevoEpp.nombre" placeholder="Nombre del EPP">
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea [(ngModel)]="nuevoEpp.descripcion" placeholder="Descripción del EPP" rows="2"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Categoría</label>
+            <select [(ngModel)]="nuevoEpp.categoria">
+              <option value="">Seleccione</option>
+              <option *ngFor="let cat of categorias" [value]="cat">{{cat}}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Proveedor</label>
+            <input type="text" [(ngModel)]="nuevoEpp.proveedor" placeholder="Proveedor">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Stock Actual</label>
+            <input type="number" [(ngModel)]="nuevoEpp.stockActual" min="0">
+          </div>
+          <div class="form-group">
+            <label>Stock Mínimo</label>
+            <input type="number" [(ngModel)]="nuevoEpp.stockMinimo" min="0">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Fecha de Vencimiento</label>
+          <input type="date" [(ngModel)]="nuevoEpp.fechaVencimiento">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="cancelar()">Cancelar</button>
+        <button class="btn-save" (click)="guardarEpp()" [disabled]="!nuevoEpp.nombre">
+          <i class="fas fa-save"></i> {{editandoId ? 'Actualizar' : 'Crear'}}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

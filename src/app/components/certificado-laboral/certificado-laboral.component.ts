@@ -389,6 +389,13 @@ export class CertificadoLaboralComponent implements OnInit {
       return 'Para áreas diferentes a Gestión Administrativa, mínimo 6 días de vacaciones';
     }
 
+    if (
+      this.certificadoConfig.tipoVacaciones === 'solo-pagos' &&
+      dias > 9
+    ) {
+      return 'Para días pagos, el máximo es 9 días laborales';
+    }
+
     if (esGestionAdmin && dias < 3) {
       return 'Para Gestión Administrativa, mínimo 3 días de vacaciones';
     }

@@ -1,0 +1,441 @@
+<app-navbar></app-navbar>
+
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-left">
+      <h1><i class="fas fa-clipboard-check"></i> Inspecciones y Riesgos</h1>
+      <p>Gestión de inspecciones, condiciones inseguras, riesgos y planes de acción</p>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-bar">
+    <button class="tab-btn" [class.active]="tabActual === 'inspecciones'" (click)="cambiarTab('inspecciones')">
+      <i class="fas fa-clipboard-list"></i> Inspecciones
+    </button>
+    <button class="tab-btn" [class.active]="tabActual === 'condiciones'" (click)="cambiarTab('condiciones')">
+      <i class="fas fa-exclamation-triangle"></i> Condiciones Inseguras
+    </button>
+    <button class="tab-btn" [class.active]="tabActual === 'riesgos'" (click)="cambiarTab('riesgos')">
+      <i class="fas fa-th"></i> Matriz de Riesgos
+    </button>
+    <button class="tab-btn" [class.active]="tabActual === 'planes'" (click)="cambiarTab('planes')">
+      <i class="fas fa-tasks"></i> Planes de Acción
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- TAB: Inspecciones -->
+  <div class="tab-content" *ngIf="tabActual === 'inspecciones' && !loading">
+    <div class="tab-header">
+      <button class="btn-primary" (click)="abrirFormInspeccion()"><i class="fas fa-plus"></i> Nueva Inspección</button>
+    </div>
+
+    <div class="empty-state" *ngIf="inspecciones.length === 0">
+      <i class="fas fa-clipboard-list"></i>
+      <h3>No hay inspecciones</h3>
+    </div>
+
+    <div class="cards-grid" *ngIf="inspecciones.length > 0">
+      <div class="card" *ngFor="let insp of inspecciones">
+        <div class="card-top">
+          <span class="badge" [ngClass]="insp.estado === 'completado' ? 'badge-success' : (insp.estado === 'en_progreso' ? 'badge-info' : 'badge-warning')">
+            {{ insp.estado === 'completado' ? 'Completado' : (insp.estado === 'en_progreso' ? 'En progreso' : 'Pendiente') }}
+          </span>
+          <div class="card-btns">
+            <button class="btn-icon" (click)="abrirChecklist(insp)" title="Checklist"><i class="fas fa-list-check"></i></button>
+            <button class="btn-icon" (click)="abrirFormInspeccion(insp)" title="Editar"><i class="fas fa-edit"></i></button>
+            <button class="btn-icon danger" (click)="eliminarInspeccion(insp.id)" title="Eliminar"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+        <h3>{{ insp.titulo }}</h3>
+        <div class="card-meta">
+          <span><i class="fas fa-tag"></i> {{ insp.tipo }}</span>
+          <span><i class="fas fa-calendar"></i> {{ formatDate(insp.fechaInspeccion) }}</span>
+          <span *ngIf="insp.lugar"><i class="fas fa-map-marker-alt"></i> {{ insp.lugar }}</span>
+        </div>
+        <p *ngIf="insp.observacionesGenerales" class="card-obs">{{ insp.observacionesGenerales }}</p>
+        <div class="checklist-summary" *ngIf="insp.checklist && insp.checklist.length > 0">
+          <span class="checklist-count">
+            <i class="fas fa-check-square"></i> {{ insp.checklist.length }} items
+            ({{ getChecklistCumple(insp.checklist) }} cumplen)
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Condiciones Inseguras -->
+  <div class="tab-content" *ngIf="tabActual === 'condiciones' && !loading">
+    <div class="tab-header">
+      <button class="btn-primary" (click)="abrirFormCondicion()"><i class="fas fa-plus"></i> Reportar Condición</button>
+    </div>
+
+    <div class="empty-state" *ngIf="condiciones.length === 0">
+      <i class="fas fa-exclamation-triangle"></i>
+      <h3>No hay condiciones inseguras reportadas</h3>
+    </div>
+
+    <div class="cards-grid" *ngIf="condiciones.length > 0">
+      <div class="card" *ngFor="let cond of condiciones">
+        <div class="card-top">
+          <span class="badge" [ngClass]="getSeveridadClass(cond.severidad)">{{ cond.severidad | titlecase }}</span>
+          <span class="badge" [ngClass]="cond.estado === 'cerrada' ? 'badge-success' : (cond.estado === 'en_proceso' ? 'badge-info' : 'badge-warning')">
+            {{ cond.estado === 'cerrada' ? 'Cerrada' : (cond.estado === 'en_proceso' ? 'En proceso' : 'Abierta') }}
+          </span>
+          <div class="card-btns">
+            <button class="btn-icon" (click)="abrirFormCondicion(cond)" title="Editar"><i class="fas fa-edit"></i></button>
+            <button class="btn-icon danger" (click)="eliminarCondicion(cond.id)" title="Eliminar"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+        <p class="card-desc">{{ cond.descripcion }}</p>
+        <div class="card-meta">
+          <span><i class="fas fa-map-marker-alt"></i> {{ cond.ubicacion }}</span>
+          <span><i class="fas fa-calendar"></i> {{ formatDate(cond.fechaReporte) }}</span>
+        </div>
+        <div class="card-foto" *ngIf="!cond.foto">
+          <label class="btn-upload-mini">
+            <i class="fas fa-camera"></i> Subir foto
+            <input type="file" accept="image/*" (change)="subirFotoCondicion(cond.id, $event)" hidden>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Matriz de Riesgos -->
+  <div class="tab-content" *ngIf="tabActual === 'riesgos' && !loading">
+    <div class="tab-header">
+      <button class="btn-primary" (click)="abrirFormRiesgo()"><i class="fas fa-plus"></i> Nuevo Riesgo</button>
+    </div>
+
+    <div class="empty-state" *ngIf="riesgos.length === 0">
+      <i class="fas fa-th"></i>
+      <h3>No hay riesgos registrados</h3>
+    </div>
+
+    <div class="table-container" *ngIf="riesgos.length > 0">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Proceso</th>
+            <th>Peligro</th>
+            <th>P</th>
+            <th>C</th>
+            <th>Nivel</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let riesgo of riesgos">
+            <td><strong>{{ riesgo.nombre }}</strong></td>
+            <td>{{ riesgo.proceso }}</td>
+            <td>{{ riesgo.peligro }}</td>
+            <td>{{ riesgo.probabilidad }}</td>
+            <td>{{ riesgo.consecuencia }}</td>
+            <td>
+              <span class="nivel-badge" [ngClass]="getNivelRiesgoClass(riesgo.nivelRiesgo)">
+                {{ getNivelRiesgoLabel(riesgo.nivelRiesgo) }}
+              </span>
+            </td>
+            <td>
+              <div class="table-actions">
+                <button class="btn-icon" (click)="abrirFormRiesgo(riesgo)" title="Editar"><i class="fas fa-edit"></i></button>
+                <button class="btn-icon danger" (click)="eliminarRiesgo(riesgo.id)" title="Eliminar"><i class="fas fa-trash"></i></button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB: Planes de Acción -->
+  <div class="tab-content" *ngIf="tabActual === 'planes' && !loading">
+    <div class="tab-header">
+      <button class="btn-primary" (click)="abrirFormPlan()"><i class="fas fa-plus"></i> Nuevo Plan</button>
+    </div>
+
+    <div class="empty-state" *ngIf="planes.length === 0">
+      <i class="fas fa-tasks"></i>
+      <h3>No hay planes de acción</h3>
+    </div>
+
+    <div class="cards-grid" *ngIf="planes.length > 0">
+      <div class="card" *ngFor="let plan of planes">
+        <div class="card-top">
+          <span class="badge" [ngClass]="getEstadoPlanClass(plan.estado)">{{ getEstadoPlanLabel(plan.estado) }}</span>
+          <div class="card-btns">
+            <button class="btn-icon" (click)="abrirFormPlan(plan)" title="Editar"><i class="fas fa-edit"></i></button>
+            <button class="btn-icon danger" (click)="eliminarPlan(plan.id)" title="Eliminar"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+        <p class="card-desc">{{ plan.descripcion }}</p>
+        <div class="card-meta">
+          <span><i class="fas fa-user"></i> {{ getNombreUsuario(plan.responsableId) }}</span>
+          <span><i class="fas fa-calendar"></i> Límite: {{ formatDate(plan.fechaLimite) }}</span>
+          <span><i class="fas fa-tag"></i> {{ plan.origen }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Inspección -->
+<div class="modal-overlay" *ngIf="mostrarFormInspeccion" (click)="cerrarFormInspeccion()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ editandoInspeccionId ? 'Editar' : 'Nueva' }} Inspección</h2>
+      <button class="btn-close" (click)="cerrarFormInspeccion()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Título *</label>
+        <input type="text" [(ngModel)]="nuevaInspeccion.titulo">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tipo</label>
+          <select [(ngModel)]="nuevaInspeccion.tipo">
+            <option value="general">General</option>
+            <option value="puesto_trabajo">Puesto de Trabajo</option>
+            <option value="equipos">Equipos</option>
+            <option value="epp">EPP</option>
+            <option value="instalaciones">Instalaciones</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Fecha *</label>
+          <input type="date" [(ngModel)]="nuevaInspeccion.fechaInspeccion">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Lugar</label>
+        <input type="text" [(ngModel)]="nuevaInspeccion.lugar">
+      </div>
+      <div class="form-group">
+        <label>Empresa</label>
+        <select [(ngModel)]="nuevaInspeccion.empresa">
+          <option value="">Seleccionar</option>
+          <option value="AP">Andrés Publicidad</option>
+          <option value="AT">Andrés Tobón</option>
+          <option value="ME">María Evangelina</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Observaciones</label>
+        <textarea [(ngModel)]="nuevaInspeccion.observacionesGenerales" rows="3"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarFormInspeccion()">Cancelar</button>
+      <button class="btn-primary" (click)="guardarInspeccion()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Checklist -->
+<div class="modal-overlay" *ngIf="mostrarChecklist" (click)="cerrarChecklist()">
+  <div class="modal-content modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Checklist - {{ inspeccionSeleccionada?.titulo }}</h2>
+      <button class="btn-close" (click)="cerrarChecklist()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="checklist-form">
+        <div class="checklist-item" *ngFor="let item of checklistItems; let i = index">
+          <span class="checklist-num">{{ i + 1 }}</span>
+          <input type="text" [(ngModel)]="item.pregunta" placeholder="Pregunta o criterio de inspección" class="checklist-input">
+          <div class="checklist-toggle">
+            <button [class.active]="item.cumple === true" (click)="item.cumple = true" class="toggle-si">Si</button>
+            <button [class.active]="item.cumple === false" (click)="item.cumple = false" class="toggle-no">No</button>
+            <button [class.active]="item.cumple === null" (click)="item.cumple = null" class="toggle-na">N/A</button>
+          </div>
+          <input type="text" [(ngModel)]="item.observacion" placeholder="Observación" class="checklist-obs">
+          <button class="btn-icon danger" (click)="eliminarItemChecklist(i)"><i class="fas fa-times"></i></button>
+        </div>
+      </div>
+      <button class="btn-add-item" (click)="agregarItemChecklist()"><i class="fas fa-plus"></i> Agregar Item</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarChecklist()">Cancelar</button>
+      <button class="btn-primary" (click)="guardarChecklist()">Guardar Checklist</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Condición Insegura -->
+<div class="modal-overlay" *ngIf="mostrarFormCondicion" (click)="cerrarFormCondicion()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ editandoCondicionId ? 'Editar' : 'Reportar' }} Condición Insegura</h2>
+      <button class="btn-close" (click)="cerrarFormCondicion()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Descripción *</label>
+        <textarea [(ngModel)]="nuevaCondicion.descripcion" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Ubicación *</label>
+        <input type="text" [(ngModel)]="nuevaCondicion.ubicacion">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Severidad</label>
+          <select [(ngModel)]="nuevaCondicion.severidad">
+            <option value="baja">Baja</option>
+            <option value="media">Media</option>
+            <option value="alta">Alta</option>
+            <option value="critica">Crítica</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Estado</label>
+          <select [(ngModel)]="nuevaCondicion.estado">
+            <option value="abierta">Abierta</option>
+            <option value="en_proceso">En proceso</option>
+            <option value="cerrada">Cerrada</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Fecha de Reporte</label>
+        <input type="date" [(ngModel)]="nuevaCondicion.fechaReporte">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarFormCondicion()">Cancelar</button>
+      <button class="btn-primary" (click)="guardarCondicion()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Riesgo -->
+<div class="modal-overlay" *ngIf="mostrarFormRiesgo" (click)="cerrarFormRiesgo()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ editandoRiesgoId ? 'Editar' : 'Nuevo' }} Riesgo</h2>
+      <button class="btn-close" (click)="cerrarFormRiesgo()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Nombre *</label>
+        <input type="text" [(ngModel)]="nuevoRiesgo.nombre">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Proceso *</label>
+          <input type="text" [(ngModel)]="nuevoRiesgo.proceso">
+        </div>
+        <div class="form-group">
+          <label>Empresa</label>
+          <select [(ngModel)]="nuevoRiesgo.empresa">
+            <option value="">Seleccionar</option>
+            <option value="AP">Andrés Publicidad</option>
+            <option value="AT">Andrés Tobón</option>
+            <option value="ME">María Evangelina</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Peligro *</label>
+        <textarea [(ngModel)]="nuevoRiesgo.peligro" rows="2"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Probabilidad (1-5)</label>
+          <input type="number" [(ngModel)]="nuevoRiesgo.probabilidad" min="1" max="5" (change)="calcularNivelRiesgo()">
+        </div>
+        <div class="form-group">
+          <label>Consecuencia (1-5)</label>
+          <input type="number" [(ngModel)]="nuevoRiesgo.consecuencia" min="1" max="5" (change)="calcularNivelRiesgo()">
+        </div>
+        <div class="form-group">
+          <label>Nivel de Riesgo</label>
+          <span class="nivel-badge" [ngClass]="getNivelRiesgoClass(nuevoRiesgo.nivelRiesgo)">
+            {{ getNivelRiesgoLabel(nuevoRiesgo.nivelRiesgo) }} ({{ nuevoRiesgo.probabilidad * nuevoRiesgo.consecuencia }})
+          </span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Controles Existentes</label>
+        <textarea [(ngModel)]="nuevoRiesgo.controlesExistentes" rows="2"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Acción Recomendada</label>
+        <textarea [(ngModel)]="nuevoRiesgo.accionRecomendada" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarFormRiesgo()">Cancelar</button>
+      <button class="btn-primary" (click)="guardarRiesgo()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Plan de Acción -->
+<div class="modal-overlay" *ngIf="mostrarFormPlan" (click)="cerrarFormPlan()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ editandoPlanId ? 'Editar' : 'Nuevo' }} Plan de Acción</h2>
+      <button class="btn-close" (click)="cerrarFormPlan()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Descripción *</label>
+        <textarea [(ngModel)]="nuevoPlan.descripcion" rows="3"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Origen</label>
+          <select [(ngModel)]="nuevoPlan.origen">
+            <option value="inspeccion">Inspección</option>
+            <option value="accidente">Accidente</option>
+            <option value="condicion_insegura">Condición Insegura</option>
+            <option value="riesgo">Riesgo</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Estado</label>
+          <select [(ngModel)]="nuevoPlan.estado">
+            <option value="pendiente">Pendiente</option>
+            <option value="en_progreso">En progreso</option>
+            <option value="completado">Completado</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Responsable *</label>
+        <select [(ngModel)]="nuevoPlan.responsableId">
+          <option [ngValue]="0">Seleccionar</option>
+          <option *ngFor="let u of usuarios" [ngValue]="u.Uid">{{ u.nombre }}</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fecha Inicio</label>
+          <input type="date" [(ngModel)]="nuevoPlan.fechaInicio">
+        </div>
+        <div class="form-group">
+          <label>Fecha Límite *</label>
+          <input type="date" [(ngModel)]="nuevoPlan.fechaLimite">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Observaciones</label>
+        <textarea [(ngModel)]="nuevoPlan.observaciones" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarFormPlan()">Cancelar</button>
+      <button class="btn-primary" (click)="guardarPlan()">Guardar</button>
+    </div>
+  </div>
+</div>
