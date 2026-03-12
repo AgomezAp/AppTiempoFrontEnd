@@ -202,7 +202,7 @@ export const routes: Routes = [
     path: 'ssgt-documentos-firma',
     component: SsgtDocumentosFirmaComponent,
     canActivate: [tRolGuard],
-    data: { allowedRoles: ['Admin'] }
+    data: { allowedRoles: ['Admin', 'User', 'Tecnologia'] }
   },
   // Ruta pública para firmar documento (sin guard)
   {

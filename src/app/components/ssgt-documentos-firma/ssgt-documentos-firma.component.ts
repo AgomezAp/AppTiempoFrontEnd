@@ -39,6 +39,8 @@ export class SsgtDocumentosFirmaComponent implements OnInit {
 
   mostrarDetalle = false;
 
+  zoom = 100;
+
   private draggingCampo: any = null;
   private dragStartX = 0;
   private dragStartY = 0;
@@ -144,7 +146,7 @@ export class SsgtDocumentosFirmaComponent implements OnInit {
 
   iniciarAgregarCampo(): void {
     this.agregandoCampo = true;
-    this.nuevoCampo = { etiqueta: '', nombreFirmante: '', emailFirmante: '', usuarioId: null, esExterno: false };
+    this.nuevoCampo = { etiqueta: '', nombreFirmante: '', emailFirmante: '', usuarioId: null, esExterno: true };
   }
 
   cancelarAgregarCampo(): void { this.agregandoCampo = false; }
@@ -158,7 +160,7 @@ export class SsgtDocumentosFirmaComponent implements OnInit {
   }
 
   agregarCampo(): void {
-    if (!this.nuevoCampo.etiqueta || !this.nuevoCampo.nombreFirmante || !this.nuevoCampo.emailFirmante) { Swal.fire('Error', 'Complete todos los campos del firmante', 'error'); return; }
+    if (!this.nuevoCampo.emailFirmante) { Swal.fire('Error', 'El email del firmante es obligatorio', 'error'); return; }
     this.campos.push({
       documentoId: this.documentoSeleccionado!.id, paginaNumero: this.paginaActual,
       posX: 10 + (this.getCamposPaginaActual().length * 5), posY: 70 + (this.getCamposPaginaActual().length * 5),
@@ -181,13 +183,15 @@ export class SsgtDocumentosFirmaComponent implements OnInit {
     this.dragStartY = event.clientY;
     this.campoStartX = campo.posX;
     this.campoStartY = campo.posY;
+    const container = (event.target as HTMLElement).closest('.pagina-container');
+    if (!container) return;
+    const img = container.querySelector('.pagina-imagen') as HTMLElement;
+    if (!img) return;
     const onMove = (e: MouseEvent) => {
       if (!this.draggingCampo) return;
-      const container = (event.target as HTMLElement).closest('.pagina-container');
-      if (!container) return;
-      const rect = container.getBoundingClientRect();
-      const dx = ((e.clientX - this.dragStartX) / rect.width) * 100;
-      const dy = ((e.clientY - this.dragStartY) / rect.height) * 100;
+      const imgRect = img.getBoundingClientRect();
+      const dx = ((e.clientX - this.dragStartX) / imgRect.width) * 100;
+      const dy = ((e.clientY - this.dragStartY) / imgRect.height) * 100;
       this.draggingCampo.posX = Math.max(0, Math.min(100 - this.draggingCampo.ancho, this.campoStartX + dx));
       this.draggingCampo.posY = Math.max(0, Math.min(100 - this.draggingCampo.alto, this.campoStartY + dy));
     };
@@ -195,6 +199,32 @@ export class SsgtDocumentosFirmaComponent implements OnInit {
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
   }
+
+  onCampoResizeStart(event: MouseEvent, campo: any): void {
+    event.preventDefault();
+    event.stopPropagation();
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const startAncho = campo.ancho;
+    const startAlto = campo.alto;
+    const container = (event.target as HTMLElement).closest('.pagina-container');
+    if (!container) return;
+    const img = container.querySelector('.pagina-imagen') as HTMLElement;
+    if (!img) return;
+    const onMove = (e: MouseEvent) => {
+      const imgRect = img.getBoundingClientRect();
+      const dx = ((e.clientX - startX) / imgRect.width) * 100;
+      const dy = ((e.clientY - startY) / imgRect.height) * 100;
+      campo.ancho = Math.max(5, Math.min(100 - campo.posX, startAncho + dx));
+      campo.alto = Math.max(3, Math.min(100 - campo.posY, startAlto + dy));
+    };
+    const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  }
+
+  zoomIn(): void { this.zoom = Math.min(200, this.zoom + 25); }
+  zoomOut(): void { this.zoom = Math.max(50, this.zoom - 25); }
 
   guardarCampos(): void {
     if (!this.documentoSeleccionado) return;
