@@ -161,9 +161,9 @@ export class AdminComponent implements OnInit {
     if (user.fechaIngreso) {
       const fecha = new Date(user.fechaIngreso);
       if (!isNaN(fecha.getTime())) {
-        const year = fecha.getFullYear();
-        const month = String(fecha.getMonth() + 1).padStart(2, '0');
-        const day = String(fecha.getDate()).padStart(2, '0');
+        const year = fecha.getUTCFullYear();
+        const month = String(fecha.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(fecha.getUTCDate()).padStart(2, '0');
         fechaIngresoFormateada = `${year}-${month}-${day}`;
       }
     }
