@@ -46,6 +46,7 @@ import { SsgtDocumentoFirmarComponent } from './components/ssgt-documento-firmar
 import { SsgtInspeccionesComponent } from './components/ssgt-inspecciones/ssgt-inspecciones.component';
 import { SsgtCapacitacionesComponent } from './components/ssgt-capacitaciones/ssgt-capacitaciones.component';
 import { SsgtEvaluacionComponent } from './components/ssgt-evaluacion/ssgt-evaluacion.component';
+import { WhatsappConfigComponent } from './components/whatsapp-config/whatsapp-config.component';
 
 export const routes: Routes = [
   {
@@ -228,6 +229,14 @@ export const routes: Routes = [
   {
     path: 'ssgt-evaluacion/:id',
     component: SsgtEvaluacionComponent,
+    canActivate: [tRolGuard],
+    data: { allowedRoles: ['Admin'] }
+  },
+
+  // WhatsApp
+  {
+    path: 'whatsapp',
+    component: WhatsappConfigComponent,
     canActivate: [tRolGuard],
     data: { allowedRoles: ['Admin'] }
   },

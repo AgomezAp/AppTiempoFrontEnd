@@ -34,6 +34,7 @@
           <th>Nombre</th>
           <th>Apellido</th>
           <th>Email</th>
+          <th>Celular</th>
           <th>Rol</th>
           <th>Empresa</th>
           <th>Cert.</th>
@@ -45,6 +46,7 @@
           <td class="name-cell">{{ user.name }}</td>
           <td class="name-cell">{{ user.lastName }}</td>
           <td class="email-cell">{{ user.email }}</td>
+          <td>{{ user.celular || 'Sin número' }}</td>
           <td class="role-cell">{{ user.role?.Rname || 'Sin rol' }}</td>
           <td class="empresa-cell">
             <span class="empresa-badge" [ngClass]="'empresa-' + user.empresa">
@@ -121,19 +123,27 @@
             </div>
           </div>
 
-          <!-- Fila 2: Email y Documento -->
+          <!-- Fila 2: Email y Celular -->
           <div class="form-row">
             <div class="form-group">
               <label for="email">Email *</label>
               <input type="email" id="email" [(ngModel)]="editForm.email" name="email" placeholder="correo@ejemplo.com" required>
             </div>
             <div class="form-group">
+              <label for="celular">Celular (WhatsApp)</label>
+              <input type="text" id="celular" [(ngModel)]="editForm.celular" name="celular" placeholder="3001234567">
+            </div>
+          </div>
+
+          <!-- Fila 3: Documento -->
+          <div class="form-row">
+            <div class="form-group full-width">
               <label for="documentoIdentificacion">Documento</label>
               <input type="text" id="documentoIdentificacion" [(ngModel)]="editForm.documentoIdentificacion" name="documentoIdentificacion" placeholder="1234567890">
             </div>
           </div>
 
-          <!-- Fila 3: Rol y Área -->
+          <!-- Fila 4: Rol y Área -->
           <div class="form-row">
             <div class="form-group">
               <label for="Rid">Rol *</label>
@@ -151,7 +161,7 @@
             </div>
           </div>
 
-          <!-- Fila 4: Empresa y Cargo -->
+          <!-- Fila 5: Empresa y Cargo -->
           <div class="form-row">
             <div class="form-group">
               <label for="empresa">Empresa</label>
@@ -167,7 +177,7 @@
             </div>
           </div>
 
-          <!-- Fila 5: Salario y Fecha Ingreso -->
+          <!-- Fila 6: Salario y Fecha Ingreso -->
           <div class="form-row">
             <div class="form-group">
               <label for="salario">Salario</label>
@@ -179,7 +189,7 @@
             </div>
           </div>
 
-          <!-- Fila 6: Tipo Contrato -->
+          <!-- Fila 7: Tipo Contrato -->
           <div class="form-row">
             <div class="form-group">
               <label for="tipoContrato">Tipo de Contrato</label>
@@ -194,7 +204,7 @@
             </div>
           </div>
 
-          <!-- Fila 7: Fondo Cesantías -->
+          <!-- Fila 8: Fondo Cesantías -->
           <div class="form-row">
             <div class="form-group full-width">
               <label for="fondoCesantias">Fondo Cesantías</label>

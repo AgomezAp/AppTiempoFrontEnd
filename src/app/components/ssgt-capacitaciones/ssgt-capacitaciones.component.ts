@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { SsgtService } from '../../services/ssgt.service';
 import { UserService } from '../../services/user.service';
+import { WhatsappService } from '../../services/whatsapp.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -44,6 +45,7 @@ export class SsgtCapacitacionesComponent implements OnInit {
   constructor(
     private ssgtService: SsgtService,
     private userService: UserService,
+    private whatsappService: WhatsappService,
     private router: Router
   ) {}
 
@@ -206,6 +208,32 @@ export class SsgtCapacitacionesComponent implements OnInit {
         this.cargarEvaluacion(this.capacitacionSeleccionada.id);
       },
       error: () => { Swal.fire('Error', 'Error al crear evaluación', 'error'); }
+    });
+  }
+
+  // ========== WHATSAPP ==========
+  notificarWhatsApp(cap: any): void {
+    Swal.fire({
+      title: 'Notificar por WhatsApp',
+      text: `Enviar notificación de "${cap.titulo}" a todos los trabajadores con celular${cap.empresa ? ' de ' + this.getEmpresaNombre(cap.empresa) : ''}`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Enviar',
+      cancelButtonText: 'Cancelar',
+      input: 'textarea',
+      inputLabel: 'Mensaje (opcional, se genera uno automático si se deja vacío)',
+      inputPlaceholder: 'Escriba un mensaje personalizado o deje vacío...',
+    }).then((r) => {
+      if (r.isConfirmed) {
+        this.whatsappService.notificarCapacitacion(cap.id, r.value || undefined).subscribe({
+          next: (res) => {
+            Swal.fire('Resultado', res.msg, res.failed > 0 ? 'warning' : 'success');
+          },
+          error: (err) => {
+            Swal.fire('Error', err.error?.msg || 'Error al enviar notificaciones. Verifique que WhatsApp esté conectado.', 'error');
+          }
+        });
+      }
     });
   }
 

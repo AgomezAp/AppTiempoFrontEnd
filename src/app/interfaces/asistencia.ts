@@ -26,6 +26,10 @@ export interface ParticipanteAsistencia {
   tokenFirma?: string;
   firmado: boolean;
   esExterno?: boolean;
+  cancelado?: boolean;
+  anulado?: boolean;
+  fechaCancelacion?: string | null;
+  motivoCancelacion?: string | null;
 }
 
 export interface ParticipanteExterno {

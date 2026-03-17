@@ -25,6 +25,7 @@ export class FirmarAsistenciaComponent implements OnInit, AfterViewInit {
   token: string = '';
   loading = true;
   error: string | null = null;
+  errorTipo: string | null = null;
   success = false;
   firmando = false;
 
@@ -66,6 +67,7 @@ export class FirmarAsistenciaComponent implements OnInit, AfterViewInit {
       },
       error: (err) => {
         this.error = err.error?.msg || 'Error al cargar información';
+        this.errorTipo = err.error?.tipo || null;
         this.loading = false;
       },
     });

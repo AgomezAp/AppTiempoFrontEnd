@@ -297,7 +297,39 @@ export class SsgtService {
   }
 
   // ========================================
-  // INSPECCIONES Y RIESGOS
+  // PLANTILLAS DE INSPECCIÓN
+  // ========================================
+
+  crearPlantilla(data: any) {
+    return this.http.post<{ msg: string; plantilla: any }>(`${this.appUrl}${this.apiUrl}/plantillas`, data);
+  }
+
+  obtenerPlantillas(empresa?: string, estado?: string, categoria?: string) {
+    let params = new HttpParams();
+    if (empresa) params = params.set('empresa', empresa);
+    if (estado) params = params.set('estado', estado);
+    if (categoria) params = params.set('categoria', categoria);
+    return this.http.get<any[]>(`${this.appUrl}${this.apiUrl}/plantillas`, { params });
+  }
+
+  obtenerPlantillaPorId(id: number) {
+    return this.http.get<any>(`${this.appUrl}${this.apiUrl}/plantillas/${id}`);
+  }
+
+  actualizarPlantilla(id: number, data: any) {
+    return this.http.put<{ msg: string; plantilla: any }>(`${this.appUrl}${this.apiUrl}/plantillas/${id}`, data);
+  }
+
+  eliminarPlantilla(id: number) {
+    return this.http.delete<{ msg: string }>(`${this.appUrl}${this.apiUrl}/plantillas/${id}`);
+  }
+
+  duplicarPlantilla(id: number) {
+    return this.http.post<{ msg: string; plantilla: any }>(`${this.appUrl}${this.apiUrl}/plantillas/${id}/duplicar`, {});
+  }
+
+  // ========================================
+  // INSPECCIONES (SafetyCulture)
   // ========================================
 
   crearInspeccion(data: any) {
@@ -312,6 +344,10 @@ export class SsgtService {
     return this.http.get<any[]>(`${this.appUrl}${this.apiUrl}/inspecciones`, { params });
   }
 
+  obtenerInspeccionPorId(id: number) {
+    return this.http.get<any>(`${this.appUrl}${this.apiUrl}/inspecciones/${id}`);
+  }
+
   actualizarInspeccion(id: number, data: any) {
     return this.http.put<{ msg: string }>(`${this.appUrl}${this.apiUrl}/inspecciones/${id}`, data);
   }
@@ -320,10 +356,25 @@ export class SsgtService {
     return this.http.delete<{ msg: string }>(`${this.appUrl}${this.apiUrl}/inspecciones/${id}`);
   }
 
-  guardarChecklist(inspeccionId: number, items: any[]) {
-    return this.http.post<{ msg: string }>(`${this.appUrl}${this.apiUrl}/inspecciones/${inspeccionId}/checklist`, { items });
+  guardarRespuestas(inspeccionId: number, respuestas: any[]) {
+    return this.http.post<{ msg: string; puntajeObtenido: number; puntajeMaximo: number; porcentaje: number; aprobada: boolean }>(`${this.appUrl}${this.apiUrl}/inspecciones/${inspeccionId}/respuestas`, { respuestas });
   }
 
+  completarInspeccion(id: number) {
+    return this.http.post<{ msg: string }>(`${this.appUrl}${this.apiUrl}/inspecciones/${id}/completar`, {});
+  }
+
+  descargarPdfInspeccion(id: number) {
+    return this.http.get(`${this.appUrl}${this.apiUrl}/inspecciones/${id}/pdf`, { responseType: 'blob' });
+  }
+
+  subirFotoInspeccion(inspeccionId: number, archivo: File) {
+    const formData = new FormData();
+    formData.append('foto', archivo);
+    return this.http.post<{ msg: string; ruta: string }>(`${this.appUrl}${this.apiUrl}/inspecciones/${inspeccionId}/respuestas/foto`, formData);
+  }
+
+  // Condiciones inseguras
   crearCondicionInsegura(data: any) {
     return this.http.post<{ msg: string; condicion: any }>(`${this.appUrl}${this.apiUrl}/condiciones-inseguras`, data);
   }
@@ -349,48 +400,34 @@ export class SsgtService {
     return this.http.post<{ msg: string }>(`${this.appUrl}${this.apiUrl}/condiciones-inseguras/${id}/foto`, formData);
   }
 
-  crearRiesgo(data: any) {
-    return this.http.post<{ msg: string; riesgo: any }>(`${this.appUrl}${this.apiUrl}/riesgos`, data);
+  // ========================================
+  // ACCIONES CORRECTIVAS
+  // ========================================
+
+  crearAccionCorrectiva(data: any) {
+    return this.http.post<{ msg: string; accion: any }>(`${this.appUrl}${this.apiUrl}/acciones-correctivas`, data);
   }
 
-  obtenerRiesgos(empresa?: string, nivelRiesgo?: string) {
+  obtenerAccionesCorrectivas(inspeccionId?: number, estado?: string, prioridad?: string) {
     let params = new HttpParams();
-    if (empresa) params = params.set('empresa', empresa);
-    if (nivelRiesgo) params = params.set('nivelRiesgo', nivelRiesgo);
-    return this.http.get<any[]>(`${this.appUrl}${this.apiUrl}/riesgos`, { params });
-  }
-
-  actualizarRiesgo(id: number, data: any) {
-    return this.http.put<{ msg: string }>(`${this.appUrl}${this.apiUrl}/riesgos/${id}`, data);
-  }
-
-  eliminarRiesgo(id: number) {
-    return this.http.delete<{ msg: string }>(`${this.appUrl}${this.apiUrl}/riesgos/${id}`);
-  }
-
-  subirArchivoRiesgo(id: number, archivo: File) {
-    const formData = new FormData();
-    formData.append('archivo', archivo);
-    return this.http.post<{ msg: string }>(`${this.appUrl}${this.apiUrl}/riesgos/${id}/archivo`, formData);
-  }
-
-  crearPlanAccion(data: any) {
-    return this.http.post<{ msg: string; plan: any }>(`${this.appUrl}${this.apiUrl}/planes-accion`, data);
-  }
-
-  obtenerPlanesAccion(estado?: string, origen?: string) {
-    let params = new HttpParams();
+    if (inspeccionId) params = params.set('inspeccionId', inspeccionId.toString());
     if (estado) params = params.set('estado', estado);
-    if (origen) params = params.set('origen', origen);
-    return this.http.get<any[]>(`${this.appUrl}${this.apiUrl}/planes-accion`, { params });
+    if (prioridad) params = params.set('prioridad', prioridad);
+    return this.http.get<any[]>(`${this.appUrl}${this.apiUrl}/acciones-correctivas`, { params });
   }
 
-  actualizarPlanAccion(id: number, data: any) {
-    return this.http.put<{ msg: string }>(`${this.appUrl}${this.apiUrl}/planes-accion/${id}`, data);
+  actualizarAccionCorrectiva(id: number, data: any) {
+    return this.http.put<{ msg: string }>(`${this.appUrl}${this.apiUrl}/acciones-correctivas/${id}`, data);
   }
 
-  eliminarPlanAccion(id: number) {
-    return this.http.delete<{ msg: string }>(`${this.appUrl}${this.apiUrl}/planes-accion/${id}`);
+  eliminarAccionCorrectiva(id: number) {
+    return this.http.delete<{ msg: string }>(`${this.appUrl}${this.apiUrl}/acciones-correctivas/${id}`);
+  }
+
+  subirEvidenciaAccion(id: number, archivo: File) {
+    const formData = new FormData();
+    formData.append('evidencia', archivo);
+    return this.http.post<{ msg: string }>(`${this.appUrl}${this.apiUrl}/acciones-correctivas/${id}/evidencia`, formData);
   }
 
   // ========================================

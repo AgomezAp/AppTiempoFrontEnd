@@ -41,7 +41,8 @@ export class AdminComponent implements OnInit {
     documentoIdentificacion: '',
     fechaIngreso: '',
     cargo: '',
-    tipoContrato: 'termino-indefinido'
+    tipoContrato: 'termino-indefinido',
+    celular: ''
   };
 
   // Listas para selects
@@ -115,7 +116,8 @@ export class AdminComponent implements OnInit {
         (user) =>
           user.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
           user.lastName.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-          user.email.toLowerCase().includes(this.searchTerm.toLowerCase())
+            user.email.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+            (user.celular || '').toLowerCase().includes(this.searchTerm.toLowerCase())
       );
     }
     this.updatePagination();
@@ -179,7 +181,8 @@ export class AdminComponent implements OnInit {
       cargo: user.cargo || '',
       tipoContrato: user.tipoContrato || 'termino-indefinido',
       fondoPension: user.fondoPension || 'PORVENIR',
-      fondoCesantias: user.fondoCesantias || 'PORVENIR'
+      fondoCesantias: user.fondoCesantias || 'PORVENIR',
+      celular: user.celular || ''
     };
   }
 
@@ -198,7 +201,8 @@ export class AdminComponent implements OnInit {
       cargo: '',
       tipoContrato: 'termino-indefinido',
       fondoPension: 'PORVENIR',
-      fondoCesantias: 'PORVENIR'
+      fondoCesantias: 'PORVENIR',
+      celular: ''
     };
   }
 

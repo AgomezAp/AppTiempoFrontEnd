@@ -45,6 +45,8 @@
 .btn-icon { background: none; border: none; padding: 6px 8px; cursor: pointer; color: #999; border-radius: 6px; transition: all 0.2s; display: inline-flex; align-items: center; }
 .btn-icon:hover { color: #141414; background: #f0f0f0; }
 .btn-icon.danger:hover { color: #d33; background: #ffebee; }
+.btn-icon.whatsapp { color: #25D366; }
+.btn-icon.whatsapp:hover { color: #128C7E; background: #e8f5e9; }
 
 /* Detail */
 .detail-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }

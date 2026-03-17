@@ -1,0 +1,98 @@
+<app-navbar></app-navbar>
+
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-left">
+      <h1><i class="fab fa-whatsapp"></i> WhatsApp</h1>
+      <p>Gestión de mensajería WhatsApp</p>
+    </div>
+  </div>
+
+  <!-- Estado de conexión -->
+  <div class="connection-card">
+    <div class="connection-status">
+      <div class="status-indicator" [ngClass]="getStatusClass()"></div>
+      <div class="status-info">
+        <h3>Estado: {{ getStatusLabel() }}</h3>
+        <p *ngIf="status === 'ready'">WhatsApp vinculado y listo para enviar mensajes</p>
+        <p *ngIf="status === 'disconnected'">No hay sesión activa. Conecte para vincular WhatsApp.</p>
+        <p *ngIf="status === 'qr_pending'">Escanee el código QR con su WhatsApp para vincular.</p>
+        <p *ngIf="status === 'loading'">Iniciando sesión de WhatsApp...</p>
+      </div>
+      <div class="status-actions">
+        <button class="btn-primary" (click)="conectar()" *ngIf="status === 'disconnected'" [disabled]="loading">
+          <i class="fab fa-whatsapp"></i> Conectar
+        </button>
+        <button class="btn-danger" (click)="desconectar()" *ngIf="status === 'ready'">
+          <i class="fas fa-power-off"></i> Desconectar
+        </button>
+      </div>
+    </div>
+
+    <!-- QR Code -->
+    <div class="qr-container" *ngIf="status === 'qr_pending' && qrCode">
+      <p class="qr-instructions">Abra WhatsApp en su teléfono > Dispositivos vinculados > Vincular dispositivo</p>
+      <div class="qr-code">
+        <img [src]="qrCode" alt="QR Code WhatsApp">
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-container" *ngIf="status === 'loading' || loading">
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <!-- Secciones de envío (solo si está conectado) -->
+  <div *ngIf="status === 'ready'">
+    <div class="info-bar">
+      <i class="fas fa-users"></i>
+      <span>{{ getUsuariosConCelular() }} usuarios con celular registrado de {{ usuarios.length }} totales</span>
+    </div>
+
+    <div class="cards-row">
+      <!-- Mensaje Individual -->
+      <div class="action-card">
+        <div class="action-card-header">
+          <i class="fas fa-comment"></i>
+          <h3>Mensaje Individual</h3>
+        </div>
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input type="text" [(ngModel)]="telefonoIndividual" placeholder="Ej: 3001234567">
+        </div>
+        <div class="form-group">
+          <label>Mensaje</label>
+          <textarea [(ngModel)]="mensajeIndividual" rows="4" placeholder="Escriba el mensaje..."></textarea>
+        </div>
+        <button class="btn-primary btn-block" (click)="enviarMensajeIndividual()" [disabled]="loading">
+          <i class="fas fa-paper-plane"></i> Enviar
+        </button>
+      </div>
+
+      <!-- Mensaje Masivo -->
+      <div class="action-card">
+        <div class="action-card-header">
+          <i class="fas fa-bullhorn"></i>
+          <h3>Mensaje Masivo</h3>
+        </div>
+        <div class="form-group">
+          <label>Empresa (opcional)</label>
+          <select [(ngModel)]="empresaMasivo">
+            <option value="">Todas las empresas</option>
+            <option value="AP">Andrés Publicidad</option>
+            <option value="AT">Andrés Tobón</option>
+            <option value="ME">María Evangelina</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Mensaje</label>
+          <textarea [(ngModel)]="mensajeMasivo" rows="4" placeholder="Escriba el mensaje para todos..."></textarea>
+        </div>
+        <button class="btn-primary btn-block" (click)="enviarMasivo()" [disabled]="loading">
+          <i class="fas fa-paper-plane"></i> Enviar a todos
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

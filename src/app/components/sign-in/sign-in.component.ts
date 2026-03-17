@@ -32,6 +32,7 @@ export class SignInComponent implements OnInit {
   email: string = '';
   password: string = '';
   repeatPassword: string = '';
+  celular: string = '';
   Rid: number |undefined;
   Aid: number |undefined;
   Uid: number | undefined;
@@ -87,7 +88,8 @@ export class SignInComponent implements OnInit {
       email: this.email,
       password: this.password,
       Rid:this.Rid,
-      Aid:this.Aid
+      Aid:this.Aid,
+      celular: this.celular
     };
     this.loading = true;
     this.userService.signIn(user).subscribe({

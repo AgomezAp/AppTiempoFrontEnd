@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { SsgtService } from '../../services/ssgt.service';
 import { UserService } from '../../services/user.service';
+import { environment } from '../../../environments/environment';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -19,14 +20,22 @@ export class SsgtInspeccionesComponent implements OnInit {
   usuarios: any[] = [];
   userId: number = 0;
 
+  // Plantillas
+  plantillas: any[] = [];
+  mostrarFormPlantilla = false;
+  editandoPlantillaId: number | null = null;
+  nuevaPlantilla: any = { titulo: '', descripcion: '', categoria: '', empresa: '', umbralAprobacion: 80, secciones: [] };
+
   // Inspecciones
   inspecciones: any[] = [];
   mostrarFormInspeccion = false;
   editandoInspeccionId: number | null = null;
-  nuevaInspeccion: any = { titulo: '', tipo: 'general', fechaInspeccion: '', lugar: '', empresa: '', observacionesGenerales: '' };
-  checklistItems: any[] = [];
-  inspeccionSeleccionada: any = null;
-  mostrarChecklist = false;
+  nuevaInspeccion: any = { titulo: '', tipo: 'plantilla', fechaInspeccion: '', lugar: '', empresa: '', plantillaId: null, observacionesGenerales: '' };
+
+  // Formulario de respuestas / realizar inspección
+  inspeccionActiva: any = null;
+  respuestasForm: any[] = [];
+  mostrarRealizarInspeccion = false;
 
   // Condiciones Inseguras
   condiciones: any[] = [];
@@ -34,17 +43,11 @@ export class SsgtInspeccionesComponent implements OnInit {
   editandoCondicionId: number | null = null;
   nuevaCondicion: any = { descripcion: '', ubicacion: '', severidad: 'media', fechaReporte: '', estado: 'abierta' };
 
-  // Matriz de Riesgos
-  riesgos: any[] = [];
-  mostrarFormRiesgo = false;
-  editandoRiesgoId: number | null = null;
-  nuevoRiesgo: any = { nombre: '', descripcion: '', proceso: '', peligro: '', probabilidad: 1, consecuencia: 1, nivelRiesgo: 'bajo', controlesExistentes: '', accionRecomendada: '', empresa: '' };
-
-  // Planes de Acción
-  planes: any[] = [];
-  mostrarFormPlan = false;
-  editandoPlanId: number | null = null;
-  nuevoPlan: any = { origen: 'inspeccion', origenId: 0, descripcion: '', responsableId: 0, fechaInicio: '', fechaLimite: '', observaciones: '' };
+  // Acciones Correctivas
+  acciones: any[] = [];
+  mostrarFormAccion = false;
+  editandoAccionId: number | null = null;
+  nuevaAccion: any = { inspeccionId: 0, descripcion: '', prioridad: 'media', responsableId: null, fechaLimite: '', preguntaTexto: '' };
 
   constructor(
     private ssgtService: SsgtService,
@@ -68,10 +71,114 @@ export class SsgtInspeccionesComponent implements OnInit {
     this.tabActual = tab;
     switch (tab) {
       case 'inspecciones': this.cargarInspecciones(); break;
+      case 'plantillas': this.cargarPlantillas(); break;
       case 'condiciones': this.cargarCondiciones(); break;
-      case 'riesgos': this.cargarRiesgos(); break;
-      case 'planes': this.cargarPlanes(); break;
+      case 'acciones': this.cargarAcciones(); break;
     }
+  }
+
+  // ========== PLANTILLAS ==========
+  cargarPlantillas(): void {
+    this.loading = true;
+    this.ssgtService.obtenerPlantillas().subscribe({
+      next: (data) => { this.plantillas = data; this.loading = false; },
+      error: () => { this.loading = false; }
+    });
+  }
+
+  abrirFormPlantilla(plantilla?: any): void {
+    if (plantilla) {
+      this.editandoPlantillaId = plantilla.id;
+      this.nuevaPlantilla = {
+        titulo: plantilla.titulo,
+        descripcion: plantilla.descripcion,
+        categoria: plantilla.categoria,
+        empresa: plantilla.empresa,
+        umbralAprobacion: plantilla.umbralAprobacion || 80,
+        secciones: (plantilla.secciones || []).map((s: any) => ({
+          titulo: s.titulo,
+          descripcion: s.descripcion,
+          orden: s.orden,
+          peso: s.peso,
+          preguntas: (s.preguntas || []).map((p: any) => ({
+            texto: p.texto,
+            tipo: p.tipo,
+            opciones: p.opciones ? (typeof p.opciones === 'string' ? JSON.parse(p.opciones) : p.opciones) : [],
+            requerida: p.requerida,
+            peso: p.peso,
+            respuestaEsperada: p.respuestaEsperada,
+            orden: p.orden,
+            requiereAccionSiNoConforme: p.requiereAccionSiNoConforme,
+          }))
+        }))
+      };
+    } else {
+      this.editandoPlantillaId = null;
+      this.nuevaPlantilla = { titulo: '', descripcion: '', categoria: '', empresa: '', umbralAprobacion: 80, secciones: [] };
+    }
+    this.mostrarFormPlantilla = true;
+  }
+
+  cerrarFormPlantilla(): void {
+    this.mostrarFormPlantilla = false;
+    this.editandoPlantillaId = null;
+  }
+
+  agregarSeccion(): void {
+    this.nuevaPlantilla.secciones.push({
+      titulo: '', descripcion: '', orden: this.nuevaPlantilla.secciones.length, peso: 1.0, preguntas: []
+    });
+  }
+
+  eliminarSeccion(index: number): void {
+    this.nuevaPlantilla.secciones.splice(index, 1);
+  }
+
+  agregarPregunta(seccionIndex: number): void {
+    this.nuevaPlantilla.secciones[seccionIndex].preguntas.push({
+      texto: '', tipo: 'si_no', opciones: [], requerida: true, peso: 1.0, respuestaEsperada: 'si', orden: this.nuevaPlantilla.secciones[seccionIndex].preguntas.length, requiereAccionSiNoConforme: false
+    });
+  }
+
+  eliminarPregunta(seccionIndex: number, preguntaIndex: number): void {
+    this.nuevaPlantilla.secciones[seccionIndex].preguntas.splice(preguntaIndex, 1);
+  }
+
+  guardarPlantilla(): void {
+    if (this.editandoPlantillaId) {
+      this.ssgtService.actualizarPlantilla(this.editandoPlantillaId, this.nuevaPlantilla).subscribe({
+        next: () => { Swal.fire('Éxito', 'Plantilla actualizada', 'success'); this.cerrarFormPlantilla(); this.cargarPlantillas(); },
+        error: () => { Swal.fire('Error', 'Error al actualizar', 'error'); }
+      });
+    } else {
+      this.ssgtService.crearPlantilla(this.nuevaPlantilla).subscribe({
+        next: () => { Swal.fire('Éxito', 'Plantilla creada', 'success'); this.cerrarFormPlantilla(); this.cargarPlantillas(); },
+        error: () => { Swal.fire('Error', 'Error al crear', 'error'); }
+      });
+    }
+  }
+
+  duplicarPlantilla(id: number): void {
+    this.ssgtService.duplicarPlantilla(id).subscribe({
+      next: () => { Swal.fire('Éxito', 'Plantilla duplicada', 'success'); this.cargarPlantillas(); },
+      error: () => { Swal.fire('Error', 'Error al duplicar', 'error'); }
+    });
+  }
+
+  eliminarPlantilla(id: number): void {
+    Swal.fire({ title: '¿Eliminar plantilla?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Eliminar', cancelButtonText: 'Cancelar' }).then((r) => {
+      if (r.isConfirmed) {
+        this.ssgtService.eliminarPlantilla(id).subscribe({
+          next: () => { Swal.fire('Eliminado', '', 'success'); this.cargarPlantillas(); },
+          error: () => { Swal.fire('Error', 'Error al eliminar', 'error'); }
+        });
+      }
+    });
+  }
+
+  getTotalPreguntas(plantilla: any): number {
+    if (!plantilla.secciones) return 0;
+    return plantilla.secciones.reduce((acc: number, s: any) => acc + (s.preguntas?.length || 0), 0);
   }
 
   // ========== INSPECCIONES ==========
@@ -89,7 +196,8 @@ export class SsgtInspeccionesComponent implements OnInit {
       this.nuevaInspeccion = { ...inspeccion };
     } else {
       this.editandoInspeccionId = null;
-      this.nuevaInspeccion = { titulo: '', tipo: 'general', fechaInspeccion: '', lugar: '', empresa: '', observacionesGenerales: '' };
+      this.nuevaInspeccion = { titulo: '', tipo: 'plantilla', fechaInspeccion: '', lugar: '', empresa: '', plantillaId: null, observacionesGenerales: '' };
+      if (this.plantillas.length === 0) this.cargarPlantillas();
     }
     this.mostrarFormInspeccion = true;
   }
@@ -97,6 +205,13 @@ export class SsgtInspeccionesComponent implements OnInit {
   cerrarFormInspeccion(): void {
     this.mostrarFormInspeccion = false;
     this.editandoInspeccionId = null;
+  }
+
+  onPlantillaSeleccionada(): void {
+    const plantilla = this.plantillas.find(p => p.id == this.nuevaInspeccion.plantillaId);
+    if (plantilla && !this.nuevaInspeccion.titulo) {
+      this.nuevaInspeccion.titulo = plantilla.titulo;
+    }
   }
 
   guardarInspeccion(): void {
@@ -125,36 +240,128 @@ export class SsgtInspeccionesComponent implements OnInit {
     });
   }
 
-  abrirChecklist(inspeccion: any): void {
-    this.inspeccionSeleccionada = inspeccion;
-    this.checklistItems = (inspeccion.checklist || []).map((item: any) => ({ ...item }));
-    if (this.checklistItems.length === 0) {
-      this.checklistItems = [
-        { pregunta: '', cumple: null, observacion: '', orden: 1 }
-      ];
+  // Realizar inspección: abrir formulario de respuestas
+  abrirRealizarInspeccion(inspeccion: any): void {
+    this.loading = true;
+    this.ssgtService.obtenerInspeccionPorId(inspeccion.id).subscribe({
+      next: (data) => {
+        this.inspeccionActiva = data;
+        this.prepararRespuestas(data);
+        this.mostrarRealizarInspeccion = true;
+        this.loading = false;
+      },
+      error: () => { this.loading = false; Swal.fire('Error', 'Error al cargar inspección', 'error'); }
+    });
+  }
+
+  prepararRespuestas(inspeccion: any): void {
+    const plantilla = inspeccion.plantilla;
+    if (!plantilla || !plantilla.secciones) {
+      this.respuestasForm = [];
+      return;
     }
-    this.mostrarChecklist = true;
+
+    this.respuestasForm = plantilla.secciones.map((seccion: any) => ({
+      ...seccion,
+      preguntas: seccion.preguntas.map((pregunta: any) => {
+        const respExistente = (inspeccion.respuestas || []).find((r: any) => r.preguntaId === pregunta.id);
+        return {
+          ...pregunta,
+          respuestaId: respExistente?.id,
+          valor: respExistente?.valor || '',
+          valorArchivo: respExistente?.valorArchivo || '',
+          observacion: respExistente?.observacion || '',
+          subiendoFoto: false,
+          opciones: pregunta.opciones ? (typeof pregunta.opciones === 'string' ? JSON.parse(pregunta.opciones) : pregunta.opciones) : [],
+        };
+      }).sort((a: any, b: any) => a.orden - b.orden)
+    })).sort((a: any, b: any) => a.orden - b.orden);
   }
 
-  cerrarChecklist(): void {
-    this.mostrarChecklist = false;
-    this.inspeccionSeleccionada = null;
+  cerrarRealizarInspeccion(): void {
+    this.mostrarRealizarInspeccion = false;
+    this.inspeccionActiva = null;
   }
 
-  agregarItemChecklist(): void {
-    this.checklistItems.push({ pregunta: '', cumple: null, observacion: '', orden: this.checklistItems.length + 1 });
+  subirFotoEvidencia(event: Event, pregunta: any): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0 || !this.inspeccionActiva) return;
+
+    const archivo = input.files[0];
+    if (!archivo.type.startsWith('image/')) {
+      Swal.fire('Error', 'Solo se permiten archivos de imagen', 'warning');
+      return;
+    }
+
+    pregunta.subiendoFoto = true;
+    this.ssgtService.subirFotoInspeccion(this.inspeccionActiva.id, archivo).subscribe({
+      next: (res) => {
+        pregunta.valorArchivo = res.ruta;
+        pregunta.valor = pregunta.valor || 'Foto adjunta';
+        pregunta.subiendoFoto = false;
+        Swal.fire('Foto subida', 'La evidencia fotográfica fue adjuntada correctamente', 'success');
+      },
+      error: () => {
+        pregunta.subiendoFoto = false;
+        Swal.fire('Error', 'Error al subir la foto', 'error');
+      }
+    });
   }
 
-  eliminarItemChecklist(index: number): void {
-    this.checklistItems.splice(index, 1);
+  getUrlArchivo(ruta: string): string {
+    if (!ruta) return '';
+    if (ruta.startsWith('http')) return ruta;
+    return environment.apiUrl + ruta;
   }
 
-  guardarChecklist(): void {
-    if (!this.inspeccionSeleccionada) return;
-    const items = this.checklistItems.filter(i => i.pregunta.trim() !== '');
-    this.ssgtService.guardarChecklist(this.inspeccionSeleccionada.id, items).subscribe({
-      next: () => { Swal.fire('Éxito', 'Checklist guardado', 'success'); this.cerrarChecklist(); this.cargarInspecciones(); },
-      error: () => { Swal.fire('Error', 'Error al guardar checklist', 'error'); }
+  guardarRespuestas(): void {
+    if (!this.inspeccionActiva) return;
+
+    const respuestas: any[] = [];
+    for (const seccion of this.respuestasForm) {
+      for (const pregunta of seccion.preguntas) {
+        respuestas.push({
+          preguntaId: pregunta.id,
+          seccionId: seccion.id,
+          valor: pregunta.valor,
+          valorArchivo: pregunta.valorArchivo || null,
+          observacion: pregunta.observacion,
+          orden: pregunta.orden,
+        });
+      }
+    }
+
+    this.ssgtService.guardarRespuestas(this.inspeccionActiva.id, respuestas).subscribe({
+      next: (res) => {
+        Swal.fire('Guardado', `Puntaje: ${res.porcentaje}% — ${res.aprobada ? 'APROBADA' : 'NO APROBADA'}`, res.aprobada ? 'success' : 'warning');
+        this.cargarInspecciones();
+      },
+      error: () => { Swal.fire('Error', 'Error al guardar respuestas', 'error'); }
+    });
+  }
+
+  completarInspeccion(id: number): void {
+    Swal.fire({ title: '¿Completar inspección?', text: 'No se podrán editar más las respuestas', icon: 'question', showCancelButton: true, confirmButtonText: 'Completar', cancelButtonText: 'Cancelar' }).then((r) => {
+      if (r.isConfirmed) {
+        this.ssgtService.completarInspeccion(id).subscribe({
+          next: () => { Swal.fire('Completada', 'Inspección finalizada', 'success'); this.cerrarRealizarInspeccion(); this.cargarInspecciones(); },
+          error: () => { Swal.fire('Error', 'Error al completar', 'error'); }
+        });
+      }
+    });
+  }
+
+  descargarPdf(id: number): void {
+    this.ssgtService.descargarPdfInspeccion(id).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `inspeccion_${id}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => { Swal.fire('Error', 'Error al generar PDF', 'error'); }
     });
   }
 
@@ -218,157 +425,54 @@ export class SsgtInspeccionesComponent implements OnInit {
     });
   }
 
-  // ========== MATRIZ DE RIESGOS ==========
-  cargarRiesgos(): void {
+  // ========== ACCIONES CORRECTIVAS ==========
+  cargarAcciones(): void {
     this.loading = true;
-    this.ssgtService.obtenerRiesgos().subscribe({
-      next: (data) => { this.riesgos = data; this.loading = false; },
+    this.ssgtService.obtenerAccionesCorrectivas().subscribe({
+      next: (data) => { this.acciones = data; this.loading = false; },
       error: () => { this.loading = false; }
     });
   }
 
-  abrirFormRiesgo(riesgo?: any): void {
-    if (riesgo) {
-      this.editandoRiesgoId = riesgo.id;
-      this.nuevoRiesgo = { ...riesgo };
+  abrirFormAccion(accion?: any): void {
+    if (accion) {
+      this.editandoAccionId = accion.id;
+      this.nuevaAccion = { ...accion };
     } else {
-      this.editandoRiesgoId = null;
-      this.nuevoRiesgo = { nombre: '', descripcion: '', proceso: '', peligro: '', probabilidad: 1, consecuencia: 1, nivelRiesgo: 'bajo', controlesExistentes: '', accionRecomendada: '', empresa: '' };
+      this.editandoAccionId = null;
+      this.nuevaAccion = { inspeccionId: 0, descripcion: '', prioridad: 'media', responsableId: null, fechaLimite: '', preguntaTexto: '' };
     }
-    this.mostrarFormRiesgo = true;
+    this.mostrarFormAccion = true;
   }
 
-  cerrarFormRiesgo(): void {
-    this.mostrarFormRiesgo = false;
-    this.editandoRiesgoId = null;
+  cerrarFormAccion(): void {
+    this.mostrarFormAccion = false;
+    this.editandoAccionId = null;
   }
 
-  calcularNivelRiesgo(): void {
-    const valor = this.nuevoRiesgo.probabilidad * this.nuevoRiesgo.consecuencia;
-    if (valor <= 4) this.nuevoRiesgo.nivelRiesgo = 'bajo';
-    else if (valor <= 9) this.nuevoRiesgo.nivelRiesgo = 'medio';
-    else if (valor <= 15) this.nuevoRiesgo.nivelRiesgo = 'alto';
-    else if (valor <= 20) this.nuevoRiesgo.nivelRiesgo = 'muy_alto';
-    else this.nuevoRiesgo.nivelRiesgo = 'critico';
-  }
-
-  guardarRiesgo(): void {
-    this.calcularNivelRiesgo();
-    const data = { ...this.nuevoRiesgo, responsableId: this.userId };
-    if (this.editandoRiesgoId) {
-      this.ssgtService.actualizarRiesgo(this.editandoRiesgoId, data).subscribe({
-        next: () => { Swal.fire('Éxito', 'Riesgo actualizado', 'success'); this.cerrarFormRiesgo(); this.cargarRiesgos(); },
+  guardarAccion(): void {
+    if (this.editandoAccionId) {
+      this.ssgtService.actualizarAccionCorrectiva(this.editandoAccionId, this.nuevaAccion).subscribe({
+        next: () => { Swal.fire('Éxito', 'Acción actualizada', 'success'); this.cerrarFormAccion(); this.cargarAcciones(); },
         error: () => { Swal.fire('Error', 'Error al actualizar', 'error'); }
       });
     } else {
-      this.ssgtService.crearRiesgo(data).subscribe({
-        next: () => { Swal.fire('Éxito', 'Riesgo creado', 'success'); this.cerrarFormRiesgo(); this.cargarRiesgos(); },
+      this.ssgtService.crearAccionCorrectiva(this.nuevaAccion).subscribe({
+        next: () => { Swal.fire('Éxito', 'Acción creada', 'success'); this.cerrarFormAccion(); this.cargarAcciones(); },
         error: () => { Swal.fire('Error', 'Error al crear', 'error'); }
       });
     }
   }
 
-  eliminarRiesgo(id: number): void {
-    Swal.fire({ title: '¿Eliminar riesgo?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Eliminar', cancelButtonText: 'Cancelar' }).then((r) => {
+  eliminarAccion(id: number): void {
+    Swal.fire({ title: '¿Eliminar acción?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Eliminar', cancelButtonText: 'Cancelar' }).then((r) => {
       if (r.isConfirmed) {
-        this.ssgtService.eliminarRiesgo(id).subscribe({
-          next: () => { Swal.fire('Eliminado', '', 'success'); this.cargarRiesgos(); },
+        this.ssgtService.eliminarAccionCorrectiva(id).subscribe({
+          next: () => { Swal.fire('Eliminado', '', 'success'); this.cargarAcciones(); },
           error: () => { Swal.fire('Error', 'Error al eliminar', 'error'); }
         });
       }
     });
-  }
-
-  getNivelRiesgoClass(nivel: string): string {
-    switch (nivel) {
-      case 'bajo': return 'nivel-bajo';
-      case 'medio': return 'nivel-medio';
-      case 'alto': return 'nivel-alto';
-      case 'muy_alto': return 'nivel-muy-alto';
-      case 'critico': return 'nivel-critico';
-      default: return '';
-    }
-  }
-
-  getNivelRiesgoLabel(nivel: string): string {
-    switch (nivel) {
-      case 'bajo': return 'Bajo';
-      case 'medio': return 'Medio';
-      case 'alto': return 'Alto';
-      case 'muy_alto': return 'Muy Alto';
-      case 'critico': return 'Crítico';
-      default: return nivel;
-    }
-  }
-
-  // ========== PLANES DE ACCIÓN ==========
-  cargarPlanes(): void {
-    this.loading = true;
-    this.ssgtService.obtenerPlanesAccion().subscribe({
-      next: (data) => { this.planes = data; this.loading = false; },
-      error: () => { this.loading = false; }
-    });
-  }
-
-  abrirFormPlan(plan?: any): void {
-    if (plan) {
-      this.editandoPlanId = plan.id;
-      this.nuevoPlan = { ...plan };
-    } else {
-      this.editandoPlanId = null;
-      this.nuevoPlan = { origen: 'inspeccion', origenId: 0, descripcion: '', responsableId: 0, fechaInicio: new Date().toISOString().split('T')[0], fechaLimite: '', observaciones: '' };
-    }
-    this.mostrarFormPlan = true;
-  }
-
-  cerrarFormPlan(): void {
-    this.mostrarFormPlan = false;
-    this.editandoPlanId = null;
-  }
-
-  guardarPlan(): void {
-    if (this.editandoPlanId) {
-      this.ssgtService.actualizarPlanAccion(this.editandoPlanId, this.nuevoPlan).subscribe({
-        next: () => { Swal.fire('Éxito', 'Plan actualizado', 'success'); this.cerrarFormPlan(); this.cargarPlanes(); },
-        error: () => { Swal.fire('Error', 'Error al actualizar', 'error'); }
-      });
-    } else {
-      this.ssgtService.crearPlanAccion(this.nuevoPlan).subscribe({
-        next: () => { Swal.fire('Éxito', 'Plan creado', 'success'); this.cerrarFormPlan(); this.cargarPlanes(); },
-        error: () => { Swal.fire('Error', 'Error al crear', 'error'); }
-      });
-    }
-  }
-
-  eliminarPlan(id: number): void {
-    Swal.fire({ title: '¿Eliminar plan?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Eliminar', cancelButtonText: 'Cancelar' }).then((r) => {
-      if (r.isConfirmed) {
-        this.ssgtService.eliminarPlanAccion(id).subscribe({
-          next: () => { Swal.fire('Eliminado', '', 'success'); this.cargarPlanes(); },
-          error: () => { Swal.fire('Error', 'Error al eliminar', 'error'); }
-        });
-      }
-    });
-  }
-
-  getEstadoPlanClass(estado: string): string {
-    switch (estado) {
-      case 'pendiente': return 'badge-warning';
-      case 'en_progreso': return 'badge-info';
-      case 'completado': return 'badge-success';
-      case 'vencido': return 'badge-danger';
-      default: return 'badge-secondary';
-    }
-  }
-
-  getEstadoPlanLabel(estado: string): string {
-    switch (estado) {
-      case 'pendiente': return 'Pendiente';
-      case 'en_progreso': return 'En Progreso';
-      case 'completado': return 'Completado';
-      case 'vencido': return 'Vencido';
-      default: return estado;
-    }
   }
 
   // ========== HELPERS ==========
@@ -387,6 +491,34 @@ export class SsgtInspeccionesComponent implements OnInit {
     }
   }
 
+  getPrioridadClass(pri: string): string {
+    switch (pri) {
+      case 'baja': return 'badge-info';
+      case 'media': return 'badge-warning';
+      case 'alta': return 'badge-danger';
+      case 'critica': return 'badge-dark';
+      default: return 'badge-secondary';
+    }
+  }
+
+  getEstadoInspeccionClass(estado: string): string {
+    switch (estado) {
+      case 'pendiente': return 'badge-warning';
+      case 'en_proceso': return 'badge-info';
+      case 'completada': return 'badge-success';
+      default: return 'badge-secondary';
+    }
+  }
+
+  getEstadoAccionClass(estado: string): string {
+    switch (estado) {
+      case 'pendiente': return 'badge-warning';
+      case 'en_progreso': return 'badge-info';
+      case 'completada': return 'badge-success';
+      default: return 'badge-secondary';
+    }
+  }
+
   getEmpresaNombre(empresa: string): string {
     switch (empresa) {
       case 'AP': return 'Andrés Publicidad';
@@ -396,9 +528,10 @@ export class SsgtInspeccionesComponent implements OnInit {
     }
   }
 
-  getChecklistCumple(checklist: any[]): number {
-    if (!checklist) return 0;
-    return checklist.filter(c => c.cumple === true).length;
+  getPorcentajeColor(porcentaje: number): string {
+    if (porcentaje >= 80) return '#27ae60';
+    if (porcentaje >= 60) return '#f39c12';
+    return '#e74c3c';
   }
 
   formatDate(date: any): string {

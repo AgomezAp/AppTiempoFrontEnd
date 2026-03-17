@@ -3,8 +3,8 @@
 <div class="page-container">
   <div class="page-header">
     <div class="header-left">
-      <h1><i class="fas fa-clipboard-check"></i> Inspecciones y Riesgos</h1>
-      <p>Gestión de inspecciones, condiciones inseguras, riesgos y planes de acción</p>
+      <h1><i class="fas fa-clipboard-check"></i> Inspecciones</h1>
+      <p>Gestión de inspecciones, plantillas y acciones correctivas</p>
     </div>
   </div>
 
@@ -13,14 +13,14 @@
     <button class="tab-btn" [class.active]="tabActual === 'inspecciones'" (click)="cambiarTab('inspecciones')">
       <i class="fas fa-clipboard-list"></i> Inspecciones
     </button>
+    <button class="tab-btn" [class.active]="tabActual === 'plantillas'" (click)="cambiarTab('plantillas')">
+      <i class="fas fa-file-alt"></i> Plantillas
+    </button>
     <button class="tab-btn" [class.active]="tabActual === 'condiciones'" (click)="cambiarTab('condiciones')">
       <i class="fas fa-exclamation-triangle"></i> Condiciones Inseguras
     </button>
-    <button class="tab-btn" [class.active]="tabActual === 'riesgos'" (click)="cambiarTab('riesgos')">
-      <i class="fas fa-th"></i> Matriz de Riesgos
-    </button>
-    <button class="tab-btn" [class.active]="tabActual === 'planes'" (click)="cambiarTab('planes')">
-      <i class="fas fa-tasks"></i> Planes de Acción
+    <button class="tab-btn" [class.active]="tabActual === 'acciones'" (click)="cambiarTab('acciones')">
+      <i class="fas fa-tasks"></i> Acciones Correctivas
     </button>
   </div>
 
@@ -43,28 +43,81 @@
     <div class="cards-grid" *ngIf="inspecciones.length > 0">
       <div class="card" *ngFor="let insp of inspecciones">
         <div class="card-top">
-          <span class="badge" [ngClass]="insp.estado === 'completado' ? 'badge-success' : (insp.estado === 'en_progreso' ? 'badge-info' : 'badge-warning')">
-            {{ insp.estado === 'completado' ? 'Completado' : (insp.estado === 'en_progreso' ? 'En progreso' : 'Pendiente') }}
+          <span class="badge" [ngClass]="getEstadoInspeccionClass(insp.estado)">
+            {{ insp.estado === 'completada' ? 'Completada' : (insp.estado === 'en_proceso' ? 'En progreso' : 'Pendiente') }}
+          </span>
+          <span *ngIf="insp.aprobada !== null && insp.aprobada !== undefined" class="badge" [ngClass]="insp.aprobada ? 'badge-success' : 'badge-danger'">
+            {{ insp.aprobada ? 'Aprobada' : 'No aprobada' }}
           </span>
           <div class="card-btns">
-            <button class="btn-icon" (click)="abrirChecklist(insp)" title="Checklist"><i class="fas fa-list-check"></i></button>
-            <button class="btn-icon" (click)="abrirFormInspeccion(insp)" title="Editar"><i class="fas fa-edit"></i></button>
+            <button class="btn-icon" (click)="abrirRealizarInspeccion(insp)" title="Realizar" *ngIf="insp.estado !== 'completada' && insp.plantillaId">
+              <i class="fas fa-clipboard-check"></i>
+            </button>
+            <button class="btn-icon" (click)="descargarPdf(insp.id)" title="PDF" *ngIf="insp.estado === 'completada'">
+              <i class="fas fa-file-pdf"></i>
+            </button>
+            <button class="btn-icon" (click)="abrirFormInspeccion(insp)" title="Editar" *ngIf="insp.estado !== 'completada'">
+              <i class="fas fa-edit"></i>
+            </button>
             <button class="btn-icon danger" (click)="eliminarInspeccion(insp.id)" title="Eliminar"><i class="fas fa-trash"></i></button>
           </div>
         </div>
         <h3>{{ insp.titulo }}</h3>
         <div class="card-meta">
-          <span><i class="fas fa-tag"></i> {{ insp.tipo }}</span>
+          <span *ngIf="insp.plantilla"><i class="fas fa-clipboard-list"></i> {{ insp.plantilla.titulo }}</span>
           <span><i class="fas fa-calendar"></i> {{ formatDate(insp.fechaInspeccion) }}</span>
           <span *ngIf="insp.lugar"><i class="fas fa-map-marker-alt"></i> {{ insp.lugar }}</span>
+          <span *ngIf="insp.empresa"><i class="fas fa-building"></i> {{ getEmpresaNombre(insp.empresa) }}</span>
+          <span *ngIf="insp.inspector"><i class="fas fa-user"></i> {{ insp.inspector.name }} {{ insp.inspector.lastName }}</span>
         </div>
+
+        <!-- Scoring -->
+        <div class="scoring-container" *ngIf="insp.porcentaje !== null && insp.porcentaje !== undefined">
+          <div class="score-row">
+            <span class="score-label">Puntaje</span>
+            <span class="score-value" [style.color]="getPorcentajeColor(insp.porcentaje)">{{ insp.porcentaje | number:'1.1-1' }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="insp.porcentaje" [style.background]="getPorcentajeColor(insp.porcentaje)"></div>
+          </div>
+          <small class="score-detail">{{ insp.puntajeObtenido?.toFixed(1) }} / {{ insp.puntajeMaximo?.toFixed(1) }} puntos</small>
+        </div>
+
         <p *ngIf="insp.observacionesGenerales" class="card-obs">{{ insp.observacionesGenerales }}</p>
-        <div class="checklist-summary" *ngIf="insp.checklist && insp.checklist.length > 0">
-          <span class="checklist-count">
-            <i class="fas fa-check-square"></i> {{ insp.checklist.length }} items
-            ({{ getChecklistCumple(insp.checklist) }} cumplen)
-          </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Plantillas -->
+  <div class="tab-content" *ngIf="tabActual === 'plantillas' && !loading">
+    <div class="tab-header">
+      <button class="btn-primary" (click)="abrirFormPlantilla()"><i class="fas fa-plus"></i> Nueva Plantilla</button>
+    </div>
+
+    <div class="empty-state" *ngIf="plantillas.length === 0">
+      <i class="fas fa-file-alt"></i>
+      <h3>No hay plantillas creadas</h3>
+    </div>
+
+    <div class="cards-grid" *ngIf="plantillas.length > 0">
+      <div class="card" *ngFor="let pl of plantillas">
+        <div class="card-top">
+          <span class="badge" [ngClass]="pl.estado === 'activa' ? 'badge-success' : 'badge-secondary'">{{ pl.estado }}</span>
+          <span class="badge badge-info" *ngIf="pl.categoria">{{ pl.categoria }}</span>
+          <div class="card-btns">
+            <button class="btn-icon" (click)="duplicarPlantilla(pl.id)" title="Duplicar"><i class="fas fa-copy"></i></button>
+            <button class="btn-icon" (click)="abrirFormPlantilla(pl)" title="Editar"><i class="fas fa-edit"></i></button>
+            <button class="btn-icon danger" (click)="eliminarPlantilla(pl.id)" title="Eliminar"><i class="fas fa-trash"></i></button>
+          </div>
         </div>
+        <h3>{{ pl.titulo }}</h3>
+        <div class="card-meta">
+          <span><i class="fas fa-layer-group"></i> {{ pl.secciones?.length || 0 }} secciones</span>
+          <span><i class="fas fa-question-circle"></i> {{ getTotalPreguntas(pl) }} preguntas</span>
+          <span><i class="fas fa-check-circle"></i> Umbral: {{ pl.umbralAprobacion }}%</span>
+          <span *ngIf="pl.empresa"><i class="fas fa-building"></i> {{ getEmpresaNombre(pl.empresa) }}</span>
+        </div>
+        <p *ngIf="pl.descripcion" class="card-obs">{{ pl.descripcion }}</p>
       </div>
     </div>
   </div>
@@ -96,6 +149,7 @@
         <div class="card-meta">
           <span><i class="fas fa-map-marker-alt"></i> {{ cond.ubicacion }}</span>
           <span><i class="fas fa-calendar"></i> {{ formatDate(cond.fechaReporte) }}</span>
+          <span *ngIf="cond.reportante"><i class="fas fa-user"></i> {{ cond.reportante.name }} {{ cond.reportante.lastName }}</span>
         </div>
         <div class="card-foto" *ngIf="!cond.foto">
           <label class="btn-upload-mini">
@@ -107,86 +161,41 @@
     </div>
   </div>
 
-  <!-- TAB: Matriz de Riesgos -->
-  <div class="tab-content" *ngIf="tabActual === 'riesgos' && !loading">
+  <!-- TAB: Acciones Correctivas -->
+  <div class="tab-content" *ngIf="tabActual === 'acciones' && !loading">
     <div class="tab-header">
-      <button class="btn-primary" (click)="abrirFormRiesgo()"><i class="fas fa-plus"></i> Nuevo Riesgo</button>
+      <button class="btn-primary" (click)="abrirFormAccion()"><i class="fas fa-plus"></i> Nueva Acción</button>
     </div>
 
-    <div class="empty-state" *ngIf="riesgos.length === 0">
-      <i class="fas fa-th"></i>
-      <h3>No hay riesgos registrados</h3>
-    </div>
-
-    <div class="table-container" *ngIf="riesgos.length > 0">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Proceso</th>
-            <th>Peligro</th>
-            <th>P</th>
-            <th>C</th>
-            <th>Nivel</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let riesgo of riesgos">
-            <td><strong>{{ riesgo.nombre }}</strong></td>
-            <td>{{ riesgo.proceso }}</td>
-            <td>{{ riesgo.peligro }}</td>
-            <td>{{ riesgo.probabilidad }}</td>
-            <td>{{ riesgo.consecuencia }}</td>
-            <td>
-              <span class="nivel-badge" [ngClass]="getNivelRiesgoClass(riesgo.nivelRiesgo)">
-                {{ getNivelRiesgoLabel(riesgo.nivelRiesgo) }}
-              </span>
-            </td>
-            <td>
-              <div class="table-actions">
-                <button class="btn-icon" (click)="abrirFormRiesgo(riesgo)" title="Editar"><i class="fas fa-edit"></i></button>
-                <button class="btn-icon danger" (click)="eliminarRiesgo(riesgo.id)" title="Eliminar"><i class="fas fa-trash"></i></button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- TAB: Planes de Acción -->
-  <div class="tab-content" *ngIf="tabActual === 'planes' && !loading">
-    <div class="tab-header">
-      <button class="btn-primary" (click)="abrirFormPlan()"><i class="fas fa-plus"></i> Nuevo Plan</button>
-    </div>
-
-    <div class="empty-state" *ngIf="planes.length === 0">
+    <div class="empty-state" *ngIf="acciones.length === 0">
       <i class="fas fa-tasks"></i>
-      <h3>No hay planes de acción</h3>
+      <h3>No hay acciones correctivas registradas</h3>
     </div>
 
-    <div class="cards-grid" *ngIf="planes.length > 0">
-      <div class="card" *ngFor="let plan of planes">
+    <div class="cards-grid" *ngIf="acciones.length > 0">
+      <div class="card" *ngFor="let acc of acciones">
         <div class="card-top">
-          <span class="badge" [ngClass]="getEstadoPlanClass(plan.estado)">{{ getEstadoPlanLabel(plan.estado) }}</span>
+          <span class="badge" [ngClass]="getPrioridadClass(acc.prioridad)">{{ acc.prioridad | titlecase }}</span>
+          <span class="badge" [ngClass]="getEstadoAccionClass(acc.estado)">{{ acc.estado }}</span>
           <div class="card-btns">
-            <button class="btn-icon" (click)="abrirFormPlan(plan)" title="Editar"><i class="fas fa-edit"></i></button>
-            <button class="btn-icon danger" (click)="eliminarPlan(plan.id)" title="Eliminar"><i class="fas fa-trash"></i></button>
+            <button class="btn-icon" (click)="abrirFormAccion(acc)" title="Editar"><i class="fas fa-edit"></i></button>
+            <button class="btn-icon danger" (click)="eliminarAccion(acc.id)" title="Eliminar"><i class="fas fa-trash"></i></button>
           </div>
         </div>
-        <p class="card-desc">{{ plan.descripcion }}</p>
+        <p class="card-desc">{{ acc.descripcion }}</p>
         <div class="card-meta">
-          <span><i class="fas fa-user"></i> {{ getNombreUsuario(plan.responsableId) }}</span>
-          <span><i class="fas fa-calendar"></i> Límite: {{ formatDate(plan.fechaLimite) }}</span>
-          <span><i class="fas fa-tag"></i> {{ plan.origen }}</span>
+          <span *ngIf="acc.inspeccion"><i class="fas fa-clipboard-list"></i> {{ acc.inspeccion.titulo }}</span>
+          <span *ngIf="acc.preguntaTexto"><i class="fas fa-question-circle"></i> {{ acc.preguntaTexto }}</span>
+          <span *ngIf="acc.responsable"><i class="fas fa-user"></i> {{ acc.responsable.name }} {{ acc.responsable.lastName }}</span>
+          <span *ngIf="acc.fechaLimite"><i class="fas fa-clock"></i> Límite: {{ formatDate(acc.fechaLimite) }}</span>
         </div>
+        <p *ngIf="acc.observaciones" class="card-obs">{{ acc.observaciones }}</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- MODAL: Inspección -->
+<!-- MODAL: Nueva/Editar Inspección -->
 <div class="modal-overlay" *ngIf="mostrarFormInspeccion" (click)="cerrarFormInspeccion()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
@@ -194,38 +203,35 @@
       <button class="btn-close" (click)="cerrarFormInspeccion()"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
+      <div class="form-group" *ngIf="!editandoInspeccionId">
+        <label>Plantilla</label>
+        <select [(ngModel)]="nuevaInspeccion.plantillaId" (change)="onPlantillaSeleccionada()">
+          <option [ngValue]="null">-- Sin plantilla --</option>
+          <option *ngFor="let pl of plantillas" [ngValue]="pl.id">{{ pl.titulo }}</option>
+        </select>
+      </div>
       <div class="form-group">
         <label>Título *</label>
         <input type="text" [(ngModel)]="nuevaInspeccion.titulo">
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Tipo</label>
-          <select [(ngModel)]="nuevaInspeccion.tipo">
-            <option value="general">General</option>
-            <option value="puesto_trabajo">Puesto de Trabajo</option>
-            <option value="equipos">Equipos</option>
-            <option value="epp">EPP</option>
-            <option value="instalaciones">Instalaciones</option>
-          </select>
-        </div>
-        <div class="form-group">
           <label>Fecha *</label>
           <input type="date" [(ngModel)]="nuevaInspeccion.fechaInspeccion">
+        </div>
+        <div class="form-group">
+          <label>Empresa</label>
+          <select [(ngModel)]="nuevaInspeccion.empresa">
+            <option value="">Seleccionar</option>
+            <option value="AP">Andrés Publicidad</option>
+            <option value="AT">Andrés Tobón</option>
+            <option value="ME">María Evangelina</option>
+          </select>
         </div>
       </div>
       <div class="form-group">
         <label>Lugar</label>
         <input type="text" [(ngModel)]="nuevaInspeccion.lugar">
-      </div>
-      <div class="form-group">
-        <label>Empresa</label>
-        <select [(ngModel)]="nuevaInspeccion.empresa">
-          <option value="">Seleccionar</option>
-          <option value="AP">Andrés Publicidad</option>
-          <option value="AT">Andrés Tobón</option>
-          <option value="ME">María Evangelina</option>
-        </select>
       </div>
       <div class="form-group">
         <label>Observaciones</label>
@@ -239,32 +245,226 @@
   </div>
 </div>
 
-<!-- MODAL: Checklist -->
-<div class="modal-overlay" *ngIf="mostrarChecklist" (click)="cerrarChecklist()">
+<!-- MODAL: Realizar Inspección -->
+<div class="modal-overlay" *ngIf="mostrarRealizarInspeccion" (click)="cerrarRealizarInspeccion()">
   <div class="modal-content modal-lg" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>Checklist - {{ inspeccionSeleccionada?.titulo }}</h2>
-      <button class="btn-close" (click)="cerrarChecklist()"><i class="fas fa-times"></i></button>
+      <h2>{{ inspeccionActiva?.titulo }}</h2>
+      <button class="btn-close" (click)="cerrarRealizarInspeccion()"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
-      <div class="checklist-form">
-        <div class="checklist-item" *ngFor="let item of checklistItems; let i = index">
-          <span class="checklist-num">{{ i + 1 }}</span>
-          <input type="text" [(ngModel)]="item.pregunta" placeholder="Pregunta o criterio de inspección" class="checklist-input">
-          <div class="checklist-toggle">
-            <button [class.active]="item.cumple === true" (click)="item.cumple = true" class="toggle-si">Si</button>
-            <button [class.active]="item.cumple === false" (click)="item.cumple = false" class="toggle-no">No</button>
-            <button [class.active]="item.cumple === null" (click)="item.cumple = null" class="toggle-na">N/A</button>
+      <p class="modal-subtitle" *ngIf="inspeccionActiva?.plantilla">Plantilla: {{ inspeccionActiva.plantilla.titulo }}</p>
+
+      <div class="seccion-block" *ngFor="let seccion of respuestasForm; let si = index">
+        <h4 class="seccion-titulo">{{ si + 1 }}. {{ seccion.titulo }}</h4>
+
+        <div class="pregunta-item" *ngFor="let pregunta of seccion.preguntas; let pi = index">
+          <div class="pregunta-header">
+            <span class="pregunta-num">{{ si + 1 }}.{{ pi + 1 }}</span>
+            <span class="pregunta-texto">{{ pregunta.texto }}</span>
+            <span class="badge badge-secondary" *ngIf="pregunta.tipo !== 'si_no'">{{ pregunta.tipo }}</span>
           </div>
-          <input type="text" [(ngModel)]="item.observacion" placeholder="Observación" class="checklist-obs">
-          <button class="btn-icon danger" (click)="eliminarItemChecklist(i)"><i class="fas fa-times"></i></button>
+
+          <!-- Si/No -->
+          <div class="pregunta-respuesta" *ngIf="pregunta.tipo === 'si_no'">
+            <div class="checklist-toggle">
+              <button [class.active]="pregunta.valor === 'si'" (click)="pregunta.valor = 'si'" class="toggle-si">Si</button>
+              <button [class.active]="pregunta.valor === 'no'" (click)="pregunta.valor = 'no'" class="toggle-no">No</button>
+              <button [class.active]="pregunta.valor === 'na'" (click)="pregunta.valor = 'na'" class="toggle-na">N/A</button>
+            </div>
+          </div>
+
+          <!-- Texto -->
+          <div class="pregunta-respuesta" *ngIf="pregunta.tipo === 'texto'">
+            <textarea [(ngModel)]="pregunta.valor" rows="2" placeholder="Escribe tu respuesta"></textarea>
+          </div>
+
+          <!-- Número -->
+          <div class="pregunta-respuesta" *ngIf="pregunta.tipo === 'numero'">
+            <input type="number" [(ngModel)]="pregunta.valor" placeholder="0">
+          </div>
+
+          <!-- Fecha -->
+          <div class="pregunta-respuesta" *ngIf="pregunta.tipo === 'fecha'">
+            <input type="date" [(ngModel)]="pregunta.valor">
+          </div>
+
+          <!-- Slider -->
+          <div class="pregunta-respuesta slider-group" *ngIf="pregunta.tipo === 'slider'">
+            <input type="range" min="0" max="100" [(ngModel)]="pregunta.valor" class="slider-input">
+            <span class="slider-value">{{ pregunta.valor || 0 }}%</span>
+          </div>
+
+          <!-- Opción Múltiple -->
+          <div class="pregunta-respuesta" *ngIf="pregunta.tipo === 'opcion_multiple'">
+            <select [(ngModel)]="pregunta.valor">
+              <option value="">-- Seleccione --</option>
+              <option *ngFor="let op of pregunta.opciones" [value]="op">{{ op }}</option>
+            </select>
+          </div>
+
+          <!-- Foto (tipo foto) -->
+          <div class="pregunta-respuesta" *ngIf="pregunta.tipo === 'foto'">
+            <div class="foto-upload-container">
+              <label class="btn-upload" [class.uploading]="pregunta.subiendoFoto">
+                <i class="fas fa-camera"></i>
+                {{ pregunta.subiendoFoto ? 'Subiendo...' : (pregunta.valorArchivo ? 'Cambiar foto' : 'Tomar / Subir foto') }}
+                <input type="file" accept="image/*" capture="environment" (change)="subirFotoEvidencia($event, pregunta)" [disabled]="pregunta.subiendoFoto" hidden>
+              </label>
+              <div class="foto-preview" *ngIf="pregunta.valorArchivo">
+                <img [src]="getUrlArchivo(pregunta.valorArchivo)" alt="Evidencia" class="evidence-img">
+                <span class="foto-ok"><i class="fas fa-check-circle"></i> Foto adjunta</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Evidencia fotográfica (para cualquier tipo de pregunta) -->
+          <div class="pregunta-evidencia" *ngIf="pregunta.tipo !== 'foto'">
+            <div class="evidencia-row">
+              <label class="btn-upload-small" [class.uploading]="pregunta.subiendoFoto">
+                <i class="fas fa-paperclip"></i>
+                {{ pregunta.subiendoFoto ? 'Subiendo...' : 'Adjuntar evidencia' }}
+                <input type="file" accept="image/*" capture="environment" (change)="subirFotoEvidencia($event, pregunta)" [disabled]="pregunta.subiendoFoto" hidden>
+              </label>
+              <div class="foto-preview-small" *ngIf="pregunta.valorArchivo">
+                <img [src]="getUrlArchivo(pregunta.valorArchivo)" alt="Evidencia" class="evidence-img-small">
+                <span class="foto-ok-small"><i class="fas fa-check-circle"></i></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Observación -->
+          <div class="pregunta-observacion">
+            <input type="text" [(ngModel)]="pregunta.observacion" placeholder="Observación (opcional)">
+          </div>
         </div>
       </div>
-      <button class="btn-add-item" (click)="agregarItemChecklist()"><i class="fas fa-plus"></i> Agregar Item</button>
     </div>
     <div class="modal-footer">
-      <button class="btn-secondary" (click)="cerrarChecklist()">Cancelar</button>
-      <button class="btn-primary" (click)="guardarChecklist()">Guardar Checklist</button>
+      <button class="btn-secondary" (click)="cerrarRealizarInspeccion()">Cerrar</button>
+      <button class="btn-primary" (click)="guardarRespuestas()">
+        <i class="fas fa-save"></i> Guardar Respuestas
+      </button>
+      <button class="btn-success" (click)="completarInspeccion(inspeccionActiva.id)" *ngIf="inspeccionActiva?.estado !== 'completada'">
+        <i class="fas fa-check"></i> Completar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Plantilla -->
+<div class="modal-overlay" *ngIf="mostrarFormPlantilla" (click)="cerrarFormPlantilla()">
+  <div class="modal-content modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ editandoPlantillaId ? 'Editar' : 'Nueva' }} Plantilla</h2>
+      <button class="btn-close" (click)="cerrarFormPlantilla()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Título *</label>
+          <input type="text" [(ngModel)]="nuevaPlantilla.titulo" placeholder="Nombre de la plantilla">
+        </div>
+        <div class="form-group">
+          <label>Categoría</label>
+          <input type="text" [(ngModel)]="nuevaPlantilla.categoria" placeholder="Ej: Seguridad, EPP">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Empresa</label>
+          <select [(ngModel)]="nuevaPlantilla.empresa">
+            <option value="">Todas</option>
+            <option value="AP">Andrés Publicidad</option>
+            <option value="AT">Andrés Tobón</option>
+            <option value="ME">María Evangelina</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Umbral Aprobación (%)</label>
+          <input type="number" [(ngModel)]="nuevaPlantilla.umbralAprobacion" min="0" max="100">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Descripción</label>
+        <textarea [(ngModel)]="nuevaPlantilla.descripcion" rows="2" placeholder="Descripción de la plantilla"></textarea>
+      </div>
+
+      <!-- Secciones -->
+      <div class="secciones-container">
+        <div class="section-inline-header">
+          <h4>Secciones</h4>
+          <button class="btn-secondary btn-sm" (click)="agregarSeccion()">
+            <i class="fas fa-plus"></i> Agregar Sección
+          </button>
+        </div>
+
+        <div class="seccion-edit-block" *ngFor="let seccion of nuevaPlantilla.secciones; let si = index">
+          <div class="seccion-edit-header">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Sección {{ si + 1 }} - Título</label>
+                <input type="text" [(ngModel)]="seccion.titulo" placeholder="Nombre de la sección">
+              </div>
+              <div class="form-group form-group-sm">
+                <label>Peso</label>
+                <input type="number" [(ngModel)]="seccion.peso" step="0.1" min="0">
+              </div>
+              <button class="btn-icon danger seccion-remove-btn" (click)="eliminarSeccion(si)" title="Eliminar sección">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="preguntas-container">
+            <div class="pregunta-edit-item" *ngFor="let preg of seccion.preguntas; let pi = index">
+              <div class="form-row">
+                <div class="form-group">
+                  <input type="text" [(ngModel)]="preg.texto" placeholder="Pregunta">
+                </div>
+                <div class="form-group form-group-sm">
+                  <select [(ngModel)]="preg.tipo">
+                    <option value="si_no">Si/No</option>
+                    <option value="texto">Texto</option>
+                    <option value="numero">Número</option>
+                    <option value="fecha">Fecha</option>
+                    <option value="slider">Slider</option>
+                    <option value="opcion_multiple">Opción Múlt.</option>
+                    <option value="foto">Foto</option>
+                    <option value="firma">Firma</option>
+                  </select>
+                </div>
+                <div class="form-group form-group-xs">
+                  <input type="number" [(ngModel)]="preg.peso" step="0.1" min="0" placeholder="Peso">
+                </div>
+                <button class="btn-icon danger" (click)="eliminarPregunta(si, pi)" title="Eliminar">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <div class="form-row preg-options" *ngIf="preg.tipo === 'si_no'">
+                <div class="form-group form-group-sm">
+                  <label>Resp. esperada</label>
+                  <select [(ngModel)]="preg.respuestaEsperada">
+                    <option value="si">Si</option>
+                    <option value="no">No</option>
+                  </select>
+                </div>
+                <label class="checkbox-inline">
+                  <input type="checkbox" [(ngModel)]="preg.requiereAccionSiNoConforme"> Requiere acción si no conforme
+                </label>
+              </div>
+            </div>
+
+            <button class="btn-add-item" (click)="agregarPregunta(si)">
+              <i class="fas fa-plus"></i> Agregar Pregunta
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarFormPlantilla()">Cancelar</button>
+      <button class="btn-primary" (click)="guardarPlantilla()">Guardar Plantilla</button>
     </div>
   </div>
 </div>
@@ -316,126 +516,65 @@
   </div>
 </div>
 
-<!-- MODAL: Riesgo -->
-<div class="modal-overlay" *ngIf="mostrarFormRiesgo" (click)="cerrarFormRiesgo()">
+<!-- MODAL: Acción Correctiva -->
+<div class="modal-overlay" *ngIf="mostrarFormAccion" (click)="cerrarFormAccion()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>{{ editandoRiesgoId ? 'Editar' : 'Nuevo' }} Riesgo</h2>
-      <button class="btn-close" (click)="cerrarFormRiesgo()"><i class="fas fa-times"></i></button>
+      <h2>{{ editandoAccionId ? 'Editar' : 'Nueva' }} Acción Correctiva</h2>
+      <button class="btn-close" (click)="cerrarFormAccion()"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
       <div class="form-group">
-        <label>Nombre *</label>
-        <input type="text" [(ngModel)]="nuevoRiesgo.nombre">
+        <label>Inspección</label>
+        <select [(ngModel)]="nuevaAccion.inspeccionId">
+          <option [ngValue]="0">-- Seleccione --</option>
+          <option *ngFor="let insp of inspecciones" [ngValue]="insp.id">{{ insp.titulo }}</option>
+        </select>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Proceso *</label>
-          <input type="text" [(ngModel)]="nuevoRiesgo.proceso">
-        </div>
-        <div class="form-group">
-          <label>Empresa</label>
-          <select [(ngModel)]="nuevoRiesgo.empresa">
-            <option value="">Seleccionar</option>
-            <option value="AP">Andrés Publicidad</option>
-            <option value="AT">Andrés Tobón</option>
-            <option value="ME">María Evangelina</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Peligro *</label>
-        <textarea [(ngModel)]="nuevoRiesgo.peligro" rows="2"></textarea>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Probabilidad (1-5)</label>
-          <input type="number" [(ngModel)]="nuevoRiesgo.probabilidad" min="1" max="5" (change)="calcularNivelRiesgo()">
-        </div>
-        <div class="form-group">
-          <label>Consecuencia (1-5)</label>
-          <input type="number" [(ngModel)]="nuevoRiesgo.consecuencia" min="1" max="5" (change)="calcularNivelRiesgo()">
-        </div>
-        <div class="form-group">
-          <label>Nivel de Riesgo</label>
-          <span class="nivel-badge" [ngClass]="getNivelRiesgoClass(nuevoRiesgo.nivelRiesgo)">
-            {{ getNivelRiesgoLabel(nuevoRiesgo.nivelRiesgo) }} ({{ nuevoRiesgo.probabilidad * nuevoRiesgo.consecuencia }})
-          </span>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Controles Existentes</label>
-        <textarea [(ngModel)]="nuevoRiesgo.controlesExistentes" rows="2"></textarea>
-      </div>
-      <div class="form-group">
-        <label>Acción Recomendada</label>
-        <textarea [(ngModel)]="nuevoRiesgo.accionRecomendada" rows="2"></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-secondary" (click)="cerrarFormRiesgo()">Cancelar</button>
-      <button class="btn-primary" (click)="guardarRiesgo()">Guardar</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: Plan de Acción -->
-<div class="modal-overlay" *ngIf="mostrarFormPlan" (click)="cerrarFormPlan()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h2>{{ editandoPlanId ? 'Editar' : 'Nuevo' }} Plan de Acción</h2>
-      <button class="btn-close" (click)="cerrarFormPlan()"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="modal-body">
       <div class="form-group">
         <label>Descripción *</label>
-        <textarea [(ngModel)]="nuevoPlan.descripcion" rows="3"></textarea>
+        <textarea [(ngModel)]="nuevaAccion.descripcion" rows="3"></textarea>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Origen</label>
-          <select [(ngModel)]="nuevoPlan.origen">
-            <option value="inspeccion">Inspección</option>
-            <option value="accidente">Accidente</option>
-            <option value="condicion_insegura">Condición Insegura</option>
-            <option value="riesgo">Riesgo</option>
-            <option value="otro">Otro</option>
+          <label>Prioridad</label>
+          <select [(ngModel)]="nuevaAccion.prioridad">
+            <option value="baja">Baja</option>
+            <option value="media">Media</option>
+            <option value="alta">Alta</option>
+            <option value="critica">Crítica</option>
           </select>
         </div>
         <div class="form-group">
           <label>Estado</label>
-          <select [(ngModel)]="nuevoPlan.estado">
+          <select [(ngModel)]="nuevaAccion.estado">
             <option value="pendiente">Pendiente</option>
             <option value="en_progreso">En progreso</option>
-            <option value="completado">Completado</option>
+            <option value="completada">Completada</option>
           </select>
         </div>
       </div>
-      <div class="form-group">
-        <label>Responsable *</label>
-        <select [(ngModel)]="nuevoPlan.responsableId">
-          <option [ngValue]="0">Seleccionar</option>
-          <option *ngFor="let u of usuarios" [ngValue]="u.Uid">{{ u.nombre }}</option>
-        </select>
-      </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Fecha Inicio</label>
-          <input type="date" [(ngModel)]="nuevoPlan.fechaInicio">
+          <label>Responsable</label>
+          <select [(ngModel)]="nuevaAccion.responsableId">
+            <option [ngValue]="null">-- Sin asignar --</option>
+            <option *ngFor="let u of usuarios" [ngValue]="u.Uid">{{ u.nombre }}</option>
+          </select>
         </div>
         <div class="form-group">
-          <label>Fecha Límite *</label>
-          <input type="date" [(ngModel)]="nuevoPlan.fechaLimite">
+          <label>Fecha Límite</label>
+          <input type="date" [(ngModel)]="nuevaAccion.fechaLimite">
         </div>
       </div>
       <div class="form-group">
         <label>Observaciones</label>
-        <textarea [(ngModel)]="nuevoPlan.observaciones" rows="2"></textarea>
+        <textarea [(ngModel)]="nuevaAccion.observaciones" rows="2"></textarea>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-secondary" (click)="cerrarFormPlan()">Cancelar</button>
-      <button class="btn-primary" (click)="guardarPlan()">Guardar</button>
+      <button class="btn-secondary" (click)="cerrarFormAccion()">Cancelar</button>
+      <button class="btn-primary" (click)="guardarAccion()">Guardar</button>
     </div>
   </div>
 </div>

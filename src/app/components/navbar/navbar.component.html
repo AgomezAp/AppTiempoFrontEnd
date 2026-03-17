@@ -136,6 +136,11 @@
                   >Configuración de Nómina</a
                 >
               </li>
+              <li *ngIf="userRole === 'Admin'">
+                <a class="dropdown-item" href="/whatsapp"
+                  >WhatsApp (QR y envíos)</a
+                >
+              </li>
             </ul>
           </li>
           <li class="nav-item dropdown" *ngIf="userRole === 'Admin'">

@@ -1750,6 +1750,42 @@
   font-size: 0.875rem;
 }
 
+.status-cancelado {
+  background-color: #fde8e8;
+  color: #dc3545;
+}
+
+.status-cancelado i {
+  font-size: 0.875rem;
+}
+
+.status-anulado {
+  background-color: #fff3e0;
+  color: #fd7e14;
+}
+
+.status-anulado i {
+  font-size: 0.875rem;
+}
+
+.row-cancelado {
+  opacity: 0.6;
+}
+
+.avatar-cancelado {
+  background-color: #e0e0e0 !important;
+  color: #999 !important;
+}
+
+.btn-table-danger {
+  color: #dc3545 !important;
+}
+
+.btn-table-danger:hover {
+  background-color: #fde8e8 !important;
+  color: #b02a37 !important;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
   .info-cards-grid {

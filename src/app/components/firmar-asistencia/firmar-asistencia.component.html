@@ -7,12 +7,22 @@
 
   <!-- Error -->
   <div class="error-state" *ngIf="error && !loading">
-    <div class="error-icon">
+    <div class="error-icon" *ngIf="errorTipo !== 'cancelado' && errorTipo !== 'anulado'">
       <i class="fas fa-exclamation-triangle"></i>
     </div>
-    <h2>Error</h2>
+    <div class="error-icon" *ngIf="errorTipo === 'cancelado'" style="color: #dc3545;">
+      <i class="fas fa-ban"></i>
+    </div>
+    <div class="error-icon" *ngIf="errorTipo === 'anulado'" style="color: #fd7e14;">
+      <i class="fas fa-times-circle"></i>
+    </div>
+    <h2 *ngIf="errorTipo === 'cancelado'">Enlace Cancelado</h2>
+    <h2 *ngIf="errorTipo === 'anulado'">Firma Anulada</h2>
+    <h2 *ngIf="errorTipo !== 'cancelado' && errorTipo !== 'anulado'">Error</h2>
     <p>{{ error }}</p>
-    <p class="error-hint">El enlace puede ser inválido o ya fue utilizado.</p>
+    <p class="error-hint" *ngIf="errorTipo === 'cancelado'">Este enlace de firma ha sido cancelado por el administrador. Si cree que es un error, comuníquese con su administrador.</p>
+    <p class="error-hint" *ngIf="errorTipo === 'anulado'">La firma de este participante ha sido anulada por el administrador. Si cree que es un error, comuníquese con su administrador.</p>
+    <p class="error-hint" *ngIf="errorTipo !== 'cancelado' && errorTipo !== 'anulado'">El enlace puede ser inválido o ya fue utilizado.</p>
   </div>
 
   <!-- Success -->

@@ -72,4 +72,20 @@ export class AsistenciaService {
   eliminarRegistro(id: number): Observable<{ msg: string }> {
     return this.http.delete<{ msg: string }>(`${this.appUrl}${this.apiUrl}/eliminar/${id}`);
   }
+
+  // Cancelar token de firma de un participante
+  cancelarToken(participanteId: number, motivo?: string): Observable<{ msg: string }> {
+    return this.http.post<{ msg: string }>(
+      `${this.appUrl}${this.apiUrl}/cancelar-token/${participanteId}`,
+      { motivo }
+    );
+  }
+
+  // Anular firma de un participante
+  anularFirma(participanteId: number, motivo?: string): Observable<{ msg: string }> {
+    return this.http.post<{ msg: string }>(
+      `${this.appUrl}${this.apiUrl}/anular-firma/${participanteId}`,
+      { motivo }
+    );
+  }
 }

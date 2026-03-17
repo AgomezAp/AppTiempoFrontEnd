@@ -15,6 +15,7 @@ export interface User {
   fondoCesantias?: string;
   certificadosGenerados?: number;
   fechaIngreso?: string;
+  celular?: string;
 }
 
 export interface UResponse {
@@ -35,6 +36,7 @@ export interface UResponse {
   fondoCesantias?: string;
   certificadosGenerados?: number;
   fechaIngreso?: string;
+  celular?: string;
   role?: {
     Rid: number;
     Rname: string;

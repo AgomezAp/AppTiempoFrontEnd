@@ -249,7 +249,12 @@ export class RegistroAsistenciaComponent implements OnInit {
 
   getFirmadosCount(participantes: ParticipanteAsistencia[] | undefined): number {
     if (!participantes) return 0;
-    return participantes.filter((p) => p.firmado).length;
+    return participantes.filter((p) => p.firmado && !p.anulado).length;
+  }
+
+  getActivosCount(participantes: ParticipanteAsistencia[] | undefined): number {
+    if (!participantes) return 0;
+    return participantes.filter((p) => !p.cancelado).length;
   }
 
   descargarPDF(registro: RegistroAsistencia, empresa: string): void {
@@ -385,6 +390,72 @@ export class RegistroAsistenciaComponent implements OnInit {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
+    });
+  }
+
+  cancelarToken(participante: ParticipanteAsistencia): void {
+    Swal.fire({
+      title: '¿Cancelar firma?',
+      html: `Se cancelará el enlace de firma de <strong>${participante.nombreCompleto}</strong>. Esta persona no podrá firmar.`,
+      input: 'text',
+      inputLabel: 'Motivo de cancelación (opcional)',
+      inputPlaceholder: 'Ej: Se retiró de la empresa...',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, cancelar firma',
+      cancelButtonText: 'No, volver',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.asistenciaService.cancelarToken(participante.id!, result.value || undefined).subscribe({
+          next: () => {
+            this.toastr.success('Token de firma cancelado', 'Éxito');
+            this.cargarRegistros();
+            if (this.registroDetalle) {
+              this.asistenciaService.obtenerRegistroPorId(this.registroDetalle.id!).subscribe({
+                next: (reg) => this.registroDetalle = reg,
+              });
+            }
+          },
+          error: (err) => {
+            this.toastr.error(err.error?.msg || 'Error al cancelar token', 'Error');
+          },
+        });
+      }
+    });
+  }
+
+  anularFirma(participante: ParticipanteAsistencia): void {
+    Swal.fire({
+      title: '¿Anular firma?',
+      html: `Se anulará la firma de <strong>${participante.nombreCompleto}</strong>. La firma registrada será eliminada.`,
+      input: 'text',
+      inputLabel: 'Motivo de anulación (opcional)',
+      inputPlaceholder: 'Ej: Firma incorrecta, se retiró...',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, anular firma',
+      cancelButtonText: 'No, volver',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.asistenciaService.anularFirma(participante.id!, result.value || undefined).subscribe({
+          next: () => {
+            this.toastr.success('Firma anulada exitosamente', 'Éxito');
+            this.cargarRegistros();
+            if (this.registroDetalle) {
+              this.asistenciaService.obtenerRegistroPorId(this.registroDetalle.id!).subscribe({
+                next: (reg) => this.registroDetalle = reg,
+              });
+            }
+          },
+          error: (err) => {
+            this.toastr.error(err.error?.msg || 'Error al anular firma', 'Error');
+          },
+        });
+      }
     });
   }
 }

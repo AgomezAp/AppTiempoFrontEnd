@@ -40,6 +40,7 @@
         <div class="card-top">
           <span class="badge" [ngClass]="getEstadoClass(cap.estado)">{{ getEstadoLabel(cap.estado) }}</span>
           <div class="card-btns" (click)="$event.stopPropagation()">
+            <button class="btn-icon whatsapp" (click)="notificarWhatsApp(cap)" title="Notificar por WhatsApp"><i class="fab fa-whatsapp"></i></button>
             <label class="btn-icon" title="Subir material">
               <i class="fas fa-paperclip"></i>
               <input type="file" (change)="subirMaterial(cap.id, $event)" hidden>

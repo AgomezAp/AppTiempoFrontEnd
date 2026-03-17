@@ -274,11 +274,50 @@ export interface InfoFirmaDocumentoResponse {
 }
 
 // ========================================
-// INSPECCIONES Y RIESGOS
+// INSPECCIONES (SafetyCulture)
 // ========================================
+
+export interface PlantillaInspeccion {
+  id?: number;
+  titulo: string;
+  descripcion?: string;
+  categoria?: string;
+  empresa?: string;
+  creadorId?: number;
+  puntajeMaximo?: number;
+  umbralAprobacion?: number;
+  estado?: string;
+  secciones?: SeccionPlantilla[];
+  creador?: { Uid: number; name: string; lastName: string };
+  createdAt?: Date;
+}
+
+export interface SeccionPlantilla {
+  id?: number;
+  plantillaId?: number;
+  titulo: string;
+  descripcion?: string;
+  orden: number;
+  peso: number;
+  preguntas?: PreguntaPlantilla[];
+}
+
+export interface PreguntaPlantilla {
+  id?: number;
+  seccionId?: number;
+  texto: string;
+  tipo: string;
+  opciones?: string;
+  requerida?: boolean;
+  peso: number;
+  respuestaEsperada?: string;
+  orden: number;
+  requiereAccionSiNoConforme?: boolean;
+}
 
 export interface InspeccionSSGT {
   id?: number;
+  plantillaId?: number;
   titulo: string;
   tipo: string;
   fechaInspeccion: string;
@@ -287,19 +326,48 @@ export interface InspeccionSSGT {
   empresa?: string;
   estado: string;
   observacionesGenerales?: string;
-  checklist?: ChecklistItemSSGT[];
+  puntajeObtenido?: number;
+  puntajeMaximo?: number;
+  porcentaje?: number;
+  aprobada?: boolean;
+  respuestas?: RespuestaInspeccion[];
+  acciones?: AccionCorrectivaInspeccion[];
   condiciones?: CondicionInsegura[];
+  plantilla?: PlantillaInspeccion;
   inspector?: { Uid: number; name: string; lastName: string };
   createdAt?: Date;
 }
 
-export interface ChecklistItemSSGT {
+export interface RespuestaInspeccion {
   id?: number;
   inspeccionId?: number;
-  pregunta: string;
-  cumple: boolean | null;
+  preguntaId: number;
+  seccionId: number;
+  valor?: string;
+  valorArchivo?: string;
+  puntos?: number;
+  orden?: number;
   observacion?: string;
-  orden: number;
+  pregunta?: PreguntaPlantilla;
+  seccion?: SeccionPlantilla;
+}
+
+export interface AccionCorrectivaInspeccion {
+  id?: number;
+  inspeccionId: number;
+  respuestaId?: number;
+  preguntaTexto?: string;
+  descripcion: string;
+  prioridad: string;
+  responsableId?: number;
+  fechaLimite?: string;
+  estado: string;
+  evidenciaArchivo?: string;
+  observaciones?: string;
+  fechaCompletada?: Date;
+  responsable?: { Uid: number; name: string; lastName: string };
+  inspeccion?: { id: number; titulo: string; fechaInspeccion: string };
+  createdAt?: Date;
 }
 
 export interface CondicionInsegura {
@@ -314,39 +382,6 @@ export interface CondicionInsegura {
   fechaReporte: string;
   reportante?: { Uid: number; name: string; lastName: string };
   inspeccion?: InspeccionSSGT;
-  createdAt?: Date;
-}
-
-export interface MatrizRiesgo {
-  id?: number;
-  nombre: string;
-  descripcion?: string;
-  proceso: string;
-  peligro: string;
-  probabilidad: number;
-  consecuencia: number;
-  nivelRiesgo: string;
-  controlesExistentes?: string;
-  accionRecomendada?: string;
-  responsableId: number;
-  empresa?: string;
-  archivoAdjunto?: string;
-  responsable?: { Uid: number; name: string; lastName: string };
-  createdAt?: Date;
-}
-
-export interface PlanAccion {
-  id?: number;
-  origen: string;
-  origenId: number;
-  descripcion: string;
-  responsableId: number;
-  fechaInicio?: string;
-  fechaLimite: string;
-  estado: string;
-  observaciones?: string;
-  evidenciaArchivo?: string;
-  responsablePlan?: { Uid: number; name: string; lastName: string };
   createdAt?: Date;
 }
 
