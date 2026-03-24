@@ -313,6 +313,7 @@ export interface PreguntaPlantilla {
   respuestaEsperada?: string;
   orden: number;
   requiereAccionSiNoConforme?: boolean;
+  omitible?: boolean;
 }
 
 export interface InspeccionSSGT {
@@ -330,11 +331,21 @@ export interface InspeccionSSGT {
   puntajeMaximo?: number;
   porcentaje?: number;
   aprobada?: boolean;
+  tokenAcceso?: string;
   respuestas?: RespuestaInspeccion[];
   acciones?: AccionCorrectivaInspeccion[];
   condiciones?: CondicionInsegura[];
   plantilla?: PlantillaInspeccion;
   inspector?: { Uid: number; name: string; lastName: string };
+  createdAt?: Date;
+}
+
+export interface FotoRespuestaInspeccion {
+  id?: number;
+  respuestaId: number;
+  inspeccionId: number;
+  rutaArchivo: string;
+  descripcion?: string;
   createdAt?: Date;
 }
 
@@ -348,6 +359,8 @@ export interface RespuestaInspeccion {
   puntos?: number;
   orden?: number;
   observacion?: string;
+  omitida?: boolean;
+  fotos?: FotoRespuestaInspeccion[];
   pregunta?: PreguntaPlantilla;
   seccion?: SeccionPlantilla;
 }

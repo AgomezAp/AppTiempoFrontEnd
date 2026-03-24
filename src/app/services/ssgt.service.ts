@@ -368,10 +368,38 @@ export class SsgtService {
     return this.http.get(`${this.appUrl}${this.apiUrl}/inspecciones/${id}/pdf`, { responseType: 'blob' });
   }
 
-  subirFotoInspeccion(inspeccionId: number, archivo: File) {
+  subirFotoInspeccion(inspeccionId: number, respuestaId: number, fotos: File[]) {
     const formData = new FormData();
-    formData.append('foto', archivo);
-    return this.http.post<{ msg: string; ruta: string }>(`${this.appUrl}${this.apiUrl}/inspecciones/${inspeccionId}/respuestas/foto`, formData);
+    for (const foto of fotos) {
+      formData.append('fotos', foto);
+    }
+    return this.http.post<{ msg: string; fotos: any[] }>(`${this.appUrl}${this.apiUrl}/inspecciones/${inspeccionId}/respuestas/${respuestaId}/fotos`, formData);
+  }
+
+  eliminarFotoRespuesta(fotoId: number) {
+    return this.http.delete<{ msg: string }>(`${this.appUrl}${this.apiUrl}/inspecciones/fotos/${fotoId}`);
+  }
+
+  // Acceso público por token (para móvil)
+  obtenerInspeccionPorToken(token: string) {
+    return this.http.get<any>(`${this.appUrl}${this.apiUrl}/inspecciones/movil/${token}`);
+  }
+
+  guardarRespuestasPorToken(token: string, respuestas: any[]) {
+    return this.http.post<{ msg: string; puntajeObtenido: number; puntajeMaximo: number; porcentaje: number; aprobada: boolean; accionesCreadas: number }>(`${this.appUrl}${this.apiUrl}/inspecciones/movil/${token}/respuestas`, { respuestas });
+  }
+
+  completarInspeccionPorToken(token: string) {
+    return this.http.post<{ msg: string }>(`${this.appUrl}${this.apiUrl}/inspecciones/movil/${token}/completar`, {});
+  }
+
+  subirFotosPorToken(token: string, respuestaId: number, fotos: File[]) {
+    const formData = new FormData();
+    formData.append('respuestaId', respuestaId.toString());
+    for (const foto of fotos) {
+      formData.append('fotos', foto);
+    }
+    return this.http.post<{ msg: string; fotos: any[] }>(`${this.appUrl}${this.apiUrl}/inspecciones/movil/${token}/fotos`, formData);
   }
 
   // Condiciones inseguras

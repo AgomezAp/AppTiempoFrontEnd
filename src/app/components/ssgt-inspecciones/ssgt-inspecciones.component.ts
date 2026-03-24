@@ -36,6 +36,7 @@ export class SsgtInspeccionesComponent implements OnInit {
   inspeccionActiva: any = null;
   respuestasForm: any[] = [];
   mostrarRealizarInspeccion = false;
+  modoVisualizacion = false; // true = solo lectura (inspección completada)
 
   // Condiciones Inseguras
   condiciones: any[] = [];
@@ -109,6 +110,7 @@ export class SsgtInspeccionesComponent implements OnInit {
             respuestaEsperada: p.respuestaEsperada,
             orden: p.orden,
             requiereAccionSiNoConforme: p.requiereAccionSiNoConforme,
+            omitible: p.omitible || false,
           }))
         }))
       };
@@ -136,7 +138,7 @@ export class SsgtInspeccionesComponent implements OnInit {
 
   agregarPregunta(seccionIndex: number): void {
     this.nuevaPlantilla.secciones[seccionIndex].preguntas.push({
-      texto: '', tipo: 'si_no', opciones: [], requerida: true, peso: 1.0, respuestaEsperada: 'si', orden: this.nuevaPlantilla.secciones[seccionIndex].preguntas.length, requiereAccionSiNoConforme: false
+      texto: '', tipo: 'si_no', opciones: [], requerida: true, peso: 1.0, respuestaEsperada: 'si', orden: this.nuevaPlantilla.secciones[seccionIndex].preguntas.length, requiereAccionSiNoConforme: false, omitible: false
     });
   }
 
@@ -242,6 +244,22 @@ export class SsgtInspeccionesComponent implements OnInit {
 
   // Realizar inspección: abrir formulario de respuestas
   abrirRealizarInspeccion(inspeccion: any): void {
+    this.modoVisualizacion = false;
+    this.loading = true;
+    this.ssgtService.obtenerInspeccionPorId(inspeccion.id).subscribe({
+      next: (data) => {
+        this.inspeccionActiva = data;
+        this.prepararRespuestas(data);
+        this.mostrarRealizarInspeccion = true;
+        this.loading = false;
+      },
+      error: () => { this.loading = false; Swal.fire('Error', 'Error al cargar inspección', 'error'); }
+    });
+  }
+
+  // Ver inspección completada (modo lectura)
+  verInspeccion(inspeccion: any): void {
+    this.modoVisualizacion = true;
     this.loading = true;
     this.ssgtService.obtenerInspeccionPorId(inspeccion.id).subscribe({
       next: (data) => {
@@ -271,6 +289,8 @@ export class SsgtInspeccionesComponent implements OnInit {
           valor: respExistente?.valor || '',
           valorArchivo: respExistente?.valorArchivo || '',
           observacion: respExistente?.observacion || '',
+          omitida: respExistente?.omitida || false,
+          fotos: respExistente?.fotos || [],
           subiendoFoto: false,
           opciones: pregunta.opciones ? (typeof pregunta.opciones === 'string' ? JSON.parse(pregunta.opciones) : pregunta.opciones) : [],
         };
@@ -281,29 +301,51 @@ export class SsgtInspeccionesComponent implements OnInit {
   cerrarRealizarInspeccion(): void {
     this.mostrarRealizarInspeccion = false;
     this.inspeccionActiva = null;
+    this.modoVisualizacion = false;
   }
 
   subirFotoEvidencia(event: Event, pregunta: any): void {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0 || !this.inspeccionActiva) return;
 
-    const archivo = input.files[0];
-    if (!archivo.type.startsWith('image/')) {
-      Swal.fire('Error', 'Solo se permiten archivos de imagen', 'warning');
+    const archivos: File[] = Array.from(input.files);
+    for (const archivo of archivos) {
+      if (!archivo.type.startsWith('image/')) {
+        Swal.fire('Error', 'Solo se permiten archivos de imagen', 'warning');
+        return;
+      }
+    }
+
+    if (!pregunta.respuestaId) {
+      Swal.fire('Info', 'Guarde las respuestas primero antes de subir fotos', 'info');
       return;
     }
 
     pregunta.subiendoFoto = true;
-    this.ssgtService.subirFotoInspeccion(this.inspeccionActiva.id, archivo).subscribe({
+    this.ssgtService.subirFotoInspeccion(this.inspeccionActiva.id, pregunta.respuestaId, archivos).subscribe({
       next: (res) => {
-        pregunta.valorArchivo = res.ruta;
-        pregunta.valor = pregunta.valor || 'Foto adjunta';
+        if (!pregunta.fotos) pregunta.fotos = [];
+        pregunta.fotos.push(...res.fotos);
         pregunta.subiendoFoto = false;
-        Swal.fire('Foto subida', 'La evidencia fotográfica fue adjuntada correctamente', 'success');
+        Swal.fire('Fotos subidas', `${res.fotos.length} foto(s) adjuntada(s) correctamente`, 'success');
       },
       error: () => {
         pregunta.subiendoFoto = false;
-        Swal.fire('Error', 'Error al subir la foto', 'error');
+        Swal.fire('Error', 'Error al subir las fotos', 'error');
+      }
+    });
+  }
+
+  eliminarFoto(fotoId: number, pregunta: any): void {
+    Swal.fire({ title: '¿Eliminar foto?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Eliminar', cancelButtonText: 'Cancelar' }).then((r) => {
+      if (r.isConfirmed) {
+        this.ssgtService.eliminarFotoRespuesta(fotoId).subscribe({
+          next: () => {
+            pregunta.fotos = pregunta.fotos.filter((f: any) => f.id !== fotoId);
+            Swal.fire('Eliminada', 'Foto eliminada', 'success');
+          },
+          error: () => { Swal.fire('Error', 'Error al eliminar foto', 'error'); }
+        });
       }
     });
   }
@@ -326,14 +368,16 @@ export class SsgtInspeccionesComponent implements OnInit {
           valor: pregunta.valor,
           valorArchivo: pregunta.valorArchivo || null,
           observacion: pregunta.observacion,
+          omitida: pregunta.omitida || false,
           orden: pregunta.orden,
         });
       }
     }
 
     this.ssgtService.guardarRespuestas(this.inspeccionActiva.id, respuestas).subscribe({
-      next: (res) => {
-        Swal.fire('Guardado', `Puntaje: ${res.porcentaje}% — ${res.aprobada ? 'APROBADA' : 'NO APROBADA'}`, res.aprobada ? 'success' : 'warning');
+      next: (res: any) => {
+        const accionesMsg = res.accionesCreadas > 0 ? `\n${res.accionesCreadas} acciones correctivas creadas` : '';
+        Swal.fire('Guardado', `Puntaje: ${res.porcentaje}% — ${res.aprobada ? 'APROBADA' : 'NO APROBADA'}${accionesMsg}`, res.aprobada ? 'success' : 'warning');
         this.cargarInspecciones();
       },
       error: () => { Swal.fire('Error', 'Error al guardar respuestas', 'error'); }
@@ -470,6 +514,51 @@ export class SsgtInspeccionesComponent implements OnInit {
         this.ssgtService.eliminarAccionCorrectiva(id).subscribe({
           next: () => { Swal.fire('Eliminado', '', 'success'); this.cargarAcciones(); },
           error: () => { Swal.fire('Error', 'Error al eliminar', 'error'); }
+        });
+      }
+    });
+  }
+
+  // ========== ACCIONES DESDE VISTA DE INSPECCION ==========
+  actualizarEstadoAccion(accion: any, nuevoEstado: string): void {
+    this.ssgtService.actualizarAccionCorrectiva(accion.id, { ...accion, estado: nuevoEstado }).subscribe({
+      next: () => {
+        accion.estado = nuevoEstado;
+        Swal.fire('Actualizado', `Acción marcada como ${nuevoEstado}`, 'success');
+      },
+      error: () => { Swal.fire('Error', 'Error al actualizar', 'error'); }
+    });
+  }
+
+  // ========== QR / LINK MÓVIL ==========
+  mostrarQR(inspeccion: any): void {
+    const token = inspeccion.tokenAcceso;
+    if (!token) {
+      Swal.fire('Error', 'Esta inspección no tiene token de acceso', 'error');
+      return;
+    }
+    const url = `${window.location.origin}/inspeccion-movil/${token}`;
+    Swal.fire({
+      title: 'Inspección Móvil',
+      html: `
+        <div style="text-align: center;">
+          <p style="font-size: 13px; color: #666;">Escanee el QR o copie el enlace para realizar la inspección desde un dispositivo móvil</p>
+          <div id="qr-container" style="display: flex; justify-content: center; margin: 15px 0;">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}" alt="QR Code" style="border: 2px solid #ddd; border-radius: 8px; padding: 8px;" />
+          </div>
+          <div style="background: #f5f6fa; padding: 10px; border-radius: 8px; word-break: break-all; font-size: 12px; margin-top: 10px;">
+            <a href="${url}" target="_blank">${url}</a>
+          </div>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Copiar enlace',
+      cancelButtonText: 'Cerrar',
+      confirmButtonColor: '#2c3e50',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigator.clipboard.writeText(url).then(() => {
+          Swal.fire('Copiado', 'Enlace copiado al portapapeles', 'success');
         });
       }
     });

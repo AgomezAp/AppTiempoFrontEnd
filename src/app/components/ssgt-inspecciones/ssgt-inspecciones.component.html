@@ -50,8 +50,14 @@
             {{ insp.aprobada ? 'Aprobada' : 'No aprobada' }}
           </span>
           <div class="card-btns">
+            <button class="btn-icon" (click)="mostrarQR(insp)" title="QR Móvil" *ngIf="insp.estado !== 'completada' && insp.tokenAcceso">
+              <i class="fas fa-qrcode"></i>
+            </button>
             <button class="btn-icon" (click)="abrirRealizarInspeccion(insp)" title="Realizar" *ngIf="insp.estado !== 'completada' && insp.plantillaId">
               <i class="fas fa-clipboard-check"></i>
+            </button>
+            <button class="btn-icon" (click)="verInspeccion(insp)" title="Ver Inspección" *ngIf="insp.estado === 'completada'">
+              <i class="fas fa-eye"></i>
             </button>
             <button class="btn-icon" (click)="descargarPdf(insp.id)" title="PDF" *ngIf="insp.estado === 'completada'">
               <i class="fas fa-file-pdf"></i>
@@ -245,109 +251,264 @@
   </div>
 </div>
 
-<!-- MODAL: Realizar Inspección -->
+<!-- MODAL: Realizar / Ver Inspección -->
 <div class="modal-overlay" *ngIf="mostrarRealizarInspeccion" (click)="cerrarRealizarInspeccion()">
   <div class="modal-content modal-lg" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>{{ inspeccionActiva?.titulo }}</h2>
+      <h2>
+        <span *ngIf="modoVisualizacion"><i class="fas fa-eye"></i> </span>
+        {{ inspeccionActiva?.titulo }}
+      </h2>
       <button class="btn-close" (click)="cerrarRealizarInspeccion()"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
       <p class="modal-subtitle" *ngIf="inspeccionActiva?.plantilla">Plantilla: {{ inspeccionActiva.plantilla.titulo }}</p>
 
+      <!-- Resumen de inspección completada -->
+      <div class="inspeccion-resumen" *ngIf="modoVisualizacion && inspeccionActiva">
+        <div class="resumen-grid">
+          <div class="resumen-item">
+            <span class="resumen-label">Estado</span>
+            <span class="badge badge-success">Completada</span>
+          </div>
+          <div class="resumen-item" *ngIf="inspeccionActiva.aprobada !== null && inspeccionActiva.aprobada !== undefined">
+            <span class="resumen-label">Resultado</span>
+            <span class="badge" [ngClass]="inspeccionActiva.aprobada ? 'badge-success' : 'badge-danger'">
+              {{ inspeccionActiva.aprobada ? 'Aprobada' : 'No aprobada' }}
+            </span>
+          </div>
+          <div class="resumen-item" *ngIf="inspeccionActiva.porcentaje !== null">
+            <span class="resumen-label">Puntaje</span>
+            <span class="resumen-valor" [style.color]="getPorcentajeColor(inspeccionActiva.porcentaje)">
+              {{ inspeccionActiva.porcentaje | number:'1.1-1' }}%
+            </span>
+          </div>
+          <div class="resumen-item" *ngIf="inspeccionActiva.inspector">
+            <span class="resumen-label">Inspector</span>
+            <span>{{ inspeccionActiva.inspector.name }} {{ inspeccionActiva.inspector.lastName }}</span>
+          </div>
+          <div class="resumen-item" *ngIf="inspeccionActiva.fechaInspeccion">
+            <span class="resumen-label">Fecha</span>
+            <span>{{ formatDate(inspeccionActiva.fechaInspeccion) }}</span>
+          </div>
+          <div class="resumen-item" *ngIf="inspeccionActiva.lugar">
+            <span class="resumen-label">Lugar</span>
+            <span>{{ inspeccionActiva.lugar }}</span>
+          </div>
+        </div>
+        <div class="progress-bar" style="margin-top: 10px;" *ngIf="inspeccionActiva.porcentaje !== null">
+          <div class="progress-fill" [style.width.%]="inspeccionActiva.porcentaje" [style.background]="getPorcentajeColor(inspeccionActiva.porcentaje)"></div>
+        </div>
+        <div class="resumen-actions" *ngIf="modoVisualizacion">
+          <button class="btn-secondary btn-sm" (click)="descargarPdf(inspeccionActiva.id)">
+            <i class="fas fa-file-pdf"></i> Descargar PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- Opción de realizar desde el celular (solo en modo edición) -->
+      <div class="movil-banner" *ngIf="!modoVisualizacion && inspeccionActiva?.tokenAcceso">
+        <div class="movil-banner-info">
+          <i class="fas fa-mobile-alt"></i>
+          <div>
+            <strong>Realizar desde el celular</strong>
+            <p>Escanee el código QR o comparta el enlace para completar esta inspección desde un dispositivo móvil</p>
+          </div>
+        </div>
+        <button class="btn-qr" (click)="mostrarQR(inspeccionActiva)">
+          <i class="fas fa-qrcode"></i> Generar QR
+        </button>
+      </div>
+
+      <!-- Secciones y preguntas -->
       <div class="seccion-block" *ngFor="let seccion of respuestasForm; let si = index">
         <h4 class="seccion-titulo">{{ si + 1 }}. {{ seccion.titulo }}</h4>
 
-        <div class="pregunta-item" *ngFor="let pregunta of seccion.preguntas; let pi = index">
+        <div class="pregunta-item" *ngFor="let pregunta of seccion.preguntas; let pi = index" [class.pregunta-omitida]="pregunta.omitida">
           <div class="pregunta-header">
             <span class="pregunta-num">{{ si + 1 }}.{{ pi + 1 }}</span>
             <span class="pregunta-texto">{{ pregunta.texto }}</span>
             <span class="badge badge-secondary" *ngIf="pregunta.tipo !== 'si_no'">{{ pregunta.tipo }}</span>
+            <label class="omitir-toggle" *ngIf="pregunta.omitible && !modoVisualizacion" title="Omitir esta pregunta">
+              <input type="checkbox" [(ngModel)]="pregunta.omitida">
+              <span>Omitir</span>
+            </label>
           </div>
 
-          <!-- Si/No -->
-          <div class="pregunta-respuesta" *ngIf="pregunta.tipo === 'si_no'">
-            <div class="checklist-toggle">
-              <button [class.active]="pregunta.valor === 'si'" (click)="pregunta.valor = 'si'" class="toggle-si">Si</button>
-              <button [class.active]="pregunta.valor === 'no'" (click)="pregunta.valor = 'no'" class="toggle-no">No</button>
-              <button [class.active]="pregunta.valor === 'na'" (click)="pregunta.valor = 'na'" class="toggle-na">N/A</button>
+          <div *ngIf="!pregunta.omitida">
+            <!-- ===== MODO VISUALIZACIÓN (solo lectura) ===== -->
+            <div *ngIf="modoVisualizacion" class="respuesta-readonly">
+              <!-- Si/No -->
+              <div *ngIf="pregunta.tipo === 'si_no'" class="respuesta-valor">
+                <span class="badge" [ngClass]="pregunta.valor === 'si' ? 'badge-success' : (pregunta.valor === 'no' ? 'badge-danger' : 'badge-secondary')">
+                  {{ pregunta.valor === 'si' ? 'Si' : (pregunta.valor === 'no' ? 'No' : (pregunta.valor === 'na' ? 'N/A' : 'Sin respuesta')) }}
+                </span>
+                <span class="no-conforme-tag" *ngIf="pregunta.valor === 'no' && pregunta.requiereAccionSiNoConforme">
+                  <i class="fas fa-exclamation-triangle"></i> No conforme
+                </span>
+              </div>
+              <!-- Slider -->
+              <div *ngIf="pregunta.tipo === 'slider'" class="respuesta-valor">
+                <div class="slider-display">
+                  <div class="progress-bar" style="height: 10px;">
+                    <div class="progress-fill" [style.width.%]="pregunta.valor || 0" style="background: #FFD600;"></div>
+                  </div>
+                  <span class="slider-value">{{ pregunta.valor || 0 }}%</span>
+                </div>
+              </div>
+              <!-- Texto, Número, Fecha, Opción Múltiple -->
+              <div *ngIf="pregunta.tipo !== 'si_no' && pregunta.tipo !== 'slider' && pregunta.tipo !== 'foto'" class="respuesta-valor">
+                <span class="valor-texto">{{ pregunta.valor || 'Sin respuesta' }}</span>
+              </div>
+
+              <!-- Fotos -->
+              <div class="fotos-grid" *ngIf="pregunta.fotos?.length > 0">
+                <div class="foto-thumb" *ngFor="let foto of pregunta.fotos">
+                  <img [src]="getUrlArchivo(foto.rutaArchivo)" alt="Evidencia">
+                </div>
+              </div>
+
+              <!-- Observación -->
+              <p class="obs-readonly" *ngIf="pregunta.observacion">
+                <i class="fas fa-comment"></i> {{ pregunta.observacion }}
+              </p>
             </div>
-          </div>
 
-          <!-- Texto -->
-          <div class="pregunta-respuesta" *ngIf="pregunta.tipo === 'texto'">
-            <textarea [(ngModel)]="pregunta.valor" rows="2" placeholder="Escribe tu respuesta"></textarea>
-          </div>
+            <!-- ===== MODO EDICIÓN (realizar inspección) ===== -->
+            <div *ngIf="!modoVisualizacion">
+              <!-- Si/No -->
+              <div class="pregunta-respuesta" *ngIf="pregunta.tipo === 'si_no'">
+                <div class="checklist-toggle">
+                  <button [class.active]="pregunta.valor === 'si'" (click)="pregunta.valor = 'si'" class="toggle-si">Si</button>
+                  <button [class.active]="pregunta.valor === 'no'" (click)="pregunta.valor = 'no'" class="toggle-no">No</button>
+                  <button [class.active]="pregunta.valor === 'na'" (click)="pregunta.valor = 'na'" class="toggle-na">N/A</button>
+                </div>
+                <div class="alerta-no-conforme" *ngIf="pregunta.valor === 'no' && pregunta.requiereAccionSiNoConforme">
+                  <i class="fas fa-exclamation-triangle"></i> Esta respuesta generará una acción correctiva automática
+                </div>
+              </div>
 
-          <!-- Número -->
-          <div class="pregunta-respuesta" *ngIf="pregunta.tipo === 'numero'">
-            <input type="number" [(ngModel)]="pregunta.valor" placeholder="0">
-          </div>
+              <!-- Texto -->
+              <div class="pregunta-respuesta" *ngIf="pregunta.tipo === 'texto'">
+                <textarea [(ngModel)]="pregunta.valor" rows="2" placeholder="Escribe tu respuesta"></textarea>
+              </div>
 
-          <!-- Fecha -->
-          <div class="pregunta-respuesta" *ngIf="pregunta.tipo === 'fecha'">
-            <input type="date" [(ngModel)]="pregunta.valor">
-          </div>
+              <!-- Número -->
+              <div class="pregunta-respuesta" *ngIf="pregunta.tipo === 'numero'">
+                <input type="number" [(ngModel)]="pregunta.valor" placeholder="0">
+              </div>
 
-          <!-- Slider -->
-          <div class="pregunta-respuesta slider-group" *ngIf="pregunta.tipo === 'slider'">
-            <input type="range" min="0" max="100" [(ngModel)]="pregunta.valor" class="slider-input">
-            <span class="slider-value">{{ pregunta.valor || 0 }}%</span>
-          </div>
+              <!-- Fecha -->
+              <div class="pregunta-respuesta" *ngIf="pregunta.tipo === 'fecha'">
+                <input type="date" [(ngModel)]="pregunta.valor">
+              </div>
 
-          <!-- Opción Múltiple -->
-          <div class="pregunta-respuesta" *ngIf="pregunta.tipo === 'opcion_multiple'">
-            <select [(ngModel)]="pregunta.valor">
-              <option value="">-- Seleccione --</option>
-              <option *ngFor="let op of pregunta.opciones" [value]="op">{{ op }}</option>
-            </select>
-          </div>
+              <!-- Slider -->
+              <div class="pregunta-respuesta slider-group" *ngIf="pregunta.tipo === 'slider'">
+                <input type="range" min="0" max="100" [(ngModel)]="pregunta.valor" class="slider-input">
+                <span class="slider-value">{{ pregunta.valor || 0 }}%</span>
+              </div>
 
-          <!-- Foto (tipo foto) -->
-          <div class="pregunta-respuesta" *ngIf="pregunta.tipo === 'foto'">
-            <div class="foto-upload-container">
-              <label class="btn-upload" [class.uploading]="pregunta.subiendoFoto">
-                <i class="fas fa-camera"></i>
-                {{ pregunta.subiendoFoto ? 'Subiendo...' : (pregunta.valorArchivo ? 'Cambiar foto' : 'Tomar / Subir foto') }}
-                <input type="file" accept="image/*" capture="environment" (change)="subirFotoEvidencia($event, pregunta)" [disabled]="pregunta.subiendoFoto" hidden>
-              </label>
-              <div class="foto-preview" *ngIf="pregunta.valorArchivo">
-                <img [src]="getUrlArchivo(pregunta.valorArchivo)" alt="Evidencia" class="evidence-img">
-                <span class="foto-ok"><i class="fas fa-check-circle"></i> Foto adjunta</span>
+              <!-- Opción Múltiple -->
+              <div class="pregunta-respuesta" *ngIf="pregunta.tipo === 'opcion_multiple'">
+                <select [(ngModel)]="pregunta.valor">
+                  <option value="">-- Seleccione --</option>
+                  <option *ngFor="let op of pregunta.opciones" [value]="op">{{ op }}</option>
+                </select>
+              </div>
+
+              <!-- Fotos (tipo foto) -->
+              <div class="pregunta-respuesta" *ngIf="pregunta.tipo === 'foto'">
+                <div class="foto-upload-container">
+                  <label class="btn-upload" [class.uploading]="pregunta.subiendoFoto">
+                    <i class="fas fa-camera"></i>
+                    {{ pregunta.subiendoFoto ? 'Subiendo...' : 'Tomar / Subir fotos' }}
+                    <input type="file" accept="image/*" multiple (change)="subirFotoEvidencia($event, pregunta)" [disabled]="pregunta.subiendoFoto" hidden>
+                  </label>
+                  <div class="fotos-grid" *ngIf="pregunta.fotos?.length > 0">
+                    <div class="foto-thumb" *ngFor="let foto of pregunta.fotos">
+                      <img [src]="getUrlArchivo(foto.rutaArchivo)" alt="Evidencia">
+                      <button class="foto-delete-btn" (click)="eliminarFoto(foto.id, pregunta)" title="Eliminar"><i class="fas fa-times"></i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Evidencia fotográfica (para cualquier tipo de pregunta) -->
+              <div class="pregunta-evidencia" *ngIf="pregunta.tipo !== 'foto'">
+                <div class="evidencia-row">
+                  <label class="btn-upload-small" [class.uploading]="pregunta.subiendoFoto">
+                    <i class="fas fa-paperclip"></i>
+                    {{ pregunta.subiendoFoto ? 'Subiendo...' : 'Adjuntar fotos' }}
+                    <input type="file" accept="image/*" multiple (change)="subirFotoEvidencia($event, pregunta)" [disabled]="pregunta.subiendoFoto" hidden>
+                  </label>
+                  <span class="fotos-count" *ngIf="pregunta.fotos?.length > 0">
+                    <i class="fas fa-check-circle"></i> {{ pregunta.fotos.length }} foto(s)
+                  </span>
+                </div>
+                <div class="fotos-grid fotos-grid-small" *ngIf="pregunta.fotos?.length > 0">
+                  <div class="foto-thumb foto-thumb-small" *ngFor="let foto of pregunta.fotos">
+                    <img [src]="getUrlArchivo(foto.rutaArchivo)" alt="Evidencia">
+                    <button class="foto-delete-btn" (click)="eliminarFoto(foto.id, pregunta)" title="Eliminar"><i class="fas fa-times"></i></button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Observación -->
+              <div class="pregunta-observacion">
+                <input type="text" [(ngModel)]="pregunta.observacion" placeholder="Observación (opcional)">
               </div>
             </div>
           </div>
 
-          <!-- Evidencia fotográfica (para cualquier tipo de pregunta) -->
-          <div class="pregunta-evidencia" *ngIf="pregunta.tipo !== 'foto'">
-            <div class="evidencia-row">
-              <label class="btn-upload-small" [class.uploading]="pregunta.subiendoFoto">
-                <i class="fas fa-paperclip"></i>
-                {{ pregunta.subiendoFoto ? 'Subiendo...' : 'Adjuntar evidencia' }}
-                <input type="file" accept="image/*" capture="environment" (change)="subirFotoEvidencia($event, pregunta)" [disabled]="pregunta.subiendoFoto" hidden>
-              </label>
-              <div class="foto-preview-small" *ngIf="pregunta.valorArchivo">
-                <img [src]="getUrlArchivo(pregunta.valorArchivo)" alt="Evidencia" class="evidence-img-small">
-                <span class="foto-ok-small"><i class="fas fa-check-circle"></i></span>
-              </div>
-            </div>
+          <div class="omitida-msg" *ngIf="pregunta.omitida">
+            <i class="fas fa-ban"></i> Pregunta omitida — no afecta el puntaje
           </div>
+        </div>
+      </div>
 
-          <!-- Observación -->
-          <div class="pregunta-observacion">
-            <input type="text" [(ngModel)]="pregunta.observacion" placeholder="Observación (opcional)">
+      <!-- Acciones correctivas de esta inspección -->
+      <div class="acciones-inspeccion" *ngIf="inspeccionActiva?.acciones?.length > 0">
+        <h4 class="seccion-titulo acciones-titulo">
+          <i class="fas fa-tasks"></i> Acciones Correctivas ({{ inspeccionActiva.acciones.length }})
+        </h4>
+        <div class="accion-card" *ngFor="let acc of inspeccionActiva.acciones">
+          <div class="accion-card-header">
+            <span class="badge" [ngClass]="getPrioridadClass(acc.prioridad)">{{ acc.prioridad | titlecase }}</span>
+            <span class="badge" [ngClass]="getEstadoAccionClass(acc.estado)">{{ acc.estado }}</span>
+            <span class="accion-pregunta" *ngIf="acc.preguntaTexto">
+              <i class="fas fa-question-circle"></i> {{ acc.preguntaTexto }}
+            </span>
+          </div>
+          <p class="accion-desc">{{ acc.descripcion }}</p>
+          <div class="accion-meta">
+            <span *ngIf="acc.responsable"><i class="fas fa-user"></i> {{ acc.responsable.name }} {{ acc.responsable.lastName }}</span>
+            <span *ngIf="acc.fechaLimite"><i class="fas fa-clock"></i> {{ formatDate(acc.fechaLimite) }}</span>
+          </div>
+          <div class="accion-botones" *ngIf="acc.estado !== 'completada'">
+            <button class="btn-accion-estado" (click)="actualizarEstadoAccion(acc, 'en_progreso')" *ngIf="acc.estado === 'pendiente'">
+              <i class="fas fa-play"></i> Iniciar
+            </button>
+            <button class="btn-accion-completar" (click)="actualizarEstadoAccion(acc, 'completada')">
+              <i class="fas fa-check"></i> Completar
+            </button>
+          </div>
+          <div class="accion-completada-msg" *ngIf="acc.estado === 'completada'">
+            <i class="fas fa-check-circle"></i> Completada
           </div>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" (click)="cerrarRealizarInspeccion()">Cerrar</button>
-      <button class="btn-primary" (click)="guardarRespuestas()">
-        <i class="fas fa-save"></i> Guardar Respuestas
-      </button>
-      <button class="btn-success" (click)="completarInspeccion(inspeccionActiva.id)" *ngIf="inspeccionActiva?.estado !== 'completada'">
-        <i class="fas fa-check"></i> Completar
-      </button>
+      <ng-container *ngIf="!modoVisualizacion">
+        <button class="btn-primary" (click)="guardarRespuestas()">
+          <i class="fas fa-save"></i> Guardar Respuestas
+        </button>
+        <button class="btn-success" (click)="completarInspeccion(inspeccionActiva.id)" *ngIf="inspeccionActiva?.estado !== 'completada'">
+          <i class="fas fa-check"></i> Completar
+        </button>
+      </ng-container>
     </div>
   </div>
 </div>
@@ -451,6 +612,9 @@
                 </div>
                 <label class="checkbox-inline">
                   <input type="checkbox" [(ngModel)]="preg.requiereAccionSiNoConforme"> Requiere acción si no conforme
+                </label>
+                <label class="checkbox-inline">
+                  <input type="checkbox" [(ngModel)]="preg.omitible"> Omitible
                 </label>
               </div>
             </div>

@@ -1,0 +1,196 @@
+<div class="movil-container">
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-screen">
+    <div class="spinner"></div>
+    <p>Cargando inspección...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !loading" class="error-screen">
+    <div class="error-icon">
+      <i *ngIf="errorTipo === 'completada'" class="fas fa-check-circle" style="color: #27ae60;"></i>
+      <i *ngIf="errorTipo !== 'completada'" class="fas fa-exclamation-circle" style="color: #e74c3c;"></i>
+    </div>
+    <h2>{{ errorTipo === 'completada' ? 'Inspección Completada' : 'Error' }}</h2>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Inspección Completada -->
+  <div *ngIf="inspeccion?.estado === 'completada' && !loading && !error" class="completada-screen">
+    <div class="completada-icon">
+      <i class="fas fa-clipboard-check"></i>
+    </div>
+    <h2>Inspección Completada</h2>
+    <p>{{ inspeccion.titulo }}</p>
+    <div class="score-big" [style.color]="inspeccion.aprobada ? '#27ae60' : '#e74c3c'">
+      {{ (inspeccion.porcentaje || 0).toFixed(1) }}%
+    </div>
+    <span class="badge-resultado" [class.aprobada]="inspeccion.aprobada" [class.reprobada]="!inspeccion.aprobada">
+      {{ inspeccion.aprobada ? 'APROBADA' : 'NO APROBADA' }}
+    </span>
+  </div>
+
+  <!-- Formulario de Inspección -->
+  <div *ngIf="inspeccion && inspeccion.estado !== 'completada' && !loading && !error">
+    <!-- Header -->
+    <div class="movil-header">
+      <h1>{{ inspeccion.titulo }}</h1>
+      <p class="sub-info">{{ inspeccion.fechaInspeccion }} | {{ inspeccion.lugar || 'Sin ubicación' }}</p>
+      <div class="progreso-bar">
+        <div class="progreso-fill" [style.width.%]="progreso"></div>
+      </div>
+      <span class="progreso-text">{{ progreso }}% completado</span>
+    </div>
+
+    <!-- Navegación de secciones -->
+    <div class="seccion-nav">
+      <button *ngFor="let sec of secciones; let i = index"
+              class="seccion-pill"
+              [class.active]="i === seccionActual"
+              (click)="irASeccion(i)">
+        {{ i + 1 }}
+      </button>
+    </div>
+
+    <!-- Sección actual -->
+    <div class="seccion-content" *ngIf="seccionActualData">
+      <h2 class="seccion-titulo">
+        <span class="seccion-num">{{ seccionActual + 1 }}/{{ totalSecciones }}</span>
+        {{ seccionActualData.titulo }}
+      </h2>
+      <p *ngIf="seccionActualData.descripcion" class="seccion-desc">{{ seccionActualData.descripcion }}</p>
+
+      <!-- Preguntas -->
+      <div class="pregunta-card" *ngFor="let pregunta of seccionActualData.preguntas; let pi = index">
+        <div class="pregunta-texto">
+          <span class="pregunta-num">{{ pi + 1 }}.</span>
+          {{ pregunta.texto }}
+          <span *ngIf="pregunta.requerida" class="requerida">*</span>
+        </div>
+
+        <!-- Omitir -->
+        <div *ngIf="pregunta.omitible" class="omitir-toggle">
+          <label class="toggle-label">
+            <input type="checkbox"
+                   [checked]="respuestasForm[pregunta.id]?.omitida"
+                   (change)="toggleOmitir(pregunta.id)">
+            <span class="toggle-text">Omitir / No aplica</span>
+          </label>
+        </div>
+
+        <!-- Controles de respuesta (ocultos si omitida) -->
+        <div *ngIf="!respuestasForm[pregunta.id]?.omitida" class="pregunta-control">
+          <!-- SI / NO -->
+          <div *ngIf="pregunta.tipo === 'si_no'" class="si-no-btns">
+            <button class="btn-si"
+                    [class.active]="respuestasForm[pregunta.id]?.valor === 'si'"
+                    (click)="respuestasForm[pregunta.id].valor = 'si'">
+              <i class="fas fa-check"></i> Sí
+            </button>
+            <button class="btn-no"
+                    [class.active]="respuestasForm[pregunta.id]?.valor === 'no'"
+                    (click)="respuestasForm[pregunta.id].valor = 'no'">
+              <i class="fas fa-times"></i> No
+            </button>
+            <button *ngIf="!pregunta.requerida" class="btn-na"
+                    [class.active]="respuestasForm[pregunta.id]?.valor === 'na'"
+                    (click)="respuestasForm[pregunta.id].valor = 'na'">
+              N/A
+            </button>
+          </div>
+
+          <!-- Alerta de no conforme -->
+          <div *ngIf="pregunta.tipo === 'si_no' && respuestasForm[pregunta.id]?.valor === 'no' && pregunta.requiereAccionSiNoConforme"
+               class="alerta-no-conforme">
+            <i class="fas fa-exclamation-triangle"></i>
+            Se generará una acción correctiva automáticamente
+          </div>
+
+          <!-- Texto -->
+          <textarea *ngIf="pregunta.tipo === 'texto'"
+                    class="input-movil"
+                    [(ngModel)]="respuestasForm[pregunta.id].valor"
+                    placeholder="Escriba su respuesta..."
+                    rows="3"></textarea>
+
+          <!-- Número -->
+          <input *ngIf="pregunta.tipo === 'numero'" type="number"
+                 class="input-movil"
+                 [(ngModel)]="respuestasForm[pregunta.id].valor"
+                 placeholder="Ingrese un valor">
+
+          <!-- Fecha -->
+          <input *ngIf="pregunta.tipo === 'fecha'" type="date"
+                 class="input-movil"
+                 [(ngModel)]="respuestasForm[pregunta.id].valor">
+
+          <!-- Slider -->
+          <div *ngIf="pregunta.tipo === 'slider'" class="slider-container">
+            <input type="range" min="0" max="100" step="5"
+                   [(ngModel)]="respuestasForm[pregunta.id].valor"
+                   class="slider-movil">
+            <span class="slider-value">{{ respuestasForm[pregunta.id]?.valor || 0 }}%</span>
+          </div>
+
+          <!-- Opción múltiple -->
+          <div *ngIf="pregunta.tipo === 'opcion_multiple'" class="opciones-list">
+            <button *ngFor="let opcion of getOpcionesArray(pregunta.opciones || '[]')"
+                    class="opcion-btn"
+                    [class.active]="respuestasForm[pregunta.id]?.valor === opcion"
+                    (click)="respuestasForm[pregunta.id].valor = opcion">
+              {{ opcion }}
+            </button>
+          </div>
+
+          <!-- Fotos -->
+          <div class="fotos-section">
+            <label class="foto-btn">
+              <i class="fas fa-camera"></i> Tomar/Subir Fotos
+              <input type="file" accept="image/*" multiple
+                     (change)="onFotoSelected($event, pregunta.id)"
+                     capture="environment"
+                     style="display: none;">
+            </label>
+            <div class="fotos-grid" *ngIf="fotosPreview[pregunta.id]?.length">
+              <div class="foto-thumb" *ngFor="let foto of fotosPreview[pregunta.id]; let fi = index">
+                <img [src]="foto" alt="Foto">
+                <button class="foto-delete" (click)="eliminarFotoLocal(pregunta.id, fi)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Observación -->
+        <div class="observacion-section" *ngIf="!respuestasForm[pregunta.id]?.omitida">
+          <input type="text" class="input-movil input-obs"
+                 [(ngModel)]="respuestasForm[pregunta.id].observacion"
+                 placeholder="Observación (opcional)">
+        </div>
+      </div>
+    </div>
+
+    <!-- Navegación inferior -->
+    <div class="nav-footer">
+      <button class="btn-nav btn-anterior" [disabled]="seccionActual === 0" (click)="anteriorSeccion()">
+        <i class="fas fa-chevron-left"></i> Anterior
+      </button>
+
+      <button class="btn-nav btn-guardar" (click)="guardarProgreso()" [disabled]="guardando">
+        <i class="fas fa-save"></i>
+        {{ guardando ? 'Guardando...' : 'Guardar' }}
+      </button>
+
+      <button *ngIf="seccionActual < totalSecciones - 1"
+              class="btn-nav btn-siguiente" (click)="siguienteSeccion()">
+        Siguiente <i class="fas fa-chevron-right"></i>
+      </button>
+
+      <button *ngIf="seccionActual === totalSecciones - 1"
+              class="btn-nav btn-completar" (click)="completarInspeccion()" [disabled]="guardando">
+        <i class="fas fa-check-double"></i> Completar
+      </button>
+    </div>
+  </div>
+</div>

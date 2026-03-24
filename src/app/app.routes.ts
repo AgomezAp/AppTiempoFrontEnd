@@ -47,6 +47,7 @@ import { SsgtInspeccionesComponent } from './components/ssgt-inspecciones/ssgt-i
 import { SsgtCapacitacionesComponent } from './components/ssgt-capacitaciones/ssgt-capacitaciones.component';
 import { SsgtEvaluacionComponent } from './components/ssgt-evaluacion/ssgt-evaluacion.component';
 import { WhatsappConfigComponent } from './components/whatsapp-config/whatsapp-config.component';
+import { SsgtInspeccionMovilComponent } from './components/ssgt-inspeccion-movil/ssgt-inspeccion-movil.component';
 
 export const routes: Routes = [
   {
@@ -239,6 +240,11 @@ export const routes: Routes = [
     component: WhatsappConfigComponent,
     canActivate: [tRolGuard],
     data: { allowedRoles: ['Admin'] }
+  },
+  // Inspección Móvil (acceso público por token)
+  {
+    path: 'inspeccion-movil/:token',
+    component: SsgtInspeccionMovilComponent
   },
 
   { path: '**', component: ErrorPageComponent },
