@@ -312,17 +312,26 @@ textarea.input-movil {
 .fotos-section {
   margin-top: 10px;
 }
+.fotos-btns {
+  display: flex;
+  gap: 8px;
+}
 .foto-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 10px 16px;
-  background: #3498db;
   color: white;
   border-radius: 10px;
   font-size: 13px;
   cursor: pointer;
   font-weight: 500;
+}
+.foto-btn-camara {
+  background: #2c3e50;
+}
+.foto-btn-galeria {
+  background: #3498db;
 }
 .fotos-grid {
   display: flex;

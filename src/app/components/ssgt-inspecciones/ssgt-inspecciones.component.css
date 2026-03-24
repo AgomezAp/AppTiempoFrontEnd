@@ -250,4 +250,6 @@
 .btn-accion-estado:hover { background: #2980b9; }
 .btn-accion-completar { background: #27ae60; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s; }
 .btn-accion-completar:hover { background: #2ecc71; }
+.btn-accion-correo { background: #8e44ad; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s; }
+.btn-accion-correo:hover { background: #9b59b6; }
 .accion-completada-msg { font-size: 0.85rem; color: #27ae60; font-weight: 600; display: flex; align-items: center; gap: 6px; }

@@ -144,13 +144,21 @@
 
           <!-- Fotos -->
           <div class="fotos-section">
-            <label class="foto-btn">
-              <i class="fas fa-camera"></i> Tomar/Subir Fotos
-              <input type="file" accept="image/*" multiple
-                     (change)="onFotoSelected($event, pregunta.id)"
-                     capture="environment"
-                     style="display: none;">
-            </label>
+            <div class="fotos-btns">
+              <label class="foto-btn foto-btn-camara">
+                <i class="fas fa-camera"></i> Cámara
+                <input type="file" accept="image/*"
+                       (change)="onFotoSelected($event, pregunta.id)"
+                       capture="environment"
+                       style="display: none;">
+              </label>
+              <label class="foto-btn foto-btn-galeria">
+                <i class="fas fa-images"></i> Galería
+                <input type="file" accept="image/*" multiple
+                       (change)="onFotoSelected($event, pregunta.id)"
+                       style="display: none;">
+              </label>
+            </div>
             <div class="fotos-grid" *ngIf="fotosPreview[pregunta.id]?.length">
               <div class="foto-thumb" *ngFor="let foto of fotosPreview[pregunta.id]; let fi = index">
                 <img [src]="foto" alt="Foto">

@@ -524,9 +524,37 @@ export class SsgtInspeccionesComponent implements OnInit {
     this.ssgtService.actualizarAccionCorrectiva(accion.id, { ...accion, estado: nuevoEstado }).subscribe({
       next: () => {
         accion.estado = nuevoEstado;
-        Swal.fire('Actualizado', `Acción marcada como ${nuevoEstado}`, 'success');
+        if (accion.responsable?.email) {
+          Swal.fire({
+            title: 'Acción actualizada',
+            text: `¿Desea enviar un correo a ${accion.responsable.name} ${accion.responsable.lastName} (${accion.responsable.email}) notificándole esta acción correctiva?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, enviar correo',
+            cancelButtonText: 'No',
+            confirmButtonColor: '#3498db',
+          }).then((result) => {
+            if (result.isConfirmed) {
+              this.enviarCorreoAccion(accion);
+            }
+          });
+        } else {
+          Swal.fire('Actualizado', `Acción marcada como ${nuevoEstado}`, 'success');
+        }
       },
       error: () => { Swal.fire('Error', 'Error al actualizar', 'error'); }
+    });
+  }
+
+  enviarCorreoAccion(accion: any): void {
+    Swal.fire({ title: 'Enviando correo...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    this.ssgtService.enviarCorreoAccionCorrectiva(accion.id).subscribe({
+      next: (res) => {
+        Swal.fire('Correo enviado', res.msg, 'success');
+      },
+      error: (err) => {
+        Swal.fire('Error', err.error?.msg || 'Error al enviar el correo', 'error');
+      }
     });
   }
 

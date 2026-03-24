@@ -458,6 +458,10 @@ export class SsgtService {
     return this.http.post<{ msg: string }>(`${this.appUrl}${this.apiUrl}/acciones-correctivas/${id}/evidencia`, formData);
   }
 
+  enviarCorreoAccionCorrectiva(id: number) {
+    return this.http.post<{ msg: string }>(`${this.appUrl}${this.apiUrl}/acciones-correctivas/${id}/enviar-correo`, {});
+  }
+
   // ========================================
   // CAPACITACIONES SST
   // ========================================

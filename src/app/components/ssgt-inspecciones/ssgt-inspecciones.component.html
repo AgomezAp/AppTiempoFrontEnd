@@ -492,6 +492,9 @@
             <button class="btn-accion-completar" (click)="actualizarEstadoAccion(acc, 'completada')">
               <i class="fas fa-check"></i> Completar
             </button>
+            <button class="btn-accion-correo" (click)="enviarCorreoAccion(acc)" *ngIf="acc.responsable?.email">
+              <i class="fas fa-envelope"></i> Enviar correo
+            </button>
           </div>
           <div class="accion-completada-msg" *ngIf="acc.estado === 'completada'">
             <i class="fas fa-check-circle"></i> Completada

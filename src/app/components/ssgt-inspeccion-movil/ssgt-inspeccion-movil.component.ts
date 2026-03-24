@@ -158,7 +158,8 @@ export class SsgtInspeccionMovilComponent implements OnInit {
   }
 
   onFotoSelected(event: any, preguntaId: number): void {
-    const files = event.target.files;
+    const input = event.target as HTMLInputElement;
+    const files = input.files;
     if (!files || files.length === 0) return;
 
     if (!this.fotosForm[preguntaId]) this.fotosForm[preguntaId] = [];
@@ -173,10 +174,13 @@ export class SsgtInspeccionMovilComponent implements OnInit {
       };
       reader.readAsDataURL(files[i]);
     }
+
+    // Reset input para permitir seleccionar más fotos
+    input.value = '';
   }
 
   eliminarFotoLocal(preguntaId: number, index: number): void {
-    this.fotosForm[preguntaId]?.splice(index, 0);
+    this.fotosForm[preguntaId]?.splice(index, 1);
     this.fotosPreview[preguntaId]?.splice(index, 1);
   }
 
