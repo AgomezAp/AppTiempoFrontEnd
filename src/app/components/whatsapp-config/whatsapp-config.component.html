@@ -91,7 +91,7 @@
               <div class="user-list">
                 <div *ngFor="let u of usuariosFiltrados()" class="user-list-item" [class.selected]="esSeleccionado(u)" (click)="toggleUsuario(u)">
                   <input type="checkbox" [checked]="esSeleccionado(u)" (click)="$event.stopPropagation()">
-                  <span class="user-name">{{ u.name }} {{ u.lastName }}</span>
+                  <span class="user-name">{{ u.nombre }}</span>
                   <span class="user-phone">{{ u.celular }}</span>
                 </div>
                 <div *ngIf="usuariosFiltrados().length === 0" class="no-users">
@@ -191,7 +191,7 @@
               <div class="user-list">
                 <div *ngFor="let u of usuariosFiltradosProgramar()" class="user-list-item" [class.selected]="esProgramadoSeleccionado(u)" (click)="toggleUsuarioProgramado(u)">
                   <input type="checkbox" [checked]="esProgramadoSeleccionado(u)" (click)="$event.stopPropagation()">
-                  <span class="user-name">{{ u.name }} {{ u.lastName }}</span>
+                  <span class="user-name">{{ u.nombre }}</span>
                   <span class="user-phone">{{ u.celular }}</span>
                 </div>
                 <div *ngIf="usuariosFiltradosProgramar().length === 0" class="no-users">

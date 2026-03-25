@@ -207,8 +207,7 @@ export class WhatsappConfigComponent implements OnInit, OnDestroy {
     return this.usuarios.filter((u: any) =>
       u.celular && (
         !q ||
-        (u.name || '').toLowerCase().includes(q) ||
-        (u.lastName || '').toLowerCase().includes(q) ||
+        (u.nombre || '').toLowerCase().includes(q) ||
         (u.celular || '').includes(q)
       )
     );
@@ -219,8 +218,7 @@ export class WhatsappConfigComponent implements OnInit, OnDestroy {
     return this.usuarios.filter((u: any) =>
       u.celular && (
         !q ||
-        (u.name || '').toLowerCase().includes(q) ||
-        (u.lastName || '').toLowerCase().includes(q) ||
+        (u.nombre || '').toLowerCase().includes(q) ||
         (u.celular || '').includes(q)
       )
     );
@@ -320,7 +318,7 @@ export class WhatsappConfigComponent implements OnInit, OnDestroy {
     }
 
     const telefonos = this.usuariosSeleccionados.map((u: any) => u.celular);
-    const nombres = this.usuariosSeleccionados.map((u: any) => `${u.name} ${u.lastName}`).join(', ');
+    const nombres = this.usuariosSeleccionados.map((u: any) => u.nombre).join(', ');
 
     Swal.fire({
       title: '¿Enviar mensaje?',
@@ -423,7 +421,7 @@ export class WhatsappConfigComponent implements OnInit, OnDestroy {
     }
 
     const telefonos = this.usuariosProgramados.map((u: any) => u.celular);
-    const nombres = this.usuariosProgramados.map((u: any) => `${u.name} ${u.lastName}`).join(', ');
+    const nombres = this.usuariosProgramados.map((u: any) => u.nombre).join(', ');
 
     Swal.fire({
       title: '¿Programar mensaje?',
