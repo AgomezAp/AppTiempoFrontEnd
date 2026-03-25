@@ -21,7 +21,8 @@ export class WhatsappConfigComponent implements OnInit, OnDestroy {
   eventSource: EventSource | null = null;
 
   // Mensaje individual
-  telefonoIndividual = '';
+  busquedaUsuario = '';
+  usuariosSeleccionados: any[] = [];
   mensajeIndividual = '';
 
   // Mensaje masivo
@@ -185,24 +186,67 @@ export class WhatsappConfigComponent implements OnInit, OnDestroy {
     }
   }
 
+  usuariosFiltrados(): any[] {
+    const q = this.busquedaUsuario.toLowerCase();
+    return this.usuarios.filter((u: any) =>
+      u.celular && (
+        !q ||
+        (u.nombre || '').toLowerCase().includes(q) ||
+        (u.apellido || '').toLowerCase().includes(q) ||
+        (u.celular || '').includes(q)
+      )
+    );
+  }
+
+  esSeleccionado(u: any): boolean {
+    return this.usuariosSeleccionados.some((s: any) => s.id === u.id);
+  }
+
+  toggleUsuario(u: any): void {
+    const idx = this.usuariosSeleccionados.findIndex((s: any) => s.id === u.id);
+    if (idx >= 0) {
+      this.usuariosSeleccionados.splice(idx, 1);
+    } else {
+      this.usuariosSeleccionados.push(u);
+    }
+  }
+
   enviarMensajeIndividual(): void {
-    if (!this.telefonoIndividual || !this.mensajeIndividual) {
-      Swal.fire('Error', 'Teléfono y mensaje son requeridos', 'warning');
+    if (!this.usuariosSeleccionados.length || !this.mensajeIndividual) {
+      Swal.fire('Error', 'Seleccione al menos un destinatario y escriba el mensaje', 'warning');
       return;
     }
 
-    this.loading = true;
-    this.whatsappService.enviarMensaje(this.telefonoIndividual, this.mensajeIndividual).subscribe({
-      next: () => {
+    const telefonos = this.usuariosSeleccionados.map((u: any) => u.celular);
+    const nombres = this.usuariosSeleccionados.map((u: any) => `${u.nombre} ${u.apellido}`).join(', ');
+
+    Swal.fire({
+      title: '¿Enviar mensaje?',
+      text: `Se enviará a: ${nombres}`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Enviar',
+      cancelButtonText: 'Cancelar',
+    }).then((r) => {
+      if (!r.isConfirmed) return;
+
+      this.loading = true;
+      const envios = telefonos.map((tel: string) =>
+        this.whatsappService.enviarMensaje(tel, this.mensajeIndividual).toPromise()
+      );
+
+      Promise.allSettled(envios).then((resultados) => {
         this.loading = false;
-        Swal.fire('Enviado', 'Mensaje enviado correctamente', 'success');
-        this.telefonoIndividual = '';
+        const fallidos = resultados.filter(r => r.status === 'rejected').length;
+        if (fallidos === 0) {
+          Swal.fire('Enviado', 'Mensaje enviado a todos los destinatarios', 'success');
+        } else {
+          Swal.fire('Advertencia', `${resultados.length - fallidos} enviado(s), ${fallidos} fallido(s)`, 'warning');
+        }
+        this.usuariosSeleccionados = [];
         this.mensajeIndividual = '';
-      },
-      error: (err) => {
-        this.loading = false;
-        Swal.fire('Error', err.error?.msg || 'Error al enviar mensaje', 'error');
-      }
+        this.busquedaUsuario = '';
+      });
     });
   }
 

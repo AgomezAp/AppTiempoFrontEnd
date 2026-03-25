@@ -58,14 +58,27 @@
           <h3>Mensaje Individual</h3>
         </div>
         <div class="form-group">
-          <label>Teléfono</label>
-          <input type="text" [(ngModel)]="telefonoIndividual" placeholder="Ej: 3001234567">
+          <label>Seleccionar destinatarios</label>
+          <input type="text" [(ngModel)]="busquedaUsuario" placeholder="Buscar por nombre o celular..." class="search-input">
+          <div class="user-list">
+            <div *ngFor="let u of usuariosFiltrados()" class="user-list-item" [class.selected]="esSeleccionado(u)" (click)="toggleUsuario(u)">
+              <input type="checkbox" [checked]="esSeleccionado(u)" (click)="$event.stopPropagation()">
+              <span class="user-name">{{ u.nombre }} {{ u.apellido }}</span>
+              <span class="user-phone">{{ u.celular }}</span>
+            </div>
+            <div *ngIf="usuariosFiltrados().length === 0" class="no-users">
+              No hay usuarios con celular registrado
+            </div>
+          </div>
+          <p class="selection-count" *ngIf="usuariosSeleccionados.length > 0">
+            {{ usuariosSeleccionados.length }} persona(s) seleccionada(s)
+          </p>
         </div>
         <div class="form-group">
           <label>Mensaje</label>
           <textarea [(ngModel)]="mensajeIndividual" rows="4" placeholder="Escriba el mensaje..."></textarea>
         </div>
-        <button class="btn-primary btn-block" (click)="enviarMensajeIndividual()" [disabled]="loading">
+        <button class="btn-primary btn-block" (click)="enviarMensajeIndividual()" [disabled]="loading || usuariosSeleccionados.length === 0">
           <i class="fas fa-paper-plane"></i> Enviar
         </button>
       </div>

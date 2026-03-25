@@ -44,7 +44,6 @@ import { SsgtEppFirmarComponent } from './components/ssgt-epp-firmar/ssgt-epp-fi
 import { SsgtDocumentosFirmaComponent } from './components/ssgt-documentos-firma/ssgt-documentos-firma.component';
 import { SsgtDocumentoFirmarComponent } from './components/ssgt-documento-firmar/ssgt-documento-firmar.component';
 import { SsgtInspeccionesComponent } from './components/ssgt-inspecciones/ssgt-inspecciones.component';
-import { SsgtCapacitacionesComponent } from './components/ssgt-capacitaciones/ssgt-capacitaciones.component';
 import { SsgtEvaluacionComponent } from './components/ssgt-evaluacion/ssgt-evaluacion.component';
 import { WhatsappConfigComponent } from './components/whatsapp-config/whatsapp-config.component';
 import { SsgtInspeccionMovilComponent } from './components/ssgt-inspeccion-movil/ssgt-inspeccion-movil.component';
@@ -220,13 +219,6 @@ export const routes: Routes = [
     data: { allowedRoles: ['Admin'] }
   },
 
-  // SSGT - Capacitaciones SST
-  {
-    path: 'ssgt-capacitaciones',
-    component: SsgtCapacitacionesComponent,
-    canActivate: [tRolGuard],
-    data: { allowedRoles: ['Admin'] }
-  },
   {
     path: 'ssgt-evaluacion/:id',
     component: SsgtEvaluacionComponent,
