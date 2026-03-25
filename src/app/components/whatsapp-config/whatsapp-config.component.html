@@ -4,7 +4,7 @@
   <div class="page-header">
     <div class="header-left">
       <h1><i class="fab fa-whatsapp"></i> WhatsApp</h1>
-      <p>Gestión de mensajería WhatsApp</p>
+      <p>Gestión completa de mensajería WhatsApp</p>
     </div>
   </div>
 
@@ -43,68 +43,236 @@
     </div>
   </div>
 
-  <!-- Secciones de envío (solo si está conectado) -->
+  <!-- Secciones (solo si está conectado) -->
   <div *ngIf="status === 'ready'">
     <div class="info-bar">
       <i class="fas fa-users"></i>
       <span>{{ getUsuariosConCelular() }} usuarios con celular registrado de {{ usuarios.length }} totales</span>
     </div>
 
-    <div class="cards-row">
-      <!-- Mensaje Individual -->
-      <div class="action-card">
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn" [class.active]="tabActiva === 'individual'" (click)="cambiarTab('individual')">
+        <i class="fas fa-comment"></i> Individual
+      </button>
+      <button class="tab-btn" [class.active]="tabActiva === 'masivo'" (click)="cambiarTab('masivo')">
+        <i class="fas fa-bullhorn"></i> Masivo
+      </button>
+      <button class="tab-btn" [class.active]="tabActiva === 'programar'" (click)="cambiarTab('programar')">
+        <i class="fas fa-clock"></i> Programar
+      </button>
+      <button class="tab-btn" [class.active]="tabActiva === 'historial'" (click)="cambiarTab('historial')">
+        <i class="fas fa-history"></i> Historial
+      </button>
+    </div>
+
+    <!-- TAB: Mensaje Individual -->
+    <div class="tab-content" *ngIf="tabActiva === 'individual'">
+      <div class="action-card full-width">
         <div class="action-card-header">
           <i class="fas fa-comment"></i>
-          <h3>Mensaje Individual</h3>
+          <h3>Enviar Mensaje</h3>
         </div>
-        <div class="form-group">
-          <label>Seleccionar destinatarios</label>
-          <input type="text" [(ngModel)]="busquedaUsuario" placeholder="Buscar por nombre o celular..." class="search-input">
-          <div class="user-list">
-            <div *ngFor="let u of usuariosFiltrados()" class="user-list-item" [class.selected]="esSeleccionado(u)" (click)="toggleUsuario(u)">
-              <input type="checkbox" [checked]="esSeleccionado(u)" (click)="$event.stopPropagation()">
-              <span class="user-name">{{ u.nombre }} {{ u.apellido }}</span>
-              <span class="user-phone">{{ u.celular }}</span>
-            </div>
-            <div *ngIf="usuariosFiltrados().length === 0" class="no-users">
-              No hay usuarios con celular registrado
+
+        <div class="two-columns">
+          <!-- Columna izquierda: selección de usuarios -->
+          <div class="column">
+            <div class="form-group">
+              <label>Seleccionar destinatarios</label>
+              <input type="text" [(ngModel)]="busquedaUsuario" placeholder="Buscar por nombre o celular..." class="search-input">
+              <div class="select-all-row">
+                <label class="checkbox-label" (click)="toggleTodos()">
+                  <input type="checkbox" [checked]="todosSeleccionados" (click)="$event.stopPropagation()"> Seleccionar todos
+                </label>
+                <span class="selection-count" *ngIf="usuariosSeleccionados.length > 0">
+                  {{ usuariosSeleccionados.length }} seleccionado(s)
+                </span>
+              </div>
+              <div class="user-list">
+                <div *ngFor="let u of usuariosFiltrados()" class="user-list-item" [class.selected]="esSeleccionado(u)" (click)="toggleUsuario(u)">
+                  <input type="checkbox" [checked]="esSeleccionado(u)" (click)="$event.stopPropagation()">
+                  <span class="user-name">{{ u.name }} {{ u.lastName }}</span>
+                  <span class="user-phone">{{ u.celular }}</span>
+                </div>
+                <div *ngIf="usuariosFiltrados().length === 0" class="no-users">
+                  No hay usuarios con celular registrado
+                </div>
+              </div>
             </div>
           </div>
-          <p class="selection-count" *ngIf="usuariosSeleccionados.length > 0">
-            {{ usuariosSeleccionados.length }} persona(s) seleccionada(s)
-          </p>
-        </div>
-        <div class="form-group">
-          <label>Mensaje</label>
-          <textarea [(ngModel)]="mensajeIndividual" rows="4" placeholder="Escriba el mensaje..."></textarea>
-        </div>
-        <button class="btn-primary btn-block" (click)="enviarMensajeIndividual()" [disabled]="loading || usuariosSeleccionados.length === 0">
-          <i class="fas fa-paper-plane"></i> Enviar
-        </button>
-      </div>
 
-      <!-- Mensaje Masivo -->
-      <div class="action-card">
+          <!-- Columna derecha: mensaje y archivo -->
+          <div class="column">
+            <div class="form-group">
+              <label>Mensaje</label>
+              <textarea [(ngModel)]="mensajeIndividual" rows="5" placeholder="Escriba el mensaje..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Adjuntar archivo (opcional)</label>
+              <div class="file-upload-area">
+                <input type="file" id="archivoIndividual" (change)="onArchivoIndividual($event)" class="file-input" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx">
+                <label for="archivoIndividual" class="file-label" *ngIf="!archivoIndividualNombre">
+                  <i class="fas fa-paperclip"></i> Seleccionar archivo
+                </label>
+                <div class="file-selected" *ngIf="archivoIndividualNombre">
+                  <i class="fas fa-file"></i>
+                  <span>{{ archivoIndividualNombre }}</span>
+                  <button class="btn-remove-file" (click)="quitarArchivoIndividual()"><i class="fas fa-times"></i></button>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn-primary btn-block" (click)="enviarMensajeIndividual()" [disabled]="loading || usuariosSeleccionados.length === 0 || !mensajeIndividual.trim()">
+              <i class="fas fa-paper-plane"></i> Enviar mensaje
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: Mensaje Masivo -->
+    <div class="tab-content" *ngIf="tabActiva === 'masivo'">
+      <div class="action-card full-width">
         <div class="action-card-header">
           <i class="fas fa-bullhorn"></i>
           <h3>Mensaje Masivo</h3>
         </div>
-        <div class="form-group">
-          <label>Empresa (opcional)</label>
-          <select [(ngModel)]="empresaMasivo">
-            <option value="">Todas las empresas</option>
-            <option value="AP">Andrés Publicidad</option>
-            <option value="AT">Andrés Tobón</option>
-            <option value="ME">María Evangelina</option>
-          </select>
+        <p class="form-hint">Envía un mismo mensaje a todos los usuarios con celular registrado, opcionalmente filtrado por empresa.</p>
+
+        <div class="two-columns">
+          <div class="column">
+            <div class="form-group">
+              <label>Empresa (opcional)</label>
+              <select [(ngModel)]="empresaMasivo">
+                <option value="">Todas las empresas</option>
+                <option value="AP">Andrés Publicidad</option>
+                <option value="AT">Andrés Tobón</option>
+                <option value="ME">María Evangelina</option>
+              </select>
+            </div>
+          </div>
+          <div class="column">
+            <div class="form-group">
+              <label>Mensaje</label>
+              <textarea [(ngModel)]="mensajeMasivo" rows="5" placeholder="Escriba el mensaje para todos..."></textarea>
+            </div>
+            <button class="btn-primary btn-block" (click)="enviarMasivo()" [disabled]="loading || !mensajeMasivo.trim()">
+              <i class="fas fa-paper-plane"></i> Enviar a todos
+            </button>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Mensaje</label>
-          <textarea [(ngModel)]="mensajeMasivo" rows="4" placeholder="Escriba el mensaje para todos..."></textarea>
+      </div>
+    </div>
+
+    <!-- TAB: Programar Mensaje -->
+    <div class="tab-content" *ngIf="tabActiva === 'programar'">
+      <div class="action-card full-width">
+        <div class="action-card-header">
+          <i class="fas fa-clock"></i>
+          <h3>Programar Mensaje</h3>
         </div>
-        <button class="btn-primary btn-block" (click)="enviarMasivo()" [disabled]="loading">
-          <i class="fas fa-paper-plane"></i> Enviar a todos
-        </button>
+        <p class="form-hint">Programe un mensaje para que se envíe automáticamente en la fecha y hora indicadas.</p>
+
+        <div class="two-columns">
+          <!-- Columna izquierda: selección de usuarios -->
+          <div class="column">
+            <div class="form-group">
+              <label>Seleccionar destinatarios</label>
+              <input type="text" [(ngModel)]="busquedaProgramar" placeholder="Buscar por nombre o celular..." class="search-input">
+              <div class="select-all-row">
+                <label class="checkbox-label" (click)="toggleTodosProgramados()">
+                  <input type="checkbox" [checked]="todosProgramadosSeleccionados" (click)="$event.stopPropagation()"> Seleccionar todos
+                </label>
+                <span class="selection-count" *ngIf="usuariosProgramados.length > 0">
+                  {{ usuariosProgramados.length }} seleccionado(s)
+                </span>
+              </div>
+              <div class="user-list">
+                <div *ngFor="let u of usuariosFiltradosProgramar()" class="user-list-item" [class.selected]="esProgramadoSeleccionado(u)" (click)="toggleUsuarioProgramado(u)">
+                  <input type="checkbox" [checked]="esProgramadoSeleccionado(u)" (click)="$event.stopPropagation()">
+                  <span class="user-name">{{ u.name }} {{ u.lastName }}</span>
+                  <span class="user-phone">{{ u.celular }}</span>
+                </div>
+                <div *ngIf="usuariosFiltradosProgramar().length === 0" class="no-users">
+                  No hay usuarios con celular registrado
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Columna derecha: configuración -->
+          <div class="column">
+            <div class="form-group">
+              <label>Mensaje</label>
+              <textarea [(ngModel)]="mensajeProgramado" rows="4" placeholder="Escriba el mensaje..."></textarea>
+            </div>
+
+            <div class="datetime-row">
+              <div class="form-group">
+                <label>Fecha</label>
+                <input type="date" [(ngModel)]="fechaProgramada" [min]="getFechaMinima()">
+              </div>
+              <div class="form-group">
+                <label>Hora</label>
+                <input type="time" [(ngModel)]="horaProgramada">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Adjuntar archivo (opcional)</label>
+              <div class="file-upload-area">
+                <input type="file" id="archivoProgramado" (change)="onArchivoProgramado($event)" class="file-input" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx">
+                <label for="archivoProgramado" class="file-label" *ngIf="!archivoProgramadoNombre">
+                  <i class="fas fa-paperclip"></i> Seleccionar archivo
+                </label>
+                <div class="file-selected" *ngIf="archivoProgramadoNombre">
+                  <i class="fas fa-file"></i>
+                  <span>{{ archivoProgramadoNombre }}</span>
+                  <button class="btn-remove-file" (click)="quitarArchivoProgramado()"><i class="fas fa-times"></i></button>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn-primary btn-block" (click)="programarMensaje()" [disabled]="loading || usuariosProgramados.length === 0 || !mensajeProgramado.trim() || !fechaProgramada || !horaProgramada">
+              <i class="fas fa-calendar-check"></i> Programar envío
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: Historial de Programados -->
+    <div class="tab-content" *ngIf="tabActiva === 'historial'">
+      <div class="action-card full-width">
+        <div class="action-card-header">
+          <i class="fas fa-history"></i>
+          <h3>Mensajes Programados</h3>
+        </div>
+
+        <div *ngIf="mensajesProgramados.length === 0" class="no-users" style="padding: 30px;">
+          No hay mensajes programados
+        </div>
+
+        <div class="scheduled-list" *ngIf="mensajesProgramados.length > 0">
+          <div class="scheduled-item" *ngFor="let m of mensajesProgramados">
+            <div class="scheduled-header">
+              <span class="badge" [ngClass]="getEstadoBadge(m.estado)">{{ getEstadoLabel(m.estado) }}</span>
+              <span class="scheduled-date"><i class="fas fa-calendar"></i> {{ m.fechaEnvio | date:'dd/MM/yyyy HH:mm' }}</span>
+              <button class="btn-cancel-small" *ngIf="m.estado === 'pendiente'" (click)="cancelarMensajeProgramado(m.id)">
+                <i class="fas fa-times"></i> Cancelar
+              </button>
+            </div>
+            <div class="scheduled-body">
+              <p class="scheduled-msg">{{ m.mensaje }}</p>
+              <div class="scheduled-details">
+                <span><i class="fas fa-users"></i> {{ m.telefonos.length }} destinatario(s)</span>
+                <span *ngIf="m.mediaName"><i class="fas fa-paperclip"></i> {{ m.mediaName }}</span>
+                <span *ngIf="m.resultado"><i class="fas fa-info-circle"></i> {{ m.resultado }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -20,17 +20,40 @@ export class WhatsappConfigComponent implements OnInit, OnDestroy {
   loading = false;
   eventSource: EventSource | null = null;
 
+  // Tab activa
+  tabActiva: 'individual' | 'masivo' | 'programar' | 'historial' = 'individual';
+
   // Mensaje individual
   busquedaUsuario = '';
   usuariosSeleccionados: any[] = [];
   mensajeIndividual = '';
+  archivoIndividual: File | null = null;
+  archivoIndividualNombre = '';
 
   // Mensaje masivo
   empresaMasivo = '';
   mensajeMasivo = '';
+  archivoMasivo: File | null = null;
+  archivoMasivoNombre = '';
+
+  // Programar mensaje
+  busquedaProgramar = '';
+  usuariosProgramados: any[] = [];
+  mensajeProgramado = '';
+  fechaProgramada = '';
+  horaProgramada = '';
+  archivoProgramado: File | null = null;
+  archivoProgramadoNombre = '';
+
+  // Historial programados
+  mensajesProgramados: any[] = [];
 
   // Usuarios
   usuarios: any[] = [];
+
+  // Seleccionar todos
+  todosSeleccionados = false;
+  todosProgramadosSeleccionados = false;
 
   constructor(
     private whatsappService: WhatsappService,
@@ -54,39 +77,39 @@ export class WhatsappConfigComponent implements OnInit, OnDestroy {
     });
   }
 
+  cargarProgramados(): void {
+    this.whatsappService.obtenerProgramados().subscribe({
+      next: (data) => { this.mensajesProgramados = data; },
+      error: () => {}
+    });
+  }
+
   verificarEstado(): void {
     this.whatsappService.obtenerEstado().subscribe({
       next: (data) => {
-        console.log('[WhatsApp] Estado recibido:', data);
         this.status = data.status;
         this.qrCode = data.qr;
         this.estadoError = data.error || null;
-        // Si ya hay un QR pendiente o está cargando, iniciar SSE automáticamente
         if (data.status === 'qr_pending' || data.status === 'loading') {
           this.iniciarSSE();
         }
       },
-      error: (err) => {
-        console.error('[WhatsApp] Error verificando estado:', err);
-      }
+      error: () => {}
     });
   }
 
   conectar(): void {
     this.loading = true;
-    console.log('[WhatsApp] Iniciando conexión...');
     this.whatsappService.inicializar().subscribe({
       next: (data) => {
-        console.log('[WhatsApp] Respuesta inicializar:', data);
         this.status = data.status;
         this.estadoError = data.error || null;
         this.loading = false;
         this.iniciarSSE();
       },
       error: (err) => {
-        console.error('[WhatsApp] Error inicializando:', err);
         this.loading = false;
-        Swal.fire('Error', err?.error?.msg || err?.error?.error || 'No se pudo inicializar WhatsApp', 'error');
+        Swal.fire('Error', err?.error?.msg || 'No se pudo inicializar WhatsApp', 'error');
       }
     });
   }
@@ -117,18 +140,12 @@ export class WhatsappConfigComponent implements OnInit, OnDestroy {
 
   iniciarSSE(): void {
     this.cerrarSSE();
-
     const url = this.whatsappService.getSSEUrl();
-    console.log('[WhatsApp] Conectando SSE...');
-
     this.eventSource = new EventSource(url);
 
     this.eventSource.onmessage = (event) => {
-      // Ejecutar dentro de NgZone para que Angular detecte los cambios
       this.ngZone.run(() => {
         const data = JSON.parse(event.data);
-        console.log('[WhatsApp] SSE evento:', data);
-
         switch (data.type) {
           case 'qr':
             this.status = 'qr_pending';
@@ -148,7 +165,7 @@ export class WhatsappConfigComponent implements OnInit, OnDestroy {
             this.status = 'disconnected';
             this.qrCode = null;
             this.estadoError = data.msg || 'Error inicializando WhatsApp';
-            Swal.fire('Error', this.estadoError || 'Error inicializando WhatsApp', 'error');
+            Swal.fire('Error', this.estadoError || 'Error', 'error');
             break;
           case 'disconnected':
           case 'auth_failure':
@@ -165,15 +182,13 @@ export class WhatsappConfigComponent implements OnInit, OnDestroy {
       });
     };
 
-    this.eventSource.onerror = (err) => {
-      console.error('[WhatsApp] SSE error:', err);
+    this.eventSource.onerror = () => {
       this.ngZone.run(() => {
         this.cerrarSSE();
-        // Solo mostrar alerta si estaba esperando QR
         if (this.status === 'loading' || this.status === 'qr_pending') {
           this.status = 'disconnected';
           this.loading = false;
-          Swal.fire('Error de conexión', 'Se perdió la conexión con el servidor. Intente conectar nuevamente.', 'error');
+          Swal.fire('Error de conexión', 'Se perdió la conexión con el servidor.', 'error');
         }
       });
     };
@@ -186,43 +201,130 @@ export class WhatsappConfigComponent implements OnInit, OnDestroy {
     }
   }
 
+  // === Selección de usuarios ===
   usuariosFiltrados(): any[] {
     const q = this.busquedaUsuario.toLowerCase();
     return this.usuarios.filter((u: any) =>
       u.celular && (
         !q ||
-        (u.nombre || '').toLowerCase().includes(q) ||
-        (u.apellido || '').toLowerCase().includes(q) ||
+        (u.name || '').toLowerCase().includes(q) ||
+        (u.lastName || '').toLowerCase().includes(q) ||
+        (u.celular || '').includes(q)
+      )
+    );
+  }
+
+  usuariosFiltradosProgramar(): any[] {
+    const q = this.busquedaProgramar.toLowerCase();
+    return this.usuarios.filter((u: any) =>
+      u.celular && (
+        !q ||
+        (u.name || '').toLowerCase().includes(q) ||
+        (u.lastName || '').toLowerCase().includes(q) ||
         (u.celular || '').includes(q)
       )
     );
   }
 
   esSeleccionado(u: any): boolean {
-    return this.usuariosSeleccionados.some((s: any) => s.id === u.id);
+    return this.usuariosSeleccionados.some((s: any) => s.Uid === u.Uid);
+  }
+
+  esProgramadoSeleccionado(u: any): boolean {
+    return this.usuariosProgramados.some((s: any) => s.Uid === u.Uid);
   }
 
   toggleUsuario(u: any): void {
-    const idx = this.usuariosSeleccionados.findIndex((s: any) => s.id === u.id);
-    if (idx >= 0) {
-      this.usuariosSeleccionados.splice(idx, 1);
+    if (this.esSeleccionado(u)) {
+      this.usuariosSeleccionados = this.usuariosSeleccionados.filter((s: any) => s.Uid !== u.Uid);
     } else {
-      this.usuariosSeleccionados.push(u);
+      this.usuariosSeleccionados = [...this.usuariosSeleccionados, u];
+    }
+    this.todosSeleccionados = this.usuariosSeleccionados.length === this.usuariosFiltrados().length;
+  }
+
+  toggleUsuarioProgramado(u: any): void {
+    if (this.esProgramadoSeleccionado(u)) {
+      this.usuariosProgramados = this.usuariosProgramados.filter((s: any) => s.Uid !== u.Uid);
+    } else {
+      this.usuariosProgramados = [...this.usuariosProgramados, u];
+    }
+    this.todosProgramadosSeleccionados = this.usuariosProgramados.length === this.usuariosFiltradosProgramar().length;
+  }
+
+  toggleTodos(): void {
+    if (this.todosSeleccionados) {
+      this.usuariosSeleccionados = [];
+      this.todosSeleccionados = false;
+    } else {
+      this.usuariosSeleccionados = [...this.usuariosFiltrados()];
+      this.todosSeleccionados = true;
     }
   }
 
+  toggleTodosProgramados(): void {
+    if (this.todosProgramadosSeleccionados) {
+      this.usuariosProgramados = [];
+      this.todosProgramadosSeleccionados = false;
+    } else {
+      this.usuariosProgramados = [...this.usuariosFiltradosProgramar()];
+      this.todosProgramadosSeleccionados = true;
+    }
+  }
+
+  // === Archivos ===
+  onArchivoIndividual(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      this.archivoIndividual = input.files[0];
+      this.archivoIndividualNombre = input.files[0].name;
+    }
+  }
+
+  quitarArchivoIndividual(): void {
+    this.archivoIndividual = null;
+    this.archivoIndividualNombre = '';
+  }
+
+  onArchivoMasivo(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      this.archivoMasivo = input.files[0];
+      this.archivoMasivoNombre = input.files[0].name;
+    }
+  }
+
+  quitarArchivoMasivo(): void {
+    this.archivoMasivo = null;
+    this.archivoMasivoNombre = '';
+  }
+
+  onArchivoProgramado(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      this.archivoProgramado = input.files[0];
+      this.archivoProgramadoNombre = input.files[0].name;
+    }
+  }
+
+  quitarArchivoProgramado(): void {
+    this.archivoProgramado = null;
+    this.archivoProgramadoNombre = '';
+  }
+
+  // === Enviar mensaje individual ===
   enviarMensajeIndividual(): void {
-    if (!this.usuariosSeleccionados.length || !this.mensajeIndividual) {
+    if (this.usuariosSeleccionados.length === 0 || !this.mensajeIndividual.trim()) {
       Swal.fire('Error', 'Seleccione al menos un destinatario y escriba el mensaje', 'warning');
       return;
     }
 
     const telefonos = this.usuariosSeleccionados.map((u: any) => u.celular);
-    const nombres = this.usuariosSeleccionados.map((u: any) => `${u.nombre} ${u.apellido}`).join(', ');
+    const nombres = this.usuariosSeleccionados.map((u: any) => `${u.name} ${u.lastName}`).join(', ');
 
     Swal.fire({
       title: '¿Enviar mensaje?',
-      text: `Se enviará a: ${nombres}`,
+      html: `<b>Destinatarios:</b> ${nombres}<br><b>Archivo:</b> ${this.archivoIndividualNombre || 'Ninguno'}`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Enviar',
@@ -231,27 +333,50 @@ export class WhatsappConfigComponent implements OnInit, OnDestroy {
       if (!r.isConfirmed) return;
 
       this.loading = true;
-      const envios = telefonos.map((tel: string) =>
-        this.whatsappService.enviarMensaje(tel, this.mensajeIndividual).toPromise()
-      );
 
-      Promise.allSettled(envios).then((resultados) => {
-        this.loading = false;
-        const fallidos = resultados.filter(r => r.status === 'rejected').length;
-        if (fallidos === 0) {
-          Swal.fire('Enviado', 'Mensaje enviado a todos los destinatarios', 'success');
-        } else {
-          Swal.fire('Advertencia', `${resultados.length - fallidos} enviado(s), ${fallidos} fallido(s)`, 'warning');
-        }
-        this.usuariosSeleccionados = [];
-        this.mensajeIndividual = '';
-        this.busquedaUsuario = '';
-      });
+      if (this.archivoIndividual) {
+        this.whatsappService.enviarConMedia(telefonos, this.mensajeIndividual, this.archivoIndividual).subscribe({
+          next: (res) => {
+            this.loading = false;
+            Swal.fire('Resultado', res.msg, res.failed > 0 ? 'warning' : 'success');
+            this.limpiarIndividual();
+          },
+          error: (err) => {
+            this.loading = false;
+            Swal.fire('Error', err.error?.msg || 'Error al enviar', 'error');
+          }
+        });
+      } else {
+        const envios = telefonos.map((tel: string) =>
+          this.whatsappService.enviarMensaje(tel, this.mensajeIndividual).toPromise()
+        );
+
+        Promise.allSettled(envios).then((resultados) => {
+          this.loading = false;
+          const fallidos = resultados.filter(r => r.status === 'rejected').length;
+          if (fallidos === 0) {
+            Swal.fire('Enviado', `Mensaje enviado a ${resultados.length} destinatario(s)`, 'success');
+          } else {
+            Swal.fire('Advertencia', `${resultados.length - fallidos} enviado(s), ${fallidos} fallido(s)`, 'warning');
+          }
+          this.limpiarIndividual();
+        });
+      }
     });
   }
 
+  limpiarIndividual(): void {
+    this.usuariosSeleccionados = [];
+    this.mensajeIndividual = '';
+    this.busquedaUsuario = '';
+    this.archivoIndividual = null;
+    this.archivoIndividualNombre = '';
+    this.todosSeleccionados = false;
+  }
+
+  // === Enviar masivo ===
   enviarMasivo(): void {
-    if (!this.mensajeMasivo) {
+    if (!this.mensajeMasivo.trim()) {
       Swal.fire('Error', 'El mensaje es requerido', 'warning');
       return;
     }
@@ -271,6 +396,8 @@ export class WhatsappConfigComponent implements OnInit, OnDestroy {
             this.loading = false;
             Swal.fire('Resultado', res.msg, res.failed > 0 ? 'warning' : 'success');
             this.mensajeMasivo = '';
+            this.archivoMasivo = null;
+            this.archivoMasivoNombre = '';
           },
           error: (err) => {
             this.loading = false;
@@ -281,6 +408,94 @@ export class WhatsappConfigComponent implements OnInit, OnDestroy {
     });
   }
 
+  // === Programar mensaje ===
+  programarMensaje(): void {
+    if (this.usuariosProgramados.length === 0 || !this.mensajeProgramado.trim() || !this.fechaProgramada || !this.horaProgramada) {
+      Swal.fire('Error', 'Complete todos los campos: destinatarios, mensaje, fecha y hora', 'warning');
+      return;
+    }
+
+    const fechaEnvio = `${this.fechaProgramada}T${this.horaProgramada}`;
+    const fechaObj = new Date(fechaEnvio);
+    if (fechaObj <= new Date()) {
+      Swal.fire('Error', 'La fecha y hora deben ser futuras', 'warning');
+      return;
+    }
+
+    const telefonos = this.usuariosProgramados.map((u: any) => u.celular);
+    const nombres = this.usuariosProgramados.map((u: any) => `${u.name} ${u.lastName}`).join(', ');
+
+    Swal.fire({
+      title: '¿Programar mensaje?',
+      html: `<b>Destinatarios:</b> ${nombres}<br><b>Fecha:</b> ${this.fechaProgramada} a las ${this.horaProgramada}<br><b>Archivo:</b> ${this.archivoProgramadoNombre || 'Ninguno'}`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Programar',
+      cancelButtonText: 'Cancelar',
+    }).then((r) => {
+      if (!r.isConfirmed) return;
+
+      this.loading = true;
+      this.whatsappService.programarMensaje(
+        telefonos, this.mensajeProgramado, fechaEnvio, this.archivoProgramado || undefined
+      ).subscribe({
+        next: () => {
+          this.loading = false;
+          Swal.fire('Programado', 'Mensaje programado correctamente', 'success');
+          this.limpiarProgramado();
+          this.cargarProgramados();
+        },
+        error: (err) => {
+          this.loading = false;
+          Swal.fire('Error', err.error?.msg || 'Error al programar', 'error');
+        }
+      });
+    });
+  }
+
+  limpiarProgramado(): void {
+    this.usuariosProgramados = [];
+    this.mensajeProgramado = '';
+    this.fechaProgramada = '';
+    this.horaProgramada = '';
+    this.busquedaProgramar = '';
+    this.archivoProgramado = null;
+    this.archivoProgramadoNombre = '';
+    this.todosProgramadosSeleccionados = false;
+  }
+
+  cancelarMensajeProgramado(id: string): void {
+    Swal.fire({
+      title: '¿Cancelar mensaje programado?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cancelar',
+      cancelButtonText: 'No',
+      confirmButtonColor: '#d33',
+    }).then((r) => {
+      if (r.isConfirmed) {
+        this.whatsappService.cancelarProgramado(id).subscribe({
+          next: () => {
+            Swal.fire('Cancelado', 'Mensaje programado cancelado', 'success');
+            this.cargarProgramados();
+          },
+          error: (err) => {
+            Swal.fire('Error', err.error?.msg || 'No se pudo cancelar', 'error');
+          }
+        });
+      }
+    });
+  }
+
+  // === Cambio de tab ===
+  cambiarTab(tab: 'individual' | 'masivo' | 'programar' | 'historial'): void {
+    this.tabActiva = tab;
+    if (tab === 'historial') {
+      this.cargarProgramados();
+    }
+  }
+
+  // === Helpers ===
   getStatusLabel(): string {
     switch (this.status) {
       case 'ready': return 'Conectado';
@@ -310,5 +525,29 @@ export class WhatsappConfigComponent implements OnInit, OnDestroy {
 
   getUsuariosConCelular(): number {
     return this.usuarios.filter((u: any) => u.celular).length;
+  }
+
+  getEstadoBadge(estado: string): string {
+    switch (estado) {
+      case 'pendiente': return 'badge-pending';
+      case 'enviado': return 'badge-sent';
+      case 'fallido': return 'badge-failed';
+      case 'cancelado': return 'badge-cancelled';
+      default: return '';
+    }
+  }
+
+  getEstadoLabel(estado: string): string {
+    switch (estado) {
+      case 'pendiente': return 'Pendiente';
+      case 'enviado': return 'Enviado';
+      case 'fallido': return 'Fallido';
+      case 'cancelado': return 'Cancelado';
+      default: return estado;
+    }
+  }
+
+  getFechaMinima(): string {
+    return new Date().toISOString().split('T')[0];
   }
 }
