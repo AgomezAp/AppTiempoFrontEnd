@@ -40,17 +40,22 @@ export class UploadComponent {
         if (event.type === HttpEventType.UploadProgress && event.total) {
           this.progress = Math.round((100 * event.loaded) / event.total);
         } else if (event.type === HttpEventType.Response) {
-          console.log('Respuesta del servidor:', event.body);
-            if (event.body && event.body.success){
-              this.toastr.success('Archivo subido exitosamente');
-            } else {
-              this.toastr.success('Archivo subido exitosamente');
-              this.router.navigate(['/horas']);
-              }
+            const body = event.body;
+            if (body?.totalCorregidos > 0) {
+              const nombres = body.correcciones.map((c: any) => `${c.Name} (${c.Fecha}): ${c.Correccion}`).join('\n');
+              this.toastr.warning(
+                `Se autocorrigieron ${body.totalCorregidos} registros`,
+                'Correcciones automáticas',
+                { timeOut: 8000, enableHtml: false }
+              );
+              console.warn('Correcciones automáticas:', body.correcciones);
+            }
+            this.toastr.success('Archivo subido exitosamente');
+            this.router.navigate(['/horas']);
           }
       }, error => {
-        console.error('Error al subir el archivo:2', error);
-        this.toastr.error('Error al subir el archivo3');
+        console.error('Error al subir el archivo:', error);
+        this.toastr.error('Error al subir el archivo');
       });
     } else {
       this.toastr.error('Seleccione un archivo');

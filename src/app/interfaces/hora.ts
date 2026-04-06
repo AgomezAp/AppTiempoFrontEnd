@@ -7,6 +7,7 @@ export interface Hora {
     Fecha: string;
     Extra?: string;
     Total?: string;
+    Autocorregido?: string;
   }
 
   export interface Extra {

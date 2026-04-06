@@ -133,7 +133,11 @@
           </thead>
           <tbody>
             <tr *ngFor="let item of paginatedHoras" [class]="getRowClass(item)">
-              <td class="name-cell">{{ item.Name }}</td>
+              <td class="name-cell">
+                {{ item.Name }}
+                <i *ngIf="item.Autocorregido" class="fas fa-magic text-warning"
+                  title="Autocorregido: {{ item.Autocorregido }}" style="margin-left: 4px; font-size: 0.75rem;"></i>
+              </td>
               <td class="time-cell">{{ item.Entrada }}</td>
               <td class="time-cell">{{ item.Salida }}</td>
               <td class="date-cell">{{ item.Fecha }}</td>

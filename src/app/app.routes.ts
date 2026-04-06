@@ -47,6 +47,7 @@ import { SsgtInspeccionesComponent } from './components/ssgt-inspecciones/ssgt-i
 import { SsgtEvaluacionComponent } from './components/ssgt-evaluacion/ssgt-evaluacion.component';
 import { WhatsappConfigComponent } from './components/whatsapp-config/whatsapp-config.component';
 import { SsgtInspeccionMovilComponent } from './components/ssgt-inspeccion-movil/ssgt-inspeccion-movil.component';
+import { ConfiguracionHorarioComponent } from './components/configuracion-horario/configuracion-horario.component';
 
 export const routes: Routes = [
   {
@@ -129,6 +130,12 @@ export const routes: Routes = [
   { 
     path: 'configuracion-nomina', 
     component: ConfiguracionNominaComponent, 
+    canActivate: [tRolGuard], 
+    data: { allowedRoles: ['Admin'] } 
+  },
+  { 
+    path: 'configuracion-horario', 
+    component: ConfiguracionHorarioComponent, 
     canActivate: [tRolGuard], 
     data: { allowedRoles: ['Admin'] } 
   },
