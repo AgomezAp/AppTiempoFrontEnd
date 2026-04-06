@@ -219,9 +219,14 @@
       <!-- Información -->
       <div class="archivo-info">
         <h3 class="archivo-nombre">{{ archivo.nombre }}</h3>
-        <p class="archivo-descripcion" *ngIf="archivo.descripcion">
+        <p class="archivo-descripcion" *ngIf="archivo.descripcion"
+          [class.expanded]="expandedDescriptions[archivo.Aid]">
           {{ archivo.descripcion }}
         </p>
+        <button class="btn-ver-mas" *ngIf="archivo.descripcion && archivo.descripcion.length > 80"
+          (click)="toggleDescripcion(archivo.Aid)">
+          {{ expandedDescriptions[archivo.Aid] ? 'Ver menos' : 'Ver más' }}
+        </button>
         
         <div class="archivo-meta">
           <span class="meta-item">

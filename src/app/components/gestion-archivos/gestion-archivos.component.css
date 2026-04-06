@@ -414,6 +414,26 @@
   overflow: hidden;
 }
 
+.archivo-descripcion.expanded {
+  -webkit-line-clamp: unset;
+  display: block;
+  overflow: visible;
+}
+
+.btn-ver-mas {
+  background: none;
+  border: none;
+  color: #1a73e8;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.btn-ver-mas:hover {
+  text-decoration: underline;
+}
+
 .archivo-meta {
   display: flex;
   flex-wrap: wrap;

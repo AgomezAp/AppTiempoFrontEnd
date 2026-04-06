@@ -27,6 +27,7 @@ export class GestionArchivosComponent implements OnInit {
   tipoMensaje: 'success' | 'error' | '' = '';
   categoriaActual = 'todas';
   archivoEditando: any = null;
+  expandedDescriptions: { [key: number]: boolean } = {};
 
   constructor(private archivoService: ArchivoService) {}
 
@@ -169,6 +170,10 @@ export class GestionArchivosComponent implements OnInit {
   verArchivo(archivo: any) {
     const url = this.archivoService.getFileUrl(archivo.url);
     window.open(url, '_blank');
+  }
+
+  toggleDescripcion(aid: number): void {
+    this.expandedDescriptions[aid] = !this.expandedDescriptions[aid];
   }
 
   editarArchivo(archivo: any) {
