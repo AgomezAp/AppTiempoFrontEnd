@@ -4,6 +4,16 @@ import { Observable , catchError, throwError} from 'rxjs';
 import { environment } from '../../environments/environment.development';
 import { Hora } from '../interfaces/hora';
 
+export interface UploadHistorial {
+  id: number;
+  fechaSubida: string;
+  archivoNombre: string;
+  rangoInicio: string;
+  rangoFin: string;
+  cantidadRegistros: number;
+  estado: 'activo' | 'revertido';
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -49,5 +59,30 @@ export class UploadService {
       headers,
       responseType: 'blob', // Esperamos un archivo binario (XML) como respuesta
     });
+  }
+
+  getUploadHistorial(): Observable<UploadHistorial[]> {
+    return this.http.get<UploadHistorial[]>(`${this.appUrl}/${this.apiUrl}/uploadHistorial`);
+  }
+
+  revertUpload(id: number): Observable<any> {
+    return this.http.post(`${this.appUrl}/${this.apiUrl}/revertirUpload/${id}`, {});
+  }
+
+  uploadForce(file: File): Observable<HttpEvent<any>> {
+    const formData: FormData = new FormData();
+    formData.append('xml', file, file.name);
+    formData.append('forzar', 'true');
+    const headers = new HttpHeaders({
+      'Accept': 'application/json'
+    });
+
+    const req = new HttpRequest('POST', this.uploadUrl, formData, {
+      headers: headers,
+      reportProgress: true,
+      responseType: 'json'
+    });
+
+    return this.http.request(req);
   }
 }

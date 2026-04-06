@@ -67,3 +67,82 @@
   li {
     margin: 5px 0;
   }
+
+  /* Historial de subidas */
+  .historial-container {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+
+  .historial-container h2 {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+  }
+
+  .historial-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .historial-table th,
+  .historial-table td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .historial-table th {
+    background-color: #007bff;
+    color: white;
+    font-weight: 600;
+  }
+
+  .historial-table tr:hover {
+    background-color: #f1f1f1;
+  }
+
+  .historial-table tr.revertido {
+    opacity: 0.6;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .badge-activo {
+    background-color: #28a745;
+    color: white;
+  }
+
+  .badge-revertido {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  .btn-revertir {
+    padding: 5px 14px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+
+  .btn-revertir:hover {
+    background-color: #c82333;
+  }
+
+  .text-muted {
+    color: #999;
+  }

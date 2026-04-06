@@ -29,4 +29,43 @@
     </div>
 </div>
 
+<!-- Historial de subidas -->
+<div class="historial-container" *ngIf="historial.length > 0">
+  <h2>Historial de Subidas</h2>
+  <table class="historial-table">
+    <thead>
+      <tr>
+        <th>Fecha de subida</th>
+        <th>Archivo</th>
+        <th>Rango</th>
+        <th>Registros</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let upload of historial" [class.revertido]="upload.estado === 'revertido'">
+        <td>{{ upload.fechaSubida | date:'dd/MM/yyyy HH:mm' }}</td>
+        <td>{{ upload.archivoNombre }}</td>
+        <td>{{ upload.rangoInicio }} - {{ upload.rangoFin }}</td>
+        <td>{{ upload.cantidadRegistros }}</td>
+        <td>
+          <span class="badge" [class.badge-activo]="upload.estado === 'activo'" [class.badge-revertido]="upload.estado === 'revertido'">
+            {{ upload.estado === 'activo' ? 'Activo' : 'Revertido' }}
+          </span>
+        </td>
+        <td>
+          <button 
+            *ngIf="upload.estado === 'activo'" 
+            class="btn-revertir" 
+            (click)="revertirSubida(upload)">
+            Revertir
+          </button>
+          <span *ngIf="upload.estado === 'revertido'" class="text-muted">—</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
 
