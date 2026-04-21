@@ -26,7 +26,10 @@ export class RegistroAsistenciaComponent implements OnInit {
   usuarios: UResponse[] = [];
   fechaEvento: string = '';
   tema: string = '';
-  facilitadorId: number | null = null;
+  facilitadorId: number | string | null = null;
+  // Campos para facilitador externo
+  facilitadorExternoNombre: string = '';
+  facilitadorExternoEmpresa: string = '';
   participantesSeleccionados: number[] = [];
   searchTerm: string = '';
   filteredUsuarios: UResponse[] = [];
@@ -129,7 +132,12 @@ export class RegistroAsistenciaComponent implements OnInit {
 
   getFacilitadorNombre(): string {
     if (!this.facilitadorId) return '';
-    return this.getUsuarioNombre(this.facilitadorId);
+    if (this.facilitadorId === 'EXTERNO') {
+      return this.facilitadorExternoNombre || '';
+    }
+    const idNum = typeof this.facilitadorId === 'string' ? parseInt(this.facilitadorId, 10) : this.facilitadorId;
+    if (!idNum || isNaN(Number(idNum))) return '';
+    return this.getUsuarioNombre(Number(idNum));
   }
 
   crearRegistro(): void {
@@ -144,6 +152,17 @@ export class RegistroAsistenciaComponent implements OnInit {
     if (!this.facilitadorId) {
       this.toastr.error('Debe seleccionar un facilitador', 'Error');
       return;
+    }
+    // Si se eligió facilitador externo, validar campos
+    if (this.facilitadorId === 'EXTERNO') {
+      if (!this.facilitadorExternoNombre.trim()) {
+        this.toastr.error('El nombre del facilitador externo es requerido', 'Error');
+        return;
+      }
+      if (!this.facilitadorExternoEmpresa.trim()) {
+        this.toastr.error('La empresa/entidad del facilitador externo es requerida', 'Error');
+        return;
+      }
     }
     if (this.participantesSeleccionados.length === 0 && this.participantesExternos.length === 0) {
       this.toastr.error('Debe agregar al menos un participante (interno o externo)', 'Error');
@@ -177,7 +196,9 @@ export class RegistroAsistenciaComponent implements OnInit {
           .crearRegistro({
             fecha: this.fechaEvento,
             tema: this.tema,
-            facilitadorId: this.facilitadorId!,
+            facilitadorId: this.facilitadorId === 'EXTERNO' ? undefined : this.facilitadorId,
+            facilitadorExternoNombre: this.facilitadorId === 'EXTERNO' ? this.facilitadorExternoNombre : undefined,
+            facilitadorExternoEmpresa: this.facilitadorId === 'EXTERNO' ? this.facilitadorExternoEmpresa : undefined,
             participantesIds: this.participantesSeleccionados,
             participantesExternos: this.participantesExternos.length > 0
               ? this.participantesExternos

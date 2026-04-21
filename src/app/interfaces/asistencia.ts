@@ -2,7 +2,7 @@ export interface RegistroAsistencia {
   id?: number;
   fecha: string;
   tema: string;
-  facilitadorId: number;
+  facilitadorId?: number | string | null;
   facilitadorNombre?: string;
   codigo?: string;
   version?: string;
@@ -43,7 +43,9 @@ export interface ParticipanteExterno {
 export interface CrearRegistroRequest {
   fecha: string;
   tema: string;
-  facilitadorId: number;
+  facilitadorId?: number | string | null;
+  facilitadorExternoNombre?: string;
+  facilitadorExternoEmpresa?: string;
   participantesIds: number[];
   participantesExternos?: ParticipanteExterno[];
 }

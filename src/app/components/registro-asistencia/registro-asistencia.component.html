@@ -95,9 +95,42 @@
                   <option *ngFor="let user of usuarios" [ngValue]="user.Uid">
                     {{ user.name }} {{ user.lastName }}
                   </option>
-                  <option [ngValue]="null">Externo</option>
+                  <option [ngValue]="'EXTERNO'">Externo</option>
                 </select>
                 <i class="fas fa-chevron-down select-arrow"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Campos para facilitador externo -->
+          <div class="form-card-body" *ngIf="facilitadorId === 'EXTERNO'">
+            <div class="form-grid form-grid-2">
+              <div class="form-field">
+                <label class="form-label">
+                  <i class="fas fa-user"></i>
+                  Nombre del Facilitador Externo
+                  <span class="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-input"
+                  placeholder="Nombre y apellido..."
+                  [(ngModel)]="facilitadorExternoNombre"
+                />
+              </div>
+
+              <div class="form-field">
+                <label class="form-label">
+                  <i class="fas fa-building"></i>
+                  Empresa / Entidad
+                  <span class="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-input"
+                  placeholder="Nombre de la empresa o entidad..."
+                  [(ngModel)]="facilitadorExternoEmpresa"
+                />
               </div>
             </div>
           </div>
@@ -409,6 +442,7 @@
             !fechaEvento ||
             !facilitadorId ||
             !tema ||
+            (facilitadorId === 'EXTERNO' && (!facilitadorExternoNombre || !facilitadorExternoEmpresa)) ||
             (participantesSeleccionados.length === 0 && participantesExternos.length === 0)
           "
         >
