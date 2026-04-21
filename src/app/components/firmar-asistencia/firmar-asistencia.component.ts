@@ -21,6 +21,7 @@ import { InfoFirmaResponse } from '../../interfaces/asistencia';
 })
 export class FirmarAsistenciaComponent implements OnInit, AfterViewInit {
   @ViewChild('signatureCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('signatureFileInput') signatureFileInputRef?: ElementRef<HTMLInputElement>;
 
   token: string = '';
   loading = true;
@@ -177,6 +178,63 @@ export class FirmarAsistenciaComponent implements OnInit, AfterViewInit {
     this.ctx.fillStyle = '#ffffff';
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     this.hasSignature = false;
+    if (this.signatureFileInputRef?.nativeElement) {
+      this.signatureFileInputRef.nativeElement.value = '';
+    }
+  }
+
+  seleccionarImagenFirma(): void {
+    this.signatureFileInputRef?.nativeElement.click();
+  }
+
+  onImagenFirmaSeleccionada(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Seleccione un archivo de imagen válido (PNG, JPG, WEBP, etc.)');
+      input.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const image = new Image();
+      image.onload = () => this.dibujarImagenEnCanvas(image);
+      image.onerror = () => {
+        alert('No se pudo cargar la imagen seleccionada');
+        input.value = '';
+      };
+      image.src = reader.result as string;
+    };
+
+    reader.onerror = () => {
+      alert('No se pudo leer la imagen seleccionada');
+      input.value = '';
+    };
+
+    reader.readAsDataURL(file);
+  }
+
+  private dibujarImagenEnCanvas(image: HTMLImageElement): void {
+    if (!this.ctx) return;
+
+    this.ctx.fillStyle = '#ffffff';
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    const margin = 12;
+    const maxWidth = this.canvas.width - margin * 2;
+    const maxHeight = this.canvas.height - margin * 2;
+    const scale = Math.min(maxWidth / image.width, maxHeight / image.height);
+    const drawWidth = image.width * scale;
+    const drawHeight = image.height * scale;
+    const x = (this.canvas.width - drawWidth) / 2;
+    const y = (this.canvas.height - drawHeight) / 2;
+
+    this.ctx.drawImage(image, x, y, drawWidth, drawHeight);
+    this.hasSignature = true;
   }
 
   getSignatureBase64(): string {

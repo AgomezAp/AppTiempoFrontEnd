@@ -93,6 +93,20 @@
     <div class="firma-section">
       <h3><i class="fas fa-signature"></i> Firma</h3>
       <p class="firma-instruction">Firme en el recuadro utilizando el mouse o su dedo (pantalla táctil)</p>
+      <p class="firma-instruction firma-instruction-alt">También puede subir una imagen de su firma.</p>
+
+      <div class="firma-upload-actions">
+        <input
+          #signatureFileInput
+          type="file"
+          accept="image/*"
+          class="signature-file-input"
+          (change)="onImagenFirmaSeleccionada($event)"
+        />
+        <button class="btn-subir-firma" (click)="seleccionarImagenFirma()" type="button">
+          <i class="fas fa-upload"></i> Subir Imagen de Firma
+        </button>
+      </div>
       
       <div class="canvas-container">
         <canvas 

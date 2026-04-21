@@ -6,6 +6,7 @@ import { SsgtService } from '../../services/ssgt.service';
 import { UserService } from '../../services/user.service';
 import { DocumentoFirma } from '../../interfaces/ssgt';
 import Swal from 'sweetalert2';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-ssgt-documentos-firma',
@@ -40,6 +41,7 @@ export class SsgtDocumentosFirmaComponent implements OnInit {
   mostrarDetalle = false;
 
   zoom = 100;
+  reenviandoPorDocumento = new Set<number>();
 
   private draggingCampo: any = null;
   private dragStartX = 0;
@@ -259,6 +261,62 @@ export class SsgtDocumentosFirmaComponent implements OnInit {
       next: () => { Swal.fire('Éxito', 'Correo reenviado', 'success'); },
       error: () => { Swal.fire('Error', 'Error al reenviar', 'error'); }
     });
+  }
+
+  reenviarPendientesDocumento(doc: DocumentoFirma): void {
+    if (!doc.id) return;
+    if (this.reenviandoPorDocumento.has(doc.id)) return;
+
+    Swal.fire({
+      title: 'Reenviar correos',
+      text: 'Se reenviarán correos a todos los firmantes pendientes de este documento. ¿Continuar?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#141414',
+      confirmButtonText: 'Reenviar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (!result.isConfirmed) return;
+
+      this.reenviandoPorDocumento.add(doc.id!);
+
+      this.ssgtService.obtenerDocumentoFirmaPorId(doc.id!).subscribe({
+        next: (documentoDetalle) => {
+          const camposPendientes = (documentoDetalle.campos || []).filter(
+            (campo: any) => !campo.firmado && campo.id
+          );
+
+          if (camposPendientes.length === 0) {
+            Swal.fire('Sin pendientes', 'Este documento ya no tiene firmas pendientes.', 'info');
+            this.reenviandoPorDocumento.delete(doc.id!);
+            return;
+          }
+
+          const solicitudes = camposPendientes.map((campo: any) =>
+            this.ssgtService.reenviarCorreoCampo(doc.id!, campo.id)
+          );
+
+          forkJoin(solicitudes).subscribe({
+            next: () => {
+              Swal.fire('Éxito', `Se reenviaron ${camposPendientes.length} correo(s) pendientes.`, 'success');
+              this.reenviandoPorDocumento.delete(doc.id!);
+            },
+            error: () => {
+              Swal.fire('Error', 'No fue posible reenviar todos los correos.', 'error');
+              this.reenviandoPorDocumento.delete(doc.id!);
+            }
+          });
+        },
+        error: () => {
+          Swal.fire('Error', 'No se pudo cargar el detalle del documento.', 'error');
+          this.reenviandoPorDocumento.delete(doc.id!);
+        }
+      });
+    });
+  }
+
+  estaReenviandoDocumento(doc: DocumentoFirma): boolean {
+    return !!doc.id && this.reenviandoPorDocumento.has(doc.id);
   }
 
   descargarPdfFirmado(): void {

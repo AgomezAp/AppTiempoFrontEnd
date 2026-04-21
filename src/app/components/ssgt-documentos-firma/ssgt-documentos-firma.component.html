@@ -32,6 +32,15 @@
         <div class="card-header-bar">
           <span class="badge" [ngClass]="getEstadoBadgeClass(doc.estado)">{{ getEstadoLabel(doc.estado) }}</span>
           <div class="card-actions">
+            <button
+              class="btn-icon btn-icon-resend"
+              *ngIf="doc.estado === 'pendiente'"
+              (click)="reenviarPendientesDocumento(doc); $event.stopPropagation()"
+              [disabled]="estaReenviandoDocumento(doc)"
+              title="Reenviar correos pendientes"
+            >
+              <i class="fas" [ngClass]="estaReenviandoDocumento(doc) ? 'fa-spinner fa-spin' : 'fa-paper-plane'"></i>
+            </button>
             <button class="btn-icon" (click)="eliminarDocumento(doc)" title="Eliminar"><i class="fas fa-trash"></i></button>
           </div>
         </div>

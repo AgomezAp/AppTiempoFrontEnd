@@ -288,6 +288,38 @@
   margin: 0 0 15px 0;
 }
 
+.firma-instruction-alt {
+  margin-top: -8px;
+  font-size: 0.85rem;
+}
+
+.firma-upload-actions {
+  margin-bottom: 12px;
+}
+
+.signature-file-input {
+  display: none;
+}
+
+.btn-subir-firma {
+  background: #fff;
+  border: 1px dashed #141414;
+  color: #141414;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s;
+}
+
+.btn-subir-firma:hover {
+  background: #fff9db;
+  border-color: #FFD600;
+}
+
 .canvas-container {
   border: 2px solid #141414;
   border-radius: 10px;
