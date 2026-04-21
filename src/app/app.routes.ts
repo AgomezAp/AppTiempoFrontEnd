@@ -48,6 +48,7 @@ import { SsgtEvaluacionComponent } from './components/ssgt-evaluacion/ssgt-evalu
 import { WhatsappConfigComponent } from './components/whatsapp-config/whatsapp-config.component';
 import { SsgtInspeccionMovilComponent } from './components/ssgt-inspeccion-movil/ssgt-inspeccion-movil.component';
 import { ConfiguracionHorarioComponent } from './components/configuracion-horario/configuracion-horario.component';
+import { CompensacionHorasComponent } from './components/compensacion-horas/compensacion-horas.component';
 
 export const routes: Routes = [
   {
@@ -138,6 +139,12 @@ export const routes: Routes = [
     component: ConfiguracionHorarioComponent, 
     canActivate: [tRolGuard], 
     data: { allowedRoles: ['Admin'] } 
+  },
+  {
+    path: 'compensacion-horas',
+    component: CompensacionHorasComponent,
+    canActivate: [tRolGuard],
+    data: { allowedRoles: ['Admin', 'User', 'Tecnologia'] }
   },
   { 
     path: 'reservas', 
