@@ -8,7 +8,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 import { AsistenciaService } from '../../services/asistencia.service';
 import { UserService } from '../../services/user.service';
-import { RegistroAsistencia, ParticipanteAsistencia, ParticipanteExterno } from '../../interfaces/asistencia';
+import { RegistroAsistencia, ParticipanteAsistencia } from '../../interfaces/asistencia';
 import { UResponse } from '../../interfaces/user';
 
 @Component({
@@ -33,16 +33,6 @@ export class RegistroAsistenciaComponent implements OnInit {
   participantesSeleccionados: number[] = [];
   searchTerm: string = '';
   filteredUsuarios: UResponse[] = [];
-
-  // Participantes externos
-  participantesExternos: ParticipanteExterno[] = [];
-  nuevoExterno: ParticipanteExterno = {
-    nombreCompleto: '',
-    documentoIdentificacion: '',
-    cargo: '',
-    empresa: '',
-    email: '',
-  };
 
   // Lista de registros
   registros: RegistroAsistencia[] = [];
@@ -164,8 +154,8 @@ export class RegistroAsistenciaComponent implements OnInit {
         return;
       }
     }
-    if (this.participantesSeleccionados.length === 0 && this.participantesExternos.length === 0) {
-      this.toastr.error('Debe agregar al menos un participante (interno o externo)', 'Error');
+    if (this.participantesSeleccionados.length === 0) {
+      this.toastr.error('Debe seleccionar al menos un participante', 'Error');
       return;
     }
 
@@ -174,10 +164,7 @@ export class RegistroAsistenciaComponent implements OnInit {
     htmlParts.push(`<p><strong>Tema:</strong> ${this.tema}</p>`);
     htmlParts.push(`<p><strong>Facilitador:</strong> ${this.getFacilitadorNombre()}</p>`);
     if (this.participantesSeleccionados.length > 0) {
-      htmlParts.push(`<p>Se enviará correo a <strong>${this.participantesSeleccionados.length}</strong> participante(s) interno(s).</p>`);
-    }
-    if (this.participantesExternos.length > 0) {
-      htmlParts.push(`<p>Se registrarán <strong>${this.participantesExternos.length}</strong> participante(s) externo(s) (sin correo).</p>`);
+      htmlParts.push(`<p>Se enviará correo a <strong>${this.participantesSeleccionados.length}</strong> participante(s).</p>`);
     }
 
     Swal.fire({
@@ -200,9 +187,6 @@ export class RegistroAsistenciaComponent implements OnInit {
             facilitadorExternoNombre: this.facilitadorId === 'EXTERNO' ? this.facilitadorExternoNombre : undefined,
             facilitadorExternoEmpresa: this.facilitadorId === 'EXTERNO' ? this.facilitadorExternoEmpresa : undefined,
             participantesIds: this.participantesSeleccionados,
-            participantesExternos: this.participantesExternos.length > 0
-              ? this.participantesExternos
-              : undefined,
           })
           .subscribe({
             next: (response) => {
@@ -226,14 +210,6 @@ export class RegistroAsistenciaComponent implements OnInit {
     this.tema = '';
     this.facilitadorId = null;
     this.participantesSeleccionados = [];
-    this.participantesExternos = [];
-    this.nuevoExterno = {
-      nombreCompleto: '',
-      documentoIdentificacion: '',
-      cargo: '',
-      empresa: '',
-      email: '',
-    };
     this.searchTerm = '';
     this.filteredUsuarios = [...this.usuarios];
   }
@@ -368,41 +344,6 @@ export class RegistroAsistenciaComponent implements OnInit {
     if (!participantes) return [];
     const empresas = new Set(participantes.map((p) => p.empresa));
     return Array.from(empresas);
-  }
-
-  // === Participantes Externos ===
-
-  agregarExterno(): void {
-    if (!this.nuevoExterno.nombreCompleto.trim()) {
-      this.toastr.error('El nombre completo es requerido', 'Error');
-      return;
-    }
-    if (!this.nuevoExterno.documentoIdentificacion.trim()) {
-      this.toastr.error('El documento de identificación es requerido', 'Error');
-      return;
-    }
-    if (!this.nuevoExterno.cargo.trim()) {
-      this.toastr.error('El cargo es requerido', 'Error');
-      return;
-    }
-    if (!this.nuevoExterno.empresa.trim()) {
-      this.toastr.error('La empresa/entidad es requerida', 'Error');
-      return;
-    }
-
-    this.participantesExternos.push({ ...this.nuevoExterno });
-    this.nuevoExterno = {
-      nombreCompleto: '',
-      documentoIdentificacion: '',
-      cargo: '',
-      empresa: '',
-      email: '',
-    };
-    this.toastr.success('Participante externo agregado', 'OK');
-  }
-
-  eliminarExterno(index: number): void {
-    this.participantesExternos.splice(index, 1);
   }
 
   formatDate(date: string | undefined): string {
