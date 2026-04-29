@@ -1,0 +1,516 @@
+<app-navbar></app-navbar>
+
+<div class="crear-acta-container">
+  <div class="form-wrapper">
+    <!-- ═══ HEADER DE PÁGINA ═══ -->
+    <header class="page-header">
+      <div class="page-header__left">
+        <button
+          class="page-header__back"
+          (click)="cancelar()"
+          aria-label="Volver"
+        >
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <div class="page-header__icon">
+          <i class="fa-solid fa-chair"></i>
+        </div>
+        <div class="page-header__text">
+          <h1 class="page-header__title">Acta de Entrega - Mobiliario</h1>
+          <p class="page-header__subtitle">
+            Registro de entrega de muebles y equipamiento
+          </p>
+        </div>
+      </div>
+      <div class="page-header__right">
+        <div class="page-header__badge">
+          <i class="fa-solid fa-chair"></i>
+          <span>Mobiliario</span>
+        </div>
+        <div class="page-header__steps">
+          <span
+            class="page-header__step"
+            [class.page-header__step--done]="receptor.nombre && receptor.correo"
+          >
+            <i class="fa-solid fa-user"></i>
+          </span>
+          <span
+            class="page-header__step-line"
+            [class.page-header__step-line--done]="
+              receptor.nombre && receptor.correo
+            "
+          ></span>
+          <span
+            class="page-header__step"
+            [class.page-header__step--done]="mueblesSeleccionados.length > 0"
+          >
+            <i class="fa-solid fa-couch"></i>
+          </span>
+          <span
+            class="page-header__step-line"
+            [class.page-header__step-line--done]="
+              mueblesSeleccionados.length > 0
+            "
+          ></span>
+          <span
+            class="page-header__step"
+            [class.page-header__step--done]="
+              mueblesSeleccionados.length > 0 && receptor.nombre
+            "
+          >
+            <i class="fa-solid fa-paper-plane"></i>
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ═══ ALERTAS ═══ -->
+    <div
+      class="alert alert--danger"
+      *ngIf="errorMessage"
+      style="animation-delay: 0.03s"
+    >
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <span>{{ errorMessage }}</span>
+      <button class="alert__close" (click)="errorMessage = ''">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- ═══ FORM ═══ -->
+    <form (ngSubmit)="crearActa()" class="form-main">
+      <div class="form-layout">
+        <!-- ══ COLUMNA IZQUIERDA ══ -->
+        <div class="form-col form-col--left">
+          <!-- Card: Datos del Receptor -->
+          <div class="card" style="animation-delay: 0.06s">
+            <div class="card__head">
+              <i class="fa-solid fa-user"></i>
+              <h3 class="card__title">Datos del receptor</h3>
+            </div>
+            <div class="card__body">
+              <div class="field-row">
+                <div class="form-field">
+                  <label class="form-field__label" for="nombre"
+                    >Nombre <span class="form-field__req">*</span></label
+                  >
+                  <input
+                    class="form-field__input"
+                    type="text"
+                    id="nombre"
+                    [(ngModel)]="receptor.nombre"
+                    name="nombre"
+                    placeholder="Nombre completo"
+                    required
+                  />
+                </div>
+                <div class="form-field">
+                  <label class="form-field__label" for="cedula">Cédula</label>
+                  <input
+                    class="form-field__input"
+                    type="text"
+                    id="cedula"
+                    [(ngModel)]="receptor.cedula"
+                    name="cedula"
+                    placeholder="Número de cédula"
+                  />
+                </div>
+              </div>
+
+              <div class="field-row">
+                <div class="form-field">
+                  <label class="form-field__label" for="cargo"
+                    >Cargo <span class="form-field__req">*</span></label
+                  >
+                  <input
+                    class="form-field__input"
+                    type="text"
+                    id="cargo"
+                    [(ngModel)]="receptor.cargo"
+                    name="cargo"
+                    placeholder="Cargo o posición"
+                    required
+                  />
+                </div>
+                <div class="form-field">
+                  <label class="form-field__label" for="telefono"
+                    >Teléfono</label
+                  >
+                  <input
+                    class="form-field__input"
+                    type="text"
+                    id="telefono"
+                    [(ngModel)]="receptor.telefono"
+                    name="telefono"
+                    placeholder="Teléfono de contacto"
+                  />
+                </div>
+              </div>
+
+              <div class="field-row field-row--single">
+                <div class="form-field">
+                  <label class="form-field__label" for="correo"
+                    >Correo <span class="form-field__req">*</span></label
+                  >
+                  <input
+                    class="form-field__input"
+                    type="email"
+                    id="correo"
+                    [(ngModel)]="receptor.correo"
+                    name="correo"
+                    placeholder="correo&#64;ejemplo.com"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="field-hint">
+                <i class="fa-solid fa-circle-info"></i>
+                <span
+                  >El receptor recibirá un enlace para firmar digitalmente</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Card: Detalles -->
+          <div class="card" style="animation-delay: 0.09s">
+            <div class="card__head">
+              <i class="fa-solid fa-calendar"></i>
+              <h3 class="card__title">Detalles</h3>
+            </div>
+            <div class="card__body">
+              <div class="form-field">
+                <label class="form-field__label" for="fechaDev"
+                  >Fecha devolución esperada</label
+                >
+                <input
+                  class="form-field__input"
+                  type="date"
+                  id="fechaDev"
+                  [(ngModel)]="fechaDevolucionEsperada"
+                  name="fechaDev"
+                />
+              </div>
+              <div class="form-field" style="margin-top: 0.65rem">
+                <label class="form-field__label" for="obs">Observaciones</label>
+                <textarea
+                  class="form-field__textarea"
+                  id="obs"
+                  [(ngModel)]="observacionesEntrega"
+                  name="obs"
+                  rows="3"
+                  placeholder="Notas adicionales sobre la entrega..."
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ COLUMNA DERECHA ══ -->
+        <div class="form-col form-col--right">
+          <!-- Card: Muebles -->
+          <div class="card card--sticky" style="animation-delay: 0.12s">
+            <div class="card__head">
+              <i class="fa-solid fa-couch"></i>
+              <h3 class="card__title">Muebles a entregar</h3>
+              <span
+                class="card__badge"
+                *ngIf="mueblesSeleccionados.length > 0"
+                >{{ getTotalMuebles() }}</span
+              >
+            </div>
+            <div class="card__body card__body--no-pad">
+              <!-- ── Disponibles ── -->
+              <div class="available-section">
+                <div class="available-section__header">
+                  <span class="available-section__label">Disponibles</span>
+                </div>
+
+                <!-- Buscador -->
+                <div class="search-bar">
+                  <i class="fa-solid fa-search search-bar__icon"></i>
+                  <input
+                    class="search-bar__input"
+                    type="text"
+                    [(ngModel)]="busquedaMueble"
+                    (input)="filtrarMuebles()"
+                    placeholder="Buscar por nombre, categoría..."
+                    name="busquedaMueble"
+                  />
+                  <button
+                    type="button"
+                    class="search-bar__clear"
+                    *ngIf="busquedaMueble"
+                    (click)="busquedaMueble = ''; filtrarMuebles()"
+                  >
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+
+                <!-- Loading -->
+                <div class="loading-inline" *ngIf="loadingMuebles">
+                  <div class="loading-inline__spinner"></div>
+                  <span class="loading-inline__text">Cargando...</span>
+                </div>
+
+                <!-- Lista disponibles -->
+                <div
+                  class="available-list"
+                  [class.available-list--compact]="
+                    mueblesSeleccionados.length > 0
+                  "
+                  *ngIf="!loadingMuebles && mueblesFiltrados.length > 0"
+                >
+                  <div
+                    class="available-item"
+                    *ngFor="let m of mueblesFiltrados"
+                    (click)="agregarMueble(m)"
+                    tabindex="0"
+                  >
+                    <div class="available-item__icon">
+                      <i
+                        class="fa-solid"
+                        [ngClass]="getCategoriaIcon(m.categoria)"
+                      ></i>
+                    </div>
+                    <div class="available-item__info">
+                      <span class="available-item__name">{{ m.nombre }}</span>
+                      <span class="available-item__meta"
+                        >{{ m.stockActual }} disp.</span
+                      >
+                    </div>
+                    <div class="available-item__add">
+                      <i class="fa-solid fa-plus"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Empty search -->
+                <div
+                  class="empty-mini"
+                  *ngIf="
+                    !loadingMuebles &&
+                    mueblesFiltrados.length === 0 &&
+                    busquedaMueble
+                  "
+                >
+                  <i class="fa-solid fa-search"></i>
+                  <span
+                    >No se encontraron muebles con "{{ busquedaMueble }}"</span
+                  >
+                </div>
+
+                <!-- Empty all -->
+                <div
+                  class="empty-mini"
+                  *ngIf="
+                    !loadingMuebles &&
+                    mueblesDisponibles.length === 0 &&
+                    !busquedaMueble
+                  "
+                >
+                  <i class="fa-solid fa-inbox"></i>
+                  <span>No hay muebles disponibles</span>
+                </div>
+              </div>
+
+              <!-- ── Seleccionados ── -->
+              <div
+                class="selected-section"
+                *ngIf="mueblesSeleccionados.length > 0"
+              >
+                <div class="selected-section__header">
+                  <i class="fa-solid fa-circle-check"></i>
+                  <span class="selected-section__label"
+                    >Seleccionados ({{ mueblesSeleccionados.length }})</span
+                  >
+                </div>
+
+                <div class="selected-list">
+                  <div
+                    class="selected-card"
+                    *ngFor="let item of mueblesSeleccionados; let i = index"
+                  >
+                    <div class="selected-card__head">
+                      <div class="selected-card__icon">
+                        <i
+                          class="fa-solid"
+                          [ngClass]="
+                            getCategoriaIcon(item.mobiliario.categoria)
+                          "
+                        ></i>
+                      </div>
+                      <div class="selected-card__title">
+                        <h4>{{ item.mobiliario.nombre }}</h4>
+                        <span>{{
+                          item.mobiliario.categoria || "Sin categoría"
+                        }}</span>
+                      </div>
+                      <button
+                        type="button"
+                        class="selected-card__remove"
+                        (click)="quitarMueble(i)"
+                      >
+                        <i class="fa-solid fa-xmark"></i>
+                      </button>
+                    </div>
+
+                    <div class="selected-card__form">
+                      <!-- Cantidad -->
+                      <div class="qty-row">
+                        <label class="qty-row__label">Cantidad:</label>
+                        <div class="qty-control">
+                          <button
+                            type="button"
+                            class="qty-control__btn"
+                            (click)="
+                              item.cantidad =
+                                item.cantidad > 1 ? item.cantidad - 1 : 1
+                            "
+                          >
+                            <i class="fa-solid fa-minus"></i>
+                          </button>
+                          <input
+                            class="qty-control__input"
+                            type="number"
+                            [(ngModel)]="item.cantidad"
+                            [name]="'cant_' + i"
+                            min="1"
+                            [max]="item.mobiliario.stockActual"
+                            (change)="validarCantidad(i)"
+                          />
+                          <button
+                            type="button"
+                            class="qty-control__btn"
+                            (click)="
+                              item.cantidad =
+                                item.cantidad < item.mobiliario.stockActual
+                                  ? item.cantidad + 1
+                                  : item.mobiliario.stockActual
+                            "
+                          >
+                            <i class="fa-solid fa-plus"></i>
+                          </button>
+                        </div>
+                        <span class="qty-row__stock"
+                          >de {{ item.mobiliario.stockActual }}
+                          {{ item.mobiliario.unidadMedida || "und." }}</span
+                        >
+                      </div>
+
+                      <!-- Condición -->
+                      <div class="inline-field">
+                        <label class="inline-field__label">Condición:</label>
+                        <div class="inline-field__select-wrap">
+                          <select
+                            class="inline-field__select"
+                            [(ngModel)]="item.condicionEntrega"
+                            [name]="'cond_' + i"
+                          >
+                            <option
+                              *ngFor="let c of condiciones"
+                              [value]="c.value"
+                            >
+                              {{ c.label }}
+                            </option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <!-- Observaciones -->
+                      <div class="inline-field inline-field--full">
+                        <label class="inline-field__label">Obs:</label>
+                        <input
+                          class="inline-field__input"
+                          type="text"
+                          [(ngModel)]="item.observaciones"
+                          [name]="'obs_' + i"
+                          placeholder="Opcional..."
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Empty seleccionados -->
+              <div
+                class="empty-selected"
+                *ngIf="mueblesSeleccionados.length === 0"
+              >
+                <i class="fa-solid fa-arrow-up"></i>
+                <p>Selecciona muebles de la lista superior</p>
+              </div>
+            </div>
+
+            <!-- Resumen + Acciones -->
+            <div class="card__footer" *ngIf="mueblesSeleccionados.length > 0">
+              <div class="summary">
+                <div class="summary__row">
+                  <span class="summary__label">Receptor:</span>
+                  <strong class="summary__value">{{
+                    receptor.nombre || "—"
+                  }}</strong>
+                </div>
+                <div class="summary__row summary__row--highlight">
+                  <span class="summary__label">Total:</span>
+                  <strong class="summary__value"
+                    >{{ getTotalMuebles() }} unidades ({{
+                      mueblesSeleccionados.length
+                    }}
+                    muebles)</strong
+                  >
+                </div>
+              </div>
+              <div class="card__actions">
+                <button
+                  type="button"
+                  class="btn btn--outline"
+                  (click)="cancelar()"
+                >
+                  <i class="fa-solid fa-xmark"></i> Cancelar
+                </button>
+                <button
+                  type="submit"
+                  class="btn btn--primary"
+                  [disabled]="
+                    loading ||
+                    mueblesSeleccionados.length === 0 ||
+                    !receptor.nombre ||
+                    !receptor.correo
+                  "
+                  [class.btn--loading]="loading"
+                >
+                  <i
+                    class="fa-solid"
+                    [ngClass]="
+                      loading ? 'fa-spinner fa-spin' : 'fa-paper-plane'
+                    "
+                  ></i>
+                  {{ loading ? "Creando..." : "Crear y Enviar" }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Footer sin muebles -->
+            <div class="card__footer" *ngIf="mueblesSeleccionados.length === 0">
+              <div class="card__actions">
+                <button
+                  type="button"
+                  class="btn btn--outline"
+                  (click)="cancelar()"
+                >
+                  <i class="fa-solid fa-xmark"></i> Cancelar
+                </button>
+                <button type="submit" class="btn btn--primary" disabled>
+                  <i class="fa-solid fa-paper-plane"></i> Crear y Enviar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

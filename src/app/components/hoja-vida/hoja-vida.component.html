@@ -1,0 +1,1537 @@
+<app-navbar></app-navbar>
+
+<!-- ═══ LOADING ═══ -->
+<div class="loading-state" *ngIf="cargando">
+  <div class="loading-state__spinner"></div>
+  <p class="loading-state__text">Cargando hoja de vida...</p>
+</div>
+
+<div class="hv-container" *ngIf="!cargando && colaborador">
+  <!-- ═══ PAGE HEADER (Perfil) ═══ -->
+  <header class="page-header">
+    <div class="page-header__bg"></div>
+    <div class="page-header__content">
+      <div class="page-header__left">
+        <div class="page-header__avatar">
+          {{ colaborador.name?.charAt(0) }}{{ colaborador.lastName?.charAt(0) }}
+        </div>
+        <div class="page-header__text">
+          <h1 class="page-header__title">
+            {{ colaborador.name }} {{ colaborador.lastName }}
+          </h1>
+          <p class="page-header__subtitle">
+            {{ colaborador.cargo }} — {{ colaborador.empresa }}
+          </p>
+          <div class="page-header__meta">
+            <span class="page-header__meta-item">
+              <i class="pi pi-envelope"></i> {{ colaborador.email }}
+            </span>
+            <span class="page-header__meta-item">
+              <i class="pi pi-phone"></i> {{ colaborador.celular || "-" }}
+            </span>
+            <span class="page-header__meta-item">
+              <i class="pi pi-calendar"></i> Ingreso:
+              {{ formatearFecha(colaborador.fechaIngreso) }}
+            </span>
+            <span
+              class="page-header__status-badge"
+              [ngClass]="
+                colaborador.estado_colaborador === 'retirado'
+                  ? 'page-header__status-badge--danger'
+                  : 'page-header__status-badge--success'
+              "
+            >
+              {{ colaborador.estado_colaborador || "activo" | titlecase }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="page-header__right">
+        <button
+          class="btn btn--outline-light"
+          (click)="descargarPdf()"
+          [disabled]="generandoPdf"
+        >
+          <ng-container *ngIf="!generandoPdf">
+            <i class="pi pi-file-pdf"></i><span>Descargar PDF</span>
+          </ng-container>
+          <ng-container *ngIf="generandoPdf">
+            <i class="pi pi-spin pi-spinner"></i><span>Generando...</span>
+          </ng-container>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ TABS ═══ -->
+  <nav class="tabs-nav">
+    <!-- Grupo 1: Hoja de Vida -->
+    <div class="tabs-nav__group">
+      <button
+        class="tabs-nav__item"
+        [class.tabs-nav__item--active]="seccionActiva === 'personal'"
+        (click)="cambiarSeccion('personal')"
+      >
+        <i class="pi pi-user"></i><span>Datos Personales</span>
+      </button>
+      <button
+        class="tabs-nav__item"
+        [class.tabs-nav__item--active]="seccionActiva === 'experiencia'"
+        (click)="cambiarSeccion('experiencia')"
+      >
+        <i class="pi pi-briefcase"></i><span>Experiencia</span>
+        <span class="tabs-nav__badge">{{ experiencias.length }}</span>
+      </button>
+      <button
+        class="tabs-nav__item"
+        [class.tabs-nav__item--active]="seccionActiva === 'formacion'"
+        (click)="cambiarSeccion('formacion')"
+      >
+        <i class="pi pi-book"></i><span>Formación</span>
+        <span class="tabs-nav__badge">{{ formaciones.length }}</span>
+      </button>
+      <button
+        class="tabs-nav__item"
+        [class.tabs-nav__item--active]="seccionActiva === 'habilidades'"
+        (click)="cambiarSeccion('habilidades')"
+      >
+        <i class="pi pi-star"></i><span>Habilidades</span>
+        <span class="tabs-nav__badge">{{ habilidades.length }}</span>
+      </button>
+      <button
+        class="tabs-nav__item"
+        [class.tabs-nav__item--active]="seccionActiva === 'referencias'"
+        (click)="cambiarSeccion('referencias')"
+      >
+        <i class="pi pi-users"></i><span>Referencias</span>
+        <span class="tabs-nav__badge">{{ referencias.length }}</span>
+      </button>
+      <button
+        class="tabs-nav__item"
+        [class.tabs-nav__item--active]="seccionActiva === 'familiar'"
+        (click)="cambiarSeccion('familiar')"
+      >
+        <i class="pi pi-home"></i><span>Familiar</span>
+        <span class="tabs-nav__badge">{{ grupoFamiliar.length }}</span>
+      </button>
+    </div>
+
+    <div class="tabs-nav__divider"></div>
+
+    <!-- Grupo 2: Expediente Empresa -->
+    <div class="tabs-nav__group">
+      <button
+        class="tabs-nav__item tabs-nav__item--accent"
+        [class.tabs-nav__item--active]="seccionActiva === 'permisos'"
+        (click)="cambiarSeccion('permisos')"
+      >
+        <i class="pi pi-calendar-times"></i><span>Permisos</span>
+      </button>
+      <button
+        class="tabs-nav__item tabs-nav__item--accent"
+        [class.tabs-nav__item--active]="seccionActiva === 'novedades'"
+        (click)="cambiarSeccion('novedades')"
+      >
+        <i class="pi pi-exclamation-triangle"></i><span>Novedades</span>
+      </button>
+      <button
+        class="tabs-nav__item tabs-nav__item--accent"
+        [class.tabs-nav__item--active]="seccionActiva === 'actas'"
+        (click)="cambiarSeccion('actas')"
+      >
+        <i class="pi pi-box"></i><span>Actas</span>
+      </button>
+    </div>
+
+    <!-- Grupo 3: Admin (condicional) -->
+    <ng-container *ngIf="puedeEditarExpediente">
+      <div class="tabs-nav__divider"></div>
+      <div class="tabs-nav__group">
+        <button
+          class="tabs-nav__item tabs-nav__item--admin"
+          [class.tabs-nav__item--active]="seccionActiva === 'documentos'"
+          (click)="cambiarSeccion('documentos')"
+        >
+          <i class="pi pi-folder-open"></i><span>Documentos</span>
+        </button>
+        <button
+          class="tabs-nav__item tabs-nav__item--admin"
+          [class.tabs-nav__item--active]="seccionActiva === 'notas'"
+          (click)="cambiarSeccion('notas')"
+        >
+          <i class="pi pi-comment"></i><span>Notas Admin</span>
+        </button>
+      </div>
+    </ng-container>
+  </nav>
+
+  <!-- ═══════════════════════════════════
+       SECCIÓN: DATOS PERSONALES
+       ═══════════════════════════════════ -->
+  <section class="tab-content" *ngIf="seccionActiva === 'personal'">
+    <div class="card">
+      <div class="card__head">
+        <div class="card__head-left">
+          <i class="pi pi-user"></i>
+          <h3 class="card__head-title">Información Personal</h3>
+        </div>
+        <button class="btn btn--primary btn--sm" (click)="guardarPersonal()">
+          <i class="pi pi-save"></i><span>Guardar</span>
+        </button>
+      </div>
+      <div class="card__body">
+        <form [formGroup]="formPersonal" class="form-grid form-grid--4">
+          <div class="form-field">
+            <label class="form-field__label">Segundo Nombre</label>
+            <input class="text-input" formControlName="segundo_nombre" />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Segundo Apellido</label>
+            <input class="text-input" formControlName="segundo_apellido" />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Tipo Documento</label>
+            <div class="select-wrapper">
+              <select class="select-input" formControlName="tipo_documento">
+                <option value="CC">Cédula de Ciudadanía</option>
+                <option value="CE">Cédula de Extranjería</option>
+                <option value="PP">Pasaporte</option>
+                <option value="TI">Tarjeta de Identidad</option>
+              </select>
+              <i class="pi pi-chevron-down select-wrapper__arrow"></i>
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Fecha de Nacimiento</label>
+            <input
+              type="date"
+              class="text-input"
+              formControlName="fecha_nacimiento"
+            />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Lugar de Nacimiento</label>
+            <input class="text-input" formControlName="lugar_nacimiento" />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Género</label>
+            <div class="select-wrapper">
+              <select class="select-input" formControlName="genero">
+                <option value="">Seleccionar...</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Femenino">Femenino</option>
+                <option value="No binario">No binario</option>
+                <option value="Prefiero no decir">Prefiero no decir</option>
+              </select>
+              <i class="pi pi-chevron-down select-wrapper__arrow"></i>
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Estado Civil</label>
+            <div class="select-wrapper">
+              <select class="select-input" formControlName="estado_civil">
+                <option value="">Seleccionar...</option>
+                <option value="Soltero(a)">Soltero(a)</option>
+                <option value="Casado(a)">Casado(a)</option>
+                <option value="Unión libre">Unión libre</option>
+                <option value="Divorciado(a)">Divorciado(a)</option>
+                <option value="Viudo(a)">Viudo(a)</option>
+              </select>
+              <i class="pi pi-chevron-down select-wrapper__arrow"></i>
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Dirección</label>
+            <input class="text-input" formControlName="direccion" />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Ciudad</label>
+            <input class="text-input" formControlName="ciudad" />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Barrio</label>
+            <input class="text-input" formControlName="barrio" />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Teléfono Fijo</label>
+            <input class="text-input" formControlName="telefono_fijo" />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Celular</label>
+            <input class="text-input" formControlName="celular" />
+          </div>
+
+          <!-- Emergencia -->
+          <div class="form-separator">
+            <i class="pi pi-exclamation-triangle"></i
+            ><span>Contacto de Emergencia</span>
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Nombre</label>
+            <input
+              class="text-input"
+              formControlName="contacto_emergencia_nombre"
+            />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Teléfono</label>
+            <input
+              class="text-input"
+              formControlName="contacto_emergencia_telefono"
+            />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Parentesco</label>
+            <input
+              class="text-input"
+              formControlName="contacto_emergencia_parentesco"
+            />
+          </div>
+          <div class="form-field"></div>
+
+          <!-- Salud -->
+          <div class="form-separator">
+            <i class="pi pi-heart"></i><span>Salud y Tallas</span>
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">RH</label>
+            <input class="text-input" formControlName="rh" placeholder="A+" />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Talla Camisa</label>
+            <input class="text-input" formControlName="talla_camisa" />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Talla Pantalón</label>
+            <input class="text-input" formControlName="talla_pantalon" />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Talla Zapatos</label>
+            <input class="text-input" formControlName="talla_zapatos" />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">EPS</label>
+            <input class="text-input" formControlName="eps" />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">ARL</label>
+            <input class="text-input" formControlName="arl" />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Caja Compensación</label>
+            <input class="text-input" formControlName="caja_compensacion" />
+          </div>
+          <div class="form-field"></div>
+
+          <!-- Bancarios -->
+          <div class="form-separator">
+            <i class="pi pi-wallet"></i><span>Datos Bancarios</span>
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Banco</label>
+            <input class="text-input" formControlName="banco" />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Tipo Cuenta</label>
+            <div class="select-wrapper">
+              <select
+                class="select-input"
+                formControlName="tipo_cuenta_bancaria"
+              >
+                <option value="">Seleccionar...</option>
+                <option value="ahorros">Ahorros</option>
+                <option value="corriente">Corriente</option>
+              </select>
+              <i class="pi pi-chevron-down select-wrapper__arrow"></i>
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Número Cuenta</label>
+            <input
+              class="text-input"
+              formControlName="numero_cuenta_bancaria"
+            />
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════
+       SECCIÓN: EXPERIENCIA
+       ═══════════════════════════════════ -->
+  <section class="tab-content" *ngIf="seccionActiva === 'experiencia'">
+    <div class="section-header">
+      <div class="section-header__left">
+        <i class="pi pi-briefcase"></i>
+        <h3 class="section-header__title">Experiencia Laboral</h3>
+      </div>
+      <button
+        class="btn btn--primary btn--sm"
+        (click)="abrirModal('experiencia')"
+      >
+        <i class="pi pi-plus"></i><span>Agregar</span>
+      </button>
+    </div>
+    <div class="items-list">
+      <article
+        class="item-card"
+        *ngFor="let exp of experiencias; let i = index"
+        [style.animation-delay]="i * 0.03 + 's'"
+      >
+        <div class="item-card__icon"><i class="pi pi-briefcase"></i></div>
+        <div class="item-card__content">
+          <h5 class="item-card__title">{{ exp.cargo }}</h5>
+          <span class="item-card__subtitle">{{ exp.empresa }}</span>
+          <span class="item-card__meta">
+            <i class="pi pi-calendar"></i>
+            {{ formatearFecha(exp.fecha_inicio) }} —
+            {{ exp.activo ? "Presente" : formatearFecha(exp.fecha_fin) }}
+          </span>
+          <p class="item-card__desc" *ngIf="exp.descripcion">
+            {{ exp.descripcion }}
+          </p>
+          <span class="item-card__extra" *ngIf="exp.jefe_inmediato">
+            <i class="pi pi-user"></i> Jefe: {{ exp.jefe_inmediato }}
+          </span>
+        </div>
+        <div class="item-card__actions">
+          <span class="status-pill status-pill--success" *ngIf="exp.activo"
+            >Empleo actual</span
+          >
+          <button
+            class="action-btn action-btn--edit"
+            (click)="abrirModal('experiencia', exp)"
+            title="Editar"
+          >
+            <i class="pi pi-pencil"></i>
+          </button>
+          <button
+            class="action-btn action-btn--delete"
+            (click)="eliminarExperiencia(exp.id)"
+            title="Eliminar"
+          >
+            <i class="pi pi-trash"></i>
+          </button>
+        </div>
+      </article>
+    </div>
+    <div class="empty-state" *ngIf="experiencias.length === 0">
+      <div class="empty-state__icon"><i class="pi pi-briefcase"></i></div>
+      <h3 class="empty-state__title">Sin experiencia registrada</h3>
+      <p class="empty-state__desc">Agrega tu experiencia laboral</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════
+       SECCIÓN: FORMACIÓN
+       ═══════════════════════════════════ -->
+  <section class="tab-content" *ngIf="seccionActiva === 'formacion'">
+    <div class="section-header">
+      <div class="section-header__left">
+        <i class="pi pi-book"></i>
+        <h3 class="section-header__title">Formación Académica</h3>
+      </div>
+      <button
+        class="btn btn--primary btn--sm"
+        (click)="abrirModal('formacion')"
+      >
+        <i class="pi pi-plus"></i><span>Agregar</span>
+      </button>
+    </div>
+    <div class="items-list">
+      <article
+        class="item-card"
+        *ngFor="let form of formaciones; let i = index"
+        [style.animation-delay]="i * 0.03 + 's'"
+      >
+        <div class="item-card__icon item-card__icon--info">
+          <i class="pi pi-book"></i>
+        </div>
+        <div class="item-card__content">
+          <h5 class="item-card__title">
+            {{ form.titulo || (form.nivel | titlecase) }}
+          </h5>
+          <span class="item-card__subtitle">{{ form.institucion }}</span>
+          <span class="item-card__meta"
+            >{{ form.nivel | titlecase }} —
+            {{ form.graduado ? "✅ Graduado" : "⏳ En curso" }}</span
+          >
+          <span class="item-card__extra" *ngIf="form.numero_tarjeta"
+            >Tarjeta: {{ form.numero_tarjeta }}</span
+          >
+        </div>
+        <div class="item-card__actions">
+          <button
+            class="action-btn action-btn--edit"
+            (click)="abrirModal('formacion', form)"
+            title="Editar"
+          >
+            <i class="pi pi-pencil"></i>
+          </button>
+          <button
+            class="action-btn action-btn--delete"
+            (click)="eliminarFormacion(form.id)"
+            title="Eliminar"
+          >
+            <i class="pi pi-trash"></i>
+          </button>
+        </div>
+      </article>
+    </div>
+    <div class="empty-state" *ngIf="formaciones.length === 0">
+      <div class="empty-state__icon"><i class="pi pi-book"></i></div>
+      <h3 class="empty-state__title">Sin formación registrada</h3>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════
+       SECCIÓN: HABILIDADES
+       ═══════════════════════════════════ -->
+  <section class="tab-content" *ngIf="seccionActiva === 'habilidades'">
+    <div class="section-header">
+      <div class="section-header__left">
+        <i class="pi pi-star"></i>
+        <h3 class="section-header__title">Habilidades y Competencias</h3>
+      </div>
+      <button
+        class="btn btn--primary btn--sm"
+        (click)="abrirModal('habilidad')"
+      >
+        <i class="pi pi-plus"></i><span>Agregar</span>
+      </button>
+    </div>
+    <div class="skills-grid">
+      <div
+        class="skill-chip"
+        *ngFor="let hab of habilidades; let i = index"
+        [style.animation-delay]="i * 0.03 + 's'"
+      >
+        <span class="skill-chip__type">{{ hab.tipo }}</span>
+        <strong class="skill-chip__name">{{ hab.habilidad }}</strong>
+        <span class="skill-chip__level">{{ hab.nivel }}</span>
+        <button
+          class="skill-chip__remove"
+          (click)="eliminarHabilidad(hab.id)"
+          title="Eliminar"
+        >
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="habilidades.length === 0">
+      <div class="empty-state__icon"><i class="pi pi-star"></i></div>
+      <h3 class="empty-state__title">Sin habilidades registradas</h3>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════
+       SECCIÓN: REFERENCIAS
+       ═══════════════════════════════════ -->
+  <section class="tab-content" *ngIf="seccionActiva === 'referencias'">
+    <div class="section-header">
+      <div class="section-header__left">
+        <i class="pi pi-users"></i>
+        <h3 class="section-header__title">Referencias</h3>
+      </div>
+      <button
+        class="btn btn--primary btn--sm"
+        (click)="abrirModal('referencia')"
+      >
+        <i class="pi pi-plus"></i><span>Agregar</span>
+      </button>
+    </div>
+    <div class="items-list">
+      <article
+        class="item-card"
+        *ngFor="let ref of referencias; let i = index"
+        [style.animation-delay]="i * 0.03 + 's'"
+      >
+        <div class="item-card__icon item-card__icon--success">
+          <i class="pi pi-user-plus"></i>
+        </div>
+        <div class="item-card__content">
+          <h5 class="item-card__title">{{ ref.nombre }}</h5>
+          <span class="item-card__subtitle"
+            >{{ ref.cargo }} en {{ ref.empresa }}</span
+          >
+          <span class="item-card__meta"
+            ><i class="pi pi-phone"></i> {{ ref.telefono }}</span
+          >
+        </div>
+        <div class="item-card__actions">
+          <span class="status-pill status-pill--info">{{ ref.tipo }}</span>
+          <button
+            class="action-btn action-btn--delete"
+            (click)="eliminarReferencia(ref.id)"
+            title="Eliminar"
+          >
+            <i class="pi pi-trash"></i>
+          </button>
+        </div>
+      </article>
+    </div>
+    <div class="empty-state" *ngIf="referencias.length === 0">
+      <div class="empty-state__icon"><i class="pi pi-users"></i></div>
+      <h3 class="empty-state__title">Sin referencias registradas</h3>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════
+       SECCIÓN: GRUPO FAMILIAR
+       ═══════════════════════════════════ -->
+  <section class="tab-content" *ngIf="seccionActiva === 'familiar'">
+    <div class="section-header">
+      <div class="section-header__left">
+        <i class="pi pi-home"></i>
+        <h3 class="section-header__title">Grupo Familiar</h3>
+      </div>
+      <button class="btn btn--primary btn--sm" (click)="abrirModal('familiar')">
+        <i class="pi pi-plus"></i><span>Agregar</span>
+      </button>
+    </div>
+    <div class="table-wrapper" *ngIf="grupoFamiliar.length > 0">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Parentesco</th>
+            <th>Fecha Nac.</th>
+            <th>Teléfono</th>
+            <th>Dependiente</th>
+            <th class="data-table__th--actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let fam of grupoFamiliar">
+            <td class="data-table__td--name">{{ fam.nombre }}</td>
+            <td>{{ fam.parentesco }}</td>
+            <td>{{ formatearFecha(fam.fecha_nacimiento) }}</td>
+            <td>{{ fam.telefono || "-" }}</td>
+            <td>
+              <span
+                class="table-badge"
+                [ngClass]="
+                  fam.dependiente
+                    ? 'table-badge--warning'
+                    : 'table-badge--muted'
+                "
+              >
+                {{ fam.dependiente ? "Sí" : "No" }}
+              </span>
+            </td>
+            <td class="data-table__td--actions">
+              <button
+                class="action-btn action-btn--edit"
+                (click)="abrirModal('familiar', fam)"
+                title="Editar"
+              >
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button
+                class="action-btn action-btn--delete"
+                (click)="eliminarFamiliar(fam.id)"
+                title="Eliminar"
+              >
+                <i class="pi pi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="empty-state" *ngIf="grupoFamiliar.length === 0">
+      <div class="empty-state__icon"><i class="pi pi-home"></i></div>
+      <h3 class="empty-state__title">Sin integrantes registrados</h3>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════
+       SECCIÓN: PERMISOS Y AUSENCIAS
+       ═══════════════════════════════════ -->
+  <section class="tab-content" *ngIf="seccionActiva === 'permisos'">
+    <div class="card">
+      <div class="card__head card__head--accent">
+        <div class="card__head-left">
+          <i class="pi pi-calendar-times"></i>
+          <h3 class="card__head-title">Permisos y Ausencias</h3>
+        </div>
+      </div>
+      <div class="card__body card__body--flush">
+        <div
+          class="loading-state loading-state--compact"
+          *ngIf="cargandoExpediente"
+        >
+          <div class="loading-state__spinner"></div>
+          <p class="loading-state__text">Cargando permisos...</p>
+        </div>
+        <div
+          class="empty-state empty-state--compact"
+          *ngIf="!cargandoExpediente && permisos.length === 0"
+        >
+          <div class="empty-state__icon">
+            <i class="pi pi-calendar-times"></i>
+          </div>
+          <h3 class="empty-state__title">Sin permisos registrados</h3>
+        </div>
+        <div
+          class="table-wrapper"
+          *ngIf="!cargandoExpediente && permisos.length > 0"
+        >
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Hora Salida</th>
+                <th>Hora Entrada</th>
+                <th>Observaciones</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let p of permisos">
+                <td>{{ formatearFechaCorta(p.fecha) }}</td>
+                <td>{{ p.tipo }}</td>
+                <td>{{ p.horaSalida || "-" }}</td>
+                <td>{{ p.horaEntrada || "-" }}</td>
+                <td class="data-table__td--desc">
+                  {{ p.observaciones || "-" }}
+                </td>
+                <td>
+                  <span
+                    class="table-badge"
+                    [ngClass]="
+                      p.cancelado
+                        ? 'table-badge--danger'
+                        : 'table-badge--success'
+                    "
+                  >
+                    {{ p.cancelado ? "Cancelado" : "Activo" }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════
+       SECCIÓN: NOVEDADES
+       ═══════════════════════════════════ -->
+  <section class="tab-content" *ngIf="seccionActiva === 'novedades'">
+    <div class="card">
+      <div class="card__head card__head--accent">
+        <div class="card__head-left">
+          <i class="pi pi-exclamation-triangle"></i>
+          <h3 class="card__head-title">Novedades</h3>
+        </div>
+      </div>
+      <div class="card__body card__body--flush">
+        <div
+          class="loading-state loading-state--compact"
+          *ngIf="cargandoExpediente"
+        >
+          <div class="loading-state__spinner"></div>
+          <p class="loading-state__text">Cargando novedades...</p>
+        </div>
+        <div
+          class="empty-state empty-state--compact"
+          *ngIf="!cargandoExpediente && novedades.length === 0"
+        >
+          <div class="empty-state__icon"><i class="pi pi-inbox"></i></div>
+          <h3 class="empty-state__title">Sin novedades registradas</h3>
+        </div>
+        <div
+          class="table-wrapper"
+          *ngIf="!cargandoExpediente && novedades.length > 0"
+        >
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>H. Entrada</th>
+                <th>H. Salida</th>
+                <th>Horas</th>
+                <th>Descripción</th>
+                <th>Aceptada</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let n of novedades">
+                <td>{{ formatearFechaCorta(n.Fecha) }}</td>
+                <td>{{ n.type }}</td>
+                <td>{{ n.HoraEntrada || "-" }}</td>
+                <td>{{ n.HoraSalida || "-" }}</td>
+                <td>{{ n.horas || "-" }}</td>
+                <td class="data-table__td--desc">{{ n.description || "-" }}</td>
+                <td>
+                  <span
+                    class="table-badge"
+                    [ngClass]="
+                      n.aceptacion === true
+                        ? 'table-badge--success'
+                        : n.aceptacion === false
+                          ? 'table-badge--danger'
+                          : 'table-badge--muted'
+                    "
+                  >
+                    {{
+                      n.aceptacion === true
+                        ? "Sí"
+                        : n.aceptacion === false
+                          ? "No"
+                          : "Pendiente"
+                    }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════
+       SECCIÓN: ACTAS DE INVENTARIO
+       ═══════════════════════════════════ -->
+  <section class="tab-content" *ngIf="seccionActiva === 'actas'">
+    <div class="loading-state" *ngIf="cargandoExpediente">
+      <div class="loading-state__spinner"></div>
+      <p class="loading-state__text">Cargando actas...</p>
+    </div>
+
+    <div class="actas-stack" *ngIf="!cargandoExpediente">
+      <!-- Dispositivos -->
+      <div class="card">
+        <div class="card__head card__head--accent">
+          <div class="card__head-left">
+            <i class="pi pi-desktop"></i>
+            <h3 class="card__head-title">Actas de Dispositivos</h3>
+          </div>
+          <span class="card__head-counter">{{ actasDispositivos.length }}</span>
+        </div>
+        <div class="card__body card__body--flush">
+          <div
+            class="empty-state empty-state--compact"
+            *ngIf="actasDispositivos.length === 0"
+          >
+            <p class="empty-state__desc">Sin actas de dispositivos</p>
+          </div>
+          <div class="table-wrapper" *ngIf="actasDispositivos.length > 0">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>N° Acta</th>
+                  <th>Fecha</th>
+                  <th>Receptor</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let a of actasDispositivos">
+                  <td class="data-table__td--name">
+                    {{ a.numeroActa || a.id }}
+                  </td>
+                  <td>
+                    {{ formatearFechaCorta(a.fechaEntrega || a.createdAt) }}
+                  </td>
+                  <td>{{ a.nombreReceptor }}</td>
+                  <td>
+                    <span
+                      class="table-badge"
+                      [ngClass]="
+                        a.estado === 'Activo'
+                          ? 'table-badge--success'
+                          : a.estado === 'Devuelto'
+                            ? 'table-badge--danger'
+                            : 'table-badge--muted'
+                      "
+                    >
+                      {{ a.estado || "N/A" }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Consumibles -->
+      <div class="card">
+        <div class="card__head card__head--accent">
+          <div class="card__head-left">
+            <i class="pi pi-box"></i>
+            <h3 class="card__head-title">Actas de Consumibles</h3>
+          </div>
+          <span class="card__head-counter">{{ actasConsumibles.length }}</span>
+        </div>
+        <div class="card__body card__body--flush">
+          <div
+            class="empty-state empty-state--compact"
+            *ngIf="actasConsumibles.length === 0"
+          >
+            <p class="empty-state__desc">Sin actas de consumibles</p>
+          </div>
+          <div class="table-wrapper" *ngIf="actasConsumibles.length > 0">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>N° Acta</th>
+                  <th>Fecha</th>
+                  <th>Receptor</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let a of actasConsumibles">
+                  <td class="data-table__td--name">
+                    {{ a.numeroActa || a.id }}
+                  </td>
+                  <td>
+                    {{ formatearFechaCorta(a.fechaEntrega || a.createdAt) }}
+                  </td>
+                  <td>{{ a.nombreReceptor }}</td>
+                  <td>
+                    <span class="table-badge table-badge--info">{{
+                      a.estado || "N/A"
+                    }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobiliario -->
+      <div class="card">
+        <div class="card__head card__head--accent">
+          <div class="card__head-left">
+            <i class="pi pi-th-large"></i>
+            <h3 class="card__head-title">Actas de Mobiliario</h3>
+          </div>
+          <span class="card__head-counter">{{ actasMobiliario.length }}</span>
+        </div>
+        <div class="card__body card__body--flush">
+          <div
+            class="empty-state empty-state--compact"
+            *ngIf="actasMobiliario.length === 0"
+          >
+            <p class="empty-state__desc">Sin actas de mobiliario</p>
+          </div>
+          <div class="table-wrapper" *ngIf="actasMobiliario.length > 0">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>N° Acta</th>
+                  <th>Fecha</th>
+                  <th>Receptor</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let a of actasMobiliario">
+                  <td class="data-table__td--name">
+                    {{ a.numeroActa || a.id }}
+                  </td>
+                  <td>
+                    {{ formatearFechaCorta(a.fechaEntrega || a.createdAt) }}
+                  </td>
+                  <td>{{ a.nombreReceptor }}</td>
+                  <td>
+                    <span class="table-badge table-badge--info">{{
+                      a.estado || "N/A"
+                    }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════
+       SECCIÓN: DOCUMENTOS
+       ═══════════════════════════════════ -->
+  <section
+    class="tab-content"
+    *ngIf="seccionActiva === 'documentos' && puedeEditarExpediente"
+  >
+    <div class="card">
+      <div class="card__head card__head--admin">
+        <div class="card__head-left">
+          <i class="pi pi-folder-open"></i>
+          <h3 class="card__head-title">Documentos Adjuntos</h3>
+        </div>
+      </div>
+      <div class="card__body">
+        <!-- Upload Form -->
+        <div class="upload-form">
+          <div class="form-field">
+            <label class="form-field__label">Nombre del documento</label>
+            <input
+              type="text"
+              class="text-input"
+              [(ngModel)]="nombreDocumento"
+              placeholder="Ej: Carta de compromiso"
+            />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Descripción (opcional)</label>
+            <input
+              type="text"
+              class="text-input"
+              [(ngModel)]="descripcionDocumento"
+              placeholder="Descripción breve"
+            />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Archivo</label>
+            <input
+              type="file"
+              class="text-input text-input--file"
+              (change)="onArchivoSeleccionado($event)"
+              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xlsx,.xls"
+            />
+          </div>
+          <button
+            class="btn btn--danger btn--sm upload-form__btn"
+            (click)="subirDocumento()"
+            [disabled]="!archivoSeleccionado || !nombreDocumento"
+          >
+            <i class="pi pi-upload"></i><span>Subir Documento</span>
+          </button>
+        </div>
+
+        <!-- Documents Table -->
+        <div
+          class="empty-state empty-state--compact"
+          *ngIf="documentos.length === 0"
+        >
+          <div class="empty-state__icon"><i class="pi pi-folder-open"></i></div>
+          <h3 class="empty-state__title">Sin documentos adjuntos</h3>
+        </div>
+        <div class="table-wrapper" *ngIf="documentos.length > 0">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Subido por</th>
+                <th>Fecha</th>
+                <th class="data-table__th--actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let doc of documentos">
+                <td class="data-table__td--icon">
+                  <i class="pi" [ngClass]="iconoArchivo(doc.tipo_archivo)"></i>
+                </td>
+                <td class="data-table__td--name">{{ doc.nombre }}</td>
+                <td>{{ doc.descripcion || "-" }}</td>
+                <td>{{ doc.admin_nombre }}</td>
+                <td>{{ formatearFechaCorta(doc.createdAt) }}</td>
+                <td class="data-table__td--actions">
+                  <button
+                    class="action-btn action-btn--edit"
+                    (click)="descargarDocumento(doc)"
+                    title="Descargar"
+                  >
+                    <i class="pi pi-download"></i>
+                  </button>
+                  <button
+                    class="action-btn action-btn--delete"
+                    (click)="eliminarDocumentoItem(doc.id)"
+                    title="Eliminar"
+                  >
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════
+       SECCIÓN: NOTAS ADMIN
+       ═══════════════════════════════════ -->
+  <section
+    class="tab-content"
+    *ngIf="seccionActiva === 'notas' && puedeEditarExpediente"
+  >
+    <div class="card">
+      <div class="card__head card__head--admin">
+        <div class="card__head-left">
+          <i class="pi pi-comment"></i>
+          <h3 class="card__head-title">Notas y Comentarios</h3>
+        </div>
+      </div>
+      <div class="card__body">
+        <!-- Add Note -->
+        <div class="note-form">
+          <label class="form-field__label">Nueva nota</label>
+          <textarea
+            class="textarea-input"
+            rows="3"
+            [(ngModel)]="nuevaNota"
+            placeholder="Escribe una nota sobre el colaborador..."
+          ></textarea>
+          <button
+            class="btn btn--danger btn--sm note-form__btn"
+            (click)="agregarNota()"
+            [disabled]="!nuevaNota.trim()"
+          >
+            <i class="pi pi-plus-circle"></i><span>Agregar Nota</span>
+          </button>
+        </div>
+
+        <!-- Notes List -->
+        <div
+          class="empty-state empty-state--compact"
+          *ngIf="notas.length === 0"
+        >
+          <div class="empty-state__icon"><i class="pi pi-comment"></i></div>
+          <h3 class="empty-state__title">Sin notas registradas</h3>
+        </div>
+        <div class="notes-list" *ngIf="notas.length > 0">
+          <div
+            class="note-card"
+            *ngFor="let nota of notas; let i = index"
+            [style.animation-delay]="i * 0.03 + 's'"
+          >
+            <div class="note-card__content">
+              <p class="note-card__text">{{ nota.nota }}</p>
+              <div class="note-card__meta">
+                <span class="note-card__author"
+                  ><i class="pi pi-user"></i> {{ nota.admin_nombre }}</span
+                >
+                <span class="note-card__date"
+                  ><i class="pi pi-clock"></i>
+                  {{ formatearFechaCorta(nota.createdAt) }}</span
+                >
+              </div>
+            </div>
+            <button
+              class="action-btn action-btn--delete"
+              (click)="eliminarNota(nota.id)"
+              title="Eliminar"
+            >
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MODALES (fuera del container)
+     ═══════════════════════════════════════════════ -->
+<div
+  class="modal-overlay"
+  *ngIf="mostrarModal"
+  (click)="cerrarModal()"
+  role="dialog"
+  aria-modal="true"
+>
+  <div class="modal modal--lg" (click)="$event.stopPropagation()">
+    <!-- ═══ MODAL: EXPERIENCIA ═══ -->
+    <ng-container *ngIf="mostrarModal === 'experiencia'">
+      <div class="modal__header">
+        <div class="modal__header-left">
+          <div class="modal__header-icon"><i class="pi pi-briefcase"></i></div>
+          <h2 class="modal__title">
+            {{ editandoId ? "Editar" : "Agregar" }} Experiencia Laboral
+          </h2>
+        </div>
+        <button
+          class="modal__close"
+          (click)="cerrarModal()"
+          aria-label="Cerrar"
+        >
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+      <div class="modal__body">
+        <form [formGroup]="formExperiencia" class="form-grid">
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Empresa *</label>
+            <input
+              class="text-input"
+              formControlName="empresa"
+              [class.text-input--invalid]="
+                formExperiencia.get('empresa')?.invalid &&
+                formExperiencia.get('empresa')?.touched
+              "
+            />
+            <span
+              class="form-field__error"
+              *ngIf="
+                formExperiencia.get('empresa')?.invalid &&
+                formExperiencia.get('empresa')?.touched
+              "
+              >Requerido</span
+            >
+          </div>
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Cargo *</label>
+            <input
+              class="text-input"
+              formControlName="cargo"
+              [class.text-input--invalid]="
+                formExperiencia.get('cargo')?.invalid &&
+                formExperiencia.get('cargo')?.touched
+              "
+            />
+            <span
+              class="form-field__error"
+              *ngIf="
+                formExperiencia.get('cargo')?.invalid &&
+                formExperiencia.get('cargo')?.touched
+              "
+              >Requerido</span
+            >
+          </div>
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Fecha Inicio *</label>
+            <input
+              type="date"
+              class="text-input"
+              formControlName="fecha_inicio"
+            />
+          </div>
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Fecha Fin</label>
+            <input type="date" class="text-input" formControlName="fecha_fin" />
+            <span class="form-field__hint">Vacío si es trabajo actual</span>
+          </div>
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Jefe Inmediato</label>
+            <input class="text-input" formControlName="jefe_inmediato" />
+          </div>
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Teléfono Referencia</label>
+            <input class="text-input" formControlName="telefono" />
+          </div>
+          <div class="form-field form-field--full">
+            <label class="form-field__label">Descripción / Funciones</label>
+            <textarea
+              class="textarea-input"
+              formControlName="descripcion"
+              rows="3"
+            ></textarea>
+          </div>
+          <div class="form-field form-field--full">
+            <label class="form-field__label">Motivo de Retiro</label>
+            <input class="text-input" formControlName="motivo_retiro" />
+          </div>
+          <div class="form-field form-field--full">
+            <label class="checkbox-wrapper">
+              <input
+                type="checkbox"
+                class="checkbox-input"
+                formControlName="activo"
+              />
+              <span class="checkbox-label">Empleo actual</span>
+            </label>
+          </div>
+        </form>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--outline" (click)="cerrarModal()">
+          Cancelar
+        </button>
+        <button class="btn btn--primary" (click)="guardarExperiencia()">
+          <i class="pi pi-save"></i><span>Guardar</span>
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- ═══ MODAL: FORMACIÓN ═══ -->
+    <ng-container *ngIf="mostrarModal === 'formacion'">
+      <div class="modal__header">
+        <div class="modal__header-left">
+          <div class="modal__header-icon"><i class="pi pi-book"></i></div>
+          <h2 class="modal__title">
+            {{ editandoId ? "Editar" : "Agregar" }} Formación Académica
+          </h2>
+        </div>
+        <button
+          class="modal__close"
+          (click)="cerrarModal()"
+          aria-label="Cerrar"
+        >
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+      <div class="modal__body">
+        <form [formGroup]="formFormacion" class="form-grid">
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Nivel *</label>
+            <div class="select-wrapper">
+              <select class="select-input" formControlName="nivel">
+                <option *ngFor="let n of nivelesFormacion" [value]="n">
+                  {{ n | titlecase }}
+                </option>
+              </select>
+              <i class="pi pi-chevron-down select-wrapper__arrow"></i>
+            </div>
+          </div>
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Institución *</label>
+            <input
+              class="text-input"
+              formControlName="institucion"
+              [class.text-input--invalid]="
+                formFormacion.get('institucion')?.invalid &&
+                formFormacion.get('institucion')?.touched
+              "
+            />
+          </div>
+          <div class="form-field form-field--full">
+            <label class="form-field__label">Título Obtenido</label>
+            <input class="text-input" formControlName="titulo" />
+          </div>
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Fecha Inicio</label>
+            <input
+              type="date"
+              class="text-input"
+              formControlName="fecha_inicio"
+            />
+          </div>
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Fecha Fin</label>
+            <input type="date" class="text-input" formControlName="fecha_fin" />
+          </div>
+          <div class="form-field form-field--half">
+            <label class="form-field__label">N° Tarjeta Profesional</label>
+            <input class="text-input" formControlName="numero_tarjeta" />
+          </div>
+          <div class="form-field form-field--half">
+            <label class="checkbox-wrapper checkbox-wrapper--bottom">
+              <input
+                type="checkbox"
+                class="checkbox-input"
+                formControlName="graduado"
+              />
+              <span class="checkbox-label">Graduado</span>
+            </label>
+          </div>
+        </form>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--outline" (click)="cerrarModal()">
+          Cancelar
+        </button>
+        <button class="btn btn--primary" (click)="guardarFormacion()">
+          <i class="pi pi-save"></i><span>Guardar</span>
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- ═══ MODAL: HABILIDAD ═══ -->
+    <ng-container *ngIf="mostrarModal === 'habilidad'">
+      <div class="modal__header">
+        <div class="modal__header-left">
+          <div class="modal__header-icon"><i class="pi pi-star"></i></div>
+          <h2 class="modal__title">Agregar Habilidad</h2>
+        </div>
+        <button
+          class="modal__close"
+          (click)="cerrarModal()"
+          aria-label="Cerrar"
+        >
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+      <div class="modal__body">
+        <form [formGroup]="formHabilidad" class="form-grid">
+          <div class="form-field form-field--full">
+            <label class="form-field__label">Habilidad / Competencia *</label>
+            <input
+              class="text-input"
+              formControlName="habilidad"
+              placeholder="Ej: Excel, Liderazgo, Inglés..."
+            />
+          </div>
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Tipo</label>
+            <div class="select-wrapper">
+              <select class="select-input" formControlName="tipo">
+                <option *ngFor="let t of tiposHabilidad" [value]="t">
+                  {{ t | titlecase }}
+                </option>
+              </select>
+              <i class="pi pi-chevron-down select-wrapper__arrow"></i>
+            </div>
+          </div>
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Nivel</label>
+            <div class="select-wrapper">
+              <select class="select-input" formControlName="nivel">
+                <option *ngFor="let n of nivelesHabilidad" [value]="n">
+                  {{ n | titlecase }}
+                </option>
+              </select>
+              <i class="pi pi-chevron-down select-wrapper__arrow"></i>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--outline" (click)="cerrarModal()">
+          Cancelar
+        </button>
+        <button class="btn btn--primary" (click)="guardarHabilidad()">
+          <i class="pi pi-save"></i><span>Guardar</span>
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- ═══ MODAL: REFERENCIA ═══ -->
+    <ng-container *ngIf="mostrarModal === 'referencia'">
+      <div class="modal__header">
+        <div class="modal__header-left">
+          <div class="modal__header-icon"><i class="pi pi-users"></i></div>
+          <h2 class="modal__title">Agregar Referencia</h2>
+        </div>
+        <button
+          class="modal__close"
+          (click)="cerrarModal()"
+          aria-label="Cerrar"
+        >
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+      <div class="modal__body">
+        <form [formGroup]="formReferencia" class="form-grid">
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Nombre *</label>
+            <input class="text-input" formControlName="nombre" />
+          </div>
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Teléfono *</label>
+            <input class="text-input" formControlName="telefono" />
+          </div>
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Cargo</label>
+            <input class="text-input" formControlName="cargo" />
+          </div>
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Empresa</label>
+            <input class="text-input" formControlName="empresa" />
+          </div>
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Tipo</label>
+            <div class="select-wrapper">
+              <select class="select-input" formControlName="tipo">
+                <option *ngFor="let t of tiposReferencia" [value]="t">
+                  {{ t | titlecase }}
+                </option>
+              </select>
+              <i class="pi pi-chevron-down select-wrapper__arrow"></i>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--outline" (click)="cerrarModal()">
+          Cancelar
+        </button>
+        <button class="btn btn--primary" (click)="guardarReferencia()">
+          <i class="pi pi-save"></i><span>Guardar</span>
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- ═══ MODAL: FAMILIAR ═══ -->
+    <ng-container *ngIf="mostrarModal === 'familiar'">
+      <div class="modal__header">
+        <div class="modal__header-left">
+          <div class="modal__header-icon"><i class="pi pi-home"></i></div>
+          <h2 class="modal__title">
+            {{ editandoId ? "Editar" : "Agregar" }} Integrante
+          </h2>
+        </div>
+        <button
+          class="modal__close"
+          (click)="cerrarModal()"
+          aria-label="Cerrar"
+        >
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+      <div class="modal__body">
+        <form [formGroup]="formFamiliar" class="form-grid">
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Nombre completo *</label>
+            <input class="text-input" formControlName="nombre" />
+          </div>
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Parentesco *</label>
+            <div class="select-wrapper">
+              <select class="select-input" formControlName="parentesco">
+                <option *ngFor="let p of parentescos" [value]="p">
+                  {{ p }}
+                </option>
+              </select>
+              <i class="pi pi-chevron-down select-wrapper__arrow"></i>
+            </div>
+          </div>
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Fecha de Nacimiento</label>
+            <input
+              type="date"
+              class="text-input"
+              formControlName="fecha_nacimiento"
+            />
+          </div>
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Documento</label>
+            <input class="text-input" formControlName="documento" />
+          </div>
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Ocupación</label>
+            <input class="text-input" formControlName="ocupacion" />
+          </div>
+          <div class="form-field form-field--half">
+            <label class="form-field__label">Teléfono</label>
+            <input class="text-input" formControlName="telefono" />
+          </div>
+          <div class="form-field form-field--full">
+            <label class="checkbox-wrapper">
+              <input
+                type="checkbox"
+                class="checkbox-input"
+                formControlName="dependiente"
+              />
+              <span class="checkbox-label">Dependiente económico</span>
+            </label>
+          </div>
+        </form>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--outline" (click)="cerrarModal()">
+          Cancelar
+        </button>
+        <button class="btn btn--primary" (click)="guardarFamiliar()">
+          <i class="pi pi-save"></i><span>Guardar</span>
+        </button>
+      </div>
+    </ng-container>
+  </div>
+</div>

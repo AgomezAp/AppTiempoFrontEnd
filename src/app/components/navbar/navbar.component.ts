@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ActaRecargaService } from '../../services/acta-recarga.service';
+import { RolesService } from '../../services/roles.service';
 
 @Component({
   selector: 'app-navbar',
@@ -14,16 +15,31 @@ export class NavbarComponent implements OnInit {
   esAdmin = false;
   userName = '';
   userRole = '';
+  userId = '';
   tieneAccesoActas = false;
+  modulosUsuario: string[] = [];
 
   constructor(
     private router: Router,
-    private actaService: ActaRecargaService
+    private actaService: ActaRecargaService,
+    private rolesService: RolesService
   ) {}
 
   ngOnInit() {
     this.verificarRol();
     this.verificarAccesoActas();
+    const token = localStorage.getItem('token');
+    if (token) {
+      this.rolesService.getMisModulos().subscribe({
+        next: (res) => this.modulosUsuario = res.modulos,
+        error: () => this.modulosUsuario = []
+      });
+    }
+  }
+
+  tieneModulo(key: string): boolean {
+    if (this.esAdmin) return true;
+    return this.modulosUsuario.includes(key);
   }
 
   verificarRol() {
@@ -34,6 +50,7 @@ export class NavbarComponent implements OnInit {
         this.userRole = payload.role || '';
         this.esAdmin = this.userRole === 'Admin';
         this.userName = payload.name || '';
+        this.userId = payload.id || localStorage.getItem('userId') || '';
       } catch (e) {
         this.esAdmin = false;
       }

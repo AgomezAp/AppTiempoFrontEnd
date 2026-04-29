@@ -1,0 +1,508 @@
+<app-navbar></app-navbar>
+
+<div class="dev-wrapper">
+  <!-- ═══ HEADER ═══ -->
+  <header class="dev-header">
+    <div class="dev-header__left">
+      <div class="dev-header__icon">
+        <i class="pi pi-replay"></i>
+      </div>
+      <div class="dev-header__text">
+        <h1>Actas de Devolución</h1>
+        <p>Gestión de actas de devolución de equipos</p>
+      </div>
+    </div>
+    <div class="dev-header__actions">
+      <a routerLink="/crear-devolucion" class="hdr-btn hdr-btn--primary">
+        <i class="pi pi-plus"></i>
+        <span>Nueva Devolución</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ═══ ALERTAS ═══ -->
+  @if (error) {
+    <div class="dev-alert dev-alert--error">
+      <i class="pi pi-exclamation-circle"></i>
+      <span>{{ error }}</span>
+      <button class="dev-alert__close" (click)="error = ''">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+  }
+
+  @if (success) {
+    <div class="dev-alert dev-alert--success">
+      <i class="pi pi-check-circle"></i>
+      <span>{{ success }}</span>
+      <button class="dev-alert__close" (click)="success = ''">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+  }
+
+  <!-- ═══ FILTROS ═══ -->
+  <section class="dev-filters">
+    <div class="dev-filters__head">
+      <i class="pi pi-filter"></i>
+      <span>Filtros</span>
+      <button class="dev-filters__clear" (click)="limpiarFiltros()">
+        <i class="pi pi-times"></i> Limpiar
+      </button>
+    </div>
+    <div class="dev-filters__body">
+      <div class="dev-filter">
+        <label>N° Acta</label>
+        <div class="dev-filter__wrap">
+          <i class="pi pi-hashtag"></i>
+          <input
+            type="text"
+            [(ngModel)]="filtroNumeroActa"
+            (input)="aplicarFiltros()"
+            placeholder="DEV-2025-0001"
+          />
+        </div>
+      </div>
+      <div class="dev-filter">
+        <label>Quien Devuelve</label>
+        <div class="dev-filter__wrap">
+          <i class="pi pi-user"></i>
+          <input
+            type="text"
+            [(ngModel)]="filtroNombreEntrega"
+            (input)="aplicarFiltros()"
+            placeholder="Nombre del empleado"
+          />
+        </div>
+      </div>
+      <div class="dev-filter">
+        <label>Estado</label>
+        <div class="dev-filter__wrap">
+          <i class="pi pi-info-circle"></i>
+          <select [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
+            <option value="">Todos los estados</option>
+            <option value="pendiente_firma">Pendiente de Firma</option>
+            <option value="completada">Completada</option>
+            <option value="rechazada">Rechazada</option>
+          </select>
+        </div>
+      </div>
+      <div class="dev-filter">
+        <label>Desde</label>
+        <div class="dev-filter__wrap">
+          <i class="pi pi-calendar"></i>
+          <input
+            type="date"
+            [(ngModel)]="filtroFechaInicio"
+            (change)="aplicarFiltros()"
+          />
+        </div>
+      </div>
+      <div class="dev-filter">
+        <label>Hasta</label>
+        <div class="dev-filter__wrap">
+          <i class="pi pi-calendar"></i>
+          <input
+            type="date"
+            [(ngModel)]="filtroFechaFin"
+            (change)="aplicarFiltros()"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ LOADING ═══ -->
+  @if (loading) {
+    <div class="dev-loader">
+      <div class="dev-loader__spin"></div>
+      <span>Cargando actas...</span>
+    </div>
+  }
+
+  <!-- ═══ TABLA ═══ -->
+  @if (!loading) {
+    <section class="dev-table-panel">
+      <div class="dev-table-panel__head">
+        <div class="dev-table-panel__title">
+          <i class="pi pi-list"></i>
+          <h2>Listado de Actas</h2>
+        </div>
+        <span class="dev-table-panel__count"
+          >{{ actasFiltradas.length }} resultado(s)</span
+        >
+      </div>
+
+      @if (actasFiltradas.length === 0) {
+        <div class="dev-empty">
+          <div class="dev-empty__icon"><i class="pi pi-inbox"></i></div>
+          <h3>No se encontraron actas</h3>
+          <p>No hay actas de devolución que coincidan con los filtros</p>
+        </div>
+      } @else {
+        <div class="dev-table-scroll">
+          <table class="dev-table">
+            <thead>
+              <tr>
+                <th>N° Acta</th>
+                <th>Quien Devuelve</th>
+                <th>Quien Recibe</th>
+                <th class="text-center">Dispositivos</th>
+                <th>Fecha</th>
+                <th class="text-center">Estado</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (acta of actasPaginadas; track acta.id) {
+                <tr>
+                  <td>
+                    <span class="dev-table__acta-num">{{
+                      acta.numeroActa
+                    }}</span>
+                  </td>
+                  <td>
+                    <div class="dev-table__persona">
+                      <strong>{{ acta.nombreEntrega }}</strong>
+                      <small>{{ acta.correoEntrega }}</small>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="dev-table__persona">
+                      <strong>{{ acta.nombreReceptor }}</strong>
+                      <small>{{ acta.cargoReceptor }}</small>
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    <span class="dev-table__count-badge">{{
+                      acta.detalles?.length || 0
+                    }}</span>
+                  </td>
+                  <td>
+                    <span class="dev-table__fecha">
+                      <i class="pi pi-calendar"></i>
+                      {{ formatFecha(acta.createdAt) }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <span
+                      class="dev-badge"
+                      [ngClass]="getEstadoClass(acta.estado)"
+                    >
+                      <i class="pi" [ngClass]="getEstadoIcon(acta.estado)"></i>
+                      {{ getEstadoTexto(acta.estado) }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <div class="dev-table__actions">
+                      <button
+                        class="act-btn act-btn--view"
+                        (click)="verDetalle(acta)"
+                        title="Ver detalle"
+                      >
+                        <i class="pi pi-eye"></i>
+                      </button>
+                      @if (acta.estado === "pendiente_firma") {
+                        <button
+                          class="act-btn act-btn--accent"
+                          (click)="reenviarCorreo(acta)"
+                          title="Reenviar correo"
+                        >
+                          <i class="pi pi-envelope"></i>
+                        </button>
+                      }
+                      <button
+                        class="act-btn act-btn--delete"
+                        (click)="eliminarActa(acta)"
+                        title="Eliminar acta"
+                      >
+                        <i class="pi pi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginación -->
+        @if (totalPaginas > 1) {
+          <div class="dev-pagination">
+            <button
+              class="pag-btn"
+              [disabled]="paginaActual === 1"
+              (click)="cambiarPagina(paginaActual - 1)"
+            >
+              <i class="pi pi-chevron-left"></i>
+            </button>
+            <div class="pag-numbers">
+              @for (page of getPaginasVisibles(); track page) {
+                <button
+                  class="pag-num"
+                  [class.pag-num--active]="page === paginaActual"
+                  (click)="cambiarPagina(page)"
+                >
+                  {{ page }}
+                </button>
+              }
+            </div>
+            <button
+              class="pag-btn"
+              [disabled]="paginaActual === totalPaginas"
+              (click)="cambiarPagina(paginaActual + 1)"
+            >
+              <i class="pi pi-chevron-right"></i>
+            </button>
+            <span class="pag-info"
+              >{{ paginaActual }} de {{ totalPaginas }}</span
+            >
+          </div>
+        }
+      }
+    </section>
+  }
+</div>
+
+<!-- ═══════════════════════════════════════
+     MODAL DETALLE
+     ═══════════════════════════════════════ -->
+@if (mostrarModal && actaSeleccionada) {
+  <div class="modal-backdrop" (click)="cerrarModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal__header">
+        <div class="modal__header-left">
+          <div class="modal__header-icon">
+            <i class="pi pi-replay"></i>
+          </div>
+          <div>
+            <h2>{{ actaSeleccionada.numeroActa }}</h2>
+            <span
+              class="modal__badge"
+              [ngClass]="getEstadoClass(actaSeleccionada.estado)"
+            >
+              <i
+                class="pi"
+                [ngClass]="getEstadoIcon(actaSeleccionada.estado)"
+              ></i>
+              {{ getEstadoTexto(actaSeleccionada.estado) }}
+            </span>
+          </div>
+        </div>
+        <button class="modal__close" (click)="cerrarModal()">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+
+      <div class="modal__body">
+        @if (loadingDetalle) {
+          <div class="dev-loader" style="padding: 2rem">
+            <div class="dev-loader__spin"></div>
+            <span>Cargando detalle...</span>
+          </div>
+        } @else {
+          <!-- Personas -->
+          <div class="modal-cards-row">
+            <div class="modal-info-card">
+              <div class="modal-info-card__head">
+                <i class="pi pi-user"></i>
+                <h4>Quien Devuelve</h4>
+              </div>
+              <div class="modal-info-card__body">
+                <span class="modal-info-card__name">{{
+                  actaSeleccionada.nombreEntrega
+                }}</span>
+                <span class="modal-info-card__detail">{{
+                  actaSeleccionada.cargoEntrega
+                }}</span>
+                <span class="modal-info-card__email">
+                  <i class="pi pi-envelope"></i>
+                  {{ actaSeleccionada.correoEntrega }}
+                </span>
+              </div>
+            </div>
+
+            <div class="modal-info-card">
+              <div class="modal-info-card__head">
+                <i class="pi pi-user-plus"></i>
+                <h4>Quien Recibe</h4>
+              </div>
+              <div class="modal-info-card__body">
+                <span class="modal-info-card__name">{{
+                  actaSeleccionada.nombreReceptor
+                }}</span>
+                <span class="modal-info-card__detail">{{
+                  actaSeleccionada.cargoReceptor
+                }}</span>
+                <span class="modal-info-card__email">
+                  <i class="pi pi-envelope"></i>
+                  {{ actaSeleccionada.correoReceptor }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fechas -->
+          <div class="modal-dates">
+            <div class="modal-date">
+              <i class="pi pi-calendar-plus"></i>
+              <div>
+                <span class="modal-date__label">Fecha de Creación</span>
+                <span class="modal-date__value">{{
+                  formatFecha(actaSeleccionada.createdAt)
+                }}</span>
+              </div>
+            </div>
+            @if (actaSeleccionada.fechaFirma) {
+              <div class="modal-date">
+                <i class="pi pi-pencil"></i>
+                <div>
+                  <span class="modal-date__label">Fecha de Firma</span>
+                  <span class="modal-date__value">{{
+                    formatFecha(actaSeleccionada.fechaFirma)
+                  }}</span>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Dispositivos -->
+          <div class="modal-block">
+            <div class="modal-block__head">
+              <i class="pi pi-desktop"></i>
+              <h4>
+                Dispositivos Devueltos ({{
+                  actaSeleccionada.detalles?.length || 0
+                }})
+              </h4>
+            </div>
+            <div class="modal-block__list">
+              @for (detalle of actaSeleccionada.detalles; track detalle.id) {
+                <div class="modal-device">
+                  <div class="modal-device__head">
+                    <div class="modal-device__icon">
+                      <i
+                        class="pi"
+                        [ngClass]="
+                          getCategoriaIcon(detalle.dispositivo?.categoria)
+                        "
+                      ></i>
+                    </div>
+                    <div class="modal-device__info">
+                      <strong>{{ getNombreDispositivo(detalle) }}</strong>
+                      <small
+                        class="modal-device__cat"
+                        *ngIf="detalle.dispositivo?.categoria"
+                      >
+                        {{ detalle.dispositivo?.categoria | titlecase }}
+                      </small>
+                      <div class="modal-device__tags">
+                        <span class="dtag" *ngIf="detalle.dispositivo?.serial">
+                          <i class="pi pi-hashtag"></i>
+                          {{ detalle.dispositivo?.serial }}
+                        </span>
+                        <span class="dtag" *ngIf="detalle.dispositivo?.imei">
+                          <i class="pi pi-mobile"></i>
+                          {{ detalle.dispositivo?.imei }}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="modal-device__status">
+                      <span
+                        class="dev-badge"
+                        [ngClass]="'badge-estado-' + detalle.estadoDevolucion"
+                      >
+                        {{ detalle.estadoDevolucion | titlecase }}
+                      </span>
+                      @if (detalle.condicionDevolucion) {
+                        <small class="modal-device__cond">{{
+                          detalle.condicionDevolucion
+                        }}</small>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Observaciones -->
+          @if (actaSeleccionada.observaciones) {
+            <div class="modal-block">
+              <div class="modal-block__head">
+                <i class="pi pi-comment"></i>
+                <h4>Observaciones</h4>
+              </div>
+              <p class="modal-block__text">
+                {{ actaSeleccionada.observaciones }}
+              </p>
+            </div>
+          }
+
+          <!-- Firmas -->
+          @if (actaSeleccionada.estado === "completada") {
+            <div class="modal-block">
+              <div class="modal-block__head">
+                <i class="pi pi-pencil"></i>
+                <h4>Firmas</h4>
+              </div>
+              <div class="modal-firmas">
+                @if (actaSeleccionada.firmaEntrega) {
+                  <div class="modal-firma">
+                    <span class="modal-firma__label">Quien Devuelve</span>
+                    <div class="modal-firma__img">
+                      <img [src]="actaSeleccionada.firmaEntrega" alt="Firma" />
+                    </div>
+                    <span class="modal-firma__name">{{
+                      actaSeleccionada.nombreEntrega
+                    }}</span>
+                  </div>
+                }
+                @if (actaSeleccionada.firmaReceptor) {
+                  <div class="modal-firma">
+                    <span class="modal-firma__label">Quien Recibe</span>
+                    <div class="modal-firma__img">
+                      <img [src]="actaSeleccionada.firmaReceptor" alt="Firma" />
+                    </div>
+                    <span class="modal-firma__name">{{
+                      actaSeleccionada.nombreReceptor
+                    }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        }
+      </div>
+
+      <div class="modal__footer">
+        <button
+          class="modal-btn modal-btn--pdf"
+          (click)="generarPDF(actaSeleccionada)"
+          [disabled]="loadingDetalle"
+          title="Descargar PDF"
+        >
+          <i class="pi pi-file-pdf"></i> Descargar PDF
+        </button>
+        @if (actaSeleccionada.estado === "pendiente_firma") {
+          <button
+            class="modal-btn modal-btn--accent"
+            (click)="reenviarCorreo(actaSeleccionada)"
+          >
+            <i class="pi pi-envelope"></i> Reenviar Correo
+          </button>
+        }
+        <button
+          class="modal-btn modal-btn--danger"
+          (click)="eliminarActa(actaSeleccionada)"
+          [disabled]="loadingDetalle"
+        >
+          <i class="pi pi-trash"></i> Eliminar
+        </button>
+        <button class="modal-btn modal-btn--cancel" (click)="cerrarModal()">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+}

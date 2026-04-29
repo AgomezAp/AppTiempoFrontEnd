@@ -1,0 +1,473 @@
+<app-navbar></app-navbar>
+
+<div class="agregar-container">
+  <div class="form-wrapper">
+    <!-- Header Compacto -->
+    <header class="page-header">
+      <div class="header-content">
+        <button class="btn-back" (click)="cancelar()" aria-label="Volver">
+          <i class="pi pi-arrow-left"></i>
+        </button>
+        <div class="header-info">
+          <h1><i class="pi pi-plus-circle"></i> Agregar Dispositivo</h1>
+        </div>
+        <!-- Progress dots -->
+        <div class="header-progress">
+          <span
+            class="progress-dot"
+            [class.completed]="dispositivo.categoria"
+            title="Categoría"
+          ></span>
+          <span
+            class="progress-dot"
+            [class.completed]="dispositivo.marca"
+            title="Info"
+          ></span>
+          <span
+            class="progress-dot"
+            [class.completed]="dispositivo.condicion"
+            title="Estado"
+          ></span>
+          <span
+            class="progress-dot"
+            [class.completed]="fotosPreview.length > 0"
+            title="Fotos"
+          ></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Alertas -->
+    <div class="alert alert-error" *ngIf="errorMessage" @fadeSlide>
+      <i class="pi pi-exclamation-circle"></i>
+      <span>{{ errorMessage }}</span>
+      <button class="alert-close" (click)="errorMessage = ''">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <div class="alert alert-success" *ngIf="successMessage" @fadeSlide>
+      <i class="pi pi-check-circle"></i>
+      <span>{{ successMessage }}</span>
+      <button class="alert-close" (click)="successMessage = ''">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <form
+      (ngSubmit)="guardarDispositivo()"
+      class="form-content"
+      #dispositivoForm="ngForm"
+    >
+      <!-- Layout de 2 columnas principales -->
+      <div class="form-grid-main">
+        <!-- COLUMNA IZQUIERDA -->
+        <div class="form-column">
+          <!-- Categoría -->
+          <section class="section-card section-compact">
+            <div class="section-header-inline">
+              <i class="pi pi-tag section-icon-sm"></i>
+              <h3>Categoría</h3>
+            </div>
+            <div class="categoria-grid-compact">
+              <label
+                *ngFor="let cat of categorias"
+                class="categoria-chip"
+                [class.selected]="dispositivo.categoria === cat.value"
+              >
+                <input
+                  type="radio"
+                  name="categoria"
+                  [value]="cat.value"
+                  [(ngModel)]="dispositivo.categoria"
+                  (ngModelChange)="onCategoriaChange()"
+                  required
+                  hidden
+                />
+                <i class="pi" [ngClass]="getCategoriaIcon(cat.value)"></i>
+                <span>{{ cat.label }}</span>
+              </label>
+            </div>
+          </section>
+
+          <!-- Tipo de Registro y Cantidad (para accesorios/cargadores) -->
+          <section class="section-card section-compact" *ngIf="permiteStock()">
+            <div class="section-header-inline">
+              <i class="pi pi-shopping-cart section-icon-sm"></i>
+              <h3>Tipo de Registro</h3>
+            </div>
+
+            <div class="tipo-registro-selector">
+              <label class="tipo-option" [class.selected]="tipoRegistro === 'individual'">
+                <input
+                  type="radio"
+                  name="tipoRegistro"
+                  value="individual"
+                  [(ngModel)]="tipoRegistro"
+                  hidden
+                />
+                <div class="option-content">
+                  <i class="pi pi-hashtag"></i>
+                  <span class="option-title">Individual</span>
+                  <span class="option-desc">Con serial único</span>
+                </div>
+              </label>
+              
+              <label class="tipo-option" [class.selected]="tipoRegistro === 'stock'">
+                <input
+                  type="radio"
+                  name="tipoRegistro"
+                  value="stock"
+                  [(ngModel)]="tipoRegistro"
+                  hidden
+                />
+                <div class="option-content">
+                  <i class="pi pi-box"></i>
+                  <span class="option-title">Por Cantidad</span>
+                  <span class="option-desc">Múltiples unidades idénticas</span>
+                </div>
+              </label>
+            </div>
+
+            <!-- Campos de cantidad (solo si es tipo stock) -->
+            <div *ngIf="tipoRegistro === 'stock'" class="cantidad-fields">
+              <div class="form-row-compact">
+                <div class="form-group-compact">
+                  <label for="cantidad">
+                    Cantidad Inicial <span class="required">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    id="cantidad"
+                    [(ngModel)]="cantidad"
+                    name="cantidad"
+                    min="1"
+                    placeholder="10"
+                    class="input-compact"
+                    required
+                  />
+                </div>
+                <div class="form-group-compact">
+                  <label for="stockMinimo">Stock Mínimo</label>
+                  <input
+                    type="number"
+                    id="stockMinimo"
+                    [(ngModel)]="stockMinimo"
+                    name="stockMinimo"
+                    min="0"
+                    placeholder="5"
+                    class="input-compact"
+                  />
+                </div>
+              </div>
+              <div class="info-badge">
+                <i class="pi pi-info-circle"></i>
+                <span>Se registrarán {{ cantidad }} unidades idénticas de este artículo</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Información básica -->
+          <section class="section-card section-compact">
+            <div class="section-header-inline">
+              <i class="pi pi-info-circle section-icon-sm"></i>
+              <h3>Información básica</h3>
+            </div>
+
+            <div class="form-row-compact">
+              <div class="form-group-compact">
+                <label for="marca">Marca <span class="required">*</span></label>
+                <input
+                  type="text"
+                  id="marca"
+                  [(ngModel)]="dispositivo.marca"
+                  name="marca"
+                  placeholder="Apple, Samsung..."
+                  class="input-compact"
+                  required
+                  #marcaInput="ngModel"
+                  [class.invalid]="marcaInput.invalid && marcaInput.touched"
+                />
+                <span
+                  class="error-message"
+                  *ngIf="marcaInput.invalid && marcaInput.touched"
+                >
+                  <i class="pi pi-exclamation-circle"></i> La marca es requerida
+                </span>
+              </div>
+              <div class="form-group-compact">
+                <label for="modelo">Modelo <span class="required">*</span></label>
+                <input
+                  type="text"
+                  id="modelo"
+                  [(ngModel)]="dispositivo.modelo"
+                  name="modelo"
+                  placeholder="Modelo"
+                  class="input-compact"
+                  required
+                  #modeloInput="ngModel"
+                  [class.invalid]="modeloInput.invalid && modeloInput.touched"
+                />
+                <span
+                  class="error-message"
+                  *ngIf="modeloInput.invalid && modeloInput.touched"
+                >
+                  <i class="pi pi-exclamation-circle"></i> El modelo es requerido
+                </span>
+              </div>
+            </div>
+
+            <div class="form-row-compact">
+              <div class="form-group-compact">
+                <label for="serial">Serial</label>
+                <input
+                  type="text"
+                  id="serial"
+                  [(ngModel)]="dispositivo.serial"
+                  name="serial"
+                  placeholder="Número de serie"
+                  class="input-compact"
+                />
+              </div>
+              <div class="form-group-compact" *ngIf="requiereIMEI()">
+                <label for="imei">IMEI</label>
+                <input
+                  type="text"
+                  id="imei"
+                  [(ngModel)]="dispositivo.imei"
+                  name="imei"
+                  placeholder="IMEI"
+                  class="input-compact"
+                  maxlength="15"
+                />
+              </div>
+              <div class="form-group-compact" *ngIf="!requiereIMEI()">
+                <label for="color">Color</label>
+                <input
+                  type="text"
+                  id="color"
+                  [(ngModel)]="dispositivo.color"
+                  name="color"
+                  placeholder="Color"
+                  class="input-compact"
+                />
+              </div>
+            </div>
+          </section>
+
+          <!-- Estado y ubicación CON BOTONES -->
+          <section class="section-card section-compact">
+            <div class="section-header-inline">
+              <i class="pi pi-cog section-icon-sm"></i>
+              <h3>Estado y ubicación</h3>
+            </div>
+
+            <div class="form-row-compact">
+              <div class="form-group-compact">
+                <label for="condicion">Condición</label>
+                <div class="select-wrapper-compact">
+                  <select
+                    id="condicion"
+                    [(ngModel)]="dispositivo.condicion"
+                    name="condicion"
+                    class="select-compact"
+                  >
+                    <option value="" disabled>Seleccione...</option>
+                    <option
+                      *ngFor="let cond of condiciones"
+                      [value]="cond.value"
+                    >
+                      {{ cond.label }}
+                    </option>
+                  </select>
+                  <i class="pi pi-chevron-down"></i>
+                </div>
+              </div>
+              <div class="form-group-compact">
+                <label for="ubicacion">Ubicación</label>
+                <input
+                  type="text"
+                  id="ubicacion"
+                  [(ngModel)]="dispositivo.ubicacion"
+                  name="ubicacion"
+                  placeholder="Almacén, bodega..."
+                  class="input-compact"
+                />
+              </div>
+            </div>
+
+            <!-- Badge de condición + Botones -->
+            <div class="section-footer">
+              <div
+                class="condicion-badge-inline"
+                *ngIf="dispositivo.condicion"
+                [ngClass]="'condicion-' + dispositivo.condicion"
+              >
+                <i
+                  class="pi"
+                  [ngClass]="getCondicionIcon(dispositivo.condicion)"
+                ></i>
+                {{ getCondicionLabel(dispositivo.condicion) }}
+              </div>
+              <div class="spacer" *ngIf="!dispositivo.condicion"></div>
+
+              <!-- Botones de acción -->
+              <div class="form-actions-inline">
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-compact"
+                  (click)="cancelar()"
+                >
+                  <i class="pi pi-times"></i> Cancelar
+                </button>
+                <button
+                  type="submit"
+                  class="btn btn-accent btn-compact"
+                  [disabled]="
+                    loading || !dispositivo.marca || !dispositivo.modelo || !dispositivo.categoria
+                  "
+                  [class.loading]="loading"
+                >
+                  <i
+                    class="pi"
+                    [ngClass]="loading ? 'pi-spin pi-spinner' : 'pi-save'"
+                  ></i>
+                  {{ loading ? "Guardando..." : "Guardar" }}
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- COLUMNA DERECHA -->
+        <div class="form-column">
+          <!-- Descripción -->
+          <section class="section-card section-compact">
+            <div class="section-header-inline">
+              <i class="pi pi-file section-icon-sm"></i>
+              <h3>Descripción</h3>
+            </div>
+
+            <div class="form-group-compact">
+              <textarea
+                id="descripcion"
+                [(ngModel)]="dispositivo.descripcion"
+                name="descripcion"
+                rows="4"
+                placeholder="Descripción del dispositivo, especificaciones..."
+                class="textarea-compact"
+                maxlength="1000"
+              ></textarea>
+              <span class="char-count" *ngIf="dispositivo.descripcion">
+                {{ dispositivo.descripcion.length }}/1000
+              </span>
+            </div>
+
+            <div class="form-group-compact">
+              <label for="observaciones">Observaciones</label>
+              <textarea
+                id="observaciones"
+                [(ngModel)]="dispositivo.observaciones"
+                name="observaciones"
+                rows="2"
+                placeholder="Daños, historial..."
+                class="textarea-compact"
+                maxlength="500"
+              ></textarea>
+              <span class="char-count" *ngIf="dispositivo.observaciones">
+                {{ dispositivo.observaciones.length }}/500
+              </span>
+            </div>
+          </section>
+
+          <!-- Fotos -->
+          <section class="section-card section-compact">
+            <div class="section-header-inline">
+              <i class="pi pi-camera section-icon-sm"></i>
+              <h3>Fotos</h3>
+              <span class="badge-count" *ngIf="fotosPreview.length > 0">
+                {{ fotosPreview.length }}/10
+              </span>
+            </div>
+
+            <div class="fotos-area-compact">
+              <label
+                class="upload-zone-compact"
+                for="fotos"
+                [class.has-files]="fotosPreview.length > 0"
+                [class.drag-over]="isDragging"
+                (dragover)="onDragOver($event)"
+                (dragleave)="onDragLeave($event)"
+                (drop)="onDrop($event)"
+              >
+                <input
+                  type="file"
+                  id="fotos"
+                  multiple
+                  accept="image/*"
+                  (change)="onFileSelected($event)"
+                  hidden
+                />
+                <i class="pi pi-cloud-upload"></i>
+                <span>Arrastra o haz clic</span>
+              </label>
+
+              <div class="fotos-grid-compact" *ngIf="fotosPreview.length > 0">
+                <div
+                  class="foto-thumb"
+                  *ngFor="let foto of fotosPreview; let i = index"
+                >
+                  <img [src]="foto" alt="Preview" />
+                  <button
+                    type="button"
+                    class="foto-remove"
+                    (click)="eliminarFoto(i)"
+                  >
+                    <i class="pi pi-times"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tip -->
+            <div class="fotos-tip" *ngIf="fotosPreview.length === 0">
+              <i class="pi pi-lightbulb"></i>
+              <span
+                >Tome fotos desde varios ángulos para documentar el
+                estado.</span
+              >
+            </div>
+          </section>
+
+          <!-- Resumen mini -->
+          <section
+            class="summary-mini"
+            *ngIf="dispositivo.marca && dispositivo.categoria"
+          >
+            <div class="summary-header">
+              <i class="pi pi-check-circle"></i>
+              <span>Listo para guardar</span>
+            </div>
+            <div class="summary-items">
+              <span>
+                <i
+                  class="pi"
+                  [ngClass]="getCategoriaIcon(dispositivo.categoria)"
+                ></i>
+                {{ getCategoriaLabel(dispositivo.categoria) }}
+              </span>
+              <span>{{ dispositivo.marca }} {{ dispositivo.modelo }}</span>
+              >
+              <span *ngIf="dispositivo.condicion">{{
+                getCondicionLabel(dispositivo.condicion)
+              }}</span>
+              <span *ngIf="fotosPreview.length > 0">
+                <i class="pi pi-image"></i> {{ fotosPreview.length }} foto(s)
+              </span>
+            </div>
+          </section>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

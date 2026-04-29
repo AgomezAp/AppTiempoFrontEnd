@@ -97,7 +97,7 @@
             >
               Recursos
             </a>
-            <ul class="dropdown-menu" aria-labelledby="recursosDropdown">
+            <ul class="dropdown-menu dropdown-menu-scroll" aria-labelledby="recursosDropdown">
               <li>
                 <a class="dropdown-item" href="/mi-certificado"
                   >Mi Certificado</a
@@ -197,6 +197,95 @@
 
             </ul>
           </li>
+          <!-- RRHH -->
+          <li class="nav-item dropdown"
+            *ngIf="tieneModulo('rrhh_contratos') || tieneModulo('rrhh_hoja_vida') || tieneModulo('rrhh_evaluaciones')">
+            <a class="nav-link dropdown-toggle" href="#" id="rrhhDropdown" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              RRHH
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="rrhhDropdown">
+              <li *ngIf="tieneModulo('rrhh_contratos')">
+                <a class="dropdown-item" href="/contratos">Contratos</a>
+              </li>
+              <li *ngIf="tieneModulo('rrhh_hoja_vida')">
+                <a class="dropdown-item" href="/hoja-vida/{{ userId }}">Hoja de Vida</a>
+              </li>
+              <li *ngIf="tieneModulo('rrhh_evaluaciones')">
+                <a class="dropdown-item" href="/evaluaciones">Evaluaciones</a>
+              </li>
+            </ul>
+          </li>
+
+          <!-- Inventario -->
+          <li class="nav-item dropdown"
+            *ngIf="tieneModulo('inventario_dispositivos') || tieneModulo('inventario_mobiliario') || tieneModulo('inventario_aseo') || tieneModulo('inventario_papeleria') || tieneModulo('inventario_botiquin') || tieneModulo('inventario_dotacion')">
+            <a class="nav-link dropdown-toggle" href="#" id="inventarioDropdown" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              Inventario
+            </a>
+            <ul class="dropdown-menu dropdown-menu-scroll" aria-labelledby="inventarioDropdown">
+              <!-- Dispositivos -->
+              <li *ngIf="tieneModulo('inventario_dispositivos')">
+                <h6 class="dropdown-header">Dispositivos</h6>
+              </li>
+              <li *ngIf="tieneModulo('inventario_dispositivos')">
+                <a class="dropdown-item" href="/inventario">Inventario de Dispositivos</a>
+              </li>
+              <li *ngIf="tieneModulo('inventario_dispositivos')">
+                <a class="dropdown-item" href="/actas">Actas de Entrega</a>
+              </li>
+              <li *ngIf="tieneModulo('inventario_dispositivos')">
+                <a class="dropdown-item" href="/actas-devolucion">Actas de Devolución</a>
+              </li>
+              <!-- Mobiliario -->
+              <li *ngIf="tieneModulo('inventario_mobiliario')"><hr class="dropdown-divider" /></li>
+              <li *ngIf="tieneModulo('inventario_mobiliario')">
+                <h6 class="dropdown-header">Mobiliario</h6>
+              </li>
+              <li *ngIf="tieneModulo('inventario_mobiliario')">
+                <a class="dropdown-item" href="/inventario-mobiliario">Inventario de Mobiliario</a>
+              </li>
+              <li *ngIf="tieneModulo('inventario_mobiliario')">
+                <a class="dropdown-item" href="/actas-mobiliario">Actas de Mobiliario</a>
+              </li>
+              <!-- Consumibles -->
+              <li *ngIf="tieneModulo('inventario_aseo') || tieneModulo('inventario_papeleria') || tieneModulo('inventario_botiquin') || tieneModulo('inventario_dotacion')"><hr class="dropdown-divider" /></li>
+              <li *ngIf="tieneModulo('inventario_aseo') || tieneModulo('inventario_papeleria') || tieneModulo('inventario_botiquin') || tieneModulo('inventario_dotacion')">
+                <h6 class="dropdown-header">Consumibles</h6>
+              </li>
+              <li *ngIf="tieneModulo('inventario_aseo')">
+                <a class="dropdown-item" href="/inventario-aseo">Aseo</a>
+              </li>
+              <li *ngIf="tieneModulo('inventario_aseo')">
+                <a class="dropdown-item" href="/actas-aseo">Actas de Aseo</a>
+              </li>
+              <li *ngIf="tieneModulo('inventario_papeleria')">
+                <a class="dropdown-item" href="/inventario-papeleria">Papelería</a>
+              </li>
+              <li *ngIf="tieneModulo('inventario_papeleria')">
+                <a class="dropdown-item" href="/actas-papeleria">Actas de Papelería</a>
+              </li>
+              <li *ngIf="tieneModulo('inventario_botiquin')">
+                <a class="dropdown-item" href="/inventario-botiquin">Botiquín</a>
+              </li>
+              <li *ngIf="tieneModulo('inventario_botiquin')">
+                <a class="dropdown-item" href="/actas-botiquin">Actas de Botiquín</a>
+              </li>
+              <li *ngIf="tieneModulo('inventario_dotacion')">
+                <a class="dropdown-item" href="/inventario-dotacion">Dotación</a>
+              </li>
+              <li *ngIf="tieneModulo('inventario_dotacion')">
+                <a class="dropdown-item" href="/actas-dotacion">Actas de Dotación</a>
+              </li>
+            </ul>
+          </li>
+
+          <!-- Admin Roles (solo Admin) -->
+          <li class="nav-item" *ngIf="userRole === 'Admin'">
+            <a class="nav-link" href="/admin-roles">Roles</a>
+          </li>
+
           <li class="nav-item ms-lg-2">
             <button class="btn btn-logout" type="button" (click)="logOut()">
               Cerrar sesión

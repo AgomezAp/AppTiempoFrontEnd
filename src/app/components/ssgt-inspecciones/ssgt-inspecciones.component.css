@@ -1,9 +1,54 @@
+:host {
+  --font: 'Fira Sans', sans-serif;
+  --primary: #141414;
+  --secondary: #FFD600;
+  --secondary-hover: #e6c200;
+  --secondary-light: rgba(255,214,0,.10);
+  --text-dark: #141414;
+  --text-body: #374151;
+  --text-muted: #6c757d;
+  --text-light: #ffffff;
+  --bg-body: #f4f6f9;
+  --bg-white: #ffffff;
+  --bg-light: #f8f9fa;
+  --border: #e2e5e9;
+  --border-light: #eef0f2;
+  --success: #10b981;
+  --info: #3B82F6;
+  --warning: #F59E0B;
+  --danger: #dc3545;
+  --radius-sm: .375rem;
+  --radius-md: .5rem;
+  --radius-lg: .75rem;
+  --radius-xl: 1rem;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.07);
+  --transition: all .2s cubic-bezier(.4,0,.2,1);
+}
 /* Base styles - same pattern as other SSGT components */
 .page-container { padding: 20px 30px; background: #f8f8f8; min-height: calc(100vh - 60px); }
-.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.page-header h1 { font-size: 1.5rem; color: #141414; margin: 0; display: flex; align-items: center; gap: 10px; }
-.page-header h1 i { color: #FFD600; }
-.page-header p { margin: 5px 0 0; color: #666; font-size: 0.9rem; }
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 20px 28px;
+  background: #141414;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 160px; height: 160px;
+  background: radial-gradient(circle, rgba(255,214,0,.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+.page-header h1 { font-size: 1.45rem; color: #ffffff; margin: 0; display: flex; align-items: center; gap: 10px; font-weight: 800; }
+.page-header h1 i { color: #FFD600; background: rgba(255,214,0,.15); width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 1rem; }
+.page-header p { margin: 5px 0 0; color: rgba(255,255,255,.65); font-size: 0.88rem; }
 .header-left { flex: 1; }
 
 .btn-primary { background: #141414; color: #FFD600; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s; }
@@ -253,3 +298,4 @@
 .btn-accion-correo { background: #8e44ad; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s; }
 .btn-accion-correo:hover { background: #9b59b6; }
 .accion-completada-msg { font-size: 0.85rem; color: #27ae60; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+

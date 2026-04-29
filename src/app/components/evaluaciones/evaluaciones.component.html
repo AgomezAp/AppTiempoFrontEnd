@@ -1,0 +1,1050 @@
+<app-navbar></app-navbar>
+
+<div class="eval-container">
+  <!-- ═══ PAGE HEADER ═══ -->
+  <header class="page-header">
+    <div class="page-header__bg"></div>
+    <div class="page-header__content">
+      <div class="page-header__left">
+        <div class="page-header__icon">
+          <i class="pi pi-chart-bar"></i>
+        </div>
+        <div class="page-header__text">
+          <h1 class="page-header__title">Evaluaciones de Desempeño</h1>
+          <p class="page-header__subtitle">
+            Gestión y seguimiento de evaluaciones por período
+          </p>
+        </div>
+      </div>
+      <div class="page-header__right">
+        <div class="page-header__period-select">
+          <div class="select-wrapper select-wrapper--dark">
+            <select
+              class="select-input select-input--dark"
+              [(ngModel)]="periodoSeleccionado"
+              (change)="cambiarPeriodo()"
+            >
+              <option [ngValue]="null">Seleccionar período</option>
+              <option *ngFor="let p of periodos" [ngValue]="p.id">
+                {{ p.nombre }}
+              </option>
+            </select>
+            <i
+              class="pi pi-chevron-down select-wrapper__arrow select-wrapper__arrow--light"
+            ></i>
+          </div>
+        </div>
+        <button
+          class="btn btn--primary"
+          *ngIf="modoAdmin"
+          (click)="abrirModal('nueva-evaluacion')"
+        >
+          <i class="pi pi-plus"></i>
+          <span>Nueva</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ TABS NAVIGATION ═══ -->
+  <nav class="tabs-nav">
+    <button
+      class="tabs-nav__item"
+      [class.tabs-nav__item--active]="seccionActiva === 'dashboard'"
+      (click)="seccionActiva = 'dashboard'; cargarDashboard()"
+    >
+      <i class="pi pi-th-large"></i>
+      <span>Dashboard</span>
+    </button>
+    <button
+      class="tabs-nav__item"
+      [class.tabs-nav__item--active]="seccionActiva === 'lista'"
+      (click)="seccionActiva = 'lista'; cargarListaEvaluaciones()"
+    >
+      <i class="pi pi-list"></i>
+      <span>Evaluaciones</span>
+    </button>
+    <button
+      class="tabs-nav__item"
+      *ngIf="seccionActiva === 'detalle'"
+      [class.tabs-nav__item--active]="true"
+    >
+      <i class="pi pi-file-edit"></i>
+      <span>Detalle</span>
+    </button>
+    <button
+      class="tabs-nav__item"
+      *ngIf="modoAdmin"
+      [class.tabs-nav__item--active]="seccionActiva === 'config'"
+      (click)="seccionActiva = 'config'"
+    >
+      <i class="pi pi-cog"></i>
+      <span>Configuración</span>
+    </button>
+  </nav>
+
+  <!-- ═══════════════════════════════════════
+       SECCIÓN: DASHBOARD
+       ═══════════════════════════════════════ -->
+  <section class="tab-content" *ngIf="seccionActiva === 'dashboard'">
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="cargando">
+      <div class="loading-state__spinner"></div>
+      <p class="loading-state__text">Cargando dashboard...</p>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid" *ngIf="kpiDashboard">
+      <div class="kpi-card" style="animation-delay: 0s">
+        <div class="kpi-card__icon kpi-card__icon--info">
+          <i class="pi pi-chart-bar"></i>
+        </div>
+        <div class="kpi-card__content">
+          <span class="kpi-card__value">{{ kpiDashboard.total }}</span>
+          <span class="kpi-card__label">Total Evaluaciones</span>
+        </div>
+      </div>
+      <div class="kpi-card" style="animation-delay: 0.03s">
+        <div class="kpi-card__icon kpi-card__icon--success">
+          <i class="pi pi-check-circle"></i>
+        </div>
+        <div class="kpi-card__content">
+          <span class="kpi-card__value">{{ kpiDashboard.completadas }}</span>
+          <span class="kpi-card__label">Completadas</span>
+        </div>
+      </div>
+      <div class="kpi-card" style="animation-delay: 0.06s">
+        <div class="kpi-card__icon kpi-card__icon--warning">
+          <i class="pi pi-star"></i>
+        </div>
+        <div class="kpi-card__content">
+          <span class="kpi-card__value">{{
+            kpiDashboard.promedio_general | number: "1.1-1"
+          }}</span>
+          <span class="kpi-card__label">Promedio General</span>
+        </div>
+      </div>
+      <div class="kpi-card" style="animation-delay: 0.09s">
+        <div class="kpi-card__icon kpi-card__icon--danger">
+          <i class="pi pi-clock"></i>
+        </div>
+        <div class="kpi-card__content">
+          <span class="kpi-card__value">{{ kpiDashboard.pending }}</span>
+          <span class="kpi-card__label">Pendientes</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row" *ngIf="kpiDashboard">
+      <!-- Pie Chart -->
+      <div class="chart-card chart-card--sm" style="animation-delay: 0.12s">
+        <div class="chart-card__head">
+          <i class="pi pi-chart-pie"></i>
+          <h3 class="chart-card__title">Distribución por área</h3>
+        </div>
+        <div class="chart-card__body">
+          <div
+            class="chart-card__canvas-wrapper chart-card__canvas-wrapper--pie"
+          >
+            <canvas
+              baseChart
+              [data]="tortaData"
+              type="pie"
+              [options]="tortaOptions"
+            ></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bar Chart -->
+      <div class="chart-card chart-card--lg" style="animation-delay: 0.15s">
+        <div class="chart-card__head">
+          <div class="chart-card__head-left">
+            <i class="pi pi-chart-bar"></i>
+            <h3 class="chart-card__title">Comparativo por área</h3>
+          </div>
+          <div class="chart-card__head-right">
+            <div class="select-wrapper select-wrapper--compact">
+              <select
+                class="select-input select-input--compact"
+                [(ngModel)]="areaSeleccionada"
+                (change)="cargarComparativoArea()"
+              >
+                <option [ngValue]="null">Seleccionar área</option>
+                <option *ngFor="let a of kpiDashboard?.areas" [ngValue]="a.id">
+                  {{ a.nombre }}
+                </option>
+              </select>
+              <i class="pi pi-chevron-down select-wrapper__arrow"></i>
+            </div>
+          </div>
+        </div>
+        <div class="chart-card__body">
+          <div
+            class="chart-card__canvas-wrapper chart-card__canvas-wrapper--bar"
+          >
+            <canvas
+              baseChart
+              [data]="barrasData"
+              type="bar"
+              [options]="barrasOptions"
+            ></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SECCIÓN: LISTA DE EVALUACIONES
+       ═══════════════════════════════════════ -->
+  <section class="tab-content" *ngIf="seccionActiva === 'lista'">
+    <!-- Análisis Individual Card -->
+    <div class="card" style="animation-delay: 0s">
+      <div class="card__head">
+        <div class="card__head-left">
+          <i class="pi pi-chart-line"></i>
+          <h3 class="card__head-title">Análisis individual</h3>
+        </div>
+      </div>
+      <div class="card__body">
+        <div class="analysis-controls">
+          <div class="form-field">
+            <label class="form-field__label">Colaborador</label>
+            <div class="select-wrapper">
+              <select
+                class="select-input"
+                [(ngModel)]="colaboradorSeleccionado"
+              >
+                <option [ngValue]="null">Seleccionar colaborador</option>
+                <option *ngFor="let u of colaboradores" [ngValue]="u.Uid">
+                  {{ u.name }} {{ u.lastName }}
+                </option>
+              </select>
+              <i class="pi pi-chevron-down select-wrapper__arrow"></i>
+            </div>
+          </div>
+          <button
+            class="btn btn--primary btn--sm analysis-controls__btn"
+            (click)="cargarGraficaRadar()"
+          >
+            <i class="pi pi-eye"></i>
+            <span>Ver radar + evolución</span>
+          </button>
+        </div>
+
+        <!-- Charts: Radar + Gauge + Línea -->
+        <div class="analysis-charts" *ngIf="radarData.datasets?.length">
+          <div class="analysis-charts__radar">
+            <span class="analysis-charts__label">Perfil de competencias</span>
+            <div class="analysis-charts__canvas-wrapper" style="height: 240px">
+              <canvas
+                baseChart
+                [data]="radarData"
+                type="radar"
+                [options]="radarOptions"
+              ></canvas>
+            </div>
+          </div>
+          <div class="analysis-charts__gauge">
+            <span class="analysis-charts__label">Calificación final</span>
+            <div class="analysis-charts__canvas-wrapper" style="height: 120px">
+              <canvas
+                baseChart
+                [data]="gaugeData"
+                type="doughnut"
+                [options]="gaugeOptions"
+              ></canvas>
+            </div>
+            <div class="analysis-charts__score">
+              <span
+                class="analysis-charts__score-value"
+                [ngClass]="colorCalificacion(calificacionFinalActual)"
+              >
+                {{ calificacionFinalActual | number: "1.1-1" }}
+              </span>
+              <span class="analysis-charts__score-max">/5</span>
+            </div>
+          </div>
+          <div class="analysis-charts__line">
+            <span class="analysis-charts__label">Evolución histórica</span>
+            <div class="analysis-charts__canvas-wrapper" style="height: 120px">
+              <canvas
+                baseChart
+                [data]="lineaData"
+                type="line"
+                [options]="lineaOptions"
+              ></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de Evaluaciones -->
+    <div class="card" style="animation-delay: 0.03s">
+      <div class="card__head">
+        <div class="card__head-left">
+          <i class="pi pi-list"></i>
+          <h3 class="card__head-title">Evaluaciones del período</h3>
+        </div>
+      </div>
+      <div class="card__body card__body--flush">
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Evaluado</th>
+                <th>Evaluador</th>
+                <th>Estado</th>
+                <th>Calificación</th>
+                <th>Fecha</th>
+                <th class="data-table__th--actions">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let ev of evaluaciones">
+                <td>
+                  <div class="data-table__cell-main">
+                    <strong class="data-table__cell-name"
+                      >{{ ev.evaluado?.name }}
+                      {{ ev.evaluado?.lastName }}</strong
+                    >
+                    <span class="data-table__cell-sub">{{
+                      ev.evaluado?.area?.nombre
+                    }}</span>
+                  </div>
+                </td>
+                <td class="data-table__cell-text">
+                  {{ ev.evaluador?.name }} {{ ev.evaluador?.lastName }}
+                </td>
+                <td>
+                  <span class="table-badge" [ngClass]="claseEstado(ev.estado)">
+                    {{ etiquetaEstado(ev.estado) }}
+                  </span>
+                </td>
+                <td>
+                  <span
+                    *ngIf="ev.calificacion_final"
+                    class="data-table__score"
+                    [ngClass]="colorCalificacion(ev.calificacion_final)"
+                  >
+                    {{ ev.calificacion_final | number: "1.1-1" }}
+                  </span>
+                  <span
+                    *ngIf="!ev.calificacion_final"
+                    class="data-table__no-score"
+                    >-</span
+                  >
+                </td>
+                <td class="data-table__cell-text">
+                  {{ formatearFecha(ev.fecha_evaluacion) }}
+                </td>
+                <td class="data-table__td--actions">
+                  <button
+                    class="action-btn action-btn--edit"
+                    (click)="abrirDetalle(ev)"
+                    title="Ver detalle"
+                  >
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- Empty -->
+          <div
+            class="empty-state empty-state--compact"
+            *ngIf="evaluaciones.length === 0"
+          >
+            <div class="empty-state__icon"><i class="pi pi-chart-bar"></i></div>
+            <h3 class="empty-state__title">
+              No hay evaluaciones para este período
+            </h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SECCIÓN: DETALLE DE EVALUACIÓN
+       ═══════════════════════════════════════ -->
+  <section
+    class="tab-content"
+    *ngIf="seccionActiva === 'detalle' && evaluacionDetalle"
+  >
+    <!-- Detalle Header Bar -->
+    <div class="detail-bar">
+      <button
+        class="btn btn--outline btn--sm"
+        (click)="seccionActiva = 'lista'; router.navigate(['/evaluaciones'])"
+      >
+        <i class="pi pi-arrow-left"></i>
+        <span>Volver</span>
+      </button>
+      <h3 class="detail-bar__title">
+        <i class="pi pi-file-edit"></i>
+        Evaluación: {{ evaluacionDetalle.evaluado?.name }}
+        {{ evaluacionDetalle.evaluado?.lastName }}
+      </h3>
+      <span
+        class="table-badge"
+        [ngClass]="claseEstado(evaluacionDetalle.estado)"
+      >
+        {{ etiquetaEstado(evaluacionDetalle.estado) }}
+      </span>
+      <button
+        class="btn btn--outline btn--sm detail-bar__pdf"
+        (click)="descargarPdf()"
+      >
+        <i class="pi pi-file-pdf"></i>
+        <span>PDF</span>
+      </button>
+    </div>
+
+    <div class="detail-layout">
+      <!-- ─── LEFT: Categorías + Objetivos ─── -->
+      <div class="detail-layout__main">
+        <!-- Categoría Cards -->
+        <div
+          class="card eval-category-card"
+          *ngFor="
+            let cat of evaluacionDetalle.periodo?.categorias;
+            let ci = index
+          "
+          [style.animation-delay]="ci * 0.03 + 's'"
+        >
+          <div class="card__head card__head--dark">
+            <div class="card__head-left">
+              <h3 class="card__head-title card__head-title--light">
+                {{ cat.nombre }}
+              </h3>
+            </div>
+            <span class="card__head-badge"
+              >Peso: {{ cat.peso_porcentaje }}%</span
+            >
+          </div>
+          <div class="card__body card__body--flush">
+            <table class="data-table data-table--inner">
+              <thead>
+                <tr>
+                  <th>Criterio</th>
+                  <th class="data-table__th--cal">Calificación (1-5)</th>
+                  <th>Comentario</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let crit of cat.criterios">
+                  <td>
+                    <div class="data-table__cell-main">
+                      <strong class="data-table__cell-name">{{
+                        crit.nombre
+                      }}</strong>
+                      <span
+                        class="data-table__cell-sub"
+                        *ngIf="crit.descripcion"
+                        >{{ crit.descripcion }}</span
+                      >
+                    </div>
+                  </td>
+                  <td>
+                    <div class="select-wrapper select-wrapper--compact">
+                      <select
+                        class="select-input select-input--compact"
+                        [(ngModel)]="calificaciones[crit.id]"
+                        [disabled]="evaluacionDetalle.estado === 'aprobada'"
+                      >
+                        <option [ngValue]="undefined">-</option>
+                        <option *ngFor="let n of [1, 2, 3, 4, 5]" [ngValue]="n">
+                          {{ n }}
+                        </option>
+                      </select>
+                      <i class="pi pi-chevron-down select-wrapper__arrow"></i>
+                    </div>
+                  </td>
+                  <td>
+                    <input
+                      class="text-input text-input--sm"
+                      [(ngModel)]="comentarios[crit.id]"
+                      [disabled]="evaluacionDetalle.estado === 'aprobada'"
+                      placeholder="Opcional"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Guardar calificaciones -->
+        <div
+          class="detail-save-bar"
+          *ngIf="evaluacionDetalle.estado !== 'aprobada'"
+        >
+          <button class="btn btn--primary" (click)="guardarCalificaciones()">
+            <i class="pi pi-save"></i>
+            <span>Guardar calificaciones</span>
+          </button>
+        </div>
+
+        <!-- Objetivos -->
+        <div class="card" style="animation-delay: 0.09s">
+          <div class="card__head">
+            <div class="card__head-left">
+              <i class="pi pi-flag"></i>
+              <h3 class="card__head-title">Objetivos</h3>
+            </div>
+            <button
+              class="btn btn--primary btn--sm"
+              (click)="agregarObjetivo()"
+              *ngIf="evaluacionDetalle.estado !== 'aprobada'"
+            >
+              <i class="pi pi-plus"></i>
+            </button>
+          </div>
+          <div class="card__body card__body--flush">
+            <!-- Empty -->
+            <div
+              class="empty-state empty-state--compact"
+              *ngIf="objetivos.length === 0"
+            >
+              <p class="empty-state__desc">Sin objetivos registrados</p>
+            </div>
+            <!-- Objetivos list -->
+            <div
+              class="objetivo-row"
+              *ngFor="let obj of objetivos; let i = index"
+            >
+              <div class="objetivo-row__fields">
+                <div class="form-field objetivo-row__desc">
+                  <label class="form-field__label">Descripción</label>
+                  <input
+                    class="text-input text-input--sm"
+                    [(ngModel)]="obj.descripcion"
+                    placeholder="Objetivo"
+                  />
+                </div>
+                <div class="form-field objetivo-row__pct">
+                  <label class="form-field__label">Cumplimiento %</label>
+                  <input
+                    class="text-input text-input--sm"
+                    type="number"
+                    min="0"
+                    max="100"
+                    [(ngModel)]="obj.cumplimiento_porcentaje"
+                  />
+                </div>
+                <div class="form-field objetivo-row__peso">
+                  <label class="form-field__label">Peso %</label>
+                  <input
+                    class="text-input text-input--sm"
+                    type="number"
+                    min="1"
+                    max="100"
+                    [(ngModel)]="obj.peso_porcentaje"
+                  />
+                </div>
+                <button
+                  class="action-btn action-btn--delete objetivo-row__del"
+                  (click)="eliminarObjetivo(i)"
+                  title="Eliminar"
+                >
+                  <i class="pi pi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="card__footer" *ngIf="objetivos.length > 0">
+            <button
+              class="btn btn--primary btn--sm"
+              (click)="guardarObjetivos()"
+            >
+              <i class="pi pi-save"></i>
+              <span>Guardar objetivos</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── RIGHT: Gauge + Cierre ─── -->
+      <div class="detail-layout__sidebar">
+        <!-- Gauge Card -->
+        <div class="card" style="animation-delay: 0.03s">
+          <div class="card__head">
+            <div class="card__head-left">
+              <i class="pi pi-chart-pie"></i>
+              <h3 class="card__head-title">Calificación actual</h3>
+            </div>
+          </div>
+          <div class="card__body">
+            <div class="gauge-display">
+              <div
+                class="gauge-display__canvas"
+                style="max-width: 200px; margin: 0 auto"
+              >
+                <canvas
+                  baseChart
+                  [data]="gaugeData"
+                  type="doughnut"
+                  [options]="gaugeOptions"
+                ></canvas>
+              </div>
+              <div class="gauge-display__score">
+                <span
+                  class="gauge-display__value"
+                  [ngClass]="colorCalificacion(calificacionFinalActual)"
+                >
+                  {{ calificacionFinalActual | number: "1.1-1" }}
+                </span>
+                <span class="gauge-display__max">/5</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cierre Card -->
+        <div class="card" style="animation-delay: 0.06s">
+          <div class="card__head">
+            <div class="card__head-left">
+              <i class="pi pi-check-square"></i>
+              <h3 class="card__head-title">Cierre de evaluación</h3>
+            </div>
+          </div>
+          <div class="card__body">
+            <form [formGroup]="formCompletar" class="cierre-form">
+              <div class="form-field">
+                <label class="form-field__label"
+                  >Fortalezas identificadas</label
+                >
+                <textarea
+                  class="textarea-input textarea-input--sm"
+                  rows="2"
+                  formControlName="fortalezas"
+                ></textarea>
+              </div>
+              <div class="form-field">
+                <label class="form-field__label">Áreas de mejora</label>
+                <textarea
+                  class="textarea-input textarea-input--sm"
+                  rows="2"
+                  formControlName="areas_mejora"
+                ></textarea>
+              </div>
+              <div class="form-field">
+                <label class="form-field__label">Compromisos</label>
+                <textarea
+                  class="textarea-input textarea-input--sm"
+                  rows="2"
+                  formControlName="compromisos"
+                ></textarea>
+              </div>
+              <div class="form-field">
+                <label class="form-field__label">Plan de mejora</label>
+                <textarea
+                  class="textarea-input textarea-input--sm"
+                  rows="2"
+                  formControlName="plan_mejora"
+                ></textarea>
+              </div>
+              <div class="form-field">
+                <label class="form-field__label">Observaciones</label>
+                <textarea
+                  class="textarea-input textarea-input--sm"
+                  rows="2"
+                  formControlName="observaciones"
+                ></textarea>
+              </div>
+              <button
+                class="btn btn--success btn--full"
+                (click)="completarEvaluacion()"
+                [disabled]="
+                  evaluacionDetalle.estado === 'aprobada' ||
+                  !calificacionFinalActual
+                "
+              >
+                <i class="pi pi-check-circle"></i>
+                <span>Marcar como completada</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SECCIÓN: CONFIGURACIÓN
+       ═══════════════════════════════════════ -->
+  <section class="tab-content" *ngIf="seccionActiva === 'config' && modoAdmin">
+    <div class="config-layout">
+      <!-- Períodos -->
+      <div class="config-layout__sidebar">
+        <div class="card" style="animation-delay: 0s">
+          <div class="card__head">
+            <div class="card__head-left">
+              <i class="pi pi-calendar"></i>
+              <h3 class="card__head-title">Períodos</h3>
+            </div>
+            <button
+              class="btn btn--primary btn--sm"
+              (click)="abrirModal('periodo')"
+            >
+              <i class="pi pi-plus"></i>
+            </button>
+          </div>
+          <div class="card__body card__body--flush">
+            <div class="config-list">
+              <div class="config-list__item" *ngFor="let p of periodos">
+                <div class="config-list__info">
+                  <strong class="config-list__name">{{ p.nombre }}</strong>
+                  <span class="config-list__meta"
+                    >{{ formatearFecha(p.fecha_inicio) }} –
+                    {{ formatearFecha(p.fecha_fin) }}</span
+                  >
+                </div>
+                <span
+                  class="table-badge"
+                  [ngClass]="
+                    p.estado === 'activo'
+                      ? 'table-badge--success'
+                      : 'table-badge--muted'
+                  "
+                >
+                  {{ p.estado }}
+                </span>
+              </div>
+              <div
+                class="empty-state empty-state--compact"
+                *ngIf="periodos.length === 0"
+              >
+                <p class="empty-state__desc">Sin períodos</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categorías y Criterios -->
+      <div class="config-layout__main">
+        <div class="card" style="animation-delay: 0.03s">
+          <div class="card__head">
+            <div class="card__head-left">
+              <i class="pi pi-sitemap"></i>
+              <h3 class="card__head-title">Categorías y criterios</h3>
+            </div>
+            <button
+              class="btn btn--primary btn--sm"
+              (click)="abrirModal('categoria')"
+            >
+              <i class="pi pi-plus"></i>
+              <span>Categoría</span>
+            </button>
+          </div>
+          <div class="card__body">
+            <div class="config-category" *ngFor="let cat of categorias">
+              <div class="config-category__head">
+                <strong class="config-category__name">{{ cat.nombre }}</strong>
+                <div class="config-category__actions">
+                  <span class="config-category__peso"
+                    >Peso: {{ cat.peso_porcentaje }}%</span
+                  >
+                  <button
+                    class="btn btn--outline btn--xs"
+                    (click)="abrirModal('criterio', cat)"
+                  >
+                    <i class="pi pi-plus"></i>
+                    <span>Criterio</span>
+                  </button>
+                </div>
+              </div>
+              <div class="config-category__criteria">
+                <div
+                  class="config-criteria-row"
+                  *ngFor="let crit of cat.criterios"
+                >
+                  <span class="config-criteria-row__name">{{
+                    crit.nombre
+                  }}</span>
+                  <span class="config-criteria-row__meta"
+                    >Escala {{ crit.escala_min }}-{{ crit.escala_max }} | Peso
+                    {{ crit.peso_porcentaje }}%</span
+                  >
+                </div>
+                <div
+                  class="config-criteria-row config-criteria-row--empty"
+                  *ngIf="!cat.criterios?.length"
+                >
+                  <span
+                    class="config-criteria-row__name config-criteria-row__name--muted"
+                    >Sin criterios</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MODALES (fuera del container)
+     ═══════════════════════════════════════════════ -->
+
+<!-- Modal: Nuevo Período -->
+<div
+  class="modal-overlay"
+  *ngIf="mostrarModal === 'periodo'"
+  (click)="cerrarModal()"
+  role="dialog"
+  aria-modal="true"
+>
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <div class="modal__header-left">
+        <div class="modal__header-icon"><i class="pi pi-calendar"></i></div>
+        <h2 class="modal__title">Nuevo período de evaluación</h2>
+      </div>
+      <button class="modal__close" (click)="cerrarModal()" aria-label="Cerrar">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+    <div class="modal__body">
+      <form [formGroup]="formPeriodo" class="form-grid">
+        <div class="form-field form-field--full">
+          <label class="form-field__label">Nombre *</label>
+          <input
+            class="text-input"
+            formControlName="nombre"
+            placeholder="Ej: I Semestre 2025"
+          />
+        </div>
+        <div class="form-field form-field--full">
+          <label class="form-field__label">Descripción</label>
+          <textarea
+            class="textarea-input"
+            rows="2"
+            formControlName="descripcion"
+          ></textarea>
+        </div>
+        <div class="form-field form-field--half">
+          <label class="form-field__label">Fecha inicio *</label>
+          <input
+            type="date"
+            class="text-input"
+            formControlName="fecha_inicio"
+          />
+        </div>
+        <div class="form-field form-field--half">
+          <label class="form-field__label">Fecha fin *</label>
+          <input type="date" class="text-input" formControlName="fecha_fin" />
+        </div>
+      </form>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--outline" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn btn--primary" (click)="guardarPeriodo()">
+        <i class="pi pi-save"></i><span>Guardar</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nueva Categoría -->
+<div
+  class="modal-overlay"
+  *ngIf="mostrarModal === 'categoria'"
+  (click)="cerrarModal()"
+  role="dialog"
+  aria-modal="true"
+>
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <div class="modal__header-left">
+        <div class="modal__header-icon"><i class="pi pi-sitemap"></i></div>
+        <h2 class="modal__title">Nueva categoría de evaluación</h2>
+      </div>
+      <button class="modal__close" (click)="cerrarModal()" aria-label="Cerrar">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+    <div class="modal__body">
+      <form [formGroup]="formCategoria" class="form-grid">
+        <div class="form-field form-field--full">
+          <label class="form-field__label">Nombre *</label>
+          <input
+            class="text-input"
+            formControlName="nombre"
+            placeholder="Ej: Competencias técnicas"
+          />
+        </div>
+        <div class="form-field form-field--full">
+          <label class="form-field__label">Descripción</label>
+          <textarea
+            class="textarea-input"
+            rows="2"
+            formControlName="descripcion"
+          ></textarea>
+        </div>
+        <div class="form-field form-field--half">
+          <label class="form-field__label">Peso % *</label>
+          <input
+            type="number"
+            class="text-input"
+            formControlName="peso_porcentaje"
+            min="1"
+            max="100"
+          />
+        </div>
+      </form>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--outline" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn btn--primary" (click)="guardarCategoria()">
+        <i class="pi pi-save"></i><span>Guardar</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nuevo Criterio -->
+<div
+  class="modal-overlay"
+  *ngIf="mostrarModal === 'criterio'"
+  (click)="cerrarModal()"
+  role="dialog"
+  aria-modal="true"
+>
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <div class="modal__header-left">
+        <div class="modal__header-icon"><i class="pi pi-sliders-h"></i></div>
+        <h2 class="modal__title">Nuevo criterio</h2>
+        <span class="modal__header-sub">{{
+          categoriaParaCriterio?.nombre
+        }}</span>
+      </div>
+      <button class="modal__close" (click)="cerrarModal()" aria-label="Cerrar">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+    <div class="modal__body">
+      <form [formGroup]="formCriterio" class="form-grid">
+        <div class="form-field form-field--full">
+          <label class="form-field__label">Nombre *</label>
+          <input class="text-input" formControlName="nombre" />
+        </div>
+        <div class="form-field form-field--full">
+          <label class="form-field__label">Descripción</label>
+          <textarea
+            class="textarea-input"
+            rows="2"
+            formControlName="descripcion"
+          ></textarea>
+        </div>
+        <div class="form-field">
+          <label class="form-field__label">Escala mín</label>
+          <input
+            type="number"
+            class="text-input"
+            formControlName="escala_min"
+          />
+        </div>
+        <div class="form-field">
+          <label class="form-field__label">Escala máx</label>
+          <input
+            type="number"
+            class="text-input"
+            formControlName="escala_max"
+          />
+        </div>
+        <div class="form-field form-field--half">
+          <label class="form-field__label">Peso %</label>
+          <input
+            type="number"
+            class="text-input"
+            formControlName="peso_porcentaje"
+            min="1"
+            max="100"
+          />
+        </div>
+      </form>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--outline" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn btn--primary" (click)="guardarCriterio()">
+        <i class="pi pi-save"></i><span>Guardar</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nueva Evaluación -->
+<div
+  class="modal-overlay"
+  *ngIf="mostrarModal === 'nueva-evaluacion'"
+  (click)="cerrarModal()"
+  role="dialog"
+  aria-modal="true"
+>
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <div class="modal__header-left">
+        <div class="modal__header-icon"><i class="pi pi-plus"></i></div>
+        <h2 class="modal__title">Nueva evaluación</h2>
+      </div>
+      <button class="modal__close" (click)="cerrarModal()" aria-label="Cerrar">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+    <div class="modal__body">
+      <form [formGroup]="formNuevaEvaluacion" class="form-grid">
+        <div class="form-field form-field--full">
+          <label class="form-field__label">Período *</label>
+          <div class="select-wrapper">
+            <select class="select-input" formControlName="periodo_id">
+              <option value="">Seleccionar</option>
+              <option *ngFor="let p of periodos" [value]="p.id">
+                {{ p.nombre }}
+              </option>
+            </select>
+            <i class="pi pi-chevron-down select-wrapper__arrow"></i>
+          </div>
+        </div>
+        <div class="form-field form-field--full">
+          <label class="form-field__label">Evaluado *</label>
+          <div class="select-wrapper">
+            <select class="select-input" formControlName="evaluado_uid">
+              <option value="">Seleccionar colaborador</option>
+              <option *ngFor="let u of colaboradores" [value]="u.Uid">
+                {{ u.name }} {{ u.lastName }}
+              </option>
+            </select>
+            <i class="pi pi-chevron-down select-wrapper__arrow"></i>
+          </div>
+        </div>
+        <div class="form-field form-field--full">
+          <label class="form-field__label">Evaluador *</label>
+          <div class="select-wrapper">
+            <select class="select-input" formControlName="evaluador_uid">
+              <option value="">Seleccionar evaluador</option>
+              <option *ngFor="let u of colaboradores" [value]="u.Uid">
+                {{ u.name }} {{ u.lastName }}
+              </option>
+            </select>
+            <i class="pi pi-chevron-down select-wrapper__arrow"></i>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--outline" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn btn--primary" (click)="crearEvaluacion()">
+        <i class="pi pi-check"></i><span>Crear</span>
+      </button>
+    </div>
+  </div>
+</div>

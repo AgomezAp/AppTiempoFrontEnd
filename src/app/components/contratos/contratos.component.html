@@ -1,0 +1,612 @@
+<app-navbar></app-navbar>
+
+<div class="contratos-container">
+  <!-- ═══ PAGE HEADER ═══ -->
+  <header class="page-header">
+    <div class="page-header__bg"></div>
+    <div class="page-header__content">
+      <div class="page-header__left">
+        <div class="page-header__icon">
+          <i class="pi pi-file"></i>
+        </div>
+        <div class="page-header__text">
+          <h1 class="page-header__title">Contratos Laborales</h1>
+          <p class="page-header__subtitle">
+            {{
+              modoAdmin
+                ? "Gestión de todos los contratos vigentes"
+                : "Mis contratos laborales"
+            }}
+          </p>
+        </div>
+      </div>
+      <div class="page-header__right">
+        <button
+          *ngIf="modoAdmin"
+          class="btn btn--primary"
+          (click)="abrirFormContrato()"
+        >
+          <i class="pi pi-plus"></i>
+          <span>Nuevo Contrato</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ LOADING ═══ -->
+  <div class="loading-state" *ngIf="cargando">
+    <div class="loading-state__spinner"></div>
+    <p class="loading-state__text">Cargando contratos...</p>
+  </div>
+
+  <!-- ═══ EMPTY STATE ═══ -->
+  <div class="empty-state" *ngIf="!cargando && contratos.length === 0">
+    <div class="empty-state__icon">
+      <i class="pi pi-folder-open"></i>
+    </div>
+    <h3 class="empty-state__title">No hay contratos registrados</h3>
+    <p class="empty-state__desc">Crea un nuevo contrato para comenzar</p>
+  </div>
+
+  <!-- ═══ LISTADO DE CONTRATOS ═══ -->
+  <section class="contratos-section" *ngIf="!cargando && contratos.length > 0">
+    <div class="contratos-list">
+      <article
+        class="contrato-card"
+        *ngFor="let contrato of contratos; let i = index"
+        [style.animation-delay]="i * 0.03 + 's'"
+      >
+        <!-- Card Head: info principal + estado + acciones -->
+        <div class="contrato-card__head">
+          <div class="contrato-card__identity">
+            <div class="contrato-card__avatar">
+              <i class="pi pi-user"></i>
+            </div>
+            <div class="contrato-card__identity-info">
+              <h5 class="contrato-card__name">
+                <ng-container *ngIf="contrato.colaborador">
+                  {{ contrato.colaborador.name }}
+                  {{ contrato.colaborador.lastName }}
+                </ng-container>
+                <ng-container *ngIf="!contrato.colaborador">
+                  Contrato #{{ contrato.id }}
+                </ng-container>
+              </h5>
+              <span class="contrato-card__role">
+                {{ contrato.cargo }} — {{ contrato.empresa }}
+                <span
+                  *ngIf="contrato.numero_contrato"
+                  class="contrato-card__num"
+                  >| N° {{ contrato.numero_contrato }}</span
+                >
+              </span>
+            </div>
+          </div>
+
+          <div class="contrato-card__dates">
+            <div class="contrato-card__date-col">
+              <span class="contrato-card__date-label">Inicio</span>
+              <span class="contrato-card__date-value">{{
+                formatearFecha(contrato.fecha_inicio)
+              }}</span>
+            </div>
+            <div class="contrato-card__date-col">
+              <span class="contrato-card__date-label">Fin</span>
+              <span class="contrato-card__date-value">{{
+                contrato.fecha_fin
+                  ? formatearFecha(contrato.fecha_fin)
+                  : "Indefinido"
+              }}</span>
+            </div>
+          </div>
+
+          <div class="contrato-card__actions">
+            <span
+              class="contrato-card__badge"
+              [ngClass]="claseEstado(contrato.estado || 'activo')"
+            >
+              {{ etiquetaEstado(contrato.estado || "activo") }}
+            </span>
+            <div class="contrato-card__btns">
+              <button
+                class="contrato-card__action-btn contrato-card__action-btn--pdf"
+                title="Descargar PDF"
+                (click)="descargarPdf(contrato.id!)"
+              >
+                <i class="pi pi-file-pdf"></i>
+              </button>
+              <button
+                *ngIf="modoAdmin"
+                class="contrato-card__action-btn contrato-card__action-btn--edit"
+                title="Editar"
+                (click)="abrirFormContrato(contrato)"
+              >
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button
+                *ngIf="modoAdmin"
+                class="contrato-card__action-btn contrato-card__action-btn--mod"
+                title="Agregar Modificación"
+                (click)="abrirFormModificacion(contrato)"
+              >
+                <i class="pi pi-plus-circle"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Body: detalle expandido -->
+        <div class="contrato-card__body">
+          <div class="contrato-card__detail-grid">
+            <div class="contrato-card__detail-item">
+              <span class="contrato-card__detail-label">Tipo</span>
+              <span class="contrato-card__detail-value">{{
+                contrato.tipo_contrato
+              }}</span>
+            </div>
+            <div class="contrato-card__detail-item">
+              <span class="contrato-card__detail-label">Salario</span>
+              <span
+                class="contrato-card__detail-value contrato-card__detail-value--salary"
+                >{{ formatearSalario(contrato.salario) }}</span
+              >
+            </div>
+            <div class="contrato-card__detail-item">
+              <span class="contrato-card__detail-label">Jornada</span>
+              <span class="contrato-card__detail-value">{{
+                contrato.jornada || "-"
+              }}</span>
+            </div>
+            <div class="contrato-card__detail-item">
+              <span class="contrato-card__detail-label">Período de prueba</span>
+              <span class="contrato-card__detail-value"
+                >{{ contrato.periodo_prueba_dias || 0 }} días</span
+              >
+            </div>
+          </div>
+
+          <!-- Modificaciones -->
+          <div
+            class="contrato-card__mods"
+            *ngIf="
+              contrato.modificaciones && contrato.modificaciones.length > 0
+            "
+          >
+            <span class="contrato-card__mods-label">
+              <i class="pi pi-history"></i>
+              Historial de modificaciones
+            </span>
+            <div class="contrato-card__mods-list">
+              <span
+                class="contrato-card__mod-pill"
+                *ngFor="let mod of contrato.modificaciones"
+              >
+                {{ mod.tipo_modificacion }} —
+                {{ formatearFecha(mod.fecha_efectiva) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+</div>
+<!-- ═══ MODAL: NUEVO / EDITAR CONTRATO ═══ -->
+<div
+  class="modal-overlay"
+  *ngIf="mostrarFormContrato"
+  (click)="cerrarFormContrato()"
+  role="dialog"
+  aria-modal="true"
+>
+  <div class="modal modal--lg" (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+    <div class="modal__header">
+      <div class="modal__header-left">
+        <div class="modal__header-icon">
+          <i class="pi pi-file-edit"></i>
+        </div>
+        <h2 class="modal__title">
+          {{ editandoId ? "Editar Contrato" : "Nuevo Contrato" }}
+        </h2>
+      </div>
+      <button
+        class="modal__close"
+        (click)="cerrarFormContrato()"
+        aria-label="Cerrar"
+      >
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="modal__body">
+      <form [formGroup]="formContrato" class="form-grid">
+        <!-- Colaborador -->
+        <div class="form-field form-field--half">
+          <label class="form-field__label" for="fc_uid">Colaborador *</label>
+          <div class="select-wrapper">
+            <select
+              id="fc_uid"
+              class="select-input"
+              formControlName="Uid"
+              [class.select-input--invalid]="
+                formContrato.get('Uid')?.invalid &&
+                formContrato.get('Uid')?.touched
+              "
+              (change)="onColaboradorChange($any($event.target).value)"
+            >
+              <option value="">Seleccionar colaborador...</option>
+              <option *ngFor="let col of colaboradores" [value]="col.Uid">
+                {{ col.name }} {{ col.lastName }}
+              </option>
+            </select>
+            <i class="pi pi-chevron-down select-wrapper__arrow"></i>
+          </div>
+          <span
+            class="form-field__error"
+            *ngIf="
+              formContrato.get('Uid')?.invalid &&
+              formContrato.get('Uid')?.touched
+            "
+            >Campo requerido</span
+          >
+        </div>
+
+        <!-- Número contrato -->
+        <div class="form-field form-field--half">
+          <label class="form-field__label" for="fc_numero"
+            >Número de Contrato</label
+          >
+          <input
+            id="fc_numero"
+            type="text"
+            class="text-input"
+            formControlName="numero_contrato"
+            placeholder="Ej: CT-2026-001"
+          />
+        </div>
+
+        <!-- Tipo contrato -->
+        <div class="form-field form-field--half">
+          <label class="form-field__label" for="fc_tipo"
+            >Tipo de Contrato *</label
+          >
+          <div class="select-wrapper">
+            <select
+              id="fc_tipo"
+              class="select-input"
+              formControlName="tipo_contrato"
+            >
+              <option *ngFor="let tipo of tiposContrato" [value]="tipo">
+                {{ tipo }}
+              </option>
+            </select>
+            <i class="pi pi-chevron-down select-wrapper__arrow"></i>
+          </div>
+        </div>
+
+        <!-- Empresa -->
+        <div class="form-field form-field--half">
+          <label class="form-field__label" for="fc_empresa">Empresa *</label>
+          <div class="select-wrapper">
+            <select
+              id="fc_empresa"
+              class="select-input"
+              formControlName="empresa"
+            >
+              <option *ngFor="let emp of empresas" [value]="emp">
+                {{ emp }}
+              </option>
+            </select>
+            <i class="pi pi-chevron-down select-wrapper__arrow"></i>
+          </div>
+        </div>
+
+        <!-- Fecha inicio -->
+        <div class="form-field form-field--half">
+          <label class="form-field__label" for="fc_finicio"
+            >Fecha de Inicio *</label
+          >
+          <input
+            id="fc_finicio"
+            type="date"
+            class="text-input"
+            formControlName="fecha_inicio"
+            [class.text-input--invalid]="
+              formContrato.get('fecha_inicio')?.invalid &&
+              formContrato.get('fecha_inicio')?.touched
+            "
+          />
+          <span
+            class="form-field__error"
+            *ngIf="
+              formContrato.get('fecha_inicio')?.invalid &&
+              formContrato.get('fecha_inicio')?.touched
+            "
+            >Campo requerido</span
+          >
+        </div>
+
+        <!-- Fecha fin -->
+        <div class="form-field form-field--half">
+          <label class="form-field__label" for="fc_ffin">Fecha de Fin</label>
+          <input
+            id="fc_ffin"
+            type="date"
+            class="text-input"
+            formControlName="fecha_fin"
+          />
+          <span class="form-field__hint"
+            >Dejar vacío si es término indefinido</span
+          >
+        </div>
+
+        <!-- Cargo -->
+        <div class="form-field form-field--half">
+          <label class="form-field__label" for="fc_cargo">Cargo *</label>
+          <input
+            id="fc_cargo"
+            type="text"
+            class="text-input"
+            formControlName="cargo"
+            placeholder="Cargo del colaborador"
+            [class.text-input--invalid]="
+              formContrato.get('cargo')?.invalid &&
+              formContrato.get('cargo')?.touched
+            "
+          />
+          <span
+            class="form-field__error"
+            *ngIf="
+              formContrato.get('cargo')?.invalid &&
+              formContrato.get('cargo')?.touched
+            "
+            >Campo requerido</span
+          >
+        </div>
+
+        <!-- Área -->
+        <div class="form-field form-field--half">
+          <label class="form-field__label" for="fc_area">Área</label>
+          <input
+            id="fc_area"
+            type="text"
+            class="text-input"
+            formControlName="area"
+            placeholder="Área o departamento"
+          />
+        </div>
+
+        <!-- Salario -->
+        <div class="form-field form-field--half">
+          <label class="form-field__label" for="fc_salario">Salario *</label>
+          <div class="input-group">
+            <span class="input-group__prepend">$</span>
+            <input
+              id="fc_salario"
+              type="number"
+              class="text-input text-input--grouped"
+              formControlName="salario"
+              placeholder="0"
+              min="0"
+              [class.text-input--invalid]="
+                formContrato.get('salario')?.invalid &&
+                formContrato.get('salario')?.touched
+              "
+            />
+          </div>
+          <span
+            class="form-field__error"
+            *ngIf="
+              formContrato.get('salario')?.invalid &&
+              formContrato.get('salario')?.touched
+            "
+            >Salario requerido y mayor a 0</span
+          >
+        </div>
+
+        <!-- Jornada -->
+        <div class="form-field form-field--half">
+          <label class="form-field__label" for="fc_jornada">Jornada</label>
+          <div class="select-wrapper">
+            <select
+              id="fc_jornada"
+              class="select-input"
+              formControlName="jornada"
+            >
+              <option *ngFor="let j of jornadas" [value]="j">{{ j }}</option>
+            </select>
+            <i class="pi pi-chevron-down select-wrapper__arrow"></i>
+          </div>
+        </div>
+
+        <!-- Lugar trabajo -->
+        <div class="form-field form-field--half">
+          <label class="form-field__label" for="fc_lugar"
+            >Lugar de Trabajo</label
+          >
+          <input
+            id="fc_lugar"
+            type="text"
+            class="text-input"
+            formControlName="lugar_trabajo"
+          />
+        </div>
+
+        <!-- Periodo prueba -->
+        <div class="form-field form-field--half">
+          <label class="form-field__label" for="fc_prueba"
+            >Período de Prueba (días)</label
+          >
+          <input
+            id="fc_prueba"
+            type="number"
+            class="text-input"
+            formControlName="periodo_prueba_dias"
+            min="0"
+          />
+        </div>
+
+        <!-- Observaciones -->
+        <div class="form-field form-field--full">
+          <label class="form-field__label" for="fc_obs">Observaciones</label>
+          <textarea
+            id="fc_obs"
+            class="textarea-input"
+            formControlName="observaciones"
+            rows="3"
+          ></textarea>
+        </div>
+      </form>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal__footer">
+      <button class="btn btn--outline" (click)="cerrarFormContrato()">
+        Cancelar
+      </button>
+      <button class="btn btn--primary" (click)="guardarContrato()">
+        <i class="pi pi-save"></i>
+        <span>{{ editandoId ? "Actualizar" : "Crear Contrato" }}</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: MODIFICACIÓN / OTROSÍ ═══ -->
+<div
+  class="modal-overlay"
+  *ngIf="mostrarFormMod"
+  (click)="cerrarFormModificacion()"
+  role="dialog"
+  aria-modal="true"
+>
+  <div class="modal" (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+    <div class="modal__header modal__header--warning">
+      <div class="modal__header-left">
+        <div class="modal__header-icon modal__header-icon--warning">
+          <i class="pi pi-pencil"></i>
+        </div>
+        <h2 class="modal__title">Agregar Modificación</h2>
+        <span class="modal__header-sub"
+          >Contrato #{{ contratoSeleccionado?.id }}</span
+        >
+      </div>
+      <button
+        class="modal__close"
+        (click)="cerrarFormModificacion()"
+        aria-label="Cerrar"
+      >
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="modal__body">
+      <form [formGroup]="formModificacion" class="form-grid">
+        <!-- Tipo modificación -->
+        <div class="form-field form-field--half">
+          <label class="form-field__label" for="fm_tipo"
+            >Tipo de Modificación *</label
+          >
+          <div class="select-wrapper">
+            <select
+              id="fm_tipo"
+              class="select-input"
+              formControlName="tipo_modificacion"
+            >
+              <option *ngFor="let tipo of tiposModificacion" [value]="tipo">
+                {{ tipo }}
+              </option>
+            </select>
+            <i class="pi pi-chevron-down select-wrapper__arrow"></i>
+          </div>
+        </div>
+
+        <!-- Fecha efectiva -->
+        <div class="form-field form-field--half">
+          <label class="form-field__label" for="fm_fecha"
+            >Fecha Efectiva *</label
+          >
+          <input
+            id="fm_fecha"
+            type="date"
+            class="text-input"
+            formControlName="fecha_efectiva"
+            [class.text-input--invalid]="
+              formModificacion.get('fecha_efectiva')?.invalid &&
+              formModificacion.get('fecha_efectiva')?.touched
+            "
+          />
+        </div>
+
+        <!-- Descripción -->
+        <div class="form-field form-field--full">
+          <label class="form-field__label" for="fm_desc">Descripción *</label>
+          <textarea
+            id="fm_desc"
+            class="textarea-input"
+            formControlName="descripcion"
+            rows="3"
+            placeholder="Detalle de la modificación..."
+          ></textarea>
+        </div>
+
+        <!-- Nuevo salario -->
+        <div class="form-field form-field--half">
+          <label class="form-field__label" for="fm_salario"
+            >Nuevo Salario (si aplica)</label
+          >
+          <div class="input-group">
+            <span class="input-group__prepend">$</span>
+            <input
+              id="fm_salario"
+              type="number"
+              class="text-input text-input--grouped"
+              formControlName="nuevo_salario"
+            />
+          </div>
+        </div>
+
+        <!-- Nuevo cargo -->
+        <div class="form-field form-field--half">
+          <label class="form-field__label" for="fm_cargo"
+            >Nuevo Cargo (si aplica)</label
+          >
+          <input
+            id="fm_cargo"
+            type="text"
+            class="text-input"
+            formControlName="nuevo_cargo"
+          />
+        </div>
+
+        <!-- Nueva fecha fin -->
+        <div class="form-field form-field--half">
+          <label class="form-field__label" for="fm_ffin"
+            >Nueva Fecha de Fin (si aplica)</label
+          >
+          <input
+            id="fm_ffin"
+            type="date"
+            class="text-input"
+            formControlName="nueva_fecha_fin"
+          />
+        </div>
+      </form>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal__footer">
+      <button class="btn btn--outline" (click)="cerrarFormModificacion()">
+        Cancelar
+      </button>
+      <button class="btn btn--warning" (click)="guardarModificacion()">
+        <i class="pi pi-save"></i>
+        <span>Registrar Modificación</span>
+      </button>
+    </div>
+  </div>
+</div>

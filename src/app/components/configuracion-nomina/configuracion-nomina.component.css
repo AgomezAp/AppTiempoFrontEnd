@@ -1,3 +1,30 @@
+:host {
+  --font: 'Fira Sans', sans-serif;
+  --primary: #141414;
+  --secondary: #FFD600;
+  --secondary-hover: #e6c200;
+  --secondary-light: rgba(255,214,0,.10);
+  --text-dark: #141414;
+  --text-body: #374151;
+  --text-muted: #6c757d;
+  --text-light: #ffffff;
+  --bg-body: #f4f6f9;
+  --bg-white: #ffffff;
+  --bg-light: #f8f9fa;
+  --border: #e2e5e9;
+  --border-light: #eef0f2;
+  --success: #10b981;
+  --info: #3B82F6;
+  --warning: #F59E0B;
+  --danger: #dc3545;
+  --radius-sm: .375rem;
+  --radius-md: .5rem;
+  --radius-lg: .75rem;
+  --radius-xl: 1rem;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.07);
+  --transition: all .2s cubic-bezier(.4,0,.2,1);
+}
 /* ========================================
    CONFIGURACIÓN DE NÓMINA
    Principal: #141414 | Secundario: #FFD600
@@ -577,3 +604,4 @@
     flex-direction: column;
   }
 }
+

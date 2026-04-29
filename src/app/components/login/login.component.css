@@ -1,247 +1,171 @@
-/* ========================================
-   LOGIN PAGE - IDENTIDAD DE MARCA
-   Principal: #141414 | Secundario: #FFD600
-   Fuente: Fira Sans
-   ======================================== */
+:host {
+  --font: 'Fira Sans', sans-serif;
+  --primary: #141414;
+  --secondary: #FFD600;
+  --secondary-hover: #e6c200;
+  --text-dark: #141414;
+  --text-muted: #6c757d;
+  --bg-white: #ffffff;
+  --border: #e2e5e9;
+  --radius-md: .5rem;
+  --radius-lg: .75rem;
+  --transition: all .2s cubic-bezier(.4,0,.2,1);
+}
 
-/* ========================================
-   PÁGINA COMPLETA
-   ======================================== */
 .login-page {
-  font-family: "Fira Sans", sans-serif;
+  font-family: var(--font);
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 1.25rem;
+  background: #0f0f0f;
+  background-image: radial-gradient(ellipse at 50% 0%, rgba(255,214,0,.15) 0%, transparent 60%);
   position: relative;
 }
 
-/* Patrón de fondo con logo */
 .login-page::before {
-  content: "";
+  content: '';
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url("/LogoAP-pattern.png"); /* Tu logo para el patrón */
+  inset: 0;
+  background-image: url('/LogoAP-pattern.png');
   background-repeat: repeat;
   background-size: 80px;
-  background-position: center;
-  opacity: 0.04;
+  opacity: .02;
   pointer-events: none;
   z-index: 0;
 }
 
-/* ========================================
-   WRAPPER CENTRAL
-   ======================================== */
 .login-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   z-index: 1;
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
+  animation: loginFade .5s ease;
 }
 
-/* ========================================
-   LOGO
-   ======================================== */
+@keyframes loginFade {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .logo-container {
-  margin-bottom: 30px;
+  margin-bottom: 2rem;
   text-align: center;
 }
 
 .logo-container img {
-  height: 80px;
+  height: 72px;
   width: auto;
-  transition: transform 0.3s ease;
+  filter: drop-shadow(0 0 18px rgba(255,214,0,.28));
+  transition: var(--transition);
 }
 
-.logo-container img:hover {
-  transform: scale(1.05);
-}
+.logo-container img:hover { transform: scale(1.04); }
 
-/* ========================================
-   CARD DE LOGIN
-   ======================================== */
 .login-card {
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  padding: 35px 40px;
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  border-top: 3px solid var(--secondary);
+  box-shadow: 0 24px 64px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.15);
+  padding: 2.25rem 2.5rem;
   width: 100%;
-  box-sizing: border-box;
 }
 
 .login-card h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #141414;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-dark);
   text-align: center;
-  margin: 0 0 25px 0;
+  margin: 0 0 1.75rem;
+  letter-spacing: -.01em;
 }
 
-/* ========================================
-   FORMULARIO
-   ======================================== */
-.form-group {
-  margin-bottom: 20px;
-}
+.form-group { margin-bottom: 1.25rem; }
 
 .form-group label {
   display: block;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #141414;
-  margin-bottom: 8px;
+  font-size: .68rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: .45rem;
 }
 
 .form-group input {
   width: 100%;
-  font-family: "Fira Sans", sans-serif;
-  font-size: 0.95rem;
-  padding: 14px 16px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  background-color: #fafafa;
-  color: #141414;
-  transition: all 0.2s ease;
+  font-family: var(--font);
+  font-size: .88rem;
+  padding: .65rem .9rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: #fafafa;
+  color: var(--text-dark);
+  transition: var(--transition);
   box-sizing: border-box;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #ffd600;
-  background-color: #ffffff;
-  box-shadow: 0 0 0 3px rgba(255, 214, 0, 0.15);
+  border-color: var(--secondary);
+  background: var(--bg-white);
+  box-shadow: 0 0 0 3px rgba(255,214,0,.15);
 }
 
-.form-group input::placeholder {
-  color: #aaaaaa;
-}
+.form-group input::placeholder { color: #bbb; }
 
-/* ========================================
-   BOTÓN DE LOGIN
-   ======================================== */
 .btn-login {
   width: 100%;
-  font-family: "Fira Sans", sans-serif;
-  font-size: 1rem;
+  font-family: var(--font);
+  font-size: .95rem;
   font-weight: 700;
-  padding: 14px 20px;
-  margin-top: 10px;
-  background-color: #141414;
-  color: #ffffff;
+  padding: .75rem 1rem;
+  margin-top: .5rem;
+  background: var(--secondary);
+  color: var(--primary);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition);
+  letter-spacing: .01em;
 }
 
 .btn-login:hover:not(:disabled) {
-  background-color: #ffd600;
-  color: #141414;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(255, 214, 0, 0.4);
-}
-
-.btn-login:active:not(:disabled) {
-  transform: translateY(0);
+  background: var(--secondary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(255,214,0,.4);
 }
 
 .btn-login:disabled {
-  background-color: #cccccc;
-  color: #666666;
+  background: #ccc;
+  color: #888;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
 }
 
-/* ========================================
-   LINKS
-   ======================================== */
-.login-links {
-  margin-top: 20px;
-  text-align: center;
-}
+.login-links { margin-top: 1.25rem; text-align: center; }
 
 .login-links a {
   display: block;
-  font-size: 0.85rem;
-  color: #141414;
+  font-size: .8rem;
+  color: var(--text-muted);
   text-decoration: none;
-  padding: 8px 0;
-  transition: color 0.2s ease;
+  padding: .35rem 0;
+  transition: var(--transition);
 }
 
-.login-links a:hover {
-  color: #ffd600;
-  text-decoration: underline;
-}
+.login-links a:hover { color: var(--secondary); }
 
-/* ========================================
-   FOOTER
-   ======================================== */
 .login-footer {
-  margin-top: 25px;
-  font-size: 0.75rem;
-  color: #999999;
+  margin-top: 1.5rem;
+  font-size: .7rem;
+  color: rgba(255,255,255,.32);
   text-align: center;
 }
 
-/* ========================================
-   RESPONSIVE
-   ======================================== */
 @media (max-width: 480px) {
-  .login-page {
-    padding: 15px;
-  }
-
-  .logo-container img {
-    height: 60px;
-  }
-
-  .login-card {
-    padding: 25px 20px;
-    border-radius: 10px;
-  }
-
-  .login-card h2 {
-    font-size: 1.3rem;
-  }
-
-  .form-group input {
-    padding: 12px 14px;
-    font-size: 0.9rem;
-  }
-
-  .btn-login {
-    padding: 12px 18px;
-    font-size: 0.95rem;
-  }
-}
-
-/* ========================================
-   ANIMACIONES
-   ======================================== */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.login-card {
-  animation: fadeInUp 0.5s ease;
-}
-
-.logo-container {
-  animation: fadeInUp 0.5s ease 0.1s backwards;
+  .login-card { padding: 1.75rem 1.5rem; }
+  .logo-container img { height: 56px; }
 }

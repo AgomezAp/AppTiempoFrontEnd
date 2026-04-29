@@ -1,872 +1,216 @@
-/* ========================================
-   LISTA DE HORAS EXTRAS
-   Principal: #141414 | Secundario: #FFD600
-   Fuente: Fira Sans
-   ======================================== */
-
-.extra-list-container {
-  font-family: "Fira Sans", sans-serif;
-  padding: 15px 20px;
-  background-color: #fafafa;
-  min-height: calc(100vh - 60px);
+:host {
+  --font: 'Fira Sans', sans-serif;
+  --primary: #141414;
+  --secondary: #FFD600;
+  --secondary-hover: #e6c200;
+  --secondary-light: rgba(255,214,0,.10);
+  --text-dark: #141414;
+  --text-body: #374151;
+  --text-muted: #6c757d;
+  --text-light: #ffffff;
+  --bg-body: #f4f6f9;
+  --bg-white: #ffffff;
+  --bg-light: #f8f9fa;
+  --border: #e2e5e9;
+  --border-light: #eef0f2;
+  --success: #10b981;
+  --danger: #dc3545;
+  --radius-sm: .375rem;
+  --radius-md: .5rem;
+  --radius-lg: .75rem;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.05);
+  --transition: all .2s cubic-bezier(.4,0,.2,1);
 }
 
-/* ========================================
-   HEADER SECTION
-   ======================================== */
+.extra-list-container {
+  font-family: var(--font);
+  padding: 1.25rem 1.5rem;
+  background: var(--bg-body);
+  min-height: calc(100vh - 60px);
+  animation: fadeSlide .4s ease;
+}
+
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- HEADER ---- */
 .header-section {
-  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+  background: var(--primary);
+  background-image: radial-gradient(ellipse at 70% -20%, rgba(255,214,0,.14) 0%, transparent 60%);
+  border-radius: var(--radius-lg);
+  flex-wrap: wrap;
+  gap: .75rem;
 }
 
 .page-title {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #141414;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-light);
   margin: 0;
-  padding-bottom: 5px;
-  border-bottom: 3px solid #ffd600;
+  position: relative;
   display: inline-block;
+  letter-spacing: -.01em;
 }
 
-/* ========================================
-   TABLA
-   ======================================== */
+.page-title::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 40%;
+  height: 2px;
+  background: var(--secondary);
+  border-radius: 2px;
+}
+
+/* ---- TABLE ---- */
 .table-container {
-  background-color: #ffffff;
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
 
 .extras-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.85rem;
+  font-family: var(--font);
 }
 
-/* Encabezado */
-.extras-table thead {
-  background-color: #141414;
-}
+.extras-table thead { background: var(--primary); }
+.extras-table thead tr { border-bottom: 2px solid var(--secondary); }
 
 .extras-table th {
-  padding: 12px 15px;
+  padding: .55rem .85rem;
   text-align: left;
-  font-weight: 600;
-  font-size: 0.8rem;
-  color: #ffffff;
+  font-weight: 700;
+  font-size: .66rem;
+  color: var(--text-light);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: .05em;
   white-space: nowrap;
 }
 
-/* Filas */
 .extras-table tbody tr {
-  border-bottom: 1px solid #eee;
-  transition: background-color 0.2s ease;
+  border-bottom: 1px solid var(--border-light);
+  transition: var(--transition);
 }
 
-.extras-table tbody tr:hover {
-  background-color: #f9f9f9;
-}
+.extras-table tbody tr:hover { background: rgba(255,214,0,.025); }
 
-.extras-table tbody tr:nth-child(even) {
-  background-color: #fafafa;
-}
+.row-positive { border-left: 3px solid var(--success); }
+.row-negative { border-left: 3px solid var(--danger); }
+.row-neutral  { border-left: 3px solid var(--border); }
 
-.extras-table tbody tr:nth-child(even):hover {
-  background-color: #f5f5f5;
-}
-
-/* Filas con estado */
-.row-positive {
-  border-left: 4px solid #28a745;
-}
-
-.row-negative {
-  border-left: 4px solid #dc3545;
-}
-
-.row-neutral {
-  border-left: 4px solid #ffd600;
-}
-
-/* Celdas */
 .extras-table td {
-  padding: 12px 15px;
-  color: #141414;
+  padding: .55rem .85rem;
+  color: var(--text-body);
+  font-size: .8rem;
   vertical-align: middle;
 }
 
-.name-cell {
-  font-weight: 600;
-  max-width: 180px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.hours-cell {
-  text-align: center;
-}
+.name-cell  { font-weight: 600; color: var(--text-dark); white-space: nowrap; }
+.hours-cell { font-weight: 700; text-align: center; }
+.days-cell  { font-size: .78rem; color: var(--text-muted); }
 
 .hours-badge {
-  display: inline-block;
-  font-size: 0.85rem;
+  font-size: .7rem;
   font-weight: 700;
-  padding: 5px 12px;
-  border-radius: 20px;
-  min-width: 70px;
-  text-align: center;
+  padding: .22rem .6rem;
+  border-radius: 99px;
 }
 
-.hours-badge.positive {
-  background-color: #d4edda;
-  color: #155724;
-}
+.hours-badge.positive { background: #d1fae5; color: #065f46; }
+.hours-badge.negative { background: #fee2e2; color: #991b1b; }
+.hours-badge.neutral  { background: var(--bg-light); color: var(--text-muted); }
 
-.hours-badge.negative {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-.hours-badge.neutral {
-  background-color: #fff3cd;
-  color: #856404;
-}
-
-.days-cell {
-  font-weight: 500;
-  text-align: center;
-}
-
-/* ========================================
-   CELDA DE OBSERVACIONES - MEJORADA
-   ======================================== */
-.obs-cell {
-  font-size: 0.8rem;
-  color: #555;
-  max-width: 250px;
-  position: relative;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.obs-cell:hover {
-  background-color: #fffde7;
-}
+.obs-cell { max-width: 220px; }
 
 .obs-content {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: .4rem;
+  cursor: pointer;
 }
 
 .obs-text {
-  display: block;
+  font-size: .78rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  flex: 1;
-  position: relative;
+  max-width: 160px;
+  color: var(--text-body);
 }
 
-.no-obs {
-  color: #ccc;
-  font-style: italic;
-}
+.no-obs { font-size: .75rem; color: var(--text-muted); font-style: italic; }
 
-/* Icono de expandir */
 .expand-icon {
-  font-size: 0.7rem;
-  color: #999;
-  opacity: 0;
-  transition: all 0.2s ease;
+  font-size: .7rem;
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
-.obs-cell:hover .expand-icon {
-  opacity: 1;
-  color: #ffd600;
-}
-
-/* ========================================
-   TOOLTIP PERSONALIZADO CSS
-   ======================================== */
-.obs-text::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: calc(100% + 10px);
-  left: 0;
-  background-color: #141414;
-  color: #ffffff;
-  padding: 12px 15px;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  font-weight: 400;
-  white-space: normal;
-  word-wrap: break-word;
-  min-width: 280px;
-  max-width: 400px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-  z-index: 1000;
-  line-height: 1.5;
-  text-align: left;
-  pointer-events: none;
-}
-
-/* Flecha del tooltip */
-.obs-text::before {
-  content: "";
-  position: absolute;
-  bottom: calc(100% + 4px);
-  left: 20px;
-  border: 8px solid transparent;
-  border-top-color: #141414;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-  z-index: 1001;
-  pointer-events: none;
-}
-
-/* Mostrar tooltip en hover */
-.obs-cell:hover .obs-text::after,
-.obs-cell:hover .obs-text::before {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* Ajuste para tooltips en primeras filas (mostrar abajo) */
-.extras-table tbody tr:first-child .obs-text::after,
-.extras-table tbody tr:nth-child(2) .obs-text::after {
-  bottom: auto;
-  top: calc(100% + 10px);
-}
-
-.extras-table tbody tr:first-child .obs-text::before,
-.extras-table tbody tr:nth-child(2) .obs-text::before {
-  bottom: auto;
-  top: calc(100% + 4px);
-  border-top-color: transparent;
-  border-bottom-color: #141414;
-}
-
-/* ========================================
-   MODAL PARA OBSERVACIÓN COMPLETA
-   ======================================== */
+/* ---- MODAL ---- */
 .obs-modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  inset: 0;
+  background: rgba(0,0,0,.6);
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 2000;
-  padding: 20px;
-  animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
 }
 
 .obs-modal {
-  background-color: #ffffff;
-  border-radius: 12px;
-  max-width: 550px;
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  border-top: 3px solid var(--secondary);
   width: 100%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: slideUp 0.3s ease;
+  max-width: 500px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.3);
   overflow: hidden;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .obs-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 25px;
-  background-color: #141414;
-  color: #ffffff;
+  padding: .9rem 1.25rem;
+  background: var(--primary);
 }
 
 .obs-modal-header h3 {
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--secondary);
   margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.obs-modal-header h3 i {
-  color: #ffd600;
 }
 
 .obs-modal-close-btn {
-  background: none;
+  background: transparent;
   border: none;
-  color: #ffffff;
-  font-size: 1.2rem;
+  color: rgba(255,255,255,.65);
+  font-size: 1.1rem;
   cursor: pointer;
-  padding: 5px;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transition: var(--transition);
+  padding: .25rem;
 }
 
-.obs-modal-close-btn:hover {
-  background-color: rgba(255, 214, 0, 0.2);
-  color: #ffd600;
-}
+.obs-modal-close-btn:hover { color: var(--secondary); }
 
-.obs-modal-subheader {
-  padding: 12px 25px;
-  background-color: #f8f8f8;
-  border-bottom: 1px solid #eee;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #141414;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+.obs-modal-body { padding: 1.25rem; font-size: .85rem; color: var(--text-body); line-height: 1.6; }
 
-.obs-modal-subheader i {
-  color: #ffd600;
-}
-
-.obs-modal-body {
-  padding: 25px;
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-.obs-modal-body p {
-  font-size: 0.95rem;
-  line-height: 1.7;
-  color: #333;
-  margin: 0;
-  text-align: justify;
-}
-
-.obs-modal-footer {
-  padding: 15px 25px;
-  background-color: #f8f8f8;
-  border-top: 1px solid #eee;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.btn-cerrar-modal {
-  font-family: "Fira Sans", sans-serif;
-  font-size: 0.85rem;
-  font-weight: 600;
-  padding: 10px 25px;
-  background-color: #141414;
-  color: #ffffff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn-cerrar-modal:hover {
-  background-color: #ffd600;
-  color: #141414;
-}
-
-/* ========================================
-   BOTÓN ACTUALIZAR E HISTORIAL
-   ======================================== */
-.action-cell {
-  text-align: center;
-  white-space: nowrap;
-}
-
-.btn-update {
-  font-family: "Fira Sans", sans-serif;
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 8px 16px;
-  background-color: #141414;
-  color: #ffffff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.btn-update:hover {
-  background-color: #ffd600;
-  color: #141414;
-}
-
-.btn-update i {
-  font-size: 0.75rem;
-}
-
-/* ========================================
-   SIN DATOS
-   ======================================== */
-.no-data {
-  text-align: center;
-  padding: 60px 20px;
-  background-color: #ffffff;
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-
-.no-data i {
-  font-size: 3rem;
-  color: #ddd;
-  margin-bottom: 15px;
-  display: block;
-}
-
-.no-data p {
-  font-size: 1rem;
-  color: #999;
-  margin: 0;
-}
-
-/* ========================================
-   RESPONSIVE
-   ======================================== */
+/* ---- RESPONSIVE ---- */
 @media (max-width: 768px) {
-  .extra-list-container {
-    padding: 10px;
-  }
-
-  .extras-table th,
-  .extras-table td {
-    padding: 10px 8px;
-    font-size: 0.8rem;
-  }
-
-  .name-cell {
-    max-width: 100px;
-  }
-
-  .obs-cell {
-    max-width: 120px;
-  }
-
-  .btn-update {
-    padding: 6px 12px;
-    font-size: 0.75rem;
-  }
-
-  /* Ocultar tooltip en tablets/móviles, usar solo modal */
-  .obs-text::after,
-  .obs-text::before {
-    display: none;
-  }
-}
-
-@media (max-width: 500px) {
-  .extras-table th,
-  .extras-table td {
-    padding: 8px 5px;
-    font-size: 0.75rem;
-  }
-
-  .hours-badge {
-    padding: 4px 8px;
-    font-size: 0.75rem;
-    min-width: 50px;
-  }
-
-  .name-cell {
-    max-width: 80px;
-  }
-
-  /* Ocultar columna de observaciones en móvil muy pequeño */
-  .obs-cell,
-  .extras-table th:nth-child(4) {
-    display: none;
-  }
-
-  /* Modal responsive */
-  .obs-modal {
-    margin: 10px;
-    max-width: 100%;
-  }
-
-  .obs-modal-header {
-    padding: 15px 20px;
-  }
-
-  .obs-modal-subheader {
-    padding: 10px 20px;
-  }
-
-  .obs-modal-body {
-    padding: 20px;
-    max-height: 300px;
-  }
-
-  .obs-modal-footer {
-    padding: 12px 20px;
-  }
-
-  .btn-cerrar-modal {
-    width: 100%;
-    justify-content: center;
-  }
-}
-
-/* ========================================
-   SCROLLBAR PERSONALIZADA PARA MODAL
-   ======================================== */
-.obs-modal-body::-webkit-scrollbar {
-  width: 6px;
-}
-
-.obs-modal-body::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-.obs-modal-body::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 3px;
-}
-
-.obs-modal-body::-webkit-scrollbar-thumb:hover {
-  background: #999;
-}
-
-/* ========================================
-   BOTÓN HISTORIAL
-   ======================================== */
-.btn-historial {
-  font-family: "Fira Sans", sans-serif;
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 8px 16px;
-  background-color: #1a5276;
-  color: #ffffff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: 6px;
-}
-
-.btn-historial:hover {
-  background-color: #ffd600;
-  color: #141414;
-}
-
-.btn-historial i {
-  font-size: 0.75rem;
-}
-
-/* ========================================
-   MODAL HISTORIAL DE HORAS EXTRAS
-   ======================================== */
-.historico-modal {
-  background-color: #ffffff;
-  border-radius: 12px;
-  max-width: 500px;
-  width: 100%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: slideUp 0.3s ease;
-  overflow: hidden;
-}
-
-.historico-modal-body {
-  padding: 20px;
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-.historico-loading {
-  text-align: center;
-  padding: 30px;
-  color: #999;
-  font-size: 0.9rem;
-}
-
-.historico-loading i {
-  margin-right: 8px;
-  color: #ffd600;
-}
-
-.historico-empty {
-  text-align: center;
-  padding: 30px;
-  color: #ccc;
-}
-
-.historico-empty i {
-  font-size: 2rem;
-  display: block;
-  margin-bottom: 10px;
-}
-
-.historico-empty p {
-  margin: 0;
-  font-size: 0.9rem;
-}
-
-.historico-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.85rem;
-}
-
-.historico-table thead {
-  background-color: #141414;
-}
-
-.historico-table th {
-  padding: 10px 15px;
-  text-align: left;
-  font-weight: 600;
-  font-size: 0.8rem;
-  color: #ffffff;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.historico-table tbody tr {
-  border-bottom: 1px solid #eee;
-  transition: background-color 0.2s ease;
-}
-
-.historico-table tbody tr:hover {
-  background-color: #f9f9f9;
-}
-
-.historico-table tbody tr:nth-child(even) {
-  background-color: #fafafa;
-}
-
-.historico-table td {
-  padding: 10px 15px;
-  color: #141414;
-  vertical-align: middle;
-}
-
-.historico-table td:last-child {
-  text-align: center;
-}
-
-.historico-modal-body::-webkit-scrollbar {
-  width: 6px;
-}
-
-.historico-modal-body::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-.historico-modal-body::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 3px;
-}
-
-.historico-modal-body::-webkit-scrollbar-thumb:hover {
-  background: #999;
-}
-
-/* ========================================
-   RESPONSIVE HISTORIAL
-   ======================================== */
-@media (max-width: 768px) {
-  .btn-historial {
-    padding: 6px 10px;
-    font-size: 0.75rem;
-    margin-left: 4px;
-  }
-
-  .historico-modal {
-    max-width: 95%;
-  }
-}
-
-@media (max-width: 500px) {
-  .btn-historial {
-    padding: 5px 8px;
-    font-size: 0.7rem;
-    margin-left: 3px;
-    margin-top: 4px;
-  }
-
-  .btn-detalle {
-    padding: 5px 8px;
-    font-size: 0.7rem;
-    margin-left: 3px;
-    margin-top: 4px;
-  }
-
-  .action-cell {
-    white-space: normal;
-  }
-
-  .historico-modal-body {
-    max-height: 300px;
-  }
-}
-
-/* ========================================
-   BOTÓN DETALLE
-   ======================================== */
-.btn-detalle {
-  font-family: "Fira Sans", sans-serif;
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 8px 16px;
-  background-color: #2e7d32;
-  color: #ffffff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: 6px;
-}
-
-.btn-detalle:hover {
-  background-color: #ffd600;
-  color: #141414;
-}
-
-.btn-detalle i {
-  font-size: 0.75rem;
-}
-
-/* ========================================
-   MODAL DETALLE DIARIO DE HORAS EXTRAS
-   ======================================== */
-.detalle-modal {
-  background-color: #ffffff;
-  border-radius: 12px;
-  max-width: 650px;
-  width: 100%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: slideUp 0.3s ease;
-  overflow: hidden;
-}
-
-/* Filtros de período */
-.detalle-filtros {
-  display: flex;
-  gap: 8px;
-  padding: 15px 25px 0;
-  background-color: #ffffff;
-}
-
-.filtro-btn {
-  font-family: "Fira Sans", sans-serif;
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 8px 18px;
-  border: 2px solid #e0e0e0;
-  border-radius: 20px;
-  background-color: #ffffff;
-  color: #555;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.filtro-btn:hover {
-  border-color: #ffd600;
-  color: #141414;
-}
-
-.filtro-btn.active {
-  background-color: #141414;
-  color: #ffffff;
-  border-color: #141414;
-}
-
-/* Label del período actual */
-.detalle-periodo-label {
-  padding: 10px 25px 5px;
-  font-size: 0.8rem;
-  color: #888;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.detalle-periodo-label i {
-  color: #ffd600;
-}
-
-/* ========================================
-   RESPONSIVE DETALLE
-   ======================================== */
-@media (max-width: 768px) {
-  .btn-detalle {
-    padding: 6px 10px;
-    font-size: 0.75rem;
-    margin-left: 4px;
-  }
-
-  .detalle-modal {
-    max-width: 95%;
-  }
-
-  .detalle-filtros {
-    padding: 12px 15px 0;
-    gap: 5px;
-  }
-
-  .filtro-btn {
-    padding: 6px 12px;
-    font-size: 0.75rem;
-  }
-}
-
-@media (max-width: 500px) {
-  .detalle-filtros {
-    flex-wrap: wrap;
-    padding: 10px 15px 0;
-  }
-
-  .filtro-btn {
-    padding: 5px 10px;
-    font-size: 0.7rem;
-    flex: 1;
-    text-align: center;
-  }
+  .extra-list-container { padding: .75rem; }
+  .header-section { flex-direction: column; align-items: flex-start; }
 }
