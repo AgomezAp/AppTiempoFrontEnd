@@ -14,6 +14,28 @@ import { UserService } from '../../services/user.service';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 import { response } from 'express';
 
+const SYSTEM_ROLES = ['Admin', 'User', 'Tecnologia'];
+
+const MODULE_ROUTE_MAP: Record<string, string> = {
+  horas:                   '/horas',
+  novedades:               '/novedad',
+  permisos:                '/permisos',
+  usuarios:                '/admin',
+  admin_roles:             '/admin-roles',
+  recursos:                '/gestion-archivos',
+  ssgt:                    '/ssgt-dashboard',
+  rrhh_contratos:          '/contratos',
+  rrhh_hoja_vida:          '/hoja-vida',
+  rrhh_evaluaciones:       '/evaluaciones',
+  inventario_dispositivos: '/inventario',
+  inventario_mobiliario:   '/inventario-mobiliario',
+  inventario_aseo:         '/inventario-aseo',
+  inventario_papeleria:    '/inventario-papeleria',
+  inventario_botiquin:     '/inventario-botiquin',
+  inventario_desechables:  '/inventario-desechables',
+  inventario_dotacion:     '/inventario-dotacion',
+};
+
 @Component({
   selector: 'app-login',
   imports: [CommonModule,SpinnerComponent,FormsModule],
@@ -46,6 +68,7 @@ export class LoginComponent {
           const name = response.name;
           const lastname = response.lastname;
           const documentoIdentificacion = response.documentoIdentificacion || '';
+          const modulos: string[] = response.modulos || [];
           this.loading = false;
           this.toastr.success('', 'Bienvenido');
           localStorage.setItem('token', token);
@@ -56,8 +79,26 @@ export class LoginComponent {
           localStorage.setItem('name', name);
           localStorage.setItem('lastname', lastname);
           localStorage.setItem('documentoIdentificacion', documentoIdentificacion);
-          localStorage.setItem('role', role); // Guarda el rol en el localStorage
-          this.router.navigate([`/horas/${userId}`]);
+          localStorage.setItem('role', role);
+          localStorage.setItem('modulos', JSON.stringify(modulos));
+
+          const isCustomRole = !SYSTEM_ROLES.includes(role);
+          if (isCustomRole) {
+            // Redirigir al primer módulo habilitado
+            let redirect = '/access-denied';
+            for (const mod of modulos) {
+              const base = MODULE_ROUTE_MAP[mod];
+              if (base) {
+                redirect = mod === 'horas' || mod === 'rrhh_hoja_vida'
+                  ? `${base}/${userId}`
+                  : base;
+                break;
+              }
+            }
+            this.router.navigate([redirect]);
+          } else {
+            this.router.navigate([`/horas/${userId}`]);
+          }
         },
         error: (e: HttpErrorResponse) => {
           this.loading = false;

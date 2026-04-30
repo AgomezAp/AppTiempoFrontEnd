@@ -219,7 +219,7 @@
 
           <!-- Inventario -->
           <li class="nav-item dropdown"
-            *ngIf="tieneModulo('inventario_dispositivos') || tieneModulo('inventario_mobiliario') || tieneModulo('inventario_aseo') || tieneModulo('inventario_papeleria') || tieneModulo('inventario_botiquin') || tieneModulo('inventario_dotacion')">
+            *ngIf="tieneModulo('inventario_dispositivos') || tieneModulo('inventario_mobiliario') || tieneModulo('inventario_aseo') || tieneModulo('inventario_papeleria') || tieneModulo('inventario_botiquin') || tieneModulo('inventario_desechables') || tieneModulo('inventario_dotacion')">
             <a class="nav-link dropdown-toggle" href="#" id="inventarioDropdown" role="button"
               data-bs-toggle="dropdown" aria-expanded="false">
               Inventario
@@ -250,8 +250,8 @@
                 <a class="dropdown-item" href="/actas-mobiliario">Actas de Mobiliario</a>
               </li>
               <!-- Consumibles -->
-              <li *ngIf="tieneModulo('inventario_aseo') || tieneModulo('inventario_papeleria') || tieneModulo('inventario_botiquin') || tieneModulo('inventario_dotacion')"><hr class="dropdown-divider" /></li>
-              <li *ngIf="tieneModulo('inventario_aseo') || tieneModulo('inventario_papeleria') || tieneModulo('inventario_botiquin') || tieneModulo('inventario_dotacion')">
+              <li *ngIf="tieneModulo('inventario_aseo') || tieneModulo('inventario_papeleria') || tieneModulo('inventario_botiquin') || tieneModulo('inventario_desechables') || tieneModulo('inventario_dotacion')"><hr class="dropdown-divider" /></li>
+              <li *ngIf="tieneModulo('inventario_aseo') || tieneModulo('inventario_papeleria') || tieneModulo('inventario_botiquin') || tieneModulo('inventario_desechables') || tieneModulo('inventario_dotacion')">
                 <h6 class="dropdown-header">Consumibles</h6>
               </li>
               <li *ngIf="tieneModulo('inventario_aseo')">
@@ -271,6 +271,12 @@
               </li>
               <li *ngIf="tieneModulo('inventario_botiquin')">
                 <a class="dropdown-item" href="/actas-botiquin">Actas de Botiquín</a>
+              </li>
+              <li *ngIf="tieneModulo('inventario_desechables')">
+                <a class="dropdown-item" href="/inventario-desechables">Desechables</a>
+              </li>
+              <li *ngIf="tieneModulo('inventario_desechables')">
+                <a class="dropdown-item" href="/actas-desechables">Actas de Desechables</a>
               </li>
               <li *ngIf="tieneModulo('inventario_dotacion')">
                 <a class="dropdown-item" href="/inventario-dotacion">Dotación</a>

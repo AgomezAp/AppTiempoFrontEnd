@@ -161,7 +161,7 @@ export class InventarioConsumiblesComponent implements OnInit, OnDestroy {
     this.websocketService.leaveRoom('consumibles');
   }
   get permiteSustraccionStock(): boolean {
-    return this.tipoInventarioCodigo !== 'botiquin' && this.tipoInventarioCodigo !== 'papeleria' && this.tipoInventarioCodigo !== 'desechables';
+    return this.tipoInventarioCodigo !== 'botiquin' && this.tipoInventarioCodigo !== 'papeleria' && this.tipoInventarioCodigo !== 'desechables' && this.tipoInventarioCodigo !== 'dotacion';
   }
   /**
    * Configurar debounce para el campo de búsqueda (300ms de delay)
