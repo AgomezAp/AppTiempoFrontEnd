@@ -5,11 +5,12 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HojaVidaService } from '../../services/hoja-vida.service';
 import { UserService } from '../../services/user.service';
 import Swal from 'sweetalert2';
+import { NavbarComponent } from '../navbar/navbar.component';
 
 @Component({
   selector: 'app-hoja-vida',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, NavbarComponent],
   templateUrl: './hoja-vida.component.html',
   styleUrls: ['./hoja-vida.component.css']
 })
