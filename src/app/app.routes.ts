@@ -10,7 +10,7 @@ export const routes: Routes = [
 
   // ==================== PÁGINAS DE ERROR ====================
   { path: 'errorPage', loadComponent: () => import('./components/error-page/error-page.component').then(m => m.ErrorPageComponent) },
-  { path: 'access-denied', loadComponent: () => import('./components/acces-denied/acces-denied.component').then(m => m.AccesDeniedComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'User', 'Tecnologia'] } },
+  { path: 'access-denied', loadComponent: () => import('./components/acces-denied/acces-denied.component').then(m => m.AccesDeniedComponent) },
 
   // ==================== RUTAS PÚBLICAS (firma por token — sin guard) ====================
   { path: 'firmar-asistencia/:token', loadComponent: () => import('./components/firmar-asistencia/firmar-asistencia.component').then(m => m.FirmarAsistenciaComponent) },
