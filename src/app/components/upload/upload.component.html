@@ -1,71 +1,238 @@
 <app-navbar></app-navbar>
-<div class="upload-container">
-  <h2>Concatena tus archivos XML</h2>
 
-  <input
-    type="file" multiple accept=".xml" (change)="onFileSelect($event)" id="file" class="form-control"  />
-  <button (click)="onSubmit1()" [disabled]="selectedFiles.length === 0">
-    Subir y Combinar
-  </button>
+<div class="xml-container">
+  <!-- ═══ PAGE HEADER ═══ -->
+  <header class="page-header">
+    <div class="page-header__bg"></div>
+    <div class="page-header__content">
+      <div class="page-header__left">
+        <div class="page-header__icon">
+          <i class="pi pi-file"></i>
+        </div>
+        <div class="page-header__text">
+          <h1 class="page-header__title">Gestión de Archivos XML</h1>
+          <p class="page-header__subtitle">
+            Sube, combina y administra tus archivos XML
+          </p>
+        </div>
+      </div>
+    </div>
+  </header>
 
-  <div *ngIf="selectedFiles.length > 0">
-    <h3>Archivos seleccionados:</h3>
-    <ul>
-      <li *ngFor="let file of selectedFiles">{{ file.name }}</li>
-    </ul>
+  <!-- ═══ UPLOAD CARDS GRID ═══ -->
+  <div class="upload-grid">
+    <!-- Card 1: Concatenar XML -->
+    <div class="card" style="animation-delay: 0.03s">
+      <div class="card__head">
+        <div class="card__head-left">
+          <i class="pi pi-copy"></i>
+          <h3 class="card__head-title">Concatenar Archivos XML</h3>
+        </div>
+        <span class="card__head-counter" *ngIf="selectedFiles.length > 0">
+          {{ selectedFiles.length }}
+        </span>
+      </div>
+      <div class="card__body">
+        <div class="upload-zone" (click)="fileInputMultiple.click()">
+          <input
+            #fileInputMultiple
+            type="file"
+            multiple
+            accept=".xml"
+            (change)="onFileSelect($event)"
+            class="upload-zone__input"
+          />
+          <div class="upload-zone__icon">
+            <i class="pi pi-cloud-upload"></i>
+          </div>
+          <p class="upload-zone__label">Selecciona múltiples archivos XML</p>
+          <span class="upload-zone__hint"
+            >Haz clic o arrastra los archivos aquí</span
+          >
+        </div>
+
+        <!-- Lista de archivos seleccionados -->
+        <div class="file-list" *ngIf="selectedFiles.length > 0">
+          <div class="file-list__header">
+            <i class="pi pi-list"></i>
+            <span>Archivos seleccionados</span>
+          </div>
+          <ul class="file-list__items">
+            <li
+              class="file-list__item"
+              *ngFor="let file of selectedFiles; let i = index"
+              [style.animation-delay]="i * 0.03 + 's'"
+            >
+              <div class="file-list__item-icon">
+                <i class="pi pi-file"></i>
+              </div>
+              <span class="file-list__item-name">{{ file.name }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="card__footer">
+        <button
+          class="btn btn--primary"
+          (click)="onSubmit1()"
+          [disabled]="selectedFiles.length === 0"
+        >
+          <i class="pi pi-sync"></i><span>Subir y Combinar</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Card 2: Subir XML individual -->
+    <div class="card" style="animation-delay: 0.06s">
+      <div class="card__head">
+        <div class="card__head-left">
+          <i class="pi pi-upload"></i>
+          <h3 class="card__head-title">Subir Archivo XML</h3>
+        </div>
+      </div>
+      <div class="card__body">
+        <div class="upload-zone" (click)="fileInputSingle.click()">
+          <input
+            #fileInputSingle
+            type="file"
+            accept=".xml"
+            (change)="onFileSelected($event)"
+            class="upload-zone__input"
+          />
+          <div class="upload-zone__icon">
+            <i class="pi pi-file-import"></i>
+          </div>
+          <p class="upload-zone__label">Selecciona un archivo XML</p>
+          <span class="upload-zone__hint"
+            >Haz clic o arrastra el archivo aquí</span
+          >
+        </div>
+
+        <!-- Archivo seleccionado -->
+        <div class="file-selected" *ngIf="selectedFile">
+          <div class="file-selected__icon">
+            <i class="pi pi-file"></i>
+          </div>
+          <div class="file-selected__info">
+            <span class="file-selected__name">{{ selectedFile.name }}</span>
+            <span class="file-selected__size"
+              >{{ (selectedFile.size / 1024).toFixed(1) }} KB</span
+            >
+          </div>
+          <i class="pi pi-check-circle file-selected__check"></i>
+        </div>
+
+        <!-- Barra de progreso -->
+        <div class="progress-bar" *ngIf="progress > 0">
+          <div class="progress-bar__header">
+            <span class="progress-bar__label">Subiendo archivo...</span>
+            <span class="progress-bar__value">{{ progress }}%</span>
+          </div>
+          <div class="progress-bar__track">
+            <div class="progress-bar__fill" [style.width.%]="progress"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card__footer">
+        <button
+          class="btn btn--primary"
+          [disabled]="!selectedFile"
+          (click)="onSubmit($event)"
+        >
+          <i class="pi pi-upload"></i><span>Subir Archivo</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ HISTORIAL DE SUBIDAS ═══ -->
+  <div class="card" style="animation-delay: 0.09s" *ngIf="historial.length > 0">
+    <div class="card__head card__head--accent">
+      <div class="card__head-left">
+        <i class="pi pi-history"></i>
+        <h3 class="card__head-title">Historial de Subidas</h3>
+      </div>
+      <span class="card__head-counter">{{ historial.length }}</span>
+    </div>
+    <div class="card__body card__body--flush">
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Fecha de subida</th>
+              <th>Archivo</th>
+              <th>Rango</th>
+              <th>Registros</th>
+              <th>Estado</th>
+              <th class="data-table__th--actions">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let upload of historial"
+              [class.data-table__row--muted]="upload.estado === 'revertido'"
+            >
+              <td>{{ upload.fechaSubida | date: "dd/MM/yyyy HH:mm" }}</td>
+              <td class="data-table__td--name">{{ upload.archivoNombre }}</td>
+              <td>{{ upload.rangoInicio }} — {{ upload.rangoFin }}</td>
+              <td>
+                <span class="table-badge table-badge--info">
+                  {{ upload.cantidadRegistros }}
+                </span>
+              </td>
+              <td>
+                <span
+                  class="table-badge"
+                  [ngClass]="
+                    upload.estado === 'activo'
+                      ? 'table-badge--success'
+                      : 'table-badge--danger'
+                  "
+                >
+                  {{ upload.estado === "activo" ? "Activo" : "Revertido" }}
+                </span>
+              </td>
+              <td class="data-table__td--actions">
+                <button
+                  *ngIf="upload.estado === 'activo'"
+                  class="btn btn--danger btn--sm"
+                  (click)="revertirSubida(upload)"
+                >
+                  <i class="pi pi-undo"></i><span>Revertir</span>
+                </button>
+                <span *ngIf="upload.estado === 'revertido'" class="table-muted"
+                  >—</span
+                >
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ EMPTY STATE (sin historial) ═══ -->
+  <div
+    class="card"
+    style="animation-delay: 0.09s"
+    *ngIf="historial.length === 0"
+  >
+    <div class="card__head card__head--accent">
+      <div class="card__head-left">
+        <i class="pi pi-history"></i>
+        <h3 class="card__head-title">Historial de Subidas</h3>
+      </div>
+    </div>
+    <div class="card__body">
+      <div class="empty-state empty-state--compact">
+        <div class="empty-state__icon">
+          <i class="pi pi-inbox"></i>
+        </div>
+        <h3 class="empty-state__title">Sin subidas registradas</h3>
+        <p class="empty-state__desc">
+          Sube un archivo XML para comenzar a ver el historial
+        </p>
+      </div>
+    </div>
   </div>
 </div>
-<div class="upload-xml-container">
-    <h2>Subir Archivo XML</h2>
-    <form >
-      <div class="form-group">
-        <label for="file">Seleccionar archivo XML</label>
-        <input type="file" id="file" (change)="onFileSelected($event)" class="form-control" accept=".xml" required>
-      </div>
-      <button type="button" class="btn btn-primary" [disabled]="!selectedFile" (click)="onSubmit($event)">Subir</button>
-    </form>
-    <div *ngIf="progress > 0">
-      <p>Progreso: {{ progress }}%</p>
-    </div>
-</div>
-
-<!-- Historial de subidas -->
-<div class="historial-container" *ngIf="historial.length > 0">
-  <h2>Historial de Subidas</h2>
-  <table class="historial-table">
-    <thead>
-      <tr>
-        <th>Fecha de subida</th>
-        <th>Archivo</th>
-        <th>Rango</th>
-        <th>Registros</th>
-        <th>Estado</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let upload of historial" [class.revertido]="upload.estado === 'revertido'">
-        <td>{{ upload.fechaSubida | date:'dd/MM/yyyy HH:mm' }}</td>
-        <td>{{ upload.archivoNombre }}</td>
-        <td>{{ upload.rangoInicio }} - {{ upload.rangoFin }}</td>
-        <td>{{ upload.cantidadRegistros }}</td>
-        <td>
-          <span class="badge" [class.badge-activo]="upload.estado === 'activo'" [class.badge-revertido]="upload.estado === 'revertido'">
-            {{ upload.estado === 'activo' ? 'Activo' : 'Revertido' }}
-          </span>
-        </td>
-        <td>
-          <button 
-            *ngIf="upload.estado === 'activo'" 
-            class="btn-revertir" 
-            (click)="revertirSubida(upload)">
-            Revertir
-          </button>
-          <span *ngIf="upload.estado === 'revertido'" class="text-muted">—</span>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-

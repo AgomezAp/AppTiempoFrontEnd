@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { InventarioService } from '../../../services/Inventario/inventario.service';
 import SignaturePad from 'signature_pad';
-import { environment } from '../../../../environments/environment.development';
+import { environment } from '../../../../environments/environment';
 interface ArticuloActa {
   nombre: string;
   categoria: string;
@@ -112,7 +112,7 @@ export class FirmaConsumibleComponent implements OnInit, AfterViewInit {
 
   cargarDatosActa(): void {
     this.http
-      .get<any>(`${this.apiUrl}api/actas-consumibles/firma/${this.token}`)
+      .get<any>(`${this.apiUrl}/api/inventario/actas-consumibles/firma/${this.token}`)
       .subscribe({
         next: (response) => {
           this.datosActa = {
@@ -281,7 +281,7 @@ export class FirmaConsumibleComponent implements OnInit, AfterViewInit {
     this.firmando = true;
 
     this.http
-      .post(`${this.apiUrl}api/actas-consumibles/firma/${this.token}`, {
+      .post(`${this.apiUrl}/api/inventario/actas-consumibles/firma/${this.token}`, {
         firma: firmaBase64,
       })
       .subscribe({
@@ -309,7 +309,7 @@ export class FirmaConsumibleComponent implements OnInit, AfterViewInit {
     this.rechazando = true;
 
     this.http
-      .post(`${this.apiUrl}api/actas-consumibles/rechazar/${this.token}`, {
+      .post(`${this.apiUrl}/api/inventario/actas-consumibles/rechazar/${this.token}`, {
         motivo: this.motivoRechazo,
       })
       .subscribe({
