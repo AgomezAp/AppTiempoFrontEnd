@@ -1,413 +1,936 @@
 <app-navbar></app-navbar>
 
-<div class="ssgt-container">
-  <!-- PAGE HEADER -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="header-title-group">
-        <div class="header-icon">&#9888;</div>
-        <div class="header-text">
-          <h2>Accidentes e Incidentes</h2>
-          <p class="header-subtitle">Gestiona y da seguimiento a los reportes de seguridad</p>
-        </div>
+<div class="erp-layout">
+  <!-- HEADER DE PÁGINA -->
+  <header class="erp-page-header erp-animation-fade" *ngIf="!mostrarDetalle">
+    <div class="erp-page-header__main">
+      <div class="erp-page-header__icon">
+        <i class="fas fa-exclamation-triangle"></i>
       </div>
-      <button class="btn-nuevo" (click)="abrirFormulario()">+ Nuevo Reporte</button>
+      <div class="erp-page-header__text">
+        <h1 class="erp-page-header__title">Accidentes e Incidentes</h1>
+        <p class="erp-page-header__subtitle">
+          Gestiona y da seguimiento a los reportes de seguridad
+        </p>
+      </div>
     </div>
-    <div class="header-decoration"></div>
-  </div>
+    <div class="erp-page-header__actions">
+      <button class="erp-btn erp-btn--primary" (click)="abrirFormulario()">
+        <i class="fas fa-plus"></i> Nuevo Reporte
+      </button>
+    </div>
+  </header>
 
   <!-- FILTROS -->
-  <div class="filtros-section">
-    <div class="filtros-grid">
-      <div class="filtro-group">
-        <label>Tipo</label>
-        <select [(ngModel)]="filtros.tipoEvento" (change)="aplicarFiltros()">
-          <option value="">Todos</option>
-          <option value="accidente">Accidente</option>
-          <option value="incidente">Incidente</option>
-        </select>
-      </div>
-      <div class="filtro-group">
-        <label>Severidad</label>
-        <select [(ngModel)]="filtros.severidad" (change)="aplicarFiltros()">
-          <option value="">Todas</option>
-          <option value="leve">Leve</option>
-          <option value="grave">Grave</option>
-          <option value="mortal">Mortal</option>
-        </select>
-      </div>
-      <div class="filtro-group">
-        <label>Estado</label>
-        <select [(ngModel)]="filtros.estado" (change)="aplicarFiltros()">
-          <option value="">Todos</option>
-          <option value="reportado">Reportado</option>
-          <option value="en_investigacion">En Investigación</option>
-          <option value="cerrado">Cerrado</option>
-        </select>
-      </div>
-      <div class="filtro-group">
-        <label>Desde</label>
-        <input type="date" [(ngModel)]="filtros.fechaDesde" (change)="aplicarFiltros()">
-      </div>
-      <div class="filtro-group">
-        <label>Hasta</label>
-        <input type="date" [(ngModel)]="filtros.fechaHasta" (change)="aplicarFiltros()">
-      </div>
-      <div class="filtro-group filtro-actions">
-        <button class="btn-limpiar" (click)="limpiarFiltros()">Limpiar</button>
-      </div>
+  <section
+    class="erp-filter-panel erp-animation-fade"
+    style="animation-delay: 0.05s"
+    *ngIf="!mostrarDetalle"
+  >
+    <div class="erp-filter-panel__header">
+      <i class="fas fa-filter"></i> Filtros de búsqueda
     </div>
-  </div>
-
-  <!-- LOADING -->
-  <div *ngIf="loading" class="loading-container">
-    <div class="spinner"></div>
-    <p>Cargando...</p>
-  </div>
-
-  <!-- LISTA DE ACCIDENTES -->
-  <div *ngIf="!loading && !mostrarDetalle" class="accidentes-lista">
-    <div *ngIf="accidentes.length === 0" class="empty-state">
-      <p>No se encontraron registros</p>
-    </div>
-
-    <div class="table-responsive" *ngIf="accidentes.length > 0">
-      <table class="tabla-accidentes">
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Hora</th>
-            <th>Tipo</th>
-            <th>Severidad</th>
-            <th>Lugar</th>
-            <th>Estado</th>
-            <th>Reportado por</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let acc of accidentes" (click)="verDetalle(acc.id!)">
-            <td>{{ formatFecha(acc.fecha) }}</td>
-            <td>{{ acc.hora }}</td>
-            <td><span class="badge" [ngClass]="getTipoClass(acc.tipoEvento)">{{ acc.tipoEvento }}</span></td>
-            <td><span class="badge" [ngClass]="getSeveridadClass(acc.severidad)">{{ acc.severidad }}</span></td>
-            <td>{{ acc.lugar }}</td>
-            <td><span class="badge" [ngClass]="getEstadoClass(acc.estado!)">{{ acc.estado?.replace('_', ' ') }}</span></td>
-            <td>{{ acc.reportante ? acc.reportante.name + ' ' + acc.reportante.lastName : 'N/A' }}</td>
-            <td class="acciones-cell" (click)="$event.stopPropagation()">
-              <button class="btn-accion btn-editar" title="Editar" (click)="abrirFormulario(acc)">&#9998;</button>
-              <button class="btn-accion btn-eliminar" title="Eliminar" (click)="eliminarAccidente(acc.id!)">&#10005;</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- MODAL FORMULARIO -->
-  <div *ngIf="mostrarFormulario" class="modal-overlay" (click)="cerrarFormulario()">
-    <div class="modal-content modal-lg" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>{{ editandoId ? 'Editar Reporte' : 'Nuevo Reporte de Accidente/Incidente' }}</h3>
-        <button class="btn-cerrar" (click)="cerrarFormulario()">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Fecha *</label>
-            <input type="date" [(ngModel)]="nuevoAccidente.fecha" required>
-          </div>
-          <div class="form-group">
-            <label>Hora *</label>
-            <input type="time" [(ngModel)]="nuevoAccidente.hora" required>
-          </div>
-          <div class="form-group">
-            <label>Tipo de evento *</label>
-            <select [(ngModel)]="nuevoAccidente.tipoEvento">
-              <option value="accidente">Accidente</option>
-              <option value="incidente">Incidente</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Severidad *</label>
-            <select [(ngModel)]="nuevoAccidente.severidad">
-              <option value="leve">Leve</option>
-              <option value="grave">Grave</option>
-              <option value="mortal">Mortal</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Lugar *</label>
-          <input type="text" [(ngModel)]="nuevoAccidente.lugar" placeholder="Lugar del evento" required>
-        </div>
-
-        <div class="form-group">
-          <label>Descripción *</label>
-          <textarea [(ngModel)]="nuevoAccidente.descripcion" rows="3" placeholder="Descripción detallada del evento" required></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Empresa</label>
-          <select [(ngModel)]="nuevoAccidente.empresa">
-            <option value="">Sin especificar</option>
-            <option value="AP">Andrés Publicidad</option>
-            <option value="AT">Andrés Trading</option>
-            <option value="ME">ME</option>
+    <div class="erp-grid erp-grid--6">
+      <div class="erp-field">
+        <label class="erp-label">Tipo</label>
+        <div class="erp-select-wrapper">
+          <select
+            class="erp-select"
+            [(ngModel)]="filtros.tipoEvento"
+            (change)="aplicarFiltros()"
+          >
+            <option value="">Todos</option>
+            <option value="accidente">Accidente</option>
+            <option value="incidente">Incidente</option>
           </select>
         </div>
-
-        <div class="form-grid" *ngIf="esSevero()">
-          <div class="form-group">
-            <label>Tipo de lesión *</label>
-            <input type="text" [(ngModel)]="nuevoAccidente.tipoLesion" placeholder="Ej: Fractura, corte, quemadura">
-          </div>
-          <div class="form-group">
-            <label>Parte afectada *</label>
-            <input type="text" [(ngModel)]="nuevoAccidente.parteAfectada" placeholder="Ej: Mano derecha, espalda">
-          </div>
-        </div>
-
-        <div class="form-grid" *ngIf="!esSevero()">
-          <div class="form-group">
-            <label>Tipo de lesión</label>
-            <input type="text" [(ngModel)]="nuevoAccidente.tipoLesion" placeholder="Opcional para eventos leves">
-          </div>
-          <div class="form-group">
-            <label>Parte afectada</label>
-            <input type="text" [(ngModel)]="nuevoAccidente.parteAfectada" placeholder="Opcional para eventos leves">
-          </div>
-        </div>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Días de incapacidad</label>
-            <input type="number" [(ngModel)]="nuevoAccidente.diasIncapacidad" min="0" placeholder="0">
-          </div>
-          <div class="form-group">
-            <label>Reportado por</label>
-            <select [(ngModel)]="nuevoAccidente.reportadoPor">
-              <option *ngFor="let u of usuarios" [value]="u.Uid">{{ u.nombre }}</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Testigos</label>
-          <textarea [(ngModel)]="nuevoAccidente.testigos" rows="2" placeholder="Nombres de los testigos (opcional)"></textarea>
+      </div>
+      <div class="erp-field">
+        <label class="erp-label">Severidad</label>
+        <div class="erp-select-wrapper">
+          <select
+            class="erp-select"
+            [(ngModel)]="filtros.severidad"
+            (change)="aplicarFiltros()"
+          >
+            <option value="">Todas</option>
+            <option value="leve">Leve</option>
+            <option value="grave">Grave</option>
+            <option value="mortal">Mortal</option>
+          </select>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn-cancelar" (click)="cerrarFormulario()">Cancelar</button>
-        <button class="btn-guardar" (click)="guardarAccidente()">{{ editandoId ? 'Actualizar' : 'Crear Reporte' }}</button>
+      <div class="erp-field">
+        <label class="erp-label">Estado</label>
+        <div class="erp-select-wrapper">
+          <select
+            class="erp-select"
+            [(ngModel)]="filtros.estado"
+            (change)="aplicarFiltros()"
+          >
+            <option value="">Todos</option>
+            <option value="reportado">Reportado</option>
+            <option value="en_investigacion">En Investigación</option>
+            <option value="cerrado">Cerrado</option>
+          </select>
+        </div>
+      </div>
+      <div class="erp-field">
+        <label class="erp-label">Desde</label>
+        <input
+          type="date"
+          class="erp-input"
+          [(ngModel)]="filtros.fechaDesde"
+          (change)="aplicarFiltros()"
+        />
+      </div>
+      <div class="erp-field">
+        <label class="erp-label">Hasta</label>
+        <input
+          type="date"
+          class="erp-input"
+          [(ngModel)]="filtros.fechaHasta"
+          (change)="aplicarFiltros()"
+        />
+      </div>
+      <div class="erp-field erp-field--actions">
+        <button
+          class="erp-btn erp-btn--outline w-100"
+          (click)="limpiarFiltros()"
+        >
+          <i class="fas fa-eraser"></i> Limpiar
+        </button>
       </div>
     </div>
+  </section>
+
+  <!-- LOADING -->
+  <div *ngIf="loading" class="erp-loading erp-animation-fade">
+    <div class="erp-spinner"></div>
+    <span class="erp-loading__text">Cargando datos...</span>
   </div>
 
-  <!-- VISTA DETALLE -->
-  <div *ngIf="mostrarDetalle && accidenteSeleccionado" class="detalle-container">
-    <button class="btn-volver" (click)="cerrarDetalle()">&#8592; Volver a la lista</button>
+  <!-- LISTA DE ACCIDENTES (Tabla) -->
+  <section
+    *ngIf="!loading && !mostrarDetalle"
+    class="erp-card erp-animation-fade"
+    style="animation-delay: 0.1s"
+  >
+    <div class="erp-card__body p-0">
+      <div *ngIf="accidentes.length === 0" class="erp-empty-state">
+        <div class="erp-empty-state__icon">
+          <i class="fas fa-clipboard-list"></i>
+        </div>
+        <p class="erp-empty-state__desc">
+          No se encontraron registros que coincidan con los filtros.
+        </p>
+      </div>
 
-    <div class="detalle-header">
-      <div class="detalle-titulo">
-        <h3>
-          <span class="badge" [ngClass]="getTipoClass(accidenteSeleccionado.tipoEvento)">{{ accidenteSeleccionado.tipoEvento }}</span>
+      <div class="erp-table-responsive" *ngIf="accidentes.length > 0">
+        <table class="erp-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th class="text-center">Tipo</th>
+              <th class="text-center">Severidad</th>
+              <th>Lugar</th>
+              <th class="text-center">Estado</th>
+              <th>Reportado por</th>
+              <th class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let acc of accidentes"
+              (click)="verDetalle(acc.id!)"
+              style="cursor: pointer"
+            >
+              <td class="erp-text-nowrap">{{ formatFecha(acc.fecha) }}</td>
+              <td>{{ acc.hora }}</td>
+              <td class="text-center">
+                <span
+                  class="erp-badge"
+                  [ngClass]="getTipoClass(acc.tipoEvento)"
+                  >{{ acc.tipoEvento }}</span
+                >
+              </td>
+              <td class="text-center">
+                <span
+                  class="erp-badge"
+                  [ngClass]="getSeveridadClass(acc.severidad)"
+                  >{{ acc.severidad }}</span
+                >
+              </td>
+              <td>
+                <strong>{{ acc.lugar }}</strong>
+              </td>
+              <td class="text-center">
+                <span
+                  class="erp-status-badge"
+                  [ngClass]="getEstadoClass(acc.estado!)"
+                  >{{ acc.estado?.replace("_", " ") }}</span
+                >
+              </td>
+              <td>
+                {{
+                  acc.reportante
+                    ? acc.reportante.name + " " + acc.reportante.lastName
+                    : "N/A"
+                }}
+              </td>
+              <td class="text-center" (click)="$event.stopPropagation()">
+                <div class="erp-action-group">
+                  <button
+                    class="erp-action-btn erp-action-btn--edit"
+                    title="Editar"
+                    (click)="abrirFormulario(acc)"
+                  >
+                    <i class="fas fa-pencil-alt"></i>
+                  </button>
+                  <button
+                    class="erp-action-btn erp-action-btn--danger"
+                    title="Eliminar"
+                    (click)="eliminarAccidente(acc.id!)"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==============================================
+       VISTA DETALLE
+       ============================================== -->
+  <div
+    *ngIf="mostrarDetalle && accidenteSeleccionado"
+    class="erp-animation-fade"
+  >
+    <div class="erp-flex-between mb-3">
+      <button
+        class="erp-btn erp-btn--outline-dark erp-btn--sm"
+        (click)="cerrarDetalle()"
+      >
+        <i class="fas fa-arrow-left"></i> Volver a la lista
+      </button>
+      <div class="erp-field erp-field--horizontal">
+        <label class="erp-label mb-0 me-2 text-primary"
+          >Estado del Reporte:</label
+        >
+        <div class="erp-select-wrapper">
+          <select
+            class="erp-select"
+            [(ngModel)]="accidenteSeleccionado.estado"
+            (change)="
+              cambiarEstado(
+                accidenteSeleccionado,
+                accidenteSeleccionado.estado!
+              )
+            "
+          >
+            <option value="reportado">Reportado</option>
+            <option value="en_investigacion">En Investigación</option>
+            <option value="cerrado">Cerrado</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Principal del Detalle -->
+    <section class="erp-card mb-3">
+      <div class="erp-card__head erp-flex-between">
+        <h3 class="erp-card__title">
+          <span
+            class="erp-badge me-2"
+            [ngClass]="getTipoClass(accidenteSeleccionado.tipoEvento)"
+            >{{ accidenteSeleccionado.tipoEvento }}</span
+          >
           {{ accidenteSeleccionado.lugar }}
         </h3>
-        <span class="badge" [ngClass]="getSeveridadClass(accidenteSeleccionado.severidad)">{{ accidenteSeleccionado.severidad }}</span>
-        <span class="badge" [ngClass]="getEstadoClass(accidenteSeleccionado.estado!)">{{ accidenteSeleccionado.estado?.replace('_', ' ') }}</span>
+        <span
+          class="erp-badge"
+          [ngClass]="getSeveridadClass(accidenteSeleccionado.severidad)"
+          >Severidad: {{ accidenteSeleccionado.severidad }}</span
+        >
       </div>
-      <div class="detalle-acciones">
-        <select [(ngModel)]="accidenteSeleccionado.estado" (change)="cambiarEstado(accidenteSeleccionado, accidenteSeleccionado.estado!)">
-          <option value="reportado">Reportado</option>
-          <option value="en_investigacion">En Investigación</option>
-          <option value="cerrado">Cerrado</option>
-        </select>
-      </div>
-    </div>
+      <div class="erp-card__body">
+        <div class="erp-grid erp-grid--4 mb-3">
+          <div class="erp-info-box">
+            <span class="erp-info-box__label">Fecha y Hora</span>
+            <span class="erp-info-box__val"
+              >{{ formatFecha(accidenteSeleccionado.fecha) }} -
+              {{ accidenteSeleccionado.hora }}</span
+            >
+          </div>
+          <div class="erp-info-box">
+            <span class="erp-info-box__label">Empresa</span>
+            <span class="erp-info-box__val">{{
+              accidenteSeleccionado.empresa || "No especificada"
+            }}</span>
+          </div>
+          <div class="erp-info-box">
+            <span class="erp-info-box__label">Reportado por</span>
+            <span class="erp-info-box__val">{{
+              accidenteSeleccionado.reportante
+                ? accidenteSeleccionado.reportante.name +
+                  " " +
+                  accidenteSeleccionado.reportante.lastName
+                : "N/A"
+            }}</span>
+          </div>
+          <div class="erp-info-box">
+            <span class="erp-info-box__label">Días de incapacidad</span>
+            <span class="erp-info-box__val">{{
+              accidenteSeleccionado.diasIncapacidad || 0
+            }}</span>
+          </div>
+        </div>
 
-    <div class="detalle-info-grid">
-      <div class="info-card">
-        <label>Fecha</label>
-        <p>{{ formatFecha(accidenteSeleccionado.fecha) }}</p>
-      </div>
-      <div class="info-card">
-        <label>Hora</label>
-        <p>{{ accidenteSeleccionado.hora }}</p>
-      </div>
-      <div class="info-card">
-        <label>Empresa</label>
-        <p>{{ accidenteSeleccionado.empresa || 'No especificada' }}</p>
-      </div>
-      <div class="info-card">
-        <label>Reportado por</label>
-        <p>{{ accidenteSeleccionado.reportante ? accidenteSeleccionado.reportante.name + ' ' + accidenteSeleccionado.reportante.lastName : 'N/A' }}</p>
-      </div>
-      <div class="info-card" *ngIf="accidenteSeleccionado.tipoLesion">
-        <label>Tipo de lesión</label>
-        <p>{{ accidenteSeleccionado.tipoLesion }}</p>
-      </div>
-      <div class="info-card" *ngIf="accidenteSeleccionado.parteAfectada">
-        <label>Parte afectada</label>
-        <p>{{ accidenteSeleccionado.parteAfectada }}</p>
-      </div>
-      <div class="info-card" *ngIf="accidenteSeleccionado.diasIncapacidad">
-        <label>Días de incapacidad</label>
-        <p>{{ accidenteSeleccionado.diasIncapacidad }}</p>
-      </div>
-    </div>
+        <div
+          class="erp-grid erp-grid--2 mb-3"
+          *ngIf="
+            accidenteSeleccionado.tipoLesion ||
+            accidenteSeleccionado.parteAfectada
+          "
+        >
+          <div class="erp-info-box" *ngIf="accidenteSeleccionado.tipoLesion">
+            <span class="erp-info-box__label">Tipo de lesión</span>
+            <span class="erp-info-box__val">{{
+              accidenteSeleccionado.tipoLesion
+            }}</span>
+          </div>
+          <div class="erp-info-box" *ngIf="accidenteSeleccionado.parteAfectada">
+            <span class="erp-info-box__label">Parte afectada</span>
+            <span class="erp-info-box__val">{{
+              accidenteSeleccionado.parteAfectada
+            }}</span>
+          </div>
+        </div>
 
-    <div class="info-card info-card-full">
-      <label>Descripción</label>
-      <p>{{ accidenteSeleccionado.descripcion }}</p>
-    </div>
+        <div class="erp-info-box w-100 mb-2">
+          <span class="erp-info-box__label">Descripción del evento</span>
+          <p class="erp-info-box__text">
+            {{ accidenteSeleccionado.descripcion }}
+          </p>
+        </div>
 
-    <div class="info-card info-card-full" *ngIf="accidenteSeleccionado.testigos">
-      <label>Testigos</label>
-      <p>{{ accidenteSeleccionado.testigos }}</p>
-    </div>
+        <div class="erp-info-box w-100" *ngIf="accidenteSeleccionado.testigos">
+          <span class="erp-info-box__label">Testigos</span>
+          <p class="erp-info-box__text">{{ accidenteSeleccionado.testigos }}</p>
+        </div>
+      </div>
+    </section>
 
     <!-- TABS DETALLE -->
-    <div class="detalle-tabs">
-      <button class="tab-btn" [class.active]="!mostrarInvestigacion && !mostrarEvidencias && !mostrarSeguimiento" (click)="mostrarInvestigacion=false;mostrarEvidencias=false;mostrarSeguimiento=false">Resumen</button>
-      <button class="tab-btn" [class.active]="mostrarInvestigacion" (click)="abrirInvestigacion();mostrarEvidencias=false;mostrarSeguimiento=false">Investigación</button>
-      <button class="tab-btn" [class.active]="mostrarEvidencias" (click)="abrirEvidencias();mostrarInvestigacion=false;mostrarSeguimiento=false">Evidencias ({{ accidenteSeleccionado.evidencias?.length || 0 }})</button>
-      <button class="tab-btn" [class.active]="mostrarSeguimiento" (click)="mostrarSeguimiento=true;mostrarInvestigacion=false;mostrarEvidencias=false">Seguimiento ({{ accidenteSeleccionado.seguimientos?.length || 0 }})</button>
+    <div class="erp-tabs mb-3">
+      <button
+        class="erp-tab"
+        [class.is-active]="
+          !mostrarInvestigacion && !mostrarEvidencias && !mostrarSeguimiento
+        "
+        (click)="
+          mostrarInvestigacion = false;
+          mostrarEvidencias = false;
+          mostrarSeguimiento = false
+        "
+      >
+        <i class="fas fa-file-alt"></i> Resumen
+      </button>
+      <button
+        class="erp-tab"
+        [class.is-active]="mostrarInvestigacion"
+        (click)="
+          abrirInvestigacion();
+          mostrarEvidencias = false;
+          mostrarSeguimiento = false
+        "
+      >
+        <i class="fas fa-search"></i> Investigación
+      </button>
+      <button
+        class="erp-tab"
+        [class.is-active]="mostrarEvidencias"
+        (click)="
+          abrirEvidencias();
+          mostrarInvestigacion = false;
+          mostrarSeguimiento = false
+        "
+      >
+        <i class="fas fa-paperclip"></i> Evidencias ({{
+          accidenteSeleccionado.evidencias?.length || 0
+        }})
+      </button>
+      <button
+        class="erp-tab"
+        [class.is-active]="mostrarSeguimiento"
+        (click)="
+          mostrarSeguimiento = true;
+          mostrarInvestigacion = false;
+          mostrarEvidencias = false
+        "
+      >
+        <i class="fas fa-tasks"></i> Seguimiento ({{
+          accidenteSeleccionado.seguimientos?.length || 0
+        }})
+      </button>
     </div>
 
-    <!-- TAB: INVESTIGACION -->
-    <div *ngIf="mostrarInvestigacion" class="tab-content">
-      <h4>Investigación del evento</h4>
-      <div class="form-group">
-        <label>Responsable de investigación *</label>
-        <select [(ngModel)]="investigacion.responsableInvestigacion">
-          <option [value]="0" disabled>Seleccione...</option>
-          <option *ngFor="let u of usuarios" [value]="u.Uid">{{ u.nombre }}</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Fecha de investigación *</label>
-        <input type="date" [(ngModel)]="investigacion.fechaInvestigacion">
-      </div>
-      <div class="form-group">
-        <label>Causas inmediatas</label>
-        <textarea [(ngModel)]="investigacion.causasInmediatas" rows="3" placeholder="Actos y condiciones subestándar"></textarea>
-      </div>
-      <div class="form-group">
-        <label>Causas básicas</label>
-        <textarea [(ngModel)]="investigacion.causasBasicas" rows="3" placeholder="Factores personales y del trabajo"></textarea>
-      </div>
-      <div class="form-group">
-        <label>Acciones correctivas</label>
-        <textarea [(ngModel)]="investigacion.accionesCorrectivas" rows="3" placeholder="Medidas correctivas a implementar"></textarea>
-      </div>
-      <div class="form-group">
-        <label>Conclusiones</label>
-        <textarea [(ngModel)]="investigacion.conclusiones" rows="3" placeholder="Conclusiones de la investigación"></textarea>
-      </div>
-      <button class="btn-guardar" (click)="guardarInvestigacion()">Guardar Investigación</button>
-    </div>
-
-    <!-- TAB: EVIDENCIAS -->
-    <div *ngIf="mostrarEvidencias" class="tab-content">
-      <h4>Evidencias</h4>
-
-      <div class="evidencia-upload">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Tipo de evidencia</label>
-            <select [(ngModel)]="tipoEvidencia">
-              <option value="foto">Foto</option>
-              <option value="documento_medico">Documento médico</option>
-              <option value="formato_reporte">Formato de reporte</option>
-              <option value="otro">Otro</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Archivo</label>
-            <input type="file" (change)="onArchivoSeleccionado($event)">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Descripción</label>
-          <input type="text" [(ngModel)]="descripcionEvidencia" placeholder="Descripción breve del archivo">
-        </div>
-        <button class="btn-guardar" (click)="subirEvidencia()" [disabled]="!archivoEvidencia">Subir Evidencia</button>
+    <!-- CONTENIDO TABS -->
+    <section class="erp-card">
+      <!-- TAB: RESUMEN (Vacio, solo decorativo si se selecciona) -->
+      <div
+        class="erp-card__body"
+        *ngIf="
+          !mostrarInvestigacion && !mostrarEvidencias && !mostrarSeguimiento
+        "
+      >
+        <p class="erp-hint text-center">
+          Seleccione una pestaña arriba para gestionar la investigación, subir
+          evidencias o dar seguimiento a este reporte.
+        </p>
       </div>
 
-      <div class="evidencias-lista" *ngIf="accidenteSeleccionado.evidencias && accidenteSeleccionado.evidencias.length > 0">
-        <div class="evidencia-item" *ngFor="let ev of accidenteSeleccionado.evidencias">
-          <div class="evidencia-info">
-            <span class="evidencia-nombre">{{ ev.nombreArchivo }}</span>
-            <span class="badge badge-tipo">{{ ev.tipo.replace('_', ' ') }}</span>
-            <span class="evidencia-desc" *ngIf="ev.descripcion">{{ ev.descripcion }}</span>
-          </div>
-          <button class="btn-accion btn-eliminar" (click)="eliminarEvidencia(ev.id!)">&#10005;</button>
-        </div>
-      </div>
-
-      <div *ngIf="!accidenteSeleccionado.evidencias || accidenteSeleccionado.evidencias.length === 0" class="empty-state">
-        <p>No hay evidencias adjuntas</p>
-      </div>
-    </div>
-
-    <!-- TAB: SEGUIMIENTO -->
-    <div *ngIf="mostrarSeguimiento" class="tab-content">
-      <h4>Seguimiento de acciones</h4>
-
-      <button class="btn-nuevo btn-sm" (click)="abrirSeguimiento()">+ Nueva Acción</button>
-
-      <!-- Formulario nueva accion -->
-      <div *ngIf="mostrarSeguimiento && nuevoSeguimiento.descripcion !== undefined" class="seguimiento-form">
-        <div class="form-group">
-          <label>Descripción de la acción *</label>
-          <textarea [(ngModel)]="nuevoSeguimiento.descripcion" rows="2" placeholder="Descripción de la acción correctiva"></textarea>
-        </div>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Responsable *</label>
-            <select [(ngModel)]="nuevoSeguimiento.responsableId">
-              <option [value]="0" disabled>Seleccione...</option>
-              <option *ngFor="let u of usuarios" [value]="u.Uid">{{ u.nombre }}</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Fecha límite *</label>
-            <input type="date" [(ngModel)]="nuevoSeguimiento.fechaLimite">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Observaciones</label>
-          <textarea [(ngModel)]="nuevoSeguimiento.observaciones" rows="2" placeholder="Notas adicionales"></textarea>
-        </div>
-        <button class="btn-guardar" (click)="guardarSeguimiento()">Guardar Acción</button>
-      </div>
-
-      <!-- Lista seguimientos -->
-      <div class="seguimientos-lista" *ngIf="accidenteSeleccionado.seguimientos && accidenteSeleccionado.seguimientos.length > 0">
-        <div class="seguimiento-item" *ngFor="let seg of accidenteSeleccionado.seguimientos">
-          <div class="seguimiento-info">
-            <p class="seguimiento-desc">{{ seg.descripcion }}</p>
-            <div class="seguimiento-meta">
-              <span>Responsable: {{ seg.responsable ? seg.responsable.name + ' ' + seg.responsable.lastName : getNombreUsuario(seg.responsableId) }}</span>
-              <span>Fecha límite: {{ formatFecha(seg.fechaLimite) }}</span>
-              <span *ngIf="seg.observaciones">Obs: {{ seg.observaciones }}</span>
+      <!-- TAB: INVESTIGACION -->
+      <div class="erp-card__body" *ngIf="mostrarInvestigacion">
+        <h4 class="erp-card__title mb-3">
+          <i class="fas fa-search"></i> Formulario de Investigación
+        </h4>
+        <div class="erp-grid erp-grid--2 mb-3">
+          <div class="erp-field">
+            <label class="erp-label"
+              >Responsable de investigación
+              <span class="text-danger">*</span></label
+            >
+            <div class="erp-select-wrapper">
+              <select
+                class="erp-select"
+                [(ngModel)]="investigacion.responsableInvestigacion"
+              >
+                <option [value]="0" disabled>Seleccione...</option>
+                <option *ngFor="let u of usuarios" [value]="u.Uid">
+                  {{ u.nombre }}
+                </option>
+              </select>
             </div>
           </div>
-          <div class="seguimiento-estado">
-            <select [ngModel]="seg.estado" (ngModelChange)="actualizarEstadoSeguimiento(seg.id!, $event)">
-              <option value="pendiente">Pendiente</option>
-              <option value="en_progreso">En progreso</option>
-              <option value="completado">Completado</option>
-            </select>
-            <span class="badge" [ngClass]="getEstadoSeguimientoClass(seg.estado)">{{ seg.estado.replace('_', ' ') }}</span>
+          <div class="erp-field">
+            <label class="erp-label"
+              >Fecha de investigación <span class="text-danger">*</span></label
+            >
+            <input
+              type="date"
+              class="erp-input"
+              [(ngModel)]="investigacion.fechaInvestigacion"
+            />
           </div>
+        </div>
+
+        <div class="erp-grid erp-grid--2 mb-3">
+          <div class="erp-field">
+            <label class="erp-label">Causas Inmediatas</label>
+            <textarea
+              class="erp-input"
+              [(ngModel)]="investigacion.causasInmediatas"
+              rows="3"
+              placeholder="Actos y condiciones subestándar"
+            ></textarea>
+          </div>
+          <div class="erp-field">
+            <label class="erp-label">Causas Básicas</label>
+            <textarea
+              class="erp-input"
+              [(ngModel)]="investigacion.causasBasicas"
+              rows="3"
+              placeholder="Factores personales y del trabajo"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="erp-field mb-3">
+          <label class="erp-label">Acciones correctivas</label>
+          <textarea
+            class="erp-input"
+            [(ngModel)]="investigacion.accionesCorrectivas"
+            rows="3"
+            placeholder="Medidas correctivas a implementar"
+          ></textarea>
+        </div>
+        <div class="erp-field mb-3">
+          <label class="erp-label">Conclusiones</label>
+          <textarea
+            class="erp-input"
+            [(ngModel)]="investigacion.conclusiones"
+            rows="3"
+            placeholder="Conclusiones de la investigación"
+          ></textarea>
+        </div>
+
+        <div class="erp-flex-between">
+          <span></span>
+          <button
+            class="erp-btn erp-btn--primary"
+            (click)="guardarInvestigacion()"
+          >
+            <i class="fas fa-save"></i> Guardar Investigación
+          </button>
         </div>
       </div>
 
-      <div *ngIf="!accidenteSeleccionado.seguimientos || accidenteSeleccionado.seguimientos.length === 0" class="empty-state">
-        <p>No hay acciones de seguimiento</p>
+      <!-- TAB: EVIDENCIAS -->
+      <div class="erp-card__body" *ngIf="mostrarEvidencias">
+        <div class="erp-upload-panel mb-4">
+          <h4 class="erp-card__title mb-3">
+            <i class="fas fa-cloud-upload-alt"></i> Subir Nueva Evidencia
+          </h4>
+          <div class="erp-grid erp-grid--3 mb-3">
+            <div class="erp-field">
+              <label class="erp-label">Tipo de evidencia</label>
+              <div class="erp-select-wrapper">
+                <select class="erp-select" [(ngModel)]="tipoEvidencia">
+                  <option value="foto">Foto</option>
+                  <option value="documento_medico">Documento médico</option>
+                  <option value="formato_reporte">Formato de reporte</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+            </div>
+            <div class="erp-field">
+              <label class="erp-label">Descripción</label>
+              <input
+                type="text"
+                class="erp-input"
+                [(ngModel)]="descripcionEvidencia"
+                placeholder="Breve descripción"
+              />
+            </div>
+            <div class="erp-field justify-end">
+              <input
+                type="file"
+                id="evidenciaFile"
+                class="d-none"
+                (change)="onArchivoSeleccionado($event)"
+              />
+              <label
+                for="evidenciaFile"
+                class="erp-btn erp-btn--outline w-100 text-center m-0"
+              >
+                <i class="fas fa-folder-open"></i> Elegir archivo
+              </label>
+            </div>
+          </div>
+          <div class="erp-flex-between">
+            <span class="erp-hint" *ngIf="archivoEvidencia"
+              >Archivo seleccionado list para subir.</span
+            >
+            <span *ngIf="!archivoEvidencia"></span>
+            <button
+              class="erp-btn erp-btn--primary"
+              (click)="subirEvidencia()"
+              [disabled]="!archivoEvidencia"
+            >
+              <i class="fas fa-upload"></i> Subir Evidencia
+            </button>
+          </div>
+        </div>
+
+        <h4 class="erp-card__title mb-2">
+          <i class="fas fa-list"></i> Archivos Adjuntos
+        </h4>
+
+        <div
+          class="erp-list"
+          *ngIf="
+            accidenteSeleccionado.evidencias &&
+            accidenteSeleccionado.evidencias.length > 0
+          "
+        >
+          <div
+            class="erp-list__item"
+            *ngFor="let ev of accidenteSeleccionado.evidencias"
+          >
+            <div class="erp-list__icon"><i class="fas fa-file-alt"></i></div>
+            <div class="erp-list__info">
+              <strong class="erp-list__title"
+                >{{ ev.nombreArchivo }}
+                <span class="erp-badge erp-badge--muted ms-2">{{
+                  ev.tipo.replace("_", " ")
+                }}</span></strong
+              >
+              <span class="erp-list__meta" *ngIf="ev.descripcion">{{
+                ev.descripcion
+              }}</span>
+            </div>
+            <button
+              class="erp-action-btn erp-action-btn--danger"
+              (click)="eliminarEvidencia(ev.id!)"
+              title="Eliminar"
+            >
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+
+        <div
+          *ngIf="
+            !accidenteSeleccionado.evidencias ||
+            accidenteSeleccionado.evidencias.length === 0
+          "
+          class="erp-empty-state erp-empty-state--sm"
+        >
+          <div class="erp-empty-state__icon">
+            <i class="fas fa-folder-open"></i>
+          </div>
+          <p class="erp-empty-state__desc">
+            No hay evidencias adjuntas a este reporte.
+          </p>
+        </div>
+      </div>
+
+      <!-- TAB: SEGUIMIENTO -->
+      <div class="erp-card__body" *ngIf="mostrarSeguimiento">
+        <div class="erp-flex-between mb-3">
+          <h4 class="erp-card__title">
+            <i class="fas fa-tasks"></i> Acciones de Seguimiento
+          </h4>
+          <button class="erp-btn erp-btn--outline" (click)="abrirSeguimiento()">
+            <i class="fas fa-plus"></i> Nueva Acción
+          </button>
+        </div>
+
+        <!-- Formulario nueva accion -->
+        <div
+          *ngIf="
+            mostrarSeguimiento && nuevoSeguimiento.descripcion !== undefined
+          "
+          class="erp-upload-panel mb-4"
+        >
+          <div class="erp-field mb-3">
+            <label class="erp-label"
+              >Descripción de la acción
+              <span class="text-danger">*</span></label
+            >
+            <textarea
+              class="erp-input"
+              [(ngModel)]="nuevoSeguimiento.descripcion"
+              rows="2"
+              placeholder="Descripción de la acción correctiva"
+            ></textarea>
+          </div>
+          <div class="erp-grid erp-grid--2 mb-3">
+            <div class="erp-field">
+              <label class="erp-label"
+                >Responsable <span class="text-danger">*</span></label
+              >
+              <div class="erp-select-wrapper">
+                <select
+                  class="erp-select"
+                  [(ngModel)]="nuevoSeguimiento.responsableId"
+                >
+                  <option [value]="0" disabled>Seleccione...</option>
+                  <option *ngFor="let u of usuarios" [value]="u.Uid">
+                    {{ u.nombre }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="erp-field">
+              <label class="erp-label"
+                >Fecha límite <span class="text-danger">*</span></label
+              >
+              <input
+                type="date"
+                class="erp-input"
+                [(ngModel)]="nuevoSeguimiento.fechaLimite"
+              />
+            </div>
+          </div>
+          <div class="erp-field mb-3">
+            <label class="erp-label">Observaciones</label>
+            <textarea
+              class="erp-input"
+              [(ngModel)]="nuevoSeguimiento.observaciones"
+              rows="2"
+              placeholder="Notas adicionales"
+            ></textarea>
+          </div>
+          <div class="erp-flex-between">
+            <span></span>
+            <button
+              class="erp-btn erp-btn--primary"
+              (click)="guardarSeguimiento()"
+            >
+              <i class="fas fa-save"></i> Guardar Acción
+            </button>
+          </div>
+        </div>
+
+        <!-- Lista seguimientos -->
+        <div
+          class="erp-tracking-list"
+          *ngIf="
+            accidenteSeleccionado.seguimientos &&
+            accidenteSeleccionado.seguimientos.length > 0
+          "
+        >
+          <div
+            class="erp-tracking-item"
+            *ngFor="let seg of accidenteSeleccionado.seguimientos"
+          >
+            <div class="erp-tracking-info">
+              <p class="erp-tracking-desc">{{ seg.descripcion }}</p>
+              <div class="erp-tracking-meta">
+                <span
+                  ><i class="fas fa-user"></i>
+                  {{
+                    seg.responsable
+                      ? seg.responsable.name + " " + seg.responsable.lastName
+                      : getNombreUsuario(seg.responsableId)
+                  }}</span
+                >
+                <span
+                  ><i class="fas fa-calendar-alt"></i>
+                  {{ formatFecha(seg.fechaLimite) }}</span
+                >
+                <span *ngIf="seg.observaciones" class="w-100 mt-1"
+                  ><i class="fas fa-info-circle"></i>
+                  {{ seg.observaciones }}</span
+                >
+              </div>
+            </div>
+            <div class="erp-tracking-status">
+              <label class="erp-label">Estado:</label>
+              <div class="erp-select-wrapper">
+                <select
+                  class="erp-select erp-select--sm"
+                  [ngModel]="seg.estado"
+                  (ngModelChange)="actualizarEstadoSeguimiento(seg.id!, $event)"
+                >
+                  <option value="pendiente">Pendiente</option>
+                  <option value="en_progreso">En progreso</option>
+                  <option value="completado">Completado</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          *ngIf="
+            !accidenteSeleccionado.seguimientos ||
+            accidenteSeleccionado.seguimientos.length === 0
+          "
+          class="erp-empty-state erp-empty-state--sm"
+        >
+          <div class="erp-empty-state__icon">
+            <i class="fas fa-clipboard-check"></i>
+          </div>
+          <p class="erp-empty-state__desc">
+            No hay acciones de seguimiento registradas.
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==============================================
+       MODAL FORMULARIO PRINCIPAL
+       ============================================== -->
+  <div
+    *ngIf="mostrarFormulario"
+    class="erp-modal-overlay"
+    (click)="cerrarFormulario()"
+  >
+    <div
+      class="erp-modal erp-modal--lg erp-animation-fade"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="erp-modal__header">
+        <h2 class="erp-modal__title">
+          <i
+            class="fas"
+            [ngClass]="editandoId ? 'fa-pencil-alt' : 'fa-plus-circle'"
+          ></i>
+          {{ editandoId ? "Editar Reporte" : "Nuevo Reporte de Evento" }}
+        </h2>
+        <button class="erp-modal__close" (click)="cerrarFormulario()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="erp-modal__body">
+        <div class="erp-form">
+          <div class="erp-grid erp-grid--4 mb-3">
+            <div class="erp-field">
+              <label class="erp-label"
+                >Fecha <span class="text-danger">*</span></label
+              >
+              <input
+                type="date"
+                class="erp-input"
+                [(ngModel)]="nuevoAccidente.fecha"
+                required
+              />
+            </div>
+            <div class="erp-field">
+              <label class="erp-label"
+                >Hora <span class="text-danger">*</span></label
+              >
+              <input
+                type="time"
+                class="erp-input"
+                [(ngModel)]="nuevoAccidente.hora"
+                required
+              />
+            </div>
+            <div class="erp-field">
+              <label class="erp-label"
+                >Tipo <span class="text-danger">*</span></label
+              >
+              <div class="erp-select-wrapper">
+                <select
+                  class="erp-select"
+                  [(ngModel)]="nuevoAccidente.tipoEvento"
+                >
+                  <option value="accidente">Accidente</option>
+                  <option value="incidente">Incidente</option>
+                </select>
+              </div>
+            </div>
+            <div class="erp-field">
+              <label class="erp-label"
+                >Severidad <span class="text-danger">*</span></label
+              >
+              <div class="erp-select-wrapper">
+                <select
+                  class="erp-select"
+                  [(ngModel)]="nuevoAccidente.severidad"
+                >
+                  <option value="leve">Leve</option>
+                  <option value="grave">Grave</option>
+                  <option value="mortal">Mortal</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="erp-grid erp-grid--2 mb-3">
+            <div class="erp-field">
+              <label class="erp-label"
+                >Lugar del evento <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                class="erp-input"
+                [(ngModel)]="nuevoAccidente.lugar"
+                placeholder="Ej: Planta 1, Pasillo A"
+                required
+              />
+            </div>
+            <div class="erp-field">
+              <label class="erp-label">Empresa</label>
+              <div class="erp-select-wrapper">
+                <select class="erp-select" [(ngModel)]="nuevoAccidente.empresa">
+                  <option value="">Sin especificar</option>
+                  <option value="AP">Andrés Publicidad</option>
+                  <option value="AT">Andrés Trading</option>
+                  <option value="ME">ME</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="erp-field mb-3">
+            <label class="erp-label"
+              >Descripción detallada <span class="text-danger">*</span></label
+            >
+            <textarea
+              class="erp-input"
+              [(ngModel)]="nuevoAccidente.descripcion"
+              rows="3"
+              placeholder="¿Qué ocurrió exactamente?"
+              required
+            ></textarea>
+          </div>
+
+          <div class="erp-grid erp-grid--2 mb-3">
+            <div class="erp-field">
+              <label class="erp-label"
+                >Tipo de lesión
+                <span *ngIf="esSevero()" class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                class="erp-input"
+                [(ngModel)]="nuevoAccidente.tipoLesion"
+                placeholder="Ej: Fractura, corte, quemadura"
+              />
+            </div>
+            <div class="erp-field">
+              <label class="erp-label"
+                >Parte afectada
+                <span *ngIf="esSevero()" class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                class="erp-input"
+                [(ngModel)]="nuevoAccidente.parteAfectada"
+                placeholder="Ej: Mano derecha, espalda"
+              />
+            </div>
+          </div>
+
+          <div class="erp-grid erp-grid--2 mb-3">
+            <div class="erp-field">
+              <label class="erp-label">Días de incapacidad</label>
+              <div class="erp-input-group">
+                <input
+                  type="number"
+                  class="erp-input pr-suffix"
+                  [(ngModel)]="nuevoAccidente.diasIncapacidad"
+                  min="0"
+                  placeholder="0"
+                />
+                <span class="erp-input-suffix">días</span>
+              </div>
+            </div>
+            <div class="erp-field">
+              <label class="erp-label">Reportado por</label>
+              <div class="erp-select-wrapper">
+                <select
+                  class="erp-select"
+                  [(ngModel)]="nuevoAccidente.reportadoPor"
+                >
+                  <option *ngFor="let u of usuarios" [value]="u.Uid">
+                    {{ u.nombre }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="erp-field">
+            <label class="erp-label">Testigos</label>
+            <textarea
+              class="erp-input"
+              [(ngModel)]="nuevoAccidente.testigos"
+              rows="2"
+              placeholder="Nombres de los testigos (opcional)"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="erp-modal__footer">
+        <button class="erp-btn erp-btn--outline" (click)="cerrarFormulario()">
+          Cancelar
+        </button>
+        <button class="erp-btn erp-btn--primary" (click)="guardarAccidente()">
+          <i class="fas fa-save"></i>
+          {{ editandoId ? "Actualizar" : "Crear Reporte" }}
+        </button>
       </div>
     </div>
   </div>

@@ -1,134 +1,158 @@
 <app-navbar></app-navbar>
 
-<!-- ═══ LOADING ═══ -->
-<div class="novedades-container" *ngIf="loading">
-  <!-- ═══ PAGE HEADER ═══ -->
-  <header class="page-header">
-    <div class="page-header__bg"></div>
-    <div class="page-header__content">
-      <div class="page-header__left">
-        <div class="page-header__icon">
-          <i class="pi pi-exclamation-triangle"></i>
-        </div>
-        <div class="page-header__text">
-          <h1 class="page-header__title">Novedades</h1>
-          <p class="page-header__subtitle">
-            Gestión y seguimiento de novedades del personal
-          </p>
-        </div>
+<div class="erp-wrapper" *ngIf="loading">
+  <!-- PRINCIPIO #4: HEADER DE PÁGINA -->
+  <header class="page-header fade-slide" style="--anim-delay: 0s">
+    <div class="page-header__main">
+      <div class="page-header__icon">
+        <i class="pi pi-exclamation-triangle"></i>
       </div>
-      <div class="page-header__right">
-        <button class="btn btn--outline-light" (click)="crearNovedad()">
-          <i class="pi pi-refresh"></i><span>Actualizar</span>
-        </button>
+      <div class="page-header__text">
+        <h1 class="page-header__title">Control de Novedades</h1>
+        <span class="page-header__subtitle"
+          >Gestión, seguimiento y aprobación de novedades del personal</span
+        >
       </div>
+    </div>
+    <div class="page-header__actions">
+      <button class="btn btn--outline" (click)="crearNovedad()">
+        <i class="pi pi-refresh"></i> Actualizar
+      </button>
     </div>
   </header>
 
-  <!-- ═══ FILTROS ═══ -->
-  <div class="filters-panel">
-    <div class="filters-panel__header">
-      <i class="pi pi-filter"></i>
-      <span>Filtros</span>
+  <!-- PRINCIPIO #8: PANEL DE FILTROS -->
+  <section class="filter-panel card fade-slide" style="--anim-delay: 0.05s">
+    <div class="filter-panel__header">
+      <i class="pi pi-filter text-accent"></i>
+      <span class="filter-panel__title">Filtros de Búsqueda</span>
     </div>
-    <div class="filters-panel__body">
-      <div class="filter-field" *ngIf="showList">
-        <label class="filter-field__label" for="name">Nombre</label>
-        <div class="filter-field__input-wrap">
-          <i class="pi pi-search filter-field__icon"></i>
+    <div class="filter-panel__grid">
+      <div class="form-group" *ngIf="showList">
+        <label class="form-label">Colaborador</label>
+        <div class="input-group">
+          <i class="pi pi-search input-group__icon"></i>
           <input
-            id="name"
-            class="filter-field__input filter-field__input--icon"
+            type="text"
+            class="form-control pl-icon"
             [(ngModel)]="filterName"
             (input)="filterdByName()"
-            type="text"
             placeholder="Buscar colaborador..."
           />
         </div>
       </div>
-      <div class="filter-field">
-        <label class="filter-field__label" for="fechaInicio">Desde</label>
-        <input
-          id="fechaInicio"
-          class="filter-field__input"
-          type="date"
-          [(ngModel)]="fechaInicio"
-          (change)="filterByData()"
-        />
+
+      <div class="form-group">
+        <label class="form-label">Desde</label>
+        <div class="input-group">
+          <i class="pi pi-calendar input-group__icon"></i>
+          <input
+            type="date"
+            class="form-control pl-icon"
+            [(ngModel)]="fechaInicio"
+            (change)="filterByData()"
+          />
+        </div>
       </div>
-      <div class="filter-field">
-        <label class="filter-field__label" for="fechaFin">Hasta</label>
-        <input
-          id="fechaFin"
-          class="filter-field__input"
-          type="date"
-          [(ngModel)]="fechaFin"
-          (change)="filterByData()"
-        />
+
+      <div class="form-group">
+        <label class="form-label">Hasta</label>
+        <div class="input-group">
+          <i class="pi pi-calendar input-group__icon"></i>
+          <input
+            type="date"
+            class="form-control pl-icon"
+            [(ngModel)]="fechaFin"
+            (change)="filterByData()"
+          />
+        </div>
       </div>
-      <div class="filter-field filter-field--action">
+
+      <div class="form-group filter-panel__actions">
         <button
-          class="btn btn--outline btn--sm"
+          class="btn btn--outline btn--block"
           (click)="clearDateRange()"
           [disabled]="!fechaInicio && !fechaFin"
         >
-          <i class="pi pi-filter-slash"></i><span>Limpiar rango</span>
+          <i class="pi pi-filter-slash"></i> Limpiar
         </button>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- ═══ TABLA DE NOVEDADES ═══ -->
-  <div class="card">
-    <div class="card__head card__head--accent">
-      <div class="card__head-left">
+  <!-- PRINCIPIO #5 y #6: TABLA DE NOVEDADES -->
+  <section class="data-card card fade-slide" style="--anim-delay: 0.1s">
+    <div class="card__head">
+      <div class="card__head-title">
         <i class="pi pi-list"></i>
-        <h3 class="card__head-title">Listado de Novedades</h3>
+        <h3>Listado de Novedades</h3>
       </div>
-      <span class="card__head-counter">{{ filteredNovedad.length }}</span>
+      <span class="badge-counter">
+        <i class="pi pi-hashtag"></i> {{ filteredNovedad.length }} Registros
+      </span>
     </div>
-    <div class="card__body card__body--flush">
-      <div class="table-wrapper">
-        <table class="data-table">
+
+    <div class="card__body p-0">
+      <!-- PRINCIPIO #15: EMPTY STATE -->
+      <div *ngIf="filteredNovedad.length === 0" class="empty-state">
+        <div class="empty-state__icon"><i class="pi pi-inbox"></i></div>
+        <h4 class="empty-state__title">Sin Novedades</h4>
+        <p class="empty-state__desc">
+          No se encontraron registros con los filtros aplicados.
+        </p>
+      </div>
+
+      <div
+        class="table-responsive custom-scrollbar"
+        *ngIf="filteredNovedad.length > 0"
+      >
+        <table class="erp-table">
           <thead>
             <tr>
-              <th>Nombre</th>
-              <th>Tipo</th>
-              <th>Fecha</th>
-              <th>Descripción</th>
-              <th>Horas</th>
-              <th>Estado</th>
-              <th class="data-table__th--actions">Acción</th>
+              <th style="width: 20%">Colaborador</th>
+              <th style="width: 12%">Tipo</th>
+              <th style="width: 10%">Fecha</th>
+              <th style="width: 23%">Descripción</th>
+              <th class="text-center" style="width: 10%">Horas</th>
+              <th class="text-center" style="width: 12%">Estado</th>
+              <th class="text-right" style="width: 13%">Aprobación</th>
             </tr>
           </thead>
           <tbody>
             <tr
               *ngFor="let item of filteredNovedad"
               [ngClass]="{
-                'data-table__row--accepted': item.aceptacion === true,
-                'data-table__row--rejected': item.aceptacion === false,
+                'row--accepted': item.aceptacion === true,
+                'row--rejected': item.aceptacion === false,
               }"
             >
-              <td class="data-table__td--name">{{ item.Name }}</td>
+              <td class="td-bold">{{ item.Name }}</td>
+
               <td>
-                <span class="table-badge table-badge--info">{{
+                <span class="status-badge status-badge--info">{{
                   item.type
                 }}</span>
               </td>
-              <td class="data-table__td--date">{{ item.Fecha }}</td>
+
+              <td class="td-muted td-bold">{{ item.Fecha }}</td>
+
+              <!-- CELDA DESCRIPCIÓN TRUNCADA -->
               <td
-                class="data-table__td--desc"
+                class="td-interactive"
                 (click)="mostrarDescripcion(item.description)"
+                title="Clic para leer completo"
               >
-                <div class="desc-cell">
-                  <span class="desc-cell__text">{{ item.description }}</span>
-                  <i class="pi pi-external-link desc-cell__expand"></i>
+                <div class="text-clamp-wrapper">
+                  <span class="text-clamp">{{ item.description }}</span>
+                  <i class="pi pi-external-link icon-xs"></i>
                 </div>
               </td>
-              <td>
+
+              <!-- INPUT DE HORAS EN LÍNEA -->
+              <td class="text-center">
                 <input
                   type="text"
-                  class="hours-input"
+                  class="form-control input-inline"
                   [(ngModel)]="item.horas"
                   (blur)="validarYActualizarHora(item.id, item.horas)"
                   placeholder="+/-HH:MM"
@@ -136,48 +160,51 @@
                   title="Formato: HH:MM"
                 />
               </td>
-              <td>
+
+              <td class="text-center">
                 <span
-                  class="status-pill status-pill--warning"
+                  class="status-badge status-badge--warning"
                   *ngIf="item.aceptacion === null"
                   >Pendiente</span
                 >
                 <span
-                  class="status-pill status-pill--success"
+                  class="status-badge status-badge--success"
                   *ngIf="item.aceptacion === true"
                   >Descontar</span
                 >
                 <span
-                  class="status-pill status-pill--danger"
+                  class="status-badge status-badge--danger"
                   *ngIf="item.aceptacion === false"
                   >No descontar</span
                 >
               </td>
-              <td class="data-table__td--actions">
+
+              <!-- ACCIONES DE APROBACIÓN -->
+              <td class="text-right">
                 <div class="action-group">
                   <button
-                    class="action-btn action-btn--accept"
+                    class="action-btn action-btn--success"
                     *ngIf="
                       item.aceptacion === null || item.aceptacion === false
                     "
                     (click)="editarEstado(item, true)"
-                    title="Descontar"
+                    title="Aprobar / Descontar"
                   >
                     <i class="pi pi-check"></i>
                   </button>
                   <button
-                    class="action-btn action-btn--reject"
+                    class="action-btn action-btn--danger"
                     *ngIf="item.aceptacion === null || item.aceptacion === true"
                     (click)="editarEstado(item, false)"
-                    title="No descontar"
+                    title="Rechazar / No descontar"
                   >
                     <i class="pi pi-times"></i>
                   </button>
                   <button
-                    class="action-btn action-btn--undo"
+                    class="action-btn action-btn--warning"
                     *ngIf="item.aceptacion !== null"
                     (click)="editarEstado(item, null)"
-                    title="Volver a Pendiente"
+                    title="Deshacer decisión"
                   >
                     <i class="pi pi-replay"></i>
                   </button>
@@ -187,57 +214,39 @@
           </tbody>
         </table>
       </div>
-
-      <!-- Empty state -->
-      <div
-        class="empty-state empty-state--compact"
-        *ngIf="filteredNovedad.length === 0"
-      >
-        <div class="empty-state__icon">
-          <i class="pi pi-inbox"></i>
-        </div>
-        <h3 class="empty-state__title">Sin novedades</h3>
-        <p class="empty-state__desc">
-          No se encontraron novedades con los filtros aplicados
-        </p>
-      </div>
     </div>
 
-    <!-- Footer con acción principal -->
-    <div class="card__footer" *ngIf="filteredNovedad.length > 0">
+    <!-- ACCIÓN PRINCIPAL AL FINAL DE LA TABLA -->
+    <div class="card__footer flex-end" *ngIf="filteredNovedad.length > 0">
       <button class="btn btn--primary" (click)="enviarAceptacion()">
-        <i class="pi pi-send"></i><span>Aceptar Cambios</span>
+        <i class="pi pi-send"></i> Guardar Cambios
       </button>
     </div>
-  </div>
+  </section>
 </div>
 
-<!-- ═══ MODAL DESCRIPCIÓN ═══ -->
-<div
-  class="modal-overlay"
-  *ngIf="descripcionSeleccionada"
-  (click)="cerrarModal()"
-  role="dialog"
-  aria-modal="true"
->
-  <div class="modal" (click)="$event.stopPropagation()">
-    <div class="modal__header">
-      <div class="modal__header-left">
-        <div class="modal__header-icon">
-          <i class="pi pi-file"></i>
-        </div>
-        <h2 class="modal__title">Descripción completa</h2>
+<!-- =========================================================
+     MODAL LECTURA DE DESCRIPCIÓN
+========================================================= -->
+<div class="modal-overlay fade-in" *ngIf="descripcionSeleccionada">
+  <div class="modal-dialog fade-slide" style="--anim-delay: 0s">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="pi pi-file-o text-accent"></i>
+        <h3>Descripción Detallada</h3>
       </div>
-      <button class="modal__close" (click)="cerrarModal()" aria-label="Cerrar">
+      <button class="modal-close" (click)="cerrarModal()">
         <i class="pi pi-times"></i>
       </button>
     </div>
-    <div class="modal__body">
-      <p class="modal__desc-text">{{ descripcionSeleccionada }}</p>
+    <div class="modal-body">
+      <div class="text-panel">
+        {{ descripcionSeleccionada }}
+      </div>
     </div>
-    <div class="modal__footer">
+    <div class="modal-footer">
       <button class="btn btn--primary" (click)="cerrarModal()">
-        <i class="pi pi-check"></i><span>Entendido</span>
+        Entendido
       </button>
     </div>
   </div>

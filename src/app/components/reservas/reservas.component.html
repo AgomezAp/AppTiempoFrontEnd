@@ -1,373 +1,452 @@
 <app-navbar></app-navbar>
 
-<div class="reservas-container">
-  <!-- Encabezado -->
-  <div class="reservas-header">
-    <h1>Sistema de Reservas de Salas de Reunión</h1>
-    <button
-      *ngIf="isAdmin"
-      class="btn btn-primary manage-rooms-btn"
-      (click)="openRoomManagement()"
-      title="Administrar salas"
+<div class="erp-wrapper">
+  <!-- ========================================================
+       PRINCIPIO #4: HEADER DE PÁGINA
+  ======================================================== -->
+  <header class="page-header fade-slide" style="--anim-delay: 0s">
+    <div class="page-header__bg"></div>
+    <div class="page-header__content">
+      <div class="page-header__left">
+        <div class="page-header__icon">
+          <i class="fas fa-calendar-alt"></i>
+        </div>
+        <div class="page-header__text">
+          <h1 class="page-header__title">Reservas de Salas</h1>
+          <p class="page-header__subtitle">
+            Sistema de agendamiento y gestión de espacios de reunión
+          </p>
+        </div>
+      </div>
+      <div class="page-header__right" *ngIf="isAdmin">
+        <button
+          class="btn btn--outline-light"
+          (click)="openRoomManagement()"
+          title="Administrar salas"
+        >
+          <i class="fas fa-cogs"></i> Administrar Salas
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================
+       CONTROLES DEL MES Y LEYENDA
+  ======================================================== -->
+  <div class="calendar-controls fade-slide" style="--anim-delay: 0.05s">
+    <div class="month-nav">
+      <button class="btn btn--outline btn--sm" (click)="previousMonth()">
+        <i class="fas fa-chevron-left"></i> Anterior
+      </button>
+      <h2 class="month-title">{{ getMonthYearSpanish() }}</h2>
+      <button class="btn btn--outline btn--sm" (click)="nextMonth()">
+        Siguiente <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+
+    <div class="calendar-legend">
+      <div class="legend-item">
+        <span
+          class="legend-color"
+          style="background-color: #fff8e1; border: 1px solid #ffe082"
+        ></span>
+        Disponible
+      </div>
+      <div class="legend-item">
+        <span
+          class="legend-color"
+          style="background-color: #f8d7da; border: 1px solid #f5c6cb"
+        ></span>
+        Reservado
+      </div>
+      <div class="legend-item">
+        <span
+          class="legend-color"
+          style="background-color: #e8e8e8; border: 1px solid #ccc"
+        ></span>
+        No disponible
+      </div>
+      <div class="legend-item">
+        <span
+          class="legend-color"
+          style="background-color: #f0f0f0; border: 1px dashed #ccc"
+        ></span>
+        Otro mes
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       CALENDARIO GRID
+  ======================================================== -->
+  <section class="card fade-slide" style="--anim-delay: 0.1s">
+    <div class="card__body p-0">
+      <div class="calendar-grid">
+        <!-- Encabezados de días -->
+        <div class="calendar-day-header">Lunes</div>
+        <div class="calendar-day-header">Martes</div>
+        <div class="calendar-day-header">Miércoles</div>
+        <div class="calendar-day-header">Jueves</div>
+        <div class="calendar-day-header">Viernes</div>
+        <div class="calendar-day-header">Sábado</div>
+        <div class="calendar-day-header">Domingo</div>
+
+        <!-- Días del calendario -->
+        <div
+          *ngFor="let day of calendarDays"
+          class="calendar-day"
+          [style.backgroundColor]="getDayColor(day)"
+          [class.calendar-day--muted]="!day.isCurrentMonth"
+        >
+          <div class="day-top">
+            <span class="day-number">{{ day.day }}</span>
+            <span
+              class="status-dot"
+              [style.backgroundColor]="getStatusColor(day)"
+              [title]="getDayStatus(day)"
+            ></span>
+          </div>
+
+          <div class="day-info">
+            <span
+              class="info-badge info-badge--reserved"
+              *ngIf="day.reservations.length > 0"
+            >
+              {{ day.reservations.length }} reserva{{
+                day.reservations.length > 1 ? "s" : ""
+              }}
+            </span>
+            <span
+              class="info-badge info-badge--available"
+              *ngIf="day.reservations.length === 0 && day.isWorkDay"
+              >Disponible</span
+            >
+            <span class="info-badge info-badge--closed" *ngIf="!day.isWorkDay"
+              >Cerrado</span
+            >
+          </div>
+
+          <div class="day-actions" *ngIf="day.isCurrentMonth">
+            <button
+              *ngIf="day.reservations.length > 0"
+              class="action-btn action-btn--view"
+              (click)="showDayReservations(day)"
+              title="Ver reservaciones"
+            >
+              <i class="fas fa-eye"></i>
+            </button>
+            <button
+              *ngIf="day.isWorkDay"
+              class="action-btn action-btn--new"
+              (click)="openNewReservationModal(day.date)"
+              title="Nueva reserva"
+            >
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       MODAL 1: NUEVA / EDITAR RESERVA
+  ======================================================== -->
+  <div class="modal-overlay fade-in" *ngIf="showModal" (click)="closeModal()">
+    <div
+      class="modal-dialog fade-slide"
+      style="max-width: 550px"
+      (click)="$event.stopPropagation()"
     >
-      Administrar Salas
-    </button>
-  </div>
-
-  <!-- Controles de mes -->
-  <div class="month-controls">
-    <button class="btn btn-secondary" (click)="previousMonth()">
-      ← Mes Anterior
-    </button>
-    <h2>{{ getMonthYearSpanish() }}</h2>
-    <!-- Cambiar esta línea -->
-    <button class="btn btn-secondary" (click)="nextMonth()">
-      Mes Siguiente →
-    </button>
-  </div>
-
-  <!-- Calendario -->
-  <div class="calendar-container">
-    <!-- Encabezados de días de la semana -->
-    <div class="calendar-header">
-      <div class="calendar-day-header">Lunes</div>
-      <div class="calendar-day-header">Martes</div>
-      <div class="calendar-day-header">Miércoles</div>
-      <div class="calendar-day-header">Jueves</div>
-      <div class="calendar-day-header">Viernes</div>
-      <div class="calendar-day-header">Sábado</div>
-      <div class="calendar-day-header">Domingo</div>
-    </div>
-
-    <!-- Días del calendario -->
-    <div class="calendar-body">
-      <div
-        *ngFor="let day of calendarDays"
-        class="calendar-day"
-        [style.backgroundColor]="getDayColor(day)"
-        [class.not-current-month]="!day.isCurrentMonth"
-      >
-        <!-- Día del mes -->
-        <div class="day-number">{{ day.day }}</div>
-
-        <!-- Indicador de estado -->
-        <div class="status-indicator">
-          <span
-            class="status-dot"
-            [style.backgroundColor]="getStatusColor(day)"
-            [title]="getDayStatus(day)"
-          ></span>
-        </div>
-
-        <!-- Botones de acciones -->
-        <div class="day-actions" *ngIf="day.isCurrentMonth">
-          <button
-            *ngIf="day.isWorkDay"
-            class="btn-icon btn-new"
-            (click)="openNewReservationModal(day.date)"
-            title="Nueva reserva"
-          >
-            ➕
-          </button>
-          <button
-            *ngIf="day.reservations.length > 0"
-            class="btn-icon btn-view"
-            (click)="showDayReservations(day)"
-            title="Ver reservaciones"
-          >
-            👁️
-          </button>
-        </div>
-
-        <!-- Información adicional -->
-        <div class="day-info">
-          <small *ngIf="day.reservations.length > 0">
-            {{ day.reservations.length }} reserva{{
-              day.reservations.length > 1 ? "s" : ""
-            }}
-          </small>
-          <small
-            *ngIf="day.reservations.length === 0 && day.isWorkDay"
-            class="available"
-          >
-            Disponible
-          </small>
-          <small *ngIf="!day.isWorkDay" class="not-working"> No disponible </small>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="legend">
-    <div class="legend-item">
-      <div class="legend-color" style="background-color: #fff8e1"></div>
-      <!-- Amarillo claro -->
-      <span>Disponible</span>
-    </div>
-    <div class="legend-item">
-      <div class="legend-color" style="background-color: #f8d7da"></div>
-      <span>Reservado</span>
-    </div>
-    <div class="legend-item">
-      <div class="legend-color" style="background-color: #e8e8e8"></div>
-      <!-- Gris neutro -->
-      <span>No disponible</span>
-    </div>
-    <div class="legend-item">
-      <div class="legend-color" style="background-color: #f0f0f0"></div>
-      <span>Otro mes</span>
-    </div>
-  </div>
-
-  <!-- MODAL: Nueva/Editar Reserva -->
-  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h2>{{ modalTitle }}</h2>
-        <button class="btn-close" (click)="closeModal()">✕</button>
+        <div class="modal-title">
+          <i class="fas fa-calendar-check text-accent"></i>
+          <h3>{{ modalTitle }}</h3>
+        </div>
+        <button class="modal-close" (click)="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
 
-      <div class="modal-body">
-        <!-- Selector de Sala -->
-        <div class="form-group">
-          <label>Sala de Reunión *</label>
-          <select
-            [(ngModel)]="selectedRoom"
-            (change)="onRoomSelected()"
-            class="form-control"
-          >
-            <option value="">Selecciona una sala</option>
-            <option *ngFor="let room of rooms" [value]="room.Rid">
-              {{ room.name }}
-            </option>
-          </select>
+      <div class="modal-body custom-scrollbar form-layout">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Sala de Reunión *</label>
+            <select
+              [(ngModel)]="selectedRoom"
+              (change)="onRoomSelected()"
+              class="form-control form-select"
+            >
+              <option value="">Selecciona una sala...</option>
+              <option *ngFor="let room of rooms" [value]="room.Rid">
+                {{ room.name }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fecha *</label>
+            <input
+              type="date"
+              [(ngModel)]="selectedDate"
+              (change)="onDateSelected()"
+              class="form-control"
+              [min]="getMinDate()"
+              [max]="getMaxDate()"
+            />
+          </div>
         </div>
 
-        <!-- Selector de Fecha -->
-        <div class="form-group">
-          <label>Fecha *</label>
-          <input
-            type="date"
-            [(ngModel)]="selectedDate"
-            (change)="onDateSelected()"
-            class="form-control"
-            [min]="getMinDate()"
-            [max]="getMaxDate()"
-          />
-        </div>
-        <!-- Horas personalizadas (si es necesario) -->
-        <div class="form-row">
+        <div class="form-grid">
           <div class="form-group">
-            <label>Hora Inicio *</label>
+            <label class="form-label">Hora Inicio *</label>
             <input type="time" [(ngModel)]="startTime" class="form-control" />
           </div>
           <div class="form-group">
-            <label>Hora Fin *</label>
+            <label class="form-label">Hora Fin *</label>
             <input type="time" [(ngModel)]="endTime" class="form-control" />
           </div>
         </div>
 
-        <!-- Motivo de la Reunión -->
         <div class="form-group">
-          <label>Motivo de la Reunión *</label>
+          <label class="form-label">Motivo de la Reunión *</label>
           <textarea
             [(ngModel)]="reason"
-            placeholder="Describe el motivo de la reunión"
+            placeholder="Describe brevemente el motivo..."
             class="form-control"
+            rows="2"
           ></textarea>
         </div>
 
-        <!-- Selección de Participantes -->
         <div class="form-group">
-          <label>Participantes</label>
-          <div class="participants-list">
-            <div *ngFor="let user of allUsers" class="participant-item">
+          <label class="form-label">Participantes Convocados</label>
+          <div class="participants-list custom-scrollbar">
+            <label *ngFor="let user of allUsers" class="participant-item">
               <input
                 type="checkbox"
                 [checked]="selectedParticipants.includes(user.Uid)"
                 (change)="toggleParticipant(user.Uid)"
-                class="checkbox"
+                class="custom-checkbox"
               />
-              <label
-                >{{ user.name }} {{ user.lastName }} ({{ user.email }})</label
+              <span
+                >{{ user.name }} {{ user.lastName }}
+                <small class="text-muted">({{ user.email }})</small></span
               >
-            </div>
+            </label>
           </div>
         </div>
       </div>
 
       <div class="modal-footer">
         <button
-          class="btn btn-secondary"
+          class="btn btn--outline"
           (click)="closeModal()"
           [disabled]="loading"
         >
           Cancelar
         </button>
         <button
-          class="btn btn-primary"
+          class="btn btn--primary"
           (click)="saveReservation()"
           [disabled]="loading"
         >
+          <i
+            class="fas"
+            [ngClass]="loading ? 'fa-spinner fa-spin' : 'fa-save'"
+          ></i>
           {{
             loading
               ? "Guardando..."
               : isEditing
-              ? "Actualizar"
-              : "Crear Reserva"
+                ? "Actualizar Reserva"
+                : "Confirmar Reserva"
           }}
         </button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: Detalles del Día -->
-  <div class="modal-overlay" *ngIf="showDayDetails" (click)="closeDayDetails()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
+  <!-- ========================================================
+       MODAL 2: DETALLES DEL DÍA
+  ======================================================== -->
+  <div
+    class="modal-overlay fade-in"
+    *ngIf="showDayDetails"
+    (click)="closeDayDetails()"
+  >
+    <div
+      class="modal-dialog fade-slide"
+      style="max-width: 600px"
+      (click)="$event.stopPropagation()"
+    >
       <div class="modal-header">
-        <h2>Reservaciones - {{ selectedDayForDetails }}</h2>
-        <button class="btn-close" (click)="closeDayDetails()">✕</button>
+        <div class="modal-title">
+          <i class="fas fa-list-alt text-accent"></i>
+          <h3>Agenda: {{ selectedDayForDetails }}</h3>
+        </div>
+        <button class="modal-close" (click)="closeDayDetails()">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
 
-      <div class="modal-body">
+      <div
+        class="modal-body custom-scrollbar"
+        style="background: var(--bg-body); padding: 1rem"
+      >
         <div class="reservations-list">
           <div
-            *ngFor="let reservation of selectedDayReservations"
-            class="reservation-card"
+            *ngIf="selectedDayReservations.length === 0"
+            class="text-center text-muted p-4"
           >
-            <div class="reservation-header">
-              <h3>{{ getRoomName(reservation.Rid) }}</h3>
-              <span class="time-badge"
-                >{{ reservation.startTime }} - {{ reservation.endTime }}</span
-              >
-            </div>
+            No hay reservas para este día.
+          </div>
 
-            <div class="reservation-details">
-              <p><strong>Motivo:</strong> {{ reservation.reason }}</p>
-              <p>
+          <div
+            *ngFor="let reservation of selectedDayReservations"
+            class="reservation-card card"
+          >
+            <div class="card__head" style="padding: 0.5rem 0.85rem">
+              <h4 class="m-0" style="font-size: 0.85rem">
+                {{ getRoomName(reservation.Rid) }}
+              </h4>
+              <span class="status-badge status-badge--outline">
+                <i class="fas fa-clock"></i> {{ reservation.startTime }} -
+                {{ reservation.endTime }}
+              </span>
+            </div>
+            <div class="card__body" style="padding: 0.85rem; font-size: 0.8rem">
+              <p class="m-0 mb-2">
+                <strong>Motivo:</strong> {{ reservation.reason }}
+              </p>
+              <p class="m-0 mb-2">
                 <strong>Organizador:</strong> {{ reservation.User?.name }}
                 {{ reservation.User?.lastName }}
               </p>
-              <p
+
+              <div
                 *ngIf="
                   reservation.participants &&
                   reservation.participants.length > 0
                 "
               >
                 <strong>Participantes:</strong>
-                <br />
-                <span
-                  *ngFor="
-                    let participantId of reservation.participants;
-                    let last = last
-                  "
-                >
-                  {{ getUserName(participantId) }}<span *ngIf="!last">, </span>
-                </span>
-              </p>
+                <p class="text-muted m-0 mt-1">
+                  <span
+                    *ngFor="
+                      let participantId of reservation.participants;
+                      let last = last
+                    "
+                  >
+                    {{ getUserName(participantId)
+                    }}<span *ngIf="!last">, </span>
+                  </span>
+                </p>
+              </div>
             </div>
 
-            <div class="reservation-actions">
+            <div
+              class="card__footer"
+              style="padding: 0.5rem 0.85rem"
+              *ngIf="
+                reservation.Uid ===
+                JSON.parse(localStorage.getItem('user') || '{}').Uid
+              "
+            >
               <button
-                *ngIf="
-                  reservation.Uid ===
-                  JSON.parse(localStorage.getItem('user') || '{}').Uid
-                "
-                class="btn btn-sm btn-warning"
+                class="btn btn--outline btn--sm"
                 (click)="openEditReservationModal(reservation)"
               >
-                Editar
+                <i class="fas fa-edit"></i> Editar
               </button>
               <button
-                *ngIf="
-                  reservation.Uid ===
-                  JSON.parse(localStorage.getItem('user') || '{}').Uid
-                "
-                class="btn btn-sm btn-danger"
+                class="btn btn--danger btn--sm ml-2"
                 (click)="cancelReservation(reservation.ReservationId)"
               >
-                Cancelar
+                <i class="fas fa-trash"></i> Cancelar
               </button>
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="closeDayDetails()">
-          Cerrar
-        </button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: Administración de Salas (solo admins) -->
+  <!-- ========================================================
+       MODAL 3: ADMINISTRACIÓN DE SALAS
+  ======================================================== -->
   <div
-    class="modal-overlay"
+    class="modal-overlay fade-in"
     *ngIf="showRoomManagement && isAdmin"
     (click)="closeRoomManagement()"
   >
-    <div class="modal-content modal-large" (click)="$event.stopPropagation()">
+    <div
+      class="modal-dialog fade-slide"
+      style="max-width: 650px"
+      (click)="$event.stopPropagation()"
+    >
       <div class="modal-header">
-        <h2>Administración de Salas de Reunión</h2>
-        <button class="btn-close" (click)="closeRoomManagement()">✕</button>
+        <div class="modal-title">
+          <i class="fas fa-door-open text-accent"></i>
+          <h3>Administración de Salas</h3>
+        </div>
+        <button class="modal-close" (click)="closeRoomManagement()">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
 
-      <div class="modal-body">
-        <!-- Crear nueva sala -->
-        <div class="create-room-section">
-          <h3>Crear Nueva Sala</h3>
-          <div class="form-group">
+      <div class="modal-body custom-scrollbar">
+        <!-- Crear Sala -->
+        <div class="create-room-box mb-4">
+          <label class="form-label">Crear Nueva Sala</label>
+          <div style="display: flex; gap: 0.5rem">
             <input
               type="text"
               [(ngModel)]="newRoomName"
-              placeholder="Nombre de la sala"
+              placeholder="Nombre de la sala (Ej: Sala Junta)"
               class="form-control"
             />
+            <button
+              class="btn btn--primary"
+              (click)="createRoom()"
+              [disabled]="loading || !newRoomName"
+            >
+              <i class="fas fa-plus"></i>
+              {{ loading ? "Creando..." : "Agregar" }}
+            </button>
           </div>
-          <button
-            class="btn btn-primary"
-            (click)="createRoom()"
-            [disabled]="loading"
-          >
-            {{ loading ? "Creando..." : "Crear Sala" }}
-          </button>
         </div>
 
-        <hr />
+        <div class="divider"></div>
 
-        <!-- Lista de salas -->
-        <div class="rooms-list-section">
-          <h3>Salas Existentes</h3>
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let room of rooms">
-                <td>{{ room.name }}</td>
-                <td>
-                  <button
-                    class="btn btn-sm btn-danger"
-                    (click)="deleteRoom(room.Rid)"
-                    [disabled]="loading"
-                  >
-                    Eliminar
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="closeRoomManagement()">
-          Cerrar
-        </button>
+        <!-- Lista de Salas -->
+        <h4 class="form-label mt-3 mb-2">Salas Existentes</h4>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 80%">Nombre de la Sala</th>
+              <th style="width: 20%" class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let room of rooms">
+              <td class="td-bold">{{ room.name }}</td>
+              <td class="text-center">
+                <button
+                  class="action-btn action-btn--danger"
+                  (click)="deleteRoom(room.Rid)"
+                  [disabled]="loading"
+                  title="Eliminar sala"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="rooms.length === 0">
+              <td colspan="2" class="text-center text-muted p-3">
+                No hay salas registradas en el sistema.
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>

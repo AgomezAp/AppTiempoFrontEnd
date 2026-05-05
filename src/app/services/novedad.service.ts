@@ -17,8 +17,12 @@ export class NovedadService {
   createNovedad():Observable<Novedad>{
     return this.http.post<Novedad>(`${this.appUrl}${this.apiUrl}/NuevaNovedad`, {})
   }
-  verNovedad(): Observable<Novedad[]>{
-    return this.http.get<Novedad[]>(`${this.appUrl}${this.apiUrl}/ObtenerNovedad`)
+  verNovedad(desde?: string, hasta?: string): Observable<Novedad[]>{
+    let query = '';
+    if (desde && hasta) {
+      query = `?desde=${desde}&hasta=${hasta}`;
+    }
+    return this.http.get<Novedad[]>(`${this.appUrl}${this.apiUrl}/ObtenerNovedad${query}`)
   }
   verNovedadHistorico(): Observable<NovedadHistorico[]>{
     return this.http.get<NovedadHistorico[]>(`${this.appUrl}${this.apiUrl}/ObtenerHistorico`)

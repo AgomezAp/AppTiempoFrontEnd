@@ -1,158 +1,224 @@
 <app-navbar></app-navbar>
 
-<div *ngIf="loading" class="novedad-dashboard">
-  <!-- Header con título y filtros en línea -->
-  <div class="header-section">
-    <h1>Novedades Histórico</h1>
-
-    <div class="filters-inline">
-      <div class="filter-item" *ngIf="showList">
-        <label for="name">Nombre</label>
-        <input
-          id="name"
-          [(ngModel)]="filterName"
-          (input)="filterdByName()"
-          type="text"
-          placeholder="Buscar..."
-        />
+<div class="historico-container" *ngIf="loading">
+  <!-- ═══ PAGE HEADER ═══ -->
+  <header class="page-header">
+    <div class="page-header__bg"></div>
+    <div class="page-header__content">
+      <div class="page-header__left">
+        <div class="page-header__icon">
+          <i class="pi pi-clock"></i>
+        </div>
+        <div class="page-header__text">
+          <h1 class="page-header__title">Novedades Histórico</h1>
+          <p class="page-header__subtitle">
+            Consulta el historial de novedades procesadas
+          </p>
+        </div>
       </div>
-      <div class="filter-item">
-        <label for="fechaInicio">Desde</label>
+      <div class="page-header__right">
+        <span class="page-header__total-badge" *ngIf="totalItems > 0">
+          <i class="pi pi-database"></i>
+          {{ totalItems }} registros
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ FILTROS ═══ -->
+  <div class="filters-panel">
+    <div class="filters-panel__header">
+      <i class="pi pi-filter"></i>
+      <span>Filtros</span>
+    </div>
+    <div class="filters-panel__body">
+      <div class="filter-field" *ngIf="showList">
+        <label class="filter-field__label" for="nameHist">Nombre</label>
+        <div class="filter-field__input-wrap">
+          <i class="pi pi-search filter-field__icon"></i>
+          <input
+            id="nameHist"
+            class="filter-field__input filter-field__input--icon"
+            [(ngModel)]="filterName"
+            (input)="filterdByName()"
+            type="text"
+            placeholder="Buscar colaborador..."
+          />
+        </div>
+      </div>
+      <div class="filter-field">
+        <label class="filter-field__label" for="fechaInicioHist">Desde</label>
         <input
-          id="fechaInicio"
+          id="fechaInicioHist"
+          class="filter-field__input"
           type="date"
           [(ngModel)]="fechaInicio"
           (change)="filterByData()"
         />
       </div>
-
-      <div class="filter-item">
-        <label for="fechaFin">Hasta</label>
+      <div class="filter-field">
+        <label class="filter-field__label" for="fechaFinHist">Hasta</label>
         <input
-          id="fechaFin"
+          id="fechaFinHist"
+          class="filter-field__input"
           type="date"
           [(ngModel)]="fechaFin"
           (change)="filterByData()"
         />
       </div>
-
-      <div class="filter-item actions-filter">
+      <div class="filter-field filter-field--action">
         <button
-          type="button"
-          class="btn-clear-filters"
+          class="btn btn--outline btn--sm"
           (click)="clearDateRange()"
           [disabled]="!fechaInicio && !fechaFin"
         >
-          Limpiar rango
+          <i class="pi pi-filter-slash"></i><span>Limpiar rango</span>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Tabla -->
-  <div class="table-container">
-    <table class="novedades-table">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Tipo</th>
-          <th>Fecha</th>
-          <th>Descripción</th>
-          <th>Horas</th>
-          <th>Estado</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          *ngFor="let item of paginatedData"
-          [ngClass]="{
-            'row-aceptado': item.aceptacion === true,
-            'row-rechazado': item.aceptacion === false
-          }"
-        >
-          <td class="name-cell">{{ item.Name }}</td>
-          <td class="type-cell">{{ item.type }}</td>
-          <td class="date-cell">{{ item.Fecha }}</td>
-          <td class="desc-cell" [title]="item.description">
-            {{ item.description }}
-          </td>
-          <td class="hours-cell">{{ item.horas }}</td>
-          <td class="status-cell">
-            <span class="status-badge aceptado" *ngIf="item.aceptacion === true"
-              >Descontó</span
+  <!-- ═══ TABLA HISTÓRICO ═══ -->
+  <div class="card">
+    <div class="card__head card__head--accent">
+      <div class="card__head-left">
+        <i class="pi pi-list"></i>
+        <h3 class="card__head-title">Registro Histórico</h3>
+      </div>
+      <span class="card__head-counter">{{ totalItems }}</span>
+    </div>
+    <div class="card__body card__body--flush">
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Tipo</th>
+              <th>Fecha</th>
+              <th>Descripción</th>
+              <th>Horas</th>
+              <th>Estado</th>
+              <th class="data-table__th--actions">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let item of paginatedData"
+              [ngClass]="{
+                'data-table__row--accepted': item.aceptacion === true,
+                'data-table__row--rejected': item.aceptacion === false,
+              }"
             >
-            <span
-              class="status-badge rechazado"
-              *ngIf="item.aceptacion === false"
-              >No Descontó</span
-            >
-          </td>
-          <td class="actions-cell">
-            <button
-              class="btn-revision"
-              (click)="revision(item.Cid)"
-              title="Revisar"
-            >
-              <i class="fas fa-eye"></i>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+              <td class="data-table__td--name">{{ item.Name }}</td>
+              <td>
+                <span class="table-badge table-badge--info">{{
+                  item.type
+                }}</span>
+              </td>
+              <td class="data-table__td--date">{{ item.Fecha }}</td>
+              <td class="data-table__td--desc" [title]="item.description">
+                <span class="desc-truncate">{{ item.description }}</span>
+              </td>
+              <td class="data-table__td--hours">
+                <span class="hours-display" *ngIf="item.horas">{{
+                  item.horas
+                }}</span>
+                <span
+                  class="hours-display hours-display--empty"
+                  *ngIf="!item.horas"
+                  >—</span
+                >
+              </td>
+              <td>
+                <span
+                  class="status-pill status-pill--success"
+                  *ngIf="item.aceptacion === true"
+                  >Descontó</span
+                >
+                <span
+                  class="status-pill status-pill--danger"
+                  *ngIf="item.aceptacion === false"
+                  >No Descontó</span
+                >
+              </td>
+              <td class="data-table__td--actions">
+                <button
+                  class="action-btn action-btn--view"
+                  (click)="revision(item.Cid)"
+                  title="Revisar"
+                >
+                  <i class="pi pi-eye"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-    <!-- Paginación -->
-    <div class="pagination-container">
-      <span class="pagination-info">
-        Mostrando {{ getStartIndex() }} - {{ getEndIndex() }} de
-        {{ totalItems }}
-      </span>
+      <!-- Empty state -->
+      <div
+        class="empty-state empty-state--compact"
+        *ngIf="paginatedData.length === 0"
+      >
+        <div class="empty-state__icon">
+          <i class="pi pi-inbox"></i>
+        </div>
+        <h3 class="empty-state__title">Sin registros encontrados</h3>
+        <p class="empty-state__desc">Ajusta los filtros para ver resultados</p>
+      </div>
+    </div>
 
-      <div class="pagination-controls">
+    <!-- ═══ PAGINACIÓN ═══ -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <div class="pagination__info">
+        Mostrando
+        <strong>{{ getStartIndex() }}–{{ getEndIndex() }}</strong>
+        de <strong>{{ totalItems }}</strong>
+      </div>
+      <div class="pagination__controls">
         <button
-          class="pagination-btn"
+          class="pagination__btn"
           (click)="goToPage(1)"
           [disabled]="currentPage === 1"
           title="Primera"
         >
-          <i class="fas fa-angle-double-left"></i>
+          <i class="pi pi-angle-double-left"></i>
         </button>
         <button
-          class="pagination-btn"
+          class="pagination__btn"
           (click)="previousPage()"
           [disabled]="currentPage === 1"
           title="Anterior"
         >
-          <i class="fas fa-angle-left"></i>
+          <i class="pi pi-angle-left"></i>
         </button>
 
         <button
           *ngFor="let page of getVisiblePages()"
-          class="pagination-btn page-number"
-          [class.active]="page === currentPage"
+          class="pagination__btn pagination__btn--page"
+          [class.pagination__btn--active]="page === currentPage"
           (click)="goToPage(page)"
         >
           {{ page }}
         </button>
 
         <button
-          class="pagination-btn"
+          class="pagination__btn"
           (click)="nextPage()"
           [disabled]="currentPage === totalPages"
           title="Siguiente"
         >
-          <i class="fas fa-angle-right"></i>
+          <i class="pi pi-angle-right"></i>
         </button>
         <button
-          class="pagination-btn"
+          class="pagination__btn"
           (click)="goToPage(totalPages)"
           [disabled]="currentPage === totalPages"
           title="Última"
         >
-          <i class="fas fa-angle-double-right"></i>
+          <i class="pi pi-angle-double-right"></i>
         </button>
       </div>
     </div>
   </div>
 </div>
-

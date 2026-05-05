@@ -1,273 +1,537 @@
 <app-navbar></app-navbar>
-<div class="ssgt-container">
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="header-title-group">
-        <div class="header-icon"><i class="fas fa-boxes"></i></div>
-        <div class="header-text">
-          <h2>Entregas de EPP</h2>
-          <p class="header-subtitle">Gesti&oacute;n de entregas con firmas din&aacute;micas</p>
-        </div>
+
+<div class="erp-layout">
+  <!-- HEADER DE PÁGINA (Principio #4) -->
+  <header class="erp-page-header erp-animation-fade">
+    <div class="erp-page-header__main">
+      <div class="erp-page-header__icon">
+        <i class="fas fa-boxes"></i>
       </div>
-      <button class="btn-primary-accent" (click)="abrirFormulario()">
+      <div class="erp-page-header__text">
+        <h1 class="erp-page-header__title">Entregas de EPP</h1>
+        <p class="erp-page-header__subtitle">
+          Gestión de entregas de protección con firmas dinámicas
+        </p>
+      </div>
+    </div>
+    <div class="erp-page-header__actions">
+      <button class="erp-btn erp-btn--primary" (click)="abrirFormulario()">
         <i class="fas fa-plus"></i> Nueva Entrega
       </button>
     </div>
-    <div class="header-decoration"></div>
+  </header>
+
+  <!-- LOADING -->
+  <div *ngIf="loading" class="erp-loading erp-animation-fade">
+    <div class="erp-spinner"></div>
+    <span class="erp-loading__text">Cargando entregas...</span>
   </div>
 
-  <!-- Loading -->
-  <div class="loading-container" *ngIf="loading">
-    <div class="spinner"></div>
-    <p>Cargando entregas...</p>
+  <!-- GRID DE ENTREGAS (Principio #5) -->
+  <div
+    class="erp-grid erp-grid--3 erp-animation-fade"
+    *ngIf="!loading && entregas.length > 0"
+    style="animation-delay: 0.1s"
+  >
+    <article
+      class="erp-card erp-card--interactive"
+      *ngFor="let entrega of entregas"
+      (click)="verDetalle(entrega)"
+    >
+      <div class="erp-card__head erp-flex-between">
+        <span class="erp-card__title text-muted"
+          ><i class="fas fa-calendar-alt"></i>
+          {{ formatDate(entrega.fecha) }}</span
+        >
+        <span
+          class="erp-status-badge"
+          [ngClass]="getEstadoClass(entrega.estado || 'pendiente')"
+        >
+          {{ getEstadoLabel(entrega.estado || "pendiente") }}
+        </span>
+      </div>
+
+      <div class="erp-card__body">
+        <div class="erp-delivery-info mb-3">
+          <div class="erp-delivery-info__row" *ngIf="entrega.empresa">
+            <i class="fas fa-building text-primary"></i>
+            <strong>{{ getEmpresaNombre(entrega.empresa) }}</strong>
+          </div>
+          <div class="erp-delivery-info__row" *ngIf="entrega.creador">
+            <i class="fas fa-user-tie text-muted"></i>
+            <span
+              >{{ entrega.creador.name }} {{ entrega.creador.lastName }}</span
+            >
+          </div>
+        </div>
+
+        <div class="erp-card-stats">
+          <div class="erp-card-stats__item">
+            <span class="erp-card-stats__val">{{
+              entrega.detalles?.length || 0
+            }}</span>
+            <span class="erp-card-stats__label"
+              ><i class="fas fa-box-open"></i> Items</span
+            >
+          </div>
+          <div class="erp-card-stats__divider"></div>
+          <div class="erp-card-stats__item">
+            <span class="erp-card-stats__val">{{ contarFirmas(entrega) }}</span>
+            <span class="erp-card-stats__label"
+              ><i class="fas fa-file-signature"></i> Firmas</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="erp-card__footer justify-end"
+        (click)="$event.stopPropagation()"
+      >
+        <button
+          class="erp-action-btn erp-action-btn--danger"
+          (click)="eliminarEntrega(entrega.id!)"
+          title="Eliminar Entrega"
+        >
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </article>
   </div>
 
-  <!-- Cards Grid -->
-  <div class="cards-grid" *ngIf="!loading">
-    <div class="entrega-card" *ngFor="let entrega of entregas" (click)="verDetalle(entrega)">
-      <div class="card-accent-strip"></div>
-      <div class="card-body">
-        <div class="card-header-row">
-          <span class="card-date">{{ formatDate(entrega.fecha) }}</span>
-          <span class="badge-estado" [ngClass]="getEstadoClass(entrega.estado || 'pendiente')">
-            {{ getEstadoLabel(entrega.estado || 'pendiente') }}
-          </span>
-        </div>
-        <div class="card-empresa" *ngIf="entrega.empresa">
-          <i class="fas fa-building"></i> {{ getEmpresaNombre(entrega.empresa) }}
-        </div>
-        <div class="card-creador" *ngIf="entrega.creador">
-          <i class="fas fa-user"></i> {{ entrega.creador.name }} {{ entrega.creador.lastName }}
-        </div>
-        <div class="card-stats">
-          <div class="stat-item">
-            <i class="fas fa-box"></i>
-            <span>{{ entrega.detalles?.length || 0 }} items</span>
+  <!-- EMPTY STATE -->
+  <div
+    *ngIf="!loading && entregas.length === 0"
+    class="erp-empty-state erp-animation-fade"
+  >
+    <div class="erp-empty-state__icon"><i class="fas fa-dolly"></i></div>
+    <h3 class="erp-empty-state__title">No hay entregas registradas</h3>
+    <p class="erp-empty-state__desc">
+      Crea una nueva entrega de EPP para solicitar firmas dinámicas.
+    </p>
+    <button class="erp-btn erp-btn--outline mt-3" (click)="abrirFormulario()">
+      <i class="fas fa-plus"></i> Iniciar primera entrega
+    </button>
+  </div>
+
+  <!-- ==============================================
+       MODAL: NUEVA ENTREGA (Formulario Complejo)
+       ============================================== -->
+  <div class="erp-modal-overlay" *ngIf="mostrarFormulario" (click)="cancelar()">
+    <div
+      class="erp-modal erp-modal--lg erp-animation-fade"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="erp-modal__header">
+        <h2 class="erp-modal__title">
+          <i class="fas fa-boxes"></i> Nueva Entrega de EPP
+        </h2>
+        <button class="erp-modal__close" (click)="cancelar()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="erp-modal__body">
+        <!-- Info General -->
+        <h4 class="erp-section-title">
+          <i class="fas fa-info-circle"></i> Información General
+        </h4>
+        <div class="erp-grid erp-grid--2 mb-2">
+          <div class="erp-field">
+            <label class="erp-label"
+              >Fecha de Entrega <span class="text-danger">*</span></label
+            >
+            <input
+              type="date"
+              class="erp-input"
+              [(ngModel)]="nuevaEntrega.fecha"
+            />
           </div>
-          <div class="stat-item">
-            <i class="fas fa-signature"></i>
-            <span>{{ contarFirmas(entrega) }} firmas</span>
+          <div class="erp-field">
+            <label class="erp-label">Empresa Responsable</label>
+            <div class="erp-select-wrapper">
+              <select class="erp-select" [(ngModel)]="nuevaEntrega.empresa">
+                <option value="">Seleccione empresa</option>
+                <option value="AP">Andrés Publicidad</option>
+                <option value="AT">Andrés Tobón</option>
+                <option value="ME">María Evangelina</option>
+              </select>
+            </div>
           </div>
         </div>
-        <div class="card-actions" (click)="$event.stopPropagation()">
-          <button class="btn-action btn-delete" (click)="eliminarEntrega(entrega.id!)">
-            <i class="fas fa-trash"></i>
+        <div class="erp-field mb-4">
+          <label class="erp-label">Observaciones Adicionales</label>
+          <textarea
+            class="erp-input"
+            [(ngModel)]="nuevaEntrega.observaciones"
+            rows="2"
+            placeholder="Detalles de la entrega..."
+          ></textarea>
+        </div>
+
+        <!-- Elementos EPP (Dinámicos) -->
+        <div class="erp-flex-between mb-2">
+          <h4 class="erp-section-title mb-0">
+            <i class="fas fa-hard-hat"></i> Elementos a Entregar
+          </h4>
+          <button
+            class="erp-btn erp-btn--outline erp-btn--sm"
+            (click)="agregarItem()"
+          >
+            <i class="fas fa-plus"></i> Añadir Ítem
           </button>
         </div>
-      </div>
-    </div>
 
-    <!-- Empty State -->
-    <div class="empty-state" *ngIf="entregas.length === 0">
-      <i class="fas fa-boxes"></i>
-      <h3>No hay entregas registradas</h3>
-      <p>Crea una nueva entrega de EPP con firmas din&aacute;micas</p>
-    </div>
-  </div>
-
-  <!-- Modal: New Delivery Form -->
-  <div class="modal-overlay" *ngIf="mostrarFormulario" (click)="cancelar()">
-    <div class="modal-content modal-large" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>Nueva Entrega de EPP</h3>
-        <button class="btn-close-modal" (click)="cancelar()"><i class="fas fa-times"></i></button>
-      </div>
-      <div class="modal-body">
-        <!-- Basic Info -->
-        <div class="section-title"><i class="fas fa-info-circle"></i> Informaci&oacute;n General</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Fecha *</label>
-            <input type="date" [(ngModel)]="nuevaEntrega.fecha">
-          </div>
-          <div class="form-group">
-            <label>Empresa</label>
-            <select [(ngModel)]="nuevaEntrega.empresa">
-              <option value="">Seleccione</option>
-              <option value="AP">Andr&eacute;s Publicidad</option>
-              <option value="AT">Andr&eacute;s Tob&oacute;n</option>
-              <option value="ME">Mar&iacute;a Evangelina</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Observaciones</label>
-          <textarea [(ngModel)]="nuevaEntrega.observaciones" rows="2" placeholder="Observaciones..."></textarea>
-        </div>
-
-        <!-- Items EPP -->
-        <div class="section-title"><i class="fas fa-box"></i> Elementos de EPP</div>
-        <div class="dynamic-list">
-          <div class="dynamic-item" *ngFor="let item of items; let i = index">
-            <div class="form-row form-row-3">
-              <div class="form-group">
-                <label>EPP *</label>
-                <select [(ngModel)]="item.eppId">
-                  <option [ngValue]="0">Seleccione EPP</option>
-                  <option *ngFor="let epp of epps" [ngValue]="epp.id">{{ epp.nombre }} (Stock: {{ epp.stockActual }})</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Cantidad *</label>
-                <input type="number" [(ngModel)]="item.cantidad" min="1">
-              </div>
-              <div class="form-group">
-                <label>Talla</label>
-                <input type="text" [(ngModel)]="item.talla" placeholder="S, M, L...">
-              </div>
-            </div>
-            <button class="btn-remove" (click)="eliminarItem(i)" *ngIf="items.length > 1">
+        <div class="erp-subform-container mb-4">
+          <div
+            class="erp-subform-box"
+            *ngFor="let item of items; let i = index"
+          >
+            <button
+              class="erp-subform-box__remove"
+              (click)="eliminarItem(i)"
+              *ngIf="items.length > 1"
+              title="Quitar ítem"
+            >
               <i class="fas fa-times"></i>
             </button>
+
+            <div class="erp-grid erp-grid--3">
+              <div class="erp-field" style="grid-column: span 2">
+                <label class="erp-label"
+                  >Elemento EPP <span class="text-danger">*</span></label
+                >
+                <div class="erp-select-wrapper">
+                  <select class="erp-select" [(ngModel)]="item.eppId">
+                    <option [ngValue]="0">
+                      Seleccione elemento del catálogo
+                    </option>
+                    <option *ngFor="let epp of epps" [ngValue]="epp.id">
+                      {{ epp.nombre }} (Stock: {{ epp.stockActual }})
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="erp-grid erp-grid--2">
+                <div class="erp-field">
+                  <label class="erp-label"
+                    >Cant. <span class="text-danger">*</span></label
+                  >
+                  <input
+                    type="number"
+                    class="erp-input text-center"
+                    [(ngModel)]="item.cantidad"
+                    min="1"
+                  />
+                </div>
+                <div class="erp-field">
+                  <label class="erp-label">Talla</label>
+                  <input
+                    type="text"
+                    class="erp-input text-center"
+                    [(ngModel)]="item.talla"
+                    placeholder="S, M..."
+                  />
+                </div>
+              </div>
+            </div>
           </div>
-          <button class="btn-add" (click)="agregarItem()">
-            <i class="fas fa-plus"></i> Agregar Item
+        </div>
+
+        <!-- Firmantes (Dinámicos) -->
+        <div class="erp-flex-between mb-2">
+          <h4 class="erp-section-title mb-0">
+            <i class="fas fa-file-signature"></i> Personas que firman
+          </h4>
+          <button
+            class="erp-btn erp-btn--outline erp-btn--sm"
+            (click)="agregarFirmante()"
+          >
+            <i class="fas fa-plus"></i> Añadir Firmante
           </button>
         </div>
 
-        <!-- Firmantes -->
-        <div class="section-title"><i class="fas fa-signature"></i> Campos de Firma</div>
-        <div class="dynamic-list">
-          <div class="dynamic-item firmante-item" *ngFor="let firmante of firmantes; let i = index">
-            <div class="firmante-header">
-              <span class="firmante-number">Firma #{{ i + 1 }}</span>
-              <button class="btn-remove" (click)="eliminarFirmante(i)" *ngIf="firmantes.length > 1">
+        <div class="erp-subform-container">
+          <div
+            class="erp-subform-box"
+            *ngFor="let firmante of firmantes; let i = index"
+          >
+            <div class="erp-subform-box__head">
+              <span class="erp-subform-box__badge">Firma #{{ i + 1 }}</span>
+              <button
+                class="erp-subform-box__remove erp-subform-box__remove--relative"
+                (click)="eliminarFirmante(i)"
+                *ngIf="firmantes.length > 1"
+              >
                 <i class="fas fa-times"></i>
               </button>
             </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Rol de Firma *</label>
-                <select [(ngModel)]="firmante.tipo">
-                  <option value="">Seleccione</option>
-                  <option *ngFor="let tipo of tiposFirma" [value]="tipo">{{ tipo }}</option>
-                  <option value="custom">Otro (personalizar)</option>
+
+            <div class="erp-grid erp-grid--2 mb-2">
+              <div class="erp-field">
+                <label class="erp-label"
+                  >Rol del Firmante <span class="text-danger">*</span></label
+                >
+                <div class="erp-select-wrapper">
+                  <select class="erp-select" [(ngModel)]="firmante.tipo">
+                    <option value="">Seleccione rol</option>
+                    <option *ngFor="let tipo of tiposFirma" [value]="tipo">
+                      {{ tipo }}
+                    </option>
+                    <option value="custom">Otro (Personalizado)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="erp-field" *ngIf="firmante.tipo === 'custom'">
+                <label class="erp-label"
+                  >Rol Personalizado <span class="text-danger">*</span></label
+                >
+                <input
+                  type="text"
+                  class="erp-input"
+                  [(ngModel)]="firmante.tipoCustom"
+                  placeholder="Ej: Jefe de Área"
+                />
+              </div>
+              <div
+                class="erp-field justify-end"
+                *ngIf="firmante.tipo !== 'custom'"
+              >
+                <label class="erp-checkbox mt-1">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="firmante.esExterno"
+                    (change)="onExternoChange(firmante)"
+                  />
+                  <span class="erp-checkbox__mark"></span>
+                  <span class="erp-checkbox__text"
+                    >Es una persona externa al sistema</span
+                  >
+                </label>
+              </div>
+            </div>
+
+            <!-- Si es interno, elegir usuario -->
+            <div class="erp-field mb-2" *ngIf="!firmante.esExterno">
+              <label class="erp-label">Seleccionar Usuario del Sistema</label>
+              <div class="erp-select-wrapper">
+                <select
+                  class="erp-select"
+                  [(ngModel)]="firmante.usuarioId"
+                  (change)="onUsuarioChange(firmante)"
+                >
+                  <option [ngValue]="0">
+                    Seleccione un usuario de la lista
+                  </option>
+                  <option *ngFor="let user of usuarios" [ngValue]="user.Uid">
+                    {{ user.nombre }}
+                  </option>
                 </select>
               </div>
-              <div class="form-group" *ngIf="firmante.tipo === 'custom'">
-                <label>Rol personalizado *</label>
-                <input type="text" [(ngModel)]="firmante.tipoCustom" placeholder="Ej: Jefe de &Aacute;rea">
-              </div>
             </div>
-            <div class="form-group">
-              <label class="toggle-label">
-                <input type="checkbox" [(ngModel)]="firmante.esExterno" (change)="onExternoChange(firmante)">
-                <span>Persona externa (no registrada en el sistema)</span>
-              </label>
-            </div>
-            <div class="form-row" *ngIf="!firmante.esExterno">
-              <div class="form-group">
-                <label>Usuario del sistema</label>
-                <select [(ngModel)]="firmante.usuarioId" (change)="onUsuarioChange(firmante)">
-                  <option [ngValue]="0">Seleccione usuario</option>
-                  <option *ngFor="let user of usuarios" [ngValue]="user.Uid">{{ user.nombre }}</option>
-                </select>
+
+            <!-- Datos de contacto -->
+            <div class="erp-grid erp-grid--2">
+              <div class="erp-field">
+                <label class="erp-label"
+                  >Nombre Completo <span class="text-danger">*</span></label
+                >
+                <input
+                  type="text"
+                  class="erp-input"
+                  [(ngModel)]="firmante.nombreCompleto"
+                  placeholder="Nombre de quien firma"
+                  [readonly]="!firmante.esExterno && firmante.usuarioId > 0"
+                />
               </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Nombre Completo *</label>
-                <input type="text" [(ngModel)]="firmante.nombreCompleto" placeholder="Nombre completo" [readonly]="!firmante.esExterno && firmante.usuarioId > 0">
-              </div>
-              <div class="form-group">
-                <label>Email *</label>
-                <input type="email" [(ngModel)]="firmante.email" placeholder="correo@ejemplo.com" [readonly]="!firmante.esExterno && firmante.usuarioId > 0">
+              <div class="erp-field">
+                <label class="erp-label"
+                  >Correo Electrónico <span class="text-danger">*</span></label
+                >
+                <div class="erp-input-group">
+                  <i class="fas fa-envelope erp-input-icon"></i>
+                  <input
+                    type="email"
+                    class="erp-input has-icon"
+                    [(ngModel)]="firmante.email"
+                    placeholder="correo@empresa.com"
+                    [readonly]="!firmante.esExterno && firmante.usuarioId > 0"
+                  />
+                </div>
               </div>
             </div>
           </div>
-          <button class="btn-add" (click)="agregarFirmante()">
-            <i class="fas fa-plus"></i> Agregar Firmante
-          </button>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn-cancel" (click)="cancelar()">Cancelar</button>
-        <button class="btn-save" (click)="guardarEntrega()">
-          <i class="fas fa-paper-plane"></i> Crear Entrega y Enviar Firmas
+
+      <div class="erp-modal__footer">
+        <button class="erp-btn erp-btn--outline" (click)="cancelar()">
+          Cancelar
+        </button>
+        <button class="erp-btn erp-btn--primary" (click)="guardarEntrega()">
+          <i class="fas fa-paper-plane"></i> Generar Entrega y Enviar Correos
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Modal: Detail View -->
-  <div class="modal-overlay" *ngIf="mostrarDetalle" (click)="cerrarDetalle()">
-    <div class="modal-content modal-large" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>Detalle de Entrega #{{ entregaSeleccionada?.id }}</h3>
-        <button class="btn-close-modal" (click)="cerrarDetalle()"><i class="fas fa-times"></i></button>
+  <!-- ==============================================
+       MODAL: VISTA DETALLE
+       ============================================== -->
+  <div
+    class="erp-modal-overlay"
+    *ngIf="mostrarDetalle"
+    (click)="cerrarDetalle()"
+  >
+    <div
+      class="erp-modal erp-modal--lg erp-animation-fade"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="erp-modal__header">
+        <h2 class="erp-modal__title">
+          <i class="fas fa-file-invoice"></i> Detalle de Entrega #{{
+            entregaSeleccionada?.id
+          }}
+        </h2>
+        <button class="erp-modal__close" (click)="cerrarDetalle()">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
-      <div class="modal-body" *ngIf="entregaSeleccionada">
-        <!-- Info -->
-        <div class="detail-info">
-          <div class="detail-row">
-            <span class="detail-label">Fecha:</span>
-            <span>{{ formatDate(entregaSeleccionada.fecha) }}</span>
+      <div class="erp-modal__body" *ngIf="entregaSeleccionada">
+        <!-- Resumen -->
+        <div class="erp-grid erp-grid--3 mb-3">
+          <div class="erp-info-box">
+            <span class="erp-info-box__label">Fecha de Entrega</span>
+            <span class="erp-info-box__val"
+              ><i class="fas fa-calendar-alt text-muted"></i>
+              {{ formatDate(entregaSeleccionada.fecha) }}</span
+            >
           </div>
-          <div class="detail-row">
-            <span class="detail-label">Empresa:</span>
-            <span>{{ getEmpresaNombre(entregaSeleccionada.empresa || '') }}</span>
+          <div class="erp-info-box">
+            <span class="erp-info-box__label">Empresa</span>
+            <span class="erp-info-box__val">{{
+              getEmpresaNombre(entregaSeleccionada.empresa || "")
+            }}</span>
           </div>
-          <div class="detail-row">
-            <span class="detail-label">Estado:</span>
-            <span class="badge-estado" [ngClass]="getEstadoClass(entregaSeleccionada.estado || 'pendiente')">
-              {{ getEstadoLabel(entregaSeleccionada.estado || 'pendiente') }}
+          <div class="erp-info-box">
+            <span class="erp-info-box__label">Estado General</span>
+            <span class="erp-info-box__val mt-1">
+              <span
+                class="erp-status-badge"
+                [ngClass]="
+                  getEstadoClass(entregaSeleccionada.estado || 'pendiente')
+                "
+              >
+                {{ getEstadoLabel(entregaSeleccionada.estado || "pendiente") }}
+              </span>
             </span>
-          </div>
-          <div class="detail-row" *ngIf="entregaSeleccionada.creador">
-            <span class="detail-label">Creado por:</span>
-            <span>{{ entregaSeleccionada.creador.name }} {{ entregaSeleccionada.creador.lastName }}</span>
-          </div>
-          <div class="detail-row" *ngIf="entregaSeleccionada.observaciones">
-            <span class="detail-label">Observaciones:</span>
-            <span>{{ entregaSeleccionada.observaciones }}</span>
           </div>
         </div>
 
-        <!-- Items Table -->
-        <div class="section-title"><i class="fas fa-box"></i> Elementos Entregados</div>
-        <table class="detail-table">
-          <thead>
-            <tr><th>EPP</th><th>Cantidad</th><th>Talla</th></tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let detalle of entregaSeleccionada.detalles">
-              <td>{{ detalle.epp?.nombre || 'N/A' }}</td>
-              <td>{{ detalle.cantidad }}</td>
-              <td>{{ detalle.talla || '-' }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="erp-grid erp-grid--2 mb-4">
+          <div class="erp-info-box" *ngIf="entregaSeleccionada.creador">
+            <span class="erp-info-box__label">Creado Por</span>
+            <span class="erp-info-box__val"
+              ><i class="fas fa-user-circle text-muted"></i>
+              {{ entregaSeleccionada.creador.name }}
+              {{ entregaSeleccionada.creador.lastName }}</span
+            >
+          </div>
+          <div class="erp-info-box" *ngIf="entregaSeleccionada.observaciones">
+            <span class="erp-info-box__label">Observaciones</span>
+            <p class="erp-info-box__text">
+              {{ entregaSeleccionada.observaciones }}
+            </p>
+          </div>
+        </div>
 
-        <!-- Firmas Table -->
-        <div class="section-title"><i class="fas fa-signature"></i> Firmas</div>
-        <table class="detail-table">
-          <thead>
-            <tr><th>Rol</th><th>Nombre</th><th>Email</th><th>Estado</th><th>Acciones</th></tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let firma of entregaSeleccionada.firmas">
-              <td><span class="badge-tipo">{{ firma.tipo }}</span></td>
-              <td>{{ firma.nombreCompleto }}</td>
-              <td>{{ firma.email }}</td>
-              <td>
-                <span class="badge-firma" [class.firmado]="firma.firmado" [class.pendiente]="!firma.firmado">
-                  {{ firma.firmado ? 'Firmado' : 'Pendiente' }}
-                </span>
-              </td>
-              <td>
-                <button class="btn-action btn-resend" *ngIf="!firma.firmado" (click)="reenviarCorreo(firma)" title="Reenviar correo">
-                  <i class="fas fa-envelope"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <!-- Tabla de Items -->
+        <h4 class="erp-section-title mb-2">
+          <i class="fas fa-box-open"></i> Elementos Entregados
+        </h4>
+        <div class="erp-table-responsive mb-4">
+          <table class="erp-table">
+            <thead>
+              <tr>
+                <th>Elemento de Protección Personal</th>
+                <th class="text-center">Cantidad</th>
+                <th class="text-center">Talla</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let detalle of entregaSeleccionada.detalles">
+                <td class="erp-text-bold">
+                  {{ detalle.epp?.nombre || "N/A" }}
+                </td>
+                <td class="text-center">{{ detalle.cantidad }}</td>
+                <td class="text-center">
+                  <span class="erp-badge erp-badge--muted">{{
+                    detalle.talla || "-"
+                  }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Tabla de Firmas -->
+        <h4 class="erp-section-title mb-2">
+          <i class="fas fa-signature"></i> Estado de Firmas
+        </h4>
+        <div class="erp-table-responsive">
+          <table class="erp-table">
+            <thead>
+              <tr>
+                <th>Rol</th>
+                <th>Nombre del Firmante</th>
+                <th>Correo Electrónico</th>
+                <th class="text-center">Estado</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let firma of entregaSeleccionada.firmas">
+                <td>
+                  <span class="erp-badge erp-badge--dark">{{
+                    firma.tipo
+                  }}</span>
+                </td>
+                <td class="erp-text-bold">{{ firma.nombreCompleto }}</td>
+                <td>{{ firma.email }}</td>
+                <td class="text-center">
+                  <span
+                    class="erp-status-badge"
+                    [ngClass]="firma.firmado ? 'bg-completado' : 'bg-pendiente'"
+                  >
+                    <i
+                      class="fas"
+                      [ngClass]="firma.firmado ? 'fa-check' : 'fa-clock'"
+                    ></i>
+                    {{ firma.firmado ? "Firmado" : "Pendiente" }}
+                  </span>
+                </td>
+                <td class="text-center">
+                  <button
+                    class="erp-action-btn erp-action-btn--primary"
+                    *ngIf="!firma.firmado"
+                    (click)="reenviarCorreo(firma)"
+                    title="Reenviar correo de firma"
+                  >
+                    <i class="fas fa-paper-plane"></i>
+                  </button>
+                  <span *ngIf="firma.firmado" class="erp-hint">-</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn-cancel" (click)="cerrarDetalle()">Cerrar</button>
-        <button class="btn-save" (click)="descargarPdf()">
-          <i class="fas fa-file-pdf"></i> Descargar PDF
+      <div class="erp-modal__footer">
+        <button class="erp-btn erp-btn--outline" (click)="cerrarDetalle()">
+          Cerrar
+        </button>
+        <button class="erp-btn erp-btn--primary" (click)="descargarPdf()">
+          <i class="fas fa-file-pdf"></i> Descargar Acta PDF
         </button>
       </div>
     </div>

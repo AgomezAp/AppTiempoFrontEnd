@@ -20,8 +20,12 @@ export class HoraService {
     this.apiUrl = '/api/horario';
   }
 
-  getHoras(): Observable<Hora[]> {
-    return this.http.get<Hora[]>(`${this.appUrl}${this.apiUrl}/ObtenerHorario`);
+  getHoras(desde?: string, hasta?: string): Observable<Hora[]> {
+    let query = '';
+    if (desde && hasta) {
+      query = `?desde=${desde}&hasta=${hasta}`;
+    }
+    return this.http.get<Hora[]>(`${this.appUrl}${this.apiUrl}/ObtenerHorario${query}`);
   }
   
   getHorarioById(ID:number):Observable<Hora[]>{

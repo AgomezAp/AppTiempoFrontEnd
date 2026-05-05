@@ -1,212 +1,296 @@
 <app-navbar></app-navbar>
 
-<div *ngIf="!loading" class="horas-container">
-  <!-- Header + Filtros en una sola línea -->
-  <div class="header-section">
-    <h1 class="page-title">
-      {{ showList ? "Registro de Horas" : "Horarios por Persona" }}
-    </h1>
+<!-- Loading externo -->
+<app-spinner *ngIf="loading"></app-spinner>
 
-    <!-- Filtros inline - Solo para Admin -->
-    <div class="filters-inline" *ngIf="isAdmin">
+<div *ngIf="!loading" class="erp-wrapper p-3">
+  <!-- PRINCIPIO #4: HEADER DE PÁGINA -->
+  <header class="page-header fade-slide delay-0">
+    <div class="page-header__left">
+      <div class="page-header__icon">
+        <i class="pi pi-clock"></i>
+      </div>
+      <div class="page-header__text">
+        <h1>{{ showList ? "Registro de Horas" : "Horarios por Persona" }}</h1>
+        <p>Control y seguimiento de entradas, salidas y horas extras</p>
+      </div>
+    </div>
+
+    <div class="page-header__actions" *ngIf="isAdmin">
       <button
-        class="filter-btn"
+        class="btn btn-outline"
         (click)="toggleDateWeek()"
-        title="Busca por semanas"
+        [title]="
+          showDateRange
+            ? 'Cambiar a búsqueda por semana'
+            : 'Cambiar a búsqueda por fechas'
+        "
       >
-        {{ showDateRange ? "Semana" : "Fecha" }}
+        <i class="pi pi-calendar"></i> {{ showDateRange ? "Semana" : "Fechas" }}
+      </button>
+      <button class="btn btn-outline" *ngIf="!showList" (click)="verHoras()">
+        <i class="pi pi-list"></i> Ver Todo
       </button>
       <button
-        class="filter-btn"
-        *ngIf="!showList"
-        (click)="verHoras()"
-        title="Ver todos los registros"
-      >
-        Todo
-      </button>
-      <button
-        class="filter-btn add-btn"
+        class="btn btn-primary"
         *ngIf="showList"
         (click)="agregarRegistro()"
       >
-        <i class="fas fa-plus"></i> Agregar
+        <i class="pi pi-plus"></i> Agregar
       </button>
     </div>
-  </div>
+  </header>
 
-  <!-- Barra de filtros -->
-  <div class="filters-bar" *ngIf="isAdmin">
-    <!-- Date Range Filters -->
-    <div class="filter-item" *ngIf="showDateRange">
-      <label for="startDate">Inicio</label>
-      <input
-        id="startDate"
-        [(ngModel)]="startDate"
-        (change)="filterByDataRange()"
-        type="date"
-        class="input-field"
-      />
+  <!-- PRINCIPIO #8: PANEL DE FILTROS -->
+  <section class="filter-panel fade-slide delay-1" *ngIf="isAdmin">
+    <div class="filter-panel__header">
+      <i class="pi pi-filter"></i>
+      <h2>Filtros de Búsqueda</h2>
     </div>
-    <div class="filter-item" *ngIf="showDateRange">
-      <label for="endDate">Fin</label>
-      <input
-        id="endDate"
-        [(ngModel)]="endDate"
-        (change)="filterByDataRange()"
-        type="date"
-        class="input-field"
-      />
-    </div>
+    <div class="filter-panel__body filter-flex">
+      <!-- Rango de Fechas -->
+      <ng-container *ngIf="showDateRange">
+        <div class="form-group">
+          <label>Inicio</label>
+          <div class="input-group">
+            <i class="pi pi-calendar input-icon"></i>
+            <input
+              type="date"
+              [(ngModel)]="startDate"
+              (change)="filterByDataRange()"
+            />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Fin</label>
+          <div class="input-group">
+            <i class="pi pi-calendar input-icon"></i>
+            <input
+              type="date"
+              [(ngModel)]="endDate"
+              (change)="filterByDataRange()"
+            />
+          </div>
+        </div>
+      </ng-container>
 
-    <!-- Week Filter -->
-    <div class="filter-item" *ngIf="!showDateRange">
-      <label for="week">Semana</label>
-      <input
-        id="week"
-        [(ngModel)]="week"
-        (change)="filterByWeek()"
-        type="week"
-        class="input-field"
-      />
-    </div>
-
-    <!-- Name Filter -->
-    <div class="filter-item filter-name" *ngIf="showList">
-      <label for="name">Buscar</label>
-      <input
-        id="name"
-        [(ngModel)]="filterName"
-        (input)="filterdByName()"
-        type="text"
-        class="input-field"
-        placeholder="Nombre..."
-      />
-    </div>
-  </div>
-
-  <!-- Main Content -->
-  <div class="content-wrapper">
-    <!-- Table Section -->
-    <div class="table-section" [class.full-width]="showList">
-      <div class="table-header">
-        <span class="table-info">
-          Mostrando {{ getStartIndex() }} - {{ getEndIndex() }} de
-          {{ filteredHoras.length }}
-        </span>
+      <!-- Semana -->
+      <div class="form-group" *ngIf="!showDateRange">
+        <label>Semana</label>
+        <div class="input-group">
+          <i class="pi pi-calendar input-icon"></i>
+          <input type="week" [(ngModel)]="week" (change)="filterByWeek()" />
+        </div>
       </div>
 
-      <div class="table-container">
-        <table class="hours-table">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Entrada</th>
-              <th>Salida</th>
-              <th class="sortable-th">
-                Fecha
-                <button
-                  class="sort-btn"
-                  *ngIf="sortOrder !== 'asc' && sortOrder !== 'desc'"
-                  (click)="sortHours('asc')"
-                >
-                  <i class="fas fa-sort"></i>
-                </button>
-                <button
-                  class="sort-btn active"
-                  *ngIf="sortOrder === 'asc'"
-                  (click)="sortHours('desc')"
-                >
-                  <i class="fas fa-sort-up"></i>
-                </button>
-                <button
-                  class="sort-btn active"
-                  *ngIf="sortOrder === 'desc'"
-                  (click)="sortHours('')"
-                >
-                  <i class="fas fa-sort-down"></i>
-                </button>
-              </th>
-              <th>Total</th>
-              <th>Extras</th>
-              <th *ngIf="showList && isAdmin">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let item of paginatedHoras" [class]="getRowClass(item)">
-              <td class="name-cell">
-                {{ item.Name }}
-                <i *ngIf="item.Autocorregido" class="fas fa-magic text-warning"
-                  title="Autocorregido: {{ item.Autocorregido }}" style="margin-left: 4px; font-size: 0.75rem;"></i>
-              </td>
-              <td class="time-cell">{{ item.Entrada }}</td>
-              <td class="time-cell">{{ item.Salida }}</td>
-              <td class="date-cell">{{ item.Fecha }}</td>
-              <td class="total-cell">{{ item.Total }}</td>
-              <td class="extra-cell" [class]="getExtraCellClass(item.Extra)">
-                <span class="extra-value">{{ item.Extra }}</span>
-                <i
-                  class="fas fa-clock extra-icon"
-                  [class]="getExtraIconClass(item.Extra)"
-                ></i>
-              </td>
-              <td *ngIf="showList && isAdmin" class="actions-cell">
-                <button
-                  class="btn-modify"
-                  (click)="navigateToEditSalida(item.Hid, item.Fecha)"
-                >
-                  <i class="fas fa-edit"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Pagination -->
-      <div class="pagination-container" *ngIf="totalPages > 1">
-        <button
-          class="pagination-btn"
-          (click)="goToPage(currentPage - 1)"
-          [disabled]="currentPage === 1"
-        >
-          <i class="fas fa-chevron-left"></i>
-        </button>
-        <button
-          class="pagination-btn"
-          *ngFor="let page of getPageNumbers()"
-          [class.active]="currentPage === page"
-          (click)="goToPage(page)"
-        >
-          {{ page }}
-        </button>
-        <button
-          class="pagination-btn"
-          (click)="goToPage(currentPage + 1)"
-          [disabled]="currentPage === totalPages"
-        >
-          <i class="fas fa-chevron-right"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- Extra Hours Sidebar -->
-    <div class="extra-hours-sidebar" *ngIf="!showList">
-      <h3><i class="fas fa-clock"></i> Horas Extras</h3>
-      <div class="extra-hours-list">
-        <div
-          [class]="'extra-item ' + getExtraHoursBadgeClass(it.Acumulado)"
-          *ngFor="let it of filterdExtra"
-        >
-          <span class="employee-name">{{ it.Name }}</span>
-          <span
-            [class]="'hours-badge ' + getExtraHoursBadgeClass(it.Acumulado)"
-          >
-            {{ it.Acumulado }}
-          </span>
+      <!-- Buscador por Nombre -->
+      <div class="form-group" *ngIf="showList">
+        <label>Buscar Empleado</label>
+        <div class="input-group">
+          <i class="pi pi-search input-icon"></i>
+          <input
+            type="text"
+            [(ngModel)]="filterName"
+            (input)="filterdByName()"
+            placeholder="Escriba un nombre..."
+          />
         </div>
       </div>
     </div>
+  </section>
+
+  <!-- GRILLA PRINCIPAL (TABLA + SIDEBAR) -->
+  <div class="layout-grid fade-slide delay-2" [class.layout-full]="showList">
+    <!-- PRINCIPIO #5 y #6: TABLA DE HORAS -->
+    <section class="card">
+      <div class="card-head">
+        <i class="pi pi-table"></i>
+        <h3>Historial de Registros</h3>
+      </div>
+
+      <div class="card-body p-0">
+        <div class="table-responsive custom-scrollbar">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th class="text-center">Entrada</th>
+                <th class="text-center">Salida</th>
+                <th>
+                  <div class="flex items-center gap-sm">
+                    Fecha
+                    <!-- Botones de Ordenamiento -->
+                    <button
+                      class="btn-sort"
+                      *ngIf="sortOrder !== 'asc' && sortOrder !== 'desc'"
+                      (click)="sortHours('asc')"
+                      title="Ordenar Ascendente"
+                    >
+                      <i class="pi pi-sort-alt"></i>
+                    </button>
+                    <button
+                      class="btn-sort active"
+                      *ngIf="sortOrder === 'asc'"
+                      (click)="sortHours('desc')"
+                      title="Ordenar Descendente"
+                    >
+                      <i class="pi pi-sort-amount-up-alt"></i>
+                    </button>
+                    <button
+                      class="btn-sort active"
+                      *ngIf="sortOrder === 'desc'"
+                      (click)="sortHours('')"
+                      title="Quitar Orden"
+                    >
+                      <i class="pi pi-sort-amount-down"></i>
+                    </button>
+                  </div>
+                </th>
+                <th class="text-center">Total</th>
+                <th class="text-center">Extras</th>
+                <th *ngIf="showList && isAdmin" class="text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Si no hay registros -->
+              <tr *ngIf="filteredHoras.length === 0">
+                <td
+                  [attr.colspan]="showList && isAdmin ? 7 : 6"
+                  class="text-center p-4 text-muted"
+                >
+                  <i
+                    class="pi pi-inbox"
+                    style="
+                      font-size: 2rem;
+                      opacity: 0.5;
+                      margin-bottom: 0.5rem;
+                      display: block;
+                    "
+                  ></i>
+                  No se encontraron registros de horas.
+                </td>
+              </tr>
+
+              <tr
+                *ngFor="let item of paginatedHoras"
+                [class]="getRowClass(item)"
+              >
+                <td>
+                  <div class="flex items-center gap-sm">
+                    <span class="text-bold text-dark">{{ item.Name }}</span>
+                    <i
+                      *ngIf="item.Autocorregido"
+                      class="pi pi-verified text-warning"
+                      [title]="'Autocorregido: ' + item.Autocorregido"
+                      style="font-size: 0.85rem"
+                    ></i>
+                  </div>
+                </td>
+                <td class="text-center text-muted">{{ item.Entrada }}</td>
+                <td class="text-center text-muted">{{ item.Salida }}</td>
+                <td>{{ item.Fecha }}</td>
+                <td class="text-center text-bold">{{ item.Total }}</td>
+                <td class="text-center" [class]="getExtraCellClass(item.Extra)">
+                  <span
+                    class="status-badge"
+                    [ngClass]="
+                      item.Extra !== '0' && item.Extra !== '00:00'
+                        ? 'bg-warning text-dark'
+                        : 'bg-light text-muted'
+                    "
+                  >
+                    {{ item.Extra }}
+                    <i
+                      class="pi pi-clock ml-1"
+                      [class]="getExtraIconClass(item.Extra)"
+                      style="font-size: 0.6rem"
+                    ></i>
+                  </span>
+                </td>
+                <td
+                  *ngIf="showList && isAdmin"
+                  class="text-right table-actions"
+                >
+                  <button
+                    class="btn-action"
+                    (click)="navigateToEditSalida(item.Hid, item.Fecha)"
+                    title="Modificar salida"
+                  >
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PRINCIPIO #11: PAGINACIÓN -->
+      <div class="card-footer pagination-wrapper" *ngIf="totalPages > 1">
+        <div class="pagination-info">
+          Mostrando {{ getStartIndex() }} - {{ getEndIndex() }} de
+          {{ filteredHoras.length }} registros
+        </div>
+        <div class="pagination-controls">
+          <button
+            class="btn-page"
+            (click)="goToPage(currentPage - 1)"
+            [disabled]="currentPage === 1"
+          >
+            <i class="pi pi-chevron-left"></i>
+          </button>
+
+          <button
+            class="btn-page"
+            *ngFor="let page of getPageNumbers()"
+            [class.active]="currentPage === page"
+            (click)="goToPage(page)"
+          >
+            {{ page }}
+          </button>
+
+          <button
+            class="btn-page"
+            (click)="goToPage(currentPage + 1)"
+            [disabled]="currentPage === totalPages"
+          >
+            <i class="pi pi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRINCIPIO #10: SIDEBAR HORAS EXTRAS (Lista Seleccionables) -->
+    <aside class="card fade-slide delay-3" *ngIf="!showList">
+      <div class="card-head">
+        <i class="pi pi-clock"></i>
+        <h3>Resumen Horas Extras</h3>
+      </div>
+
+      <div class="card-body p-0 list-container custom-scrollbar">
+        <div
+          *ngIf="filterdExtra.length === 0"
+          class="p-4 text-center text-muted text-xs"
+        >
+          No hay horas extras registradas.
+        </div>
+
+        <div class="list-item" *ngFor="let it of filterdExtra">
+          <div class="list-item__info">
+            <span class="list-item__title">{{ it.Name }}</span>
+          </div>
+          <span
+            class="status-badge"
+            [ngClass]="
+              getExtraHoursBadgeClass(it.Acumulado)
+                ? getExtraHoursBadgeClass(it.Acumulado)
+                : 'bg-warning text-dark'
+            "
+          >
+            {{ it.Acumulado }}h
+          </span>
+        </div>
+      </div>
+    </aside>
   </div>
 </div>
-
-<app-spinner *ngIf="loading"></app-spinner>

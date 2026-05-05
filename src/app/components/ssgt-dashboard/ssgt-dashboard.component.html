@@ -1,173 +1,217 @@
 <app-navbar></app-navbar>
 
-<div class="dashboard-container">
-  <!-- PAGE HEADER -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="header-title-group">
-        <div class="header-icon">&#128202;</div>
-        <div class="header-text">
-          <h2>Dashboard SST</h2>
-          <p class="header-subtitle">Indicadores de Seguridad y Salud en el Trabajo</p>
-        </div>
+<div class="erp-layout">
+  
+  <!-- HEADER DE PÁGINA (Principio #4) -->
+  <header class="erp-page-header erp-animation-fade">
+    <div class="erp-page-header__main">
+      <div class="erp-page-header__icon">
+        <i class="fas fa-shield-alt"></i>
       </div>
-      <div class="anio-selector">
-        <label>Periodo:</label>
-        <select [(ngModel)]="anioSeleccionado" (change)="cambiarAnio()">
-          <option *ngFor="let a of aniosDisponibles" [value]="a">{{ a }}</option>
-        </select>
+      <div class="erp-page-header__text">
+        <h1 class="erp-page-header__title">Dashboard SST</h1>
+        <p class="erp-page-header__subtitle">Indicadores de Seguridad y Salud en el Trabajo</p>
       </div>
     </div>
-    <div class="header-decoration"></div>
-  </div>
-
-  <!-- LOADING -->
-  <div *ngIf="loading" class="loading-container">
-    <div class="spinner"></div>
-    <p>Cargando indicadores...</p>
-  </div>
-
-  <div *ngIf="!loading && dashboard" class="dashboard-content">
-    <!-- KPIs principales -->
-    <div class="kpi-grid">
-      <div class="kpi-card kpi-accidentes">
-        <div class="kpi-card-accent"></div>
-        <div class="kpi-icon">&#9888;</div>
-        <div class="kpi-info">
-          <span class="kpi-value">{{ dashboard.totalAccidentes }}</span>
-          <span class="kpi-label">Accidentes</span>
-        </div>
-      </div>
-      <div class="kpi-card kpi-incidentes">
-        <div class="kpi-card-accent"></div>
-        <div class="kpi-icon">&#9888;</div>
-        <div class="kpi-info">
-          <span class="kpi-value">{{ dashboard.totalIncidentes }}</span>
-          <span class="kpi-label">Incidentes</span>
-        </div>
-      </div>
-      <div class="kpi-card kpi-dias">
-        <div class="kpi-card-accent"></div>
-        <div class="kpi-icon">&#128197;</div>
-        <div class="kpi-info">
-          <span class="kpi-value">{{ dashboard.totalDiasIncapacidad }}</span>
-          <span class="kpi-label">Días Incapacidad</span>
-        </div>
-      </div>
-      <div class="kpi-card kpi-seguimientos">
-        <div class="kpi-card-accent"></div>
-        <div class="kpi-icon">&#9998;</div>
-        <div class="kpi-info">
-          <span class="kpi-value">{{ dashboard.seguimientosPendientes }}</span>
-          <span class="kpi-label">Seguimientos Pendientes</span>
+    <div class="erp-page-header__actions">
+      <!-- Selector de Periodo (Principio #1 y #8) -->
+      <div class="erp-field erp-field--horizontal">
+        <label class="erp-label text-light mb-0 me-2">Periodo:</label>
+        <div class="erp-select-wrapper">
+          <select class="erp-select erp-select--dark" [(ngModel)]="anioSeleccionado" (change)="cambiarAnio()">
+            <option *ngFor="let a of aniosDisponibles" [value]="a">{{ a }}</option>
+          </select>
         </div>
       </div>
     </div>
+  </header>
 
-    <!-- Gráficas y desglose -->
-    <div class="charts-grid">
+  <!-- LOADING (Principio #15) -->
+  <div *ngIf="loading" class="erp-loading erp-animation-fade">
+    <div class="erp-spinner"></div>
+    <span class="erp-loading__text">Calculando indicadores...</span>
+  </div>
+
+  <div *ngIf="!loading && dashboard" class="erp-content">
+    
+    <!-- KPI GRID (Principio #7) -->
+    <section class="erp-kpi-grid erp-kpi-grid--4 erp-animation-fade" style="animation-delay: 0.05s;">
+      <div class="erp-kpi">
+        <div class="erp-kpi__icon erp-kpi__icon--danger"><i class="fas fa-car-crash"></i></div>
+        <div class="erp-kpi__info">
+          <span class="erp-kpi__label">Accidentes</span>
+          <span class="erp-kpi__value">{{ dashboard.totalAccidentes }}</span>
+        </div>
+      </div>
+      <div class="erp-kpi">
+        <div class="erp-kpi__icon erp-kpi__icon--warning"><i class="fas fa-exclamation-triangle"></i></div>
+        <div class="erp-kpi__info">
+          <span class="erp-kpi__label">Incidentes</span>
+          <span class="erp-kpi__value">{{ dashboard.totalIncidentes }}</span>
+        </div>
+      </div>
+      <div class="erp-kpi">
+        <div class="erp-kpi__icon erp-kpi__icon--info"><i class="fas fa-calendar-plus"></i></div>
+        <div class="erp-kpi__info">
+          <span class="erp-kpi__label">Días Incapacidad</span>
+          <span class="erp-kpi__value">{{ dashboard.totalDiasIncapacidad }}</span>
+        </div>
+      </div>
+      <div class="erp-kpi">
+        <div class="erp-kpi__icon erp-kpi__icon--secondary"><i class="fas fa-clipboard-check"></i></div>
+        <div class="erp-kpi__info">
+          <span class="erp-kpi__label">Seguimientos Pdtes.</span>
+          <span class="erp-kpi__value">{{ dashboard.seguimientosPendientes }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- GRÁFICAS Y DESGLOSE (Principio #5) -->
+    <div class="erp-grid erp-grid--2 mt-3 erp-animation-fade" style="animation-delay: 0.1s;">
+      
       <!-- Por Severidad -->
-      <div class="chart-card">
-        <h4>Por Severidad</h4>
-        <div class="severity-bars">
-          <div class="severity-row">
-            <span class="severity-label">Leve</span>
-            <div class="severity-bar-container">
-              <div class="severity-bar bar-leve" [style.width.%]="dashboard.totalAccidentes + dashboard.totalIncidentes > 0 ? (getSeveridadTotal('leve') / (dashboard.totalAccidentes + dashboard.totalIncidentes)) * 100 : 0"></div>
+      <div class="erp-card">
+        <div class="erp-card__head">
+          <h3 class="erp-card__title"><i class="fas fa-chart-bar"></i> Eventos por Severidad</h3>
+        </div>
+        <div class="erp-card__body">
+          <div class="erp-progress-list">
+            
+            <div class="erp-progress-item">
+              <div class="erp-progress-info">
+                <span class="erp-progress-label">Leve</span>
+                <span class="erp-progress-val">{{ getSeveridadTotal('leve') }}</span>
+              </div>
+              <div class="erp-progress-track">
+                <div class="erp-progress-bar bg-info" [style.width.%]="dashboard.totalAccidentes + dashboard.totalIncidentes > 0 ? (getSeveridadTotal('leve') / (dashboard.totalAccidentes + dashboard.totalIncidentes)) * 100 : 0"></div>
+              </div>
             </div>
-            <span class="severity-count">{{ getSeveridadTotal('leve') }}</span>
-          </div>
-          <div class="severity-row">
-            <span class="severity-label">Grave</span>
-            <div class="severity-bar-container">
-              <div class="severity-bar bar-grave" [style.width.%]="dashboard.totalAccidentes + dashboard.totalIncidentes > 0 ? (getSeveridadTotal('grave') / (dashboard.totalAccidentes + dashboard.totalIncidentes)) * 100 : 0"></div>
+
+            <div class="erp-progress-item">
+              <div class="erp-progress-info">
+                <span class="erp-progress-label">Grave</span>
+                <span class="erp-progress-val">{{ getSeveridadTotal('grave') }}</span>
+              </div>
+              <div class="erp-progress-track">
+                <div class="erp-progress-bar bg-warning" [style.width.%]="dashboard.totalAccidentes + dashboard.totalIncidentes > 0 ? (getSeveridadTotal('grave') / (dashboard.totalAccidentes + dashboard.totalIncidentes)) * 100 : 0"></div>
+              </div>
             </div>
-            <span class="severity-count">{{ getSeveridadTotal('grave') }}</span>
-          </div>
-          <div class="severity-row">
-            <span class="severity-label">Mortal</span>
-            <div class="severity-bar-container">
-              <div class="severity-bar bar-mortal" [style.width.%]="dashboard.totalAccidentes + dashboard.totalIncidentes > 0 ? (getSeveridadTotal('mortal') / (dashboard.totalAccidentes + dashboard.totalIncidentes)) * 100 : 0"></div>
+
+            <div class="erp-progress-item">
+              <div class="erp-progress-info">
+                <span class="erp-progress-label">Mortal</span>
+                <span class="erp-progress-val">{{ getSeveridadTotal('mortal') }}</span>
+              </div>
+              <div class="erp-progress-track">
+                <div class="erp-progress-bar bg-danger" [style.width.%]="dashboard.totalAccidentes + dashboard.totalIncidentes > 0 ? (getSeveridadTotal('mortal') / (dashboard.totalAccidentes + dashboard.totalIncidentes)) * 100 : 0"></div>
+              </div>
             </div>
-            <span class="severity-count">{{ getSeveridadTotal('mortal') }}</span>
+
           </div>
         </div>
       </div>
 
       <!-- Por Estado -->
-      <div class="chart-card">
-        <h4>Por Estado</h4>
-        <div class="estado-indicators">
-          <div class="estado-item">
-            <div class="estado-circle estado-reportado">{{ getEstadoTotal('reportado') }}</div>
-            <span>Reportados</span>
-          </div>
-          <div class="estado-item">
-            <div class="estado-circle estado-investigacion">{{ getEstadoTotal('en_investigacion') }}</div>
-            <span>En Investigación</span>
-          </div>
-          <div class="estado-item">
-            <div class="estado-circle estado-cerrado">{{ getEstadoTotal('cerrado') }}</div>
-            <span>Cerrados</span>
-          </div>
+      <div class="erp-card">
+        <div class="erp-card__head">
+          <h3 class="erp-card__title"><i class="fas fa-tasks"></i> Distribución por Estado</h3>
         </div>
-      </div>
-
-      <!-- Por Mes -->
-      <div class="chart-card chart-card-wide">
-        <h4>Eventos por Mes - {{ anioSeleccionado }}</h4>
-        <div class="chart-mensual" *ngIf="getMesTotales().length > 0">
-          <div class="chart-bars">
-            <div class="chart-bar-group" *ngFor="let m of getMesTotales()">
-              <div class="bar-stack">
-                <div class="bar bar-accidente" [style.height]="getBarHeight(m.accidentes)" title="Accidentes: {{ m.accidentes }}"></div>
-                <div class="bar bar-incidente" [style.height]="getBarHeight(m.incidentes)" title="Incidentes: {{ m.incidentes }}"></div>
-              </div>
-              <span class="bar-label">{{ m.mes }}</span>
+        <div class="erp-card__body erp-flex-center h-100">
+          <div class="erp-status-circles">
+            <div class="erp-status-item">
+              <div class="erp-circle erp-circle--danger">{{ getEstadoTotal('reportado') }}</div>
+              <span class="erp-circle-label">Reportados</span>
+            </div>
+            <div class="erp-status-item">
+              <div class="erp-circle erp-circle--warning">{{ getEstadoTotal('en_investigacion') }}</div>
+              <span class="erp-circle-label">En Investigación</span>
+            </div>
+            <div class="erp-status-item">
+              <div class="erp-circle erp-circle--success">{{ getEstadoTotal('cerrado') }}</div>
+              <span class="erp-circle-label">Cerrados</span>
             </div>
           </div>
-          <div class="chart-legend">
-            <span class="legend-item"><span class="legend-color bg-accidente"></span> Accidentes</span>
-            <span class="legend-item"><span class="legend-color bg-incidente"></span> Incidentes</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Por Mes (Gráfico de barras) -->
+    <section class="erp-card mt-3 erp-animation-fade" style="animation-delay: 0.15s;">
+      <div class="erp-card__head">
+        <h3 class="erp-card__title"><i class="fas fa-chart-area"></i> Eventos por Mes - {{ anioSeleccionado }}</h3>
+      </div>
+      <div class="erp-card__body">
+        
+        <div class="erp-bar-chart" *ngIf="getMesTotales().length > 0">
+          <div class="erp-bar-chart__container">
+            <div class="erp-bar-col" *ngFor="let m of getMesTotales()">
+              <div class="erp-bar-stack">
+                <div class="erp-bar bg-danger" [style.height]="getBarHeight(m.accidentes)" title="Accidentes: {{ m.accidentes }}">
+                  <span class="erp-bar-tooltip" *ngIf="m.accidentes > 0">{{ m.accidentes }}</span>
+                </div>
+                <div class="erp-bar bg-warning" [style.height]="getBarHeight(m.incidentes)" title="Incidentes: {{ m.incidentes }}">
+                  <span class="erp-bar-tooltip" *ngIf="m.incidentes > 0">{{ m.incidentes }}</span>
+                </div>
+              </div>
+              <span class="erp-bar-label">{{ m.mes }}</span>
+            </div>
+          </div>
+          <div class="erp-chart-legend">
+            <span class="erp-legend-item"><span class="erp-legend-color bg-danger"></span> Accidentes</span>
+            <span class="erp-legend-item"><span class="erp-legend-color bg-warning"></span> Incidentes</span>
           </div>
         </div>
-        <div *ngIf="getMesTotales().length === 0" class="empty-chart">
-          <p>No hay datos para el año seleccionado</p>
+
+        <div *ngIf="getMesTotales().length === 0" class="erp-empty-state erp-empty-state--sm">
+          <div class="erp-empty-state__icon"><i class="fas fa-chart-bar"></i></div>
+          <p class="erp-empty-state__desc">No hay datos registrados para el año seleccionado.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- MÓDULOS DE ACCESO RÁPIDO -->
+    <section class="erp-card mt-3 erp-animation-fade" style="animation-delay: 0.2s;">
+      <div class="erp-card__head">
+        <h3 class="erp-card__title"><i class="fas fa-th-large"></i> Accesos Rápidos SSGT</h3>
+      </div>
+      <div class="erp-card__body">
+        <div class="erp-grid erp-grid--5 erp-module-grid">
+          
+          <a class="erp-module-card" href="/ssgt-accidentes">
+            <div class="erp-module-card__icon"><i class="fas fa-briefcase-medical"></i></div>
+            <span class="erp-module-card__title">Accidentes e Incidentes</span>
+            <span class="erp-status-badge bg-completado">Activo</span>
+          </a>
+          
+          <a class="erp-module-card" href="/ssgt-epp-catalogo">
+            <div class="erp-module-card__icon"><i class="fas fa-hard-hat"></i></div>
+            <span class="erp-module-card__title">EPP<br>Catálogo</span>
+            <span class="erp-status-badge bg-completado">Activo</span>
+          </a>
+          
+          <a class="erp-module-card" href="/ssgt-epp-entregas">
+            <div class="erp-module-card__icon"><i class="fas fa-box-open"></i></div>
+            <span class="erp-module-card__title">EPP<br>Entregas</span>
+            <span class="erp-status-badge bg-completado">Activo</span>
+          </a>
+          
+          <a class="erp-module-card" href="/ssgt-documentos-firma">
+            <div class="erp-module-card__icon"><i class="fas fa-file-signature"></i></div>
+            <span class="erp-module-card__title">Documentos para Firmar</span>
+            <span class="erp-status-badge bg-completado">Activo</span>
+          </a>
+          
+          <a class="erp-module-card" href="/ssgt-inspecciones">
+            <div class="erp-module-card__icon"><i class="fas fa-search-location"></i></div>
+            <span class="erp-module-card__title">Inspecciones y Riesgos</span>
+            <span class="erp-status-badge bg-completado">Activo</span>
+          </a>
+
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Accesos rápidos a módulos -->
-    <div class="modulos-proximos">
-      <h4>Módulos SSGT</h4>
-      <div class="modulo-grid">
-        <a class="modulo-card modulo-link" href="/ssgt-accidentes">
-          <span class="modulo-icon">&#9888;</span>
-          <span class="modulo-nombre">Accidentes e Incidentes</span>
-          <span class="modulo-estado modulo-activo">Activo</span>
-        </a>
-        <a class="modulo-card modulo-link" href="/ssgt-epp-catalogo">
-          <span class="modulo-icon">&#128717;</span>
-          <span class="modulo-nombre">EPP - Catálogo</span>
-          <span class="modulo-estado modulo-activo">Activo</span>
-        </a>
-        <a class="modulo-card modulo-link" href="/ssgt-epp-entregas">
-          <span class="modulo-icon">&#128230;</span>
-          <span class="modulo-nombre">EPP - Entregas</span>
-          <span class="modulo-estado modulo-activo">Activo</span>
-        </a>
-        <a class="modulo-card modulo-link" href="/ssgt-documentos-firma">
-          <span class="modulo-icon">&#128196;</span>
-          <span class="modulo-nombre">Documentos para Firmar</span>
-          <span class="modulo-estado modulo-activo">Activo</span>
-        </a>
-        <a class="modulo-card modulo-link" href="/ssgt-inspecciones">
-          <span class="modulo-icon">&#128269;</span>
-          <span class="modulo-nombre">Inspecciones y Riesgos</span>
-          <span class="modulo-estado modulo-activo">Activo</span>
-        </a>
-
-      </div>
-    </div>
   </div>
 </div>

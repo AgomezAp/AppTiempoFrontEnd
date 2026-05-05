@@ -54,6 +54,10 @@ export class RolesService {
     return this.http.put(`${this.base}/${id}/modulos`, { modulos });
   }
 
+  getUsuariosRol(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/${id}/usuarios`);
+  }
+
   getMisModulos(): Observable<{ modulos: string[] }> {
     return this.http.get<any>(`${this.base}/mis-modulos`);
   }

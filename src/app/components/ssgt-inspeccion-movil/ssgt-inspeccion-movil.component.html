@@ -1,204 +1,339 @@
-<div class="movil-container">
-  <!-- Loading -->
-  <div *ngIf="loading" class="loading-screen">
-    <div class="spinner"></div>
-    <p>Cargando inspección...</p>
+<div class="erp-mobile-wrapper">
+  <!-- ==========================================
+       ESTADO: CARGANDO
+       ========================================== -->
+  <div *ngIf="loading" class="erp-mobile-state fade-slide">
+    <div class="erp-spinner"></div>
+    <p class="erp-mobile-state__text">Cargando inspección...</p>
   </div>
 
-  <!-- Error -->
-  <div *ngIf="error && !loading" class="error-screen">
-    <div class="error-icon">
-      <i *ngIf="errorTipo === 'completada'" class="fas fa-check-circle" style="color: #27ae60;"></i>
-      <i *ngIf="errorTipo !== 'completada'" class="fas fa-exclamation-circle" style="color: #e74c3c;"></i>
+  <!-- ==========================================
+       ESTADO: ERROR
+       ========================================== -->
+  <div *ngIf="error && !loading" class="erp-mobile-state fade-slide">
+    <div
+      class="erp-mobile-state__icon"
+      [ngClass]="{
+        'is-success': errorTipo === 'completada',
+        'is-error': errorTipo !== 'completada',
+      }"
+    >
+      <i *ngIf="errorTipo === 'completada'" class="fas fa-check-circle"></i>
+      <i
+        *ngIf="errorTipo !== 'completada'"
+        class="fas fa-exclamation-circle"
+      ></i>
     </div>
-    <h2>{{ errorTipo === 'completada' ? 'Inspección Completada' : 'Error' }}</h2>
-    <p>{{ error }}</p>
+    <h2 class="erp-mobile-state__title">
+      {{ errorTipo === "completada" ? "Inspección Completada" : "Error" }}
+    </h2>
+    <p class="erp-mobile-state__desc">{{ error }}</p>
   </div>
 
-  <!-- Inspección Completada -->
-  <div *ngIf="inspeccion?.estado === 'completada' && !loading && !error" class="completada-screen">
-    <div class="completada-icon">
+  <!-- ==========================================
+       ESTADO: INSPECCIÓN COMPLETADA (Resumen)
+       ========================================== -->
+  <div
+    *ngIf="inspeccion?.estado === 'completada' && !loading && !error"
+    class="erp-mobile-state fade-slide"
+  >
+    <div class="erp-mobile-state__icon is-success">
       <i class="fas fa-clipboard-check"></i>
     </div>
-    <h2>Inspección Completada</h2>
-    <p>{{ inspeccion.titulo }}</p>
-    <div class="score-big" [style.color]="inspeccion.aprobada ? '#27ae60' : '#e74c3c'">
+    <h2 class="erp-mobile-state__title">Inspección Completada</h2>
+    <p class="erp-mobile-state__desc">{{ inspeccion.titulo }}</p>
+
+    <div
+      class="erp-mobile-score"
+      [style.color]="inspeccion.aprobada ? 'var(--success)' : 'var(--danger)'"
+    >
       {{ (inspeccion.porcentaje || 0).toFixed(1) }}%
     </div>
-    <span class="badge-resultado" [class.aprobada]="inspeccion.aprobada" [class.reprobada]="!inspeccion.aprobada">
-      {{ inspeccion.aprobada ? 'APROBADA' : 'NO APROBADA' }}
+
+    <span
+      class="erp-badge-xl"
+      [ngClass]="
+        inspeccion.aprobada ? 'erp-badge-xl--success' : 'erp-badge-xl--danger'
+      "
+    >
+      {{ inspeccion.aprobada ? "APROBADA" : "NO APROBADA" }}
     </span>
   </div>
 
-  <!-- Formulario de Inspección -->
-  <div *ngIf="inspeccion && inspeccion.estado !== 'completada' && !loading && !error">
-    <!-- Header -->
-    <div class="movil-header">
-      <h1>{{ inspeccion.titulo }}</h1>
-      <p class="sub-info">{{ inspeccion.fechaInspeccion }} | {{ inspeccion.lugar || 'Sin ubicación' }}</p>
-      <div class="progreso-bar">
-        <div class="progreso-fill" [style.width.%]="progreso"></div>
-      </div>
-      <span class="progreso-text">{{ progreso }}% completado</span>
-    </div>
+  <!-- ==========================================
+       VISTA PRINCIPAL: REALIZAR INSPECCIÓN
+       ========================================== -->
+  <div
+    class="erp-mobile-layout fade-slide"
+    *ngIf="
+      inspeccion && inspeccion.estado !== 'completada' && !loading && !error
+    "
+  >
+    <!-- Header Fijo Superior -->
+    <header class="erp-mobile-header">
+      <h1 class="erp-mobile-header__title">{{ inspeccion.titulo }}</h1>
+      <p class="erp-mobile-header__meta">
+        <i class="fas fa-calendar-day"></i>
+        {{ inspeccion.fechaInspeccion }} &nbsp;|&nbsp;
+        <i class="fas fa-map-marker-alt"></i>
+        {{ inspeccion.lugar || "Sin ubicación" }}
+      </p>
 
-    <!-- Navegación de secciones -->
-    <div class="seccion-nav">
-      <button *ngFor="let sec of secciones; let i = index"
-              class="seccion-pill"
-              [class.active]="i === seccionActual"
-              (click)="irASeccion(i)">
+      <div class="erp-mobile-header__progress-wrap">
+        <div class="erp-progress">
+          <div class="erp-progress__fill" [style.width.%]="progreso"></div>
+        </div>
+        <span class="erp-progress__text">{{ progreso }}% completado</span>
+      </div>
+    </header>
+
+    <!-- Navegación de Secciones (Scroll Horizontal) -->
+    <nav class="erp-mobile-nav-pills">
+      <button
+        *ngFor="let sec of secciones; let i = index"
+        class="erp-pill-btn"
+        [class.is-active]="i === seccionActual"
+        (click)="irASeccion(i)"
+      >
         {{ i + 1 }}
       </button>
-    </div>
+    </nav>
 
-    <!-- Sección actual -->
-    <div class="seccion-content" *ngIf="seccionActualData">
-      <h2 class="seccion-titulo">
-        <span class="seccion-num">{{ seccionActual + 1 }}/{{ totalSecciones }}</span>
-        {{ seccionActualData.titulo }}
-      </h2>
-      <p *ngIf="seccionActualData.descripcion" class="seccion-desc">{{ seccionActualData.descripcion }}</p>
+    <!-- Contenido de la Sección Actual -->
+    <main class="erp-mobile-body" *ngIf="seccionActualData">
+      <div class="erp-section-header">
+        <h2 class="erp-section-header__title">
+          <span class="erp-section-header__num"
+            >{{ seccionActual + 1 }}/{{ totalSecciones }}</span
+          >
+          {{ seccionActualData.titulo }}
+        </h2>
+        <p
+          *ngIf="seccionActualData.descripcion"
+          class="erp-section-header__desc"
+        >
+          {{ seccionActualData.descripcion }}
+        </p>
+      </div>
 
-      <!-- Preguntas -->
-      <div class="pregunta-card" *ngFor="let pregunta of seccionActualData.preguntas; let pi = index">
-        <div class="pregunta-texto">
-          <span class="pregunta-num">{{ pi + 1 }}.</span>
-          {{ pregunta.texto }}
-          <span *ngIf="pregunta.requerida" class="requerida">*</span>
+      <!-- Lista de Preguntas -->
+      <div
+        class="erp-q-card"
+        *ngFor="let pregunta of seccionActualData.preguntas; let pi = index"
+        [class.is-omitted]="respuestasForm[pregunta.id]?.omitida"
+      >
+        <div class="erp-q-card__head">
+          <div class="erp-q-card__text">
+            <span class="erp-q-card__num">{{ pi + 1 }}.</span>
+            {{ pregunta.texto }}
+            <span *ngIf="pregunta.requerida" class="erp-required">*</span>
+          </div>
         </div>
 
-        <!-- Omitir -->
-        <div *ngIf="pregunta.omitible" class="omitir-toggle">
-          <label class="toggle-label">
-            <input type="checkbox"
-                   [checked]="respuestasForm[pregunta.id]?.omitida"
-                   (change)="toggleOmitir(pregunta.id)">
-            <span class="toggle-text">Omitir / No aplica</span>
+        <!-- Toggle Omitir -->
+        <div *ngIf="pregunta.omitible" class="erp-q-card__omit">
+          <label class="erp-toggle">
+            <input
+              type="checkbox"
+              [checked]="respuestasForm[pregunta.id]?.omitida"
+              (change)="toggleOmitir(pregunta.id)"
+            />
+            <span class="erp-toggle__slider"></span>
+            <span class="erp-toggle__label">Omitir / No aplica</span>
           </label>
         </div>
 
-        <!-- Controles de respuesta (ocultos si omitida) -->
-        <div *ngIf="!respuestasForm[pregunta.id]?.omitida" class="pregunta-control">
-          <!-- SI / NO -->
-          <div *ngIf="pregunta.tipo === 'si_no'" class="si-no-btns">
-            <button class="btn-si"
-                    [class.active]="respuestasForm[pregunta.id]?.valor === 'si'"
-                    (click)="respuestasForm[pregunta.id].valor = 'si'">
+        <!-- Controles de Respuesta -->
+        <div
+          *ngIf="!respuestasForm[pregunta.id]?.omitida"
+          class="erp-q-card__body"
+        >
+          <!-- SI / NO / NA -->
+          <div *ngIf="pregunta.tipo === 'si_no'" class="erp-segment">
+            <button
+              class="erp-segment__btn erp-segment__btn--si"
+              [class.is-active]="respuestasForm[pregunta.id]?.valor === 'si'"
+              (click)="respuestasForm[pregunta.id].valor = 'si'"
+            >
               <i class="fas fa-check"></i> Sí
             </button>
-            <button class="btn-no"
-                    [class.active]="respuestasForm[pregunta.id]?.valor === 'no'"
-                    (click)="respuestasForm[pregunta.id].valor = 'no'">
+            <button
+              class="erp-segment__btn erp-segment__btn--no"
+              [class.is-active]="respuestasForm[pregunta.id]?.valor === 'no'"
+              (click)="respuestasForm[pregunta.id].valor = 'no'"
+            >
               <i class="fas fa-times"></i> No
             </button>
-            <button *ngIf="!pregunta.requerida" class="btn-na"
-                    [class.active]="respuestasForm[pregunta.id]?.valor === 'na'"
-                    (click)="respuestasForm[pregunta.id].valor = 'na'">
+            <button
+              *ngIf="!pregunta.requerida"
+              class="erp-segment__btn erp-segment__btn--na"
+              [class.is-active]="respuestasForm[pregunta.id]?.valor === 'na'"
+              (click)="respuestasForm[pregunta.id].valor = 'na'"
+            >
               N/A
             </button>
           </div>
 
-          <!-- Alerta de no conforme -->
-          <div *ngIf="pregunta.tipo === 'si_no' && respuestasForm[pregunta.id]?.valor === 'no' && pregunta.requiereAccionSiNoConforme"
-               class="alerta-no-conforme">
+          <!-- Alerta de No Conforme -->
+          <div
+            *ngIf="
+              pregunta.tipo === 'si_no' &&
+              respuestasForm[pregunta.id]?.valor === 'no' &&
+              pregunta.requiereAccionSiNoConforme
+            "
+            class="erp-alert erp-alert--warning"
+          >
             <i class="fas fa-exclamation-triangle"></i>
             Se generará una acción correctiva automáticamente
           </div>
 
           <!-- Texto -->
-          <textarea *ngIf="pregunta.tipo === 'texto'"
-                    class="input-movil"
-                    [(ngModel)]="respuestasForm[pregunta.id].valor"
-                    placeholder="Escriba su respuesta..."
-                    rows="3"></textarea>
+          <textarea
+            *ngIf="pregunta.tipo === 'texto'"
+            class="erp-input"
+            [(ngModel)]="respuestasForm[pregunta.id].valor"
+            placeholder="Escriba su respuesta..."
+            rows="2"
+          ></textarea>
 
           <!-- Número -->
-          <input *ngIf="pregunta.tipo === 'numero'" type="number"
-                 class="input-movil"
-                 [(ngModel)]="respuestasForm[pregunta.id].valor"
-                 placeholder="Ingrese un valor">
+          <input
+            *ngIf="pregunta.tipo === 'numero'"
+            type="number"
+            class="erp-input"
+            [(ngModel)]="respuestasForm[pregunta.id].valor"
+            placeholder="Ingrese un valor"
+          />
 
           <!-- Fecha -->
-          <input *ngIf="pregunta.tipo === 'fecha'" type="date"
-                 class="input-movil"
-                 [(ngModel)]="respuestasForm[pregunta.id].valor">
+          <input
+            *ngIf="pregunta.tipo === 'fecha'"
+            type="date"
+            class="erp-input"
+            [(ngModel)]="respuestasForm[pregunta.id].valor"
+          />
 
           <!-- Slider -->
-          <div *ngIf="pregunta.tipo === 'slider'" class="slider-container">
-            <input type="range" min="0" max="100" step="5"
-                   [(ngModel)]="respuestasForm[pregunta.id].valor"
-                   class="slider-movil">
-            <span class="slider-value">{{ respuestasForm[pregunta.id]?.valor || 0 }}%</span>
+          <div *ngIf="pregunta.tipo === 'slider'" class="erp-slider-group">
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="5"
+              [(ngModel)]="respuestasForm[pregunta.id].valor"
+              class="erp-range"
+            />
+            <span class="erp-slider-group__val"
+              >{{ respuestasForm[pregunta.id]?.valor || 0 }}%</span
+            >
           </div>
 
-          <!-- Opción múltiple -->
-          <div *ngIf="pregunta.tipo === 'opcion_multiple'" class="opciones-list">
-            <button *ngFor="let opcion of getOpcionesArray(pregunta.opciones || '[]')"
-                    class="opcion-btn"
-                    [class.active]="respuestasForm[pregunta.id]?.valor === opcion"
-                    (click)="respuestasForm[pregunta.id].valor = opcion">
+          <!-- Opción múltiple (Grid de botones) -->
+          <div
+            *ngIf="pregunta.tipo === 'opcion_multiple'"
+            class="erp-options-grid"
+          >
+            <button
+              *ngFor="let opcion of getOpcionesArray(pregunta.opciones || '[]')"
+              class="erp-option-btn"
+              [class.is-active]="respuestasForm[pregunta.id]?.valor === opcion"
+              (click)="respuestasForm[pregunta.id].valor = opcion"
+            >
               {{ opcion }}
             </button>
           </div>
 
-          <!-- Fotos -->
-          <div class="fotos-section">
-            <div class="fotos-btns">
-              <label class="foto-btn foto-btn-camara">
+          <!-- Evidencia Fotográfica -->
+          <div class="erp-photo-section">
+            <div class="erp-photo-actions">
+              <label class="erp-btn erp-btn--outline erp-btn--sm">
                 <i class="fas fa-camera"></i> Cámara
-                <input type="file" accept="image/*"
-                       (change)="onFotoSelected($event, pregunta.id)"
-                       capture="environment"
-                       style="display: none;">
+                <input
+                  type="file"
+                  accept="image/*"
+                  (change)="onFotoSelected($event, pregunta.id)"
+                  capture="environment"
+                  hidden
+                />
               </label>
-              <label class="foto-btn foto-btn-galeria">
+              <label class="erp-btn erp-btn--outline erp-btn--sm">
                 <i class="fas fa-images"></i> Galería
-                <input type="file" accept="image/*" multiple
-                       (change)="onFotoSelected($event, pregunta.id)"
-                       style="display: none;">
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  (change)="onFotoSelected($event, pregunta.id)"
+                  hidden
+                />
               </label>
             </div>
-            <div class="fotos-grid" *ngIf="fotosPreview[pregunta.id]?.length">
-              <div class="foto-thumb" *ngFor="let foto of fotosPreview[pregunta.id]; let fi = index">
-                <img [src]="foto" alt="Foto">
-                <button class="foto-delete" (click)="eliminarFotoLocal(pregunta.id, fi)">
+
+            <div
+              class="erp-photo-grid"
+              *ngIf="fotosPreview[pregunta.id]?.length"
+            >
+              <div
+                class="erp-photo-thumb"
+                *ngFor="let foto of fotosPreview[pregunta.id]; let fi = index"
+              >
+                <img [src]="foto" alt="Foto" />
+                <button
+                  class="erp-photo-delete"
+                  (click)="eliminarFotoLocal(pregunta.id, fi)"
+                >
                   <i class="fas fa-times"></i>
                 </button>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Observación -->
-        <div class="observacion-section" *ngIf="!respuestasForm[pregunta.id]?.omitida">
-          <input type="text" class="input-movil input-obs"
-                 [(ngModel)]="respuestasForm[pregunta.id].observacion"
-                 placeholder="Observación (opcional)">
+          <!-- Observación opcional -->
+          <div class="erp-obs-section">
+            <input
+              type="text"
+              class="erp-input erp-input--sm"
+              [(ngModel)]="respuestasForm[pregunta.id].observacion"
+              placeholder="Añadir observación (opcional)..."
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </main>
 
-    <!-- Navegación inferior -->
-    <div class="nav-footer">
-      <button class="btn-nav btn-anterior" [disabled]="seccionActual === 0" (click)="anteriorSeccion()">
-        <i class="fas fa-chevron-left"></i> Anterior
+    <!-- Footer de Navegación Fijo -->
+    <footer class="erp-mobile-footer">
+      <button
+        class="erp-nav-btn erp-nav-btn--icon"
+        [disabled]="seccionActual === 0"
+        (click)="anteriorSeccion()"
+      >
+        <i class="fas fa-chevron-left"></i>
       </button>
 
-      <button class="btn-nav btn-guardar" (click)="guardarProgreso()" [disabled]="guardando">
-        <i class="fas fa-save"></i>
-        {{ guardando ? 'Guardando...' : 'Guardar' }}
+      <button
+        class="erp-nav-btn erp-nav-btn--save"
+        (click)="guardarProgreso()"
+        [disabled]="guardando"
+      >
+        <i class="fas fa-save"></i> {{ guardando ? "Guardando..." : "Guardar" }}
       </button>
 
-      <button *ngIf="seccionActual < totalSecciones - 1"
-              class="btn-nav btn-siguiente" (click)="siguienteSeccion()">
+      <button
+        *ngIf="seccionActual < totalSecciones - 1"
+        class="erp-nav-btn erp-nav-btn--next"
+        (click)="siguienteSeccion()"
+      >
         Siguiente <i class="fas fa-chevron-right"></i>
       </button>
 
-      <button *ngIf="seccionActual === totalSecciones - 1"
-              class="btn-nav btn-completar" (click)="completarInspeccion()" [disabled]="guardando">
+      <button
+        *ngIf="seccionActual === totalSecciones - 1"
+        class="erp-nav-btn erp-nav-btn--complete"
+        (click)="completarInspeccion()"
+        [disabled]="guardando"
+      >
         <i class="fas fa-check-double"></i> Completar
       </button>
-    </div>
+    </footer>
   </div>
 </div>

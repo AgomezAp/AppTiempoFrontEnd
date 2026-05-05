@@ -2,14 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RolesService, MODULOS_SISTEMA } from '../../services/roles.service';
+import { UserService } from '../../services/user.service';
 import Swal from 'sweetalert2';
+import { NavbarComponent } from '../navbar/navbar.component';
 
 interface GrupoModulo { nombre: string; modulos: typeof MODULOS_SISTEMA; }
 
 @Component({
   selector: 'app-admin-roles',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NavbarComponent],
   templateUrl: './admin-roles.component.html',
   styleUrls: ['./admin-roles.component.css']
 })
@@ -25,14 +27,26 @@ export class AdminRolesComponent implements OnInit {
 
   // Panel de permisos de módulos
   rolSeleccionado: any = null;
+  tabActivo: 'modulos' | 'miembros' = 'modulos';
   cargandoModulos = false;
   modulosHabilitados: Set<string> = new Set();
   gruposModulos: GrupoModulo[] = [];
 
+  // Panel de miembros
+  usuariosRol: any[] = [];
+  cargandoMiembros = false;
+
+  // Modal asignar usuario al rol
+  modalAsignar = false;
+  todosUsuarios: any[] = [];
+  cargandoTodosUsuarios = false;
+  buscadorUsuarios = '';
+  asignandoUid: number | null = null;
+
   readonly MODULOS = MODULOS_SISTEMA;
   readonly ROLES_PROTEGIDOS = ['Admin', 'User', 'Tecnologia'];
 
-  constructor(private rolesService: RolesService) {}
+  constructor(private rolesService: RolesService, private userService: UserService) {}
 
   ngOnInit(): void {
     this.buildGrupos();
@@ -81,7 +95,6 @@ export class AdminRolesComponent implements OnInit {
         this.modalRol = false;
         this.cargar();
         if (!this.editandoRol) {
-          // Abrir automáticamente los permisos del nuevo rol
           setTimeout(() => {
             const nuevo = this.roles.find(r => r.Rname === this.nombreRol);
             if (nuevo) this.seleccionarRol(nuevo);
@@ -119,8 +132,13 @@ export class AdminRolesComponent implements OnInit {
   }
 
   seleccionarRol(rol: any): void {
-    if (this.rolSeleccionado?.Rid === rol.Rid) { this.rolSeleccionado = null; return; }
+    if (this.rolSeleccionado?.Rid === rol.Rid) {
+      this.rolSeleccionado = null;
+      this.tabActivo = 'modulos';
+      return;
+    }
     this.rolSeleccionado = rol;
+    this.tabActivo = 'modulos';
     this.cargandoModulos = true;
     this.modulosHabilitados = new Set();
     this.rolesService.getModulosRol(rol.Rid).subscribe({
@@ -131,6 +149,60 @@ export class AdminRolesComponent implements OnInit {
         this.cargandoModulos = false;
       },
       error: () => this.cargandoModulos = false
+    });
+    this.cargarUsuariosRol(rol.Rid);
+  }
+
+  cargarUsuariosRol(rid: number): void {
+    this.cargandoMiembros = true;
+    this.rolesService.getUsuariosRol(rid).subscribe({
+      next: (data: any[]) => { this.usuariosRol = data; this.cargandoMiembros = false; },
+      error: () => this.cargandoMiembros = false
+    });
+  }
+
+  abrirModalAsignar(): void {
+    this.modalAsignar = true;
+    this.buscadorUsuarios = '';
+    this.cargandoTodosUsuarios = true;
+    this.userService.getAllUsers().subscribe({
+      next: (data: any[]) => { this.todosUsuarios = data; this.cargandoTodosUsuarios = false; },
+      error: () => this.cargandoTodosUsuarios = false
+    });
+  }
+
+  get usuariosFiltrados(): any[] {
+    const q = this.buscadorUsuarios.toLowerCase().trim();
+    if (!q) return this.todosUsuarios;
+    return this.todosUsuarios.filter(u =>
+      `${u.name} ${u.lastName}`.toLowerCase().includes(q) ||
+      u.email.toLowerCase().includes(q)
+    );
+  }
+
+  asignarRol(usuario: any): void {
+    if (this.asignandoUid !== null || !this.rolSeleccionado) return;
+    this.asignandoUid = usuario.Uid;
+    this.userService.updateUser(usuario.Uid, { Rid: this.rolSeleccionado.Rid }).subscribe({
+      next: () => {
+        this.asignandoUid = null;
+        // Actualiza datos locales en el modal
+        usuario.Rid = this.rolSeleccionado.Rid;
+        usuario.role = { Rid: this.rolSeleccionado.Rid, Rname: this.rolSeleccionado.Rname };
+        // Refresca la lista de miembros
+        this.cargarUsuariosRol(this.rolSeleccionado.Rid);
+        Swal.fire({
+          icon: 'success',
+          title: 'Rol asignado',
+          text: `${usuario.name} ${usuario.lastName} ahora tiene el rol "${this.rolSeleccionado.Rname}".`,
+          timer: 2500,
+          showConfirmButton: false
+        });
+      },
+      error: (err: any) => {
+        this.asignandoUid = null;
+        Swal.fire('Error', err.error?.msg || 'No se pudo asignar el rol.', 'error');
+      }
     });
   }
 
@@ -160,6 +232,10 @@ export class AdminRolesComponent implements OnInit {
       next: () => Swal.fire('Guardado', 'Permisos actualizados correctamente.', 'success'),
       error: () => Swal.fire('Error', 'No se pudieron guardar los permisos.', 'error')
     });
+  }
+
+  iniciales(u: any): string {
+    return `${(u.name || '?')[0]}${(u.lastName || '?')[0]}`.toUpperCase();
   }
 
   modulosHabCount(rol: any): number {

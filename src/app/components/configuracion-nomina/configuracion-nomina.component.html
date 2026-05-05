@@ -1,219 +1,326 @@
 <app-navbar></app-navbar>
 
-<div class="config-container">
-  <!-- Header -->
-  <div class="header">
-    <div class="header-content">
-      <h1>⚙️ Configuración de Nómina</h1>
-      <p class="subtitle">Administra el salario mínimo y auxilio de transporte</p>
+<div class="erp-layout">
+  <!-- HEADER DE PÁGINA (Principio #4) -->
+  <header class="erp-page-header erp-animation-fade">
+    <div class="erp-page-header__main">
+      <div class="erp-page-header__icon">
+        <i class="fas fa-cog"></i>
+      </div>
+      <div class="erp-page-header__text">
+        <h1 class="erp-page-header__title">Configuración de Nómina</h1>
+        <p class="erp-page-header__subtitle">
+          Administra el salario mínimo y auxilio de transporte
+        </p>
+      </div>
     </div>
+  </header>
+
+  <!-- ALERTAS -->
+  <div
+    *ngIf="mensaje"
+    class="erp-alert erp-alert--success erp-animation-fade mb-3"
+  >
+    <i class="fas fa-check-circle erp-alert__icon"></i>
+    <div class="erp-alert__text">{{ mensaje }}</div>
+    <button class="erp-alert__close" (click)="mensaje = ''">
+      <i class="fas fa-times"></i>
+    </button>
   </div>
 
-  <!-- Mensajes -->
-  <div *ngIf="mensaje" class="alert alert-success">
-    <i class="fas fa-check-circle"></i>
-    <span>{{ mensaje }}</span>
-    <button (click)="mensaje = ''" class="btn-close">×</button>
+  <div
+    *ngIf="error"
+    class="erp-alert erp-alert--danger erp-animation-fade mb-3"
+  >
+    <i class="fas fa-exclamation-triangle erp-alert__icon"></i>
+    <div class="erp-alert__text">{{ error }}</div>
+    <button class="erp-alert__close" (click)="error = ''">
+      <i class="fas fa-times"></i>
+    </button>
   </div>
 
-  <div *ngIf="error" class="alert alert-error">
-    <i class="fas fa-exclamation-triangle"></i>
-    <span>{{ error }}</span>
-    <button (click)="error = ''" class="btn-close">×</button>
-  </div>
-
-  <!-- Configuración Vigente -->
-  <div class="vigente-card">
-    <div class="card-header">
-      <h2>📊 Configuración Actual ({{ configVigente?.anio || 'N/A' }})</h2>
-      <button 
-        *ngIf="configVigente && !editMode" 
+  <!-- CONFIGURACIÓN VIGENTE (Tratada como KPIs - Principio #7) -->
+  <section class="erp-card erp-animation-fade">
+    <div class="erp-card__head erp-flex-between">
+      <h3 class="erp-card__title">
+        <i class="fas fa-chart-line"></i> Configuración Vigente ({{
+          configVigente?.anio || "N/A"
+        }})
+      </h3>
+      <button
+        *ngIf="configVigente && !editMode"
+        class="erp-btn erp-btn--outline"
         (click)="editarConfigVigente()"
-        class="btn btn-edit"
       >
         <i class="fas fa-edit"></i> Editar
       </button>
     </div>
 
-    <div *ngIf="configVigente" class="card-body">
-      <div class="config-grid">
-        <div class="config-item">
-          <div class="config-label">Salario Mínimo</div>
-          <div class="config-value primary">{{ formatCurrency(configVigente.salarioMinimo) }}</div>
+    <div *ngIf="configVigente" class="erp-card__body">
+      <!-- Grid de KPIs Gerenciales -->
+      <div class="erp-kpi-grid erp-kpi-grid--4">
+        <div class="erp-kpi">
+          <div class="erp-kpi__icon erp-kpi__icon--secondary">
+            <i class="fas fa-money-bill-wave"></i>
+          </div>
+          <div class="erp-kpi__info">
+            <span class="erp-kpi__label">Salario Mínimo</span>
+            <span class="erp-kpi__value">{{
+              formatCurrency(configVigente.salarioMinimo)
+            }}</span>
+          </div>
         </div>
-
-        <div class="config-item">
-          <div class="config-label">Auxilio de Transporte</div>
-          <div class="config-value secondary">{{ formatCurrency(configVigente.auxilioTransporte) }}</div>
+        <div class="erp-kpi">
+          <div class="erp-kpi__icon erp-kpi__icon--info">
+            <i class="fas fa-bus"></i>
+          </div>
+          <div class="erp-kpi__info">
+            <span class="erp-kpi__label">Auxilio Transporte</span>
+            <span class="erp-kpi__value">{{
+              formatCurrency(configVigente.auxilioTransporte)
+            }}</span>
+          </div>
         </div>
-
-        <div class="config-item">
-          <div class="config-label">Aporte Salud (Trabajador)</div>
-          <div class="config-value">{{ formatPercentage(configVigente.porcentajeSalud) }}</div>
+        <div class="erp-kpi">
+          <div class="erp-kpi__icon erp-kpi__icon--success">
+            <i class="fas fa-heartbeat"></i>
+          </div>
+          <div class="erp-kpi__info">
+            <span class="erp-kpi__label">Aporte Salud</span>
+            <span class="erp-kpi__value">{{
+              formatPercentage(configVigente.porcentajeSalud)
+            }}</span>
+          </div>
         </div>
-
-        <div class="config-item">
-          <div class="config-label">Aporte Pensión (Trabajador)</div>
-          <div class="config-value">{{ formatPercentage(configVigente.porcentajePension) }}</div>
+        <div class="erp-kpi">
+          <div class="erp-kpi__icon erp-kpi__icon--warning">
+            <i class="fas fa-piggy-bank"></i>
+          </div>
+          <div class="erp-kpi__info">
+            <span class="erp-kpi__label">Aporte Pensión</span>
+            <span class="erp-kpi__value">{{
+              formatPercentage(configVigente.porcentajePension)
+            }}</span>
+          </div>
         </div>
       </div>
 
-      <div class="info-box">
-        <i class="fas fa-info-circle"></i>
-        <p>
-          <strong>Regla de Auxilio de Transporte:</strong> 
-          Solo aplica cuando el trabajador gana menos de 2 salarios mínimos (menos de {{ formatCurrency(configVigente.salarioMinimo * 2) }})
+      <div class="erp-alert erp-alert--info mt-3">
+        <i class="fas fa-info-circle erp-alert__icon"></i>
+        <div class="erp-alert__text">
+          <strong>Regla de Auxilio de Transporte:</strong>
+          Solo aplica cuando el trabajador gana menos de 2 salarios mínimos
+          (menos de {{ formatCurrency(configVigente.salarioMinimo * 2) }}).
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!configVigente && !cargando" class="erp-card__body">
+      <div class="erp-empty-state erp-empty-state--sm">
+        <div class="erp-empty-state__icon">
+          <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <p class="erp-empty-state__desc">
+          No hay configuración vigente.<br />Crea una nueva configuración abajo.
         </p>
       </div>
     </div>
+  </section>
 
-    <div *ngIf="!configVigente && !cargando" class="card-body">
-      <div class="empty-state">
-        <i class="fas fa-exclamation-circle"></i>
-        <p>No hay configuración vigente. Crea una nueva configuración abajo.</p>
-      </div>
+  <!-- FORMULARIO CREAR/EDITAR (Principio #1 - Compacto) -->
+  <section
+    *ngIf="editMode || !configVigente"
+    class="erp-card erp-animation-fade"
+    style="animation-delay: 0.05s"
+  >
+    <div class="erp-card__head">
+      <h3 class="erp-card__title">
+        <i [class]="editMode ? 'fas fa-pen' : 'fas fa-plus-circle'"></i>
+        {{ editMode ? "Editar Configuración" : "Nueva Configuración" }}
+      </h3>
     </div>
-  </div>
 
-  <!-- Formulario de Edición/Creación -->
-  <div *ngIf="editMode || !configVigente" class="form-card">
-    <div class="card-header">
-      <h2>{{ editMode ? '✏️ Editar Configuración' : '➕ Nueva Configuración' }}</h2>
-    </div>
-
-    <div class="card-body">
-      <form (ngSubmit)="guardarConfig()">
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="anio">Año <span class="required">*</span></label>
+    <form (ngSubmit)="guardarConfig()" class="erp-form">
+      <div class="erp-card__body">
+        <div class="erp-grid erp-grid--3">
+          <div class="erp-field">
+            <label class="erp-label" for="anio"
+              >Año <span class="text-danger">*</span></label
+            >
             <input
               type="number"
               id="anio"
               [(ngModel)]="formulario.anio"
               name="anio"
-              class="form-control"
+              class="erp-input"
               min="2020"
               max="2100"
               required
             />
           </div>
 
-          <div class="form-group">
-            <label for="salarioMinimo">Salario Mínimo <span class="required">*</span></label>
-            <input
-              type="number"
-              id="salarioMinimo"
-              [(ngModel)]="formulario.salarioMinimo"
-              name="salarioMinimo"
-              class="form-control"
-              min="0"
-              step="1000"
-              required
-              placeholder="1423500"
-            />
-            <small class="form-hint">Salario Mínimo Legal Mensual Vigente (SMLMV)</small>
+          <div class="erp-field">
+            <label class="erp-label" for="salarioMinimo"
+              >Salario Mínimo <span class="text-danger">*</span></label
+            >
+            <div class="erp-input-group">
+              <span class="erp-input-prefix">$</span>
+              <input
+                type="number"
+                id="salarioMinimo"
+                [(ngModel)]="formulario.salarioMinimo"
+                name="salarioMinimo"
+                class="erp-input pl-prefix"
+                min="0"
+                step="1000"
+                required
+                placeholder="1423500"
+              />
+            </div>
+            <span class="erp-hint mt-1">SMLMV de ley</span>
           </div>
 
-          <div class="form-group">
-            <label for="auxilioTransporte">Auxilio de Transporte <span class="required">*</span></label>
-            <input
-              type="number"
-              id="auxilioTransporte"
-              [(ngModel)]="formulario.auxilioTransporte"
-              name="auxilioTransporte"
-              class="form-control"
-              min="0"
-              step="1000"
-              required
-              placeholder="200000"
-            />
-            <small class="form-hint">Valor del auxilio de transporte mensual</small>
+          <div class="erp-field">
+            <label class="erp-label" for="auxilioTransporte"
+              >Auxilio Transporte <span class="text-danger">*</span></label
+            >
+            <div class="erp-input-group">
+              <span class="erp-input-prefix">$</span>
+              <input
+                type="number"
+                id="auxilioTransporte"
+                [(ngModel)]="formulario.auxilioTransporte"
+                name="auxilioTransporte"
+                class="erp-input pl-prefix"
+                min="0"
+                step="1000"
+                required
+                placeholder="200000"
+              />
+            </div>
+            <span class="erp-hint mt-1">Valor mensual</span>
           </div>
 
-          <div class="form-group">
-            <label for="porcentajeSalud">Aporte Salud (%)</label>
-            <input
-              type="number"
-              id="porcentajeSalud"
-              [(ngModel)]="formulario.porcentajeSalud"
-              name="porcentajeSalud"
-              class="form-control"
-              min="0"
-              max="1"
-              step="0.0001"
-              placeholder="0.04"
-            />
-            <small class="form-hint">Porcentaje de aporte del trabajador (0.04 = 4%)</small>
+          <div class="erp-field">
+            <label class="erp-label" for="porcentajeSalud"
+              >Aporte Salud <span class="text-danger">*</span></label
+            >
+            <div class="erp-input-group">
+              <input
+                type="number"
+                id="porcentajeSalud"
+                [(ngModel)]="formulario.porcentajeSalud"
+                name="porcentajeSalud"
+                class="erp-input pr-suffix"
+                min="0"
+                max="1"
+                step="0.0001"
+                placeholder="0.04"
+              />
+              <span class="erp-input-suffix"
+                ><i class="fas fa-percent"></i
+              ></span>
+            </div>
+            <span class="erp-hint mt-1">Trabajador (Ej: 0.04 = 4%)</span>
           </div>
 
-          <div class="form-group">
-            <label for="porcentajePension">Aporte Pensión (%)</label>
-            <input
-              type="number"
-              id="porcentajePension"
-              [(ngModel)]="formulario.porcentajePension"
-              name="porcentajePension"
-              class="form-control"
-              min="0"
-              max="1"
-              step="0.0001"
-              placeholder="0.04"
-            />
-            <small class="form-hint">Porcentaje de aporte del trabajador (0.04 = 4%)</small>
+          <div class="erp-field">
+            <label class="erp-label" for="porcentajePension"
+              >Aporte Pensión <span class="text-danger">*</span></label
+            >
+            <div class="erp-input-group">
+              <input
+                type="number"
+                id="porcentajePension"
+                [(ngModel)]="formulario.porcentajePension"
+                name="porcentajePension"
+                class="erp-input pr-suffix"
+                min="0"
+                max="1"
+                step="0.0001"
+                placeholder="0.04"
+              />
+              <span class="erp-input-suffix"
+                ><i class="fas fa-percent"></i
+              ></span>
+            </div>
+            <span class="erp-hint mt-1">Trabajador (Ej: 0.04 = 4%)</span>
           </div>
 
-          <div class="form-group checkbox-group">
-            <label class="checkbox-label">
+          <div class="erp-field erp-field--actions align-start">
+            <label class="erp-checkbox mt-3">
               <input
                 type="checkbox"
                 [(ngModel)]="formulario.vigente"
                 name="vigente"
               />
-              <span>Marcar como configuración vigente</span>
+              <span class="erp-checkbox__mark"></span>
+              <span class="erp-checkbox__text">Establecer como Vigente</span>
             </label>
-            <small class="form-hint">Si se activa, se desactivará la configuración actual</small>
           </div>
         </div>
+      </div>
 
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primary" [disabled]="cargando">
-            <i class="fas fa-save"></i>
-            {{ cargando ? 'Guardando...' : (editMode ? 'Actualizar' : 'Crear Configuración') }}
-          </button>
-          
-          <button 
-            *ngIf="editMode" 
-            type="button" 
-            (click)="cancelarEdicion()"
-            class="btn btn-secondary"
-            [disabled]="cargando"
-          >
-            <i class="fas fa-times"></i>
-            Cancelar
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
+      <div class="erp-card__footer">
+        <button
+          *ngIf="editMode"
+          type="button"
+          class="erp-btn erp-btn--outline"
+          (click)="cancelarEdicion()"
+          [disabled]="cargando"
+        >
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button
+          type="submit"
+          class="erp-btn erp-btn--primary"
+          [disabled]="cargando"
+        >
+          <i *ngIf="cargando" class="fas fa-spinner erp-spin"></i>
+          <i *ngIf="!cargando" class="fas fa-save"></i>
+          {{
+            cargando
+              ? "Guardando..."
+              : editMode
+                ? "Actualizar"
+                : "Crear Configuración"
+          }}
+        </button>
+      </div>
+    </form>
+  </section>
 
-  <!-- Historial de Configuraciones -->
-  <div class="historial-section">
-    <div class="historial-header">
-      <h2>📜 Historial de Configuraciones</h2>
-      <button (click)="mostrarHistorial = !mostrarHistorial" class="btn btn-toggle">
-        <i class="fas" [ngClass]="mostrarHistorial ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
-        {{ mostrarHistorial ? 'Ocultar' : 'Mostrar' }}
+  <!-- HISTORIAL DE CONFIGURACIONES -->
+  <section class="erp-card erp-animation-fade" style="animation-delay: 0.1s">
+    <div class="erp-card__head erp-flex-between">
+      <h3 class="erp-card__title">
+        <i class="fas fa-history"></i> Historial de Configuraciones
+      </h3>
+      <button
+        class="erp-btn erp-btn--outline erp-btn--sm"
+        (click)="mostrarHistorial = !mostrarHistorial"
+      >
+        <i
+          class="fas"
+          [ngClass]="mostrarHistorial ? 'fa-chevron-up' : 'fa-chevron-down'"
+        ></i>
+        {{ mostrarHistorial ? "Ocultar" : "Mostrar" }}
       </button>
     </div>
 
-    <div *ngIf="mostrarHistorial" class="historial-content">
-      <div *ngIf="historialConfigs.length === 0" class="empty-state">
-        <i class="fas fa-inbox"></i>
-        <p>No hay configuraciones históricas</p>
+    <div *ngIf="mostrarHistorial" class="erp-card__body p-0">
+      <div
+        *ngIf="historialConfigs.length === 0"
+        class="erp-empty-state erp-empty-state--sm"
+      >
+        <div class="erp-empty-state__icon"><i class="fas fa-inbox"></i></div>
+        <p class="erp-empty-state__desc">
+          No hay configuraciones históricas registradas.
+        </p>
       </div>
 
-      <div *ngIf="historialConfigs.length > 0" class="historial-table-container">
-        <table class="historial-table">
+      <div *ngIf="historialConfigs.length > 0" class="erp-table-responsive">
+        <table class="erp-table">
           <thead>
             <tr>
               <th>Año</th>
@@ -222,49 +329,61 @@
               <th>Salud</th>
               <th>Pensión</th>
               <th>Estado</th>
-              <th>Acciones</th>
+              <th class="text-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let config of historialConfigs" [class.vigente-row]="config.vigente">
-              <td><strong>{{ config.anio }}</strong></td>
+            <tr
+              *ngFor="let config of historialConfigs"
+              [class.is-active-row]="config.vigente"
+            >
+              <td class="erp-text-bold">{{ config.anio }}</td>
               <td>{{ formatCurrency(config.salarioMinimo) }}</td>
               <td>{{ formatCurrency(config.auxilioTransporte) }}</td>
               <td>{{ formatPercentage(config.porcentajeSalud) }}</td>
               <td>{{ formatPercentage(config.porcentajePension) }}</td>
               <td>
-                <span class="badge" [ngClass]="config.vigente ? 'badge-active' : 'badge-inactive'">
-                  {{ config.vigente ? '✓ Vigente' : 'Inactivo' }}
+                <span
+                  class="erp-status-badge"
+                  [ngClass]="config.vigente ? 'bg-completado' : 'bg-borrador'"
+                >
+                  <i *ngIf="config.vigente" class="fas fa-check me-1"></i>
+                  {{ config.vigente ? "Vigente" : "Inactivo" }}
                 </span>
               </td>
-              <td class="actions-cell">
-                <button 
-                  *ngIf="!config.vigente" 
-                  (click)="activarConfig(config.id!)"
-                  class="btn-action btn-activate"
-                  title="Activar"
-                >
-                  <i class="fas fa-check-circle"></i>
-                </button>
-                <button 
-                  *ngIf="!config.vigente" 
-                  (click)="eliminarConfig(config.id!)"
-                  class="btn-action btn-delete"
-                  title="Eliminar"
-                >
-                  <i class="fas fa-trash"></i>
-                </button>
+              <td>
+                <div class="erp-action-group">
+                  <button
+                    *ngIf="!config.vigente"
+                    class="erp-action-btn erp-action-btn--success"
+                    (click)="activarConfig(config.id!)"
+                    title="Activar como vigente"
+                  >
+                    <i class="fas fa-check-circle"></i>
+                  </button>
+                  <button
+                    *ngIf="!config.vigente"
+                    class="erp-action-btn erp-action-btn--danger"
+                    (click)="eliminarConfig(config.id!)"
+                    title="Eliminar"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                  <span *ngIf="config.vigente" class="erp-hint"
+                    ><small>Activo</small></span
+                  >
+                </div>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Loading -->
-  <div *ngIf="cargando" class="loading-overlay">
-    <div class="spinner"></div>
-    <p>Procesando...</p>
+  <!-- OVERLAY DE CARGA -->
+  <div *ngIf="cargando" class="erp-loading-overlay">
+    <div class="erp-spinner erp-spinner--lg"></div>
+    <span class="erp-loading__text text-light mt-2">Procesando...</span>
   </div>
 </div>

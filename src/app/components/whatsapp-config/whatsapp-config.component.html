@@ -1,150 +1,294 @@
 <app-navbar></app-navbar>
 
-<div class="page-container">
-  <div class="page-header">
-    <div class="header-left">
-      <h1><i class="fab fa-whatsapp"></i> WhatsApp</h1>
-      <p>Gestión completa de mensajería WhatsApp</p>
-    </div>
-  </div>
-
-  <!-- Estado de conexión -->
-  <div class="connection-card">
-    <div class="connection-status">
-      <div class="status-indicator" [ngClass]="getStatusClass()"></div>
-      <div class="status-info">
-        <h3>Estado: {{ getStatusLabel() }}</h3>
-        <p *ngIf="status === 'ready'">WhatsApp vinculado y listo para enviar mensajes</p>
-        <p *ngIf="status === 'disconnected'">No hay sesión activa. Conecte para vincular WhatsApp.</p>
-        <p *ngIf="status === 'qr_pending'">Escanee el código QR con su WhatsApp para vincular.</p>
-        <p *ngIf="status === 'loading'">Iniciando sesión de WhatsApp...</p>
+<div class="erp-layout">
+  <!-- HEADER DE PÁGINA (Principio #4) -->
+  <header class="erp-page-header erp-animation-fade">
+    <div class="erp-page-header__main">
+      <div class="erp-page-header__icon">
+        <i class="fab fa-whatsapp"></i>
       </div>
-      <div class="status-actions">
-        <button class="btn-primary" (click)="conectar()" *ngIf="status === 'disconnected'" [disabled]="loading">
+      <div class="erp-page-header__text">
+        <h1 class="erp-page-header__title">Gestión de WhatsApp</h1>
+        <p class="erp-page-header__subtitle">
+          Conexión, mensajería individual, masiva y programada
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <!-- ESTADO DE CONEXIÓN (Principio #5) -->
+  <section class="erp-card erp-animation-fade">
+    <div class="erp-card__head erp-flex-between">
+      <h3 class="erp-card__title">
+        <i class="fas fa-link"></i> Estado de Conexión
+      </h3>
+      <div class="erp-action-group">
+        <button
+          class="erp-btn erp-btn--primary erp-btn--sm"
+          (click)="conectar()"
+          *ngIf="status === 'disconnected'"
+          [disabled]="loading"
+        >
           <i class="fab fa-whatsapp"></i> Conectar
         </button>
-        <button class="btn-danger" (click)="desconectar()" *ngIf="status === 'ready'">
+        <button
+          class="erp-btn erp-btn--danger erp-btn--sm"
+          (click)="desconectar()"
+          *ngIf="status === 'ready'"
+        >
           <i class="fas fa-power-off"></i> Desconectar
         </button>
       </div>
     </div>
 
-    <!-- QR Code -->
-    <div class="qr-container" *ngIf="status === 'qr_pending' && qrCode">
-      <p class="qr-instructions">Abra WhatsApp en su teléfono > Dispositivos vinculados > Vincular dispositivo</p>
-      <div class="qr-code">
-        <img [src]="qrCode" alt="QR Code WhatsApp">
+    <div class="erp-card__body">
+      <!-- Indicador de Status -->
+      <div
+        class="erp-alert"
+        [ngClass]="{
+          'erp-alert--success': status === 'ready',
+          'erp-alert--warning': status === 'qr_pending',
+          'erp-alert--danger': status === 'disconnected',
+          'erp-alert--info': status === 'loading',
+        }"
+      >
+        <i
+          class="fas erp-alert__icon"
+          [ngClass]="{
+            'fa-check-circle': status === 'ready',
+            'fa-qrcode': status === 'qr_pending',
+            'fa-exclamation-circle': status === 'disconnected',
+            'fa-spinner fa-spin': status === 'loading',
+          }"
+        ></i>
+        <div class="erp-alert__text">
+          <strong>{{ getStatusLabel() }}</strong
+          ><br />
+          <span *ngIf="status === 'ready'"
+            >WhatsApp vinculado y listo para enviar mensajes.</span
+          >
+          <span *ngIf="status === 'disconnected'"
+            >No hay sesión activa. Conecte para vincular WhatsApp.</span
+          >
+          <span *ngIf="status === 'qr_pending'"
+            >Escanee el código QR con su WhatsApp para vincular el
+            dispositivo.</span
+          >
+          <span *ngIf="status === 'loading'"
+            >Iniciando sesión de WhatsApp...</span
+          >
+        </div>
+      </div>
+
+      <!-- QR Code -->
+      <div class="erp-qr-container" *ngIf="status === 'qr_pending' && qrCode">
+        <p class="erp-hint text-center mb-3">
+          Abra WhatsApp en su teléfono > Dispositivos vinculados > Vincular
+          dispositivo
+        </p>
+        <div class="erp-qr-code">
+          <img [src]="qrCode" alt="QR Code WhatsApp" />
+        </div>
+      </div>
+
+      <!-- Loading global de conexión -->
+      <div class="erp-loading mt-3" *ngIf="status === 'loading' || loading">
+        <div class="erp-spinner erp-spinner--sm"></div>
+        <span class="erp-loading__text">Procesando...</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTENIDO PRINCIPAL (Solo visible si está conectado) -->
+  <ng-container *ngIf="status === 'ready'">
+    <div
+      class="erp-alert erp-alert--info erp-animation-fade mb-3"
+      style="animation-delay: 0.05s"
+    >
+      <i class="fas fa-users erp-alert__icon"></i>
+      <div class="erp-alert__text">
+        <strong>Base de datos:</strong> {{ getUsuariosConCelular() }} usuarios
+        con celular registrado de {{ usuarios.length }} totales.
       </div>
     </div>
 
-    <!-- Loading -->
-    <div class="loading-container" *ngIf="status === 'loading' || loading">
-      <div class="spinner"></div>
-    </div>
-  </div>
-
-  <!-- Secciones (solo si está conectado) -->
-  <div *ngIf="status === 'ready'">
-    <div class="info-bar">
-      <i class="fas fa-users"></i>
-      <span>{{ getUsuariosConCelular() }} usuarios con celular registrado de {{ usuarios.length }} totales</span>
-    </div>
-
-    <!-- Tabs -->
-    <div class="tabs">
-      <button class="tab-btn" [class.active]="tabActiva === 'individual'" (click)="cambiarTab('individual')">
+    <!-- TABS -->
+    <div class="erp-tabs erp-animation-fade" style="animation-delay: 0.1s">
+      <button
+        class="erp-tab"
+        [class.is-active]="tabActiva === 'individual'"
+        (click)="cambiarTab('individual')"
+      >
         <i class="fas fa-comment"></i> Individual
       </button>
-      <button class="tab-btn" [class.active]="tabActiva === 'masivo'" (click)="cambiarTab('masivo')">
+      <button
+        class="erp-tab"
+        [class.is-active]="tabActiva === 'masivo'"
+        (click)="cambiarTab('masivo')"
+      >
         <i class="fas fa-bullhorn"></i> Masivo
       </button>
-      <button class="tab-btn" [class.active]="tabActiva === 'programar'" (click)="cambiarTab('programar')">
+      <button
+        class="erp-tab"
+        [class.is-active]="tabActiva === 'programar'"
+        (click)="cambiarTab('programar')"
+      >
         <i class="fas fa-clock"></i> Programar
       </button>
-      <button class="tab-btn" [class.active]="tabActiva === 'historial'" (click)="cambiarTab('historial')">
+      <button
+        class="erp-tab"
+        [class.is-active]="tabActiva === 'historial'"
+        (click)="cambiarTab('historial')"
+      >
         <i class="fas fa-history"></i> Historial
       </button>
     </div>
 
-    <!-- TAB: Mensaje Individual -->
-    <div class="tab-content" *ngIf="tabActiva === 'individual'">
-      <div class="action-card full-width">
-        <div class="action-card-header">
-          <i class="fas fa-comment"></i>
-          <h3>Enviar Mensaje</h3>
-        </div>
+    <!-- TAB: INDIVIDUAL -->
+    <section
+      class="erp-card erp-animation-fade"
+      *ngIf="tabActiva === 'individual'"
+    >
+      <div class="erp-card__body">
+        <div class="erp-grid erp-grid--2">
+          <!-- Columna Izquierda: Lista de Usuarios (Principio #10) -->
+          <div class="erp-field">
+            <label class="erp-label">Seleccionar destinatarios</label>
+            <div class="erp-input-group mb-2">
+              <i class="fas fa-search erp-input-icon"></i>
+              <input
+                type="text"
+                [(ngModel)]="busquedaUsuario"
+                placeholder="Buscar por nombre o celular..."
+                class="erp-input has-icon"
+              />
+            </div>
 
-        <div class="two-columns">
-          <!-- Columna izquierda: selección de usuarios -->
-          <div class="column">
-            <div class="form-group">
-              <label>Seleccionar destinatarios</label>
-              <input type="text" [(ngModel)]="busquedaUsuario" placeholder="Buscar por nombre o celular..." class="search-input">
-              <div class="select-all-row">
-                <label class="checkbox-label" (click)="toggleTodos()">
-                  <input type="checkbox" [checked]="todosSeleccionados" (click)="$event.stopPropagation()"> Seleccionar todos
+            <div class="erp-flex-between mb-2 pb-2 border-bottom">
+              <label class="erp-checkbox">
+                <input
+                  type="checkbox"
+                  [checked]="todosSeleccionados"
+                  (change)="toggleTodos()"
+                  (click)="$event.stopPropagation()"
+                />
+                <span class="erp-checkbox__mark"></span>
+                <span class="erp-checkbox__text">Seleccionar todos</span>
+              </label>
+              <span
+                class="erp-badge erp-badge--dark"
+                *ngIf="usuariosSeleccionados.length > 0"
+              >
+                {{ usuariosSeleccionados.length }} seleccionado(s)
+              </span>
+            </div>
+
+            <ul class="erp-list">
+              <li
+                class="erp-list__item"
+                *ngFor="let u of usuariosFiltrados()"
+                [class.is-selected]="esSeleccionado(u)"
+                (click)="toggleUsuario(u)"
+              >
+                <label class="erp-checkbox" (click)="$event.stopPropagation()">
+                  <input
+                    type="checkbox"
+                    [checked]="esSeleccionado(u)"
+                    (change)="toggleUsuario(u)"
+                  />
+                  <span class="erp-checkbox__mark"></span>
                 </label>
-                <span class="selection-count" *ngIf="usuariosSeleccionados.length > 0">
-                  {{ usuariosSeleccionados.length }} seleccionado(s)
-                </span>
-              </div>
-              <div class="user-list">
-                <div *ngFor="let u of usuariosFiltrados()" class="user-list-item" [class.selected]="esSeleccionado(u)" (click)="toggleUsuario(u)">
-                  <input type="checkbox" [checked]="esSeleccionado(u)" (click)="$event.stopPropagation()">
-                  <span class="user-name">{{ u.nombre }}</span>
-                  <span class="user-phone">{{ u.celular }}</span>
+                <div class="erp-list__info ms-2">
+                  <strong class="erp-list__title">{{ u.nombre }}</strong>
+                  <span class="erp-list__meta">{{ u.celular }}</span>
                 </div>
-                <div *ngIf="usuariosFiltrados().length === 0" class="no-users">
-                  No hay usuarios con celular registrado
-                </div>
-              </div>
+              </li>
+            </ul>
+            <div
+              *ngIf="usuariosFiltrados().length === 0"
+              class="erp-empty-state erp-empty-state--sm"
+            >
+              <p class="erp-empty-state__desc">
+                No hay usuarios con celular registrado
+              </p>
             </div>
           </div>
 
-          <!-- Columna derecha: mensaje y archivo -->
-          <div class="column">
-            <div class="form-group">
-              <label>Mensaje</label>
-              <textarea [(ngModel)]="mensajeIndividual" rows="5" placeholder="Escriba el mensaje..."></textarea>
+          <!-- Columna Derecha: Mensaje y Adjuntos -->
+          <div class="erp-field align-start">
+            <div class="w-100 mb-3">
+              <label class="erp-label">Mensaje</label>
+              <textarea
+                [(ngModel)]="mensajeIndividual"
+                class="erp-input"
+                rows="6"
+                placeholder="Escriba el mensaje..."
+              ></textarea>
             </div>
 
-            <div class="form-group">
-              <label>Adjuntar archivo (opcional)</label>
-              <div class="file-upload-area">
-                <input type="file" id="archivoIndividual" (change)="onArchivoIndividual($event)" class="file-input" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx">
-                <label for="archivoIndividual" class="file-label" *ngIf="!archivoIndividualNombre">
-                  <i class="fas fa-paperclip"></i> Seleccionar archivo
+            <div class="w-100 mb-3">
+              <label class="erp-label">Adjuntar archivo (opcional)</label>
+              <div class="erp-file-upload">
+                <input
+                  type="file"
+                  id="archivoIndividual"
+                  (change)="onArchivoIndividual($event)"
+                  class="erp-file-input"
+                  accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+                />
+                <label
+                  for="archivoIndividual"
+                  class="erp-file-label"
+                  *ngIf="!archivoIndividualNombre"
+                >
+                  <i class="fas fa-cloud-upload-alt"></i> Clic para buscar
+                  archivo
                 </label>
-                <div class="file-selected" *ngIf="archivoIndividualNombre">
-                  <i class="fas fa-file"></i>
-                  <span>{{ archivoIndividualNombre }}</span>
-                  <button class="btn-remove-file" (click)="quitarArchivoIndividual()"><i class="fas fa-times"></i></button>
+                <div class="erp-file-selected" *ngIf="archivoIndividualNombre">
+                  <div class="erp-file-info">
+                    <i class="fas fa-file-alt"></i>
+                    <span>{{ archivoIndividualNombre }}</span>
+                  </div>
+                  <button
+                    class="erp-action-btn erp-action-btn--danger"
+                    (click)="quitarArchivoIndividual()"
+                  >
+                    <i class="fas fa-times"></i>
+                  </button>
                 </div>
               </div>
             </div>
 
-            <button class="btn-primary btn-block" (click)="enviarMensajeIndividual()" [disabled]="loading || usuariosSeleccionados.length === 0 || !mensajeIndividual.trim()">
-              <i class="fas fa-paper-plane"></i> Enviar mensaje
+            <button
+              class="erp-btn erp-btn--primary w-100"
+              (click)="enviarMensajeIndividual()"
+              [disabled]="
+                loading ||
+                usuariosSeleccionados.length === 0 ||
+                !mensajeIndividual.trim()
+              "
+            >
+              <i *ngIf="loading" class="fas fa-spinner erp-spin"></i>
+              <i *ngIf="!loading" class="fas fa-paper-plane"></i> Enviar Mensaje
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- TAB: Mensaje Masivo -->
-    <div class="tab-content" *ngIf="tabActiva === 'masivo'">
-      <div class="action-card full-width">
-        <div class="action-card-header">
-          <i class="fas fa-bullhorn"></i>
-          <h3>Mensaje Masivo</h3>
-        </div>
-        <p class="form-hint">Envía un mismo mensaje a todos los usuarios con celular registrado, opcionalmente filtrado por empresa.</p>
+    <!-- TAB: MASIVO -->
+    <section class="erp-card erp-animation-fade" *ngIf="tabActiva === 'masivo'">
+      <div class="erp-card__body">
+        <p class="erp-hint mb-3">
+          <i class="fas fa-info-circle"></i> Envía un mismo mensaje a todos los
+          usuarios con celular registrado, opcionalmente filtrado por empresa.
+        </p>
 
-        <div class="two-columns">
-          <div class="column">
-            <div class="form-group">
-              <label>Empresa (opcional)</label>
-              <select [(ngModel)]="empresaMasivo">
+        <div class="erp-grid erp-grid--2">
+          <div class="erp-field align-start">
+            <label class="erp-label">Filtrar por Empresa (Opcional)</label>
+            <div class="erp-select-wrapper w-100">
+              <select [(ngModel)]="empresaMasivo" class="erp-select">
                 <option value="">Todas las empresas</option>
                 <option value="AP">Andrés Publicidad</option>
                 <option value="AT">Andrés Tobón</option>
@@ -152,128 +296,236 @@
               </select>
             </div>
           </div>
-          <div class="column">
-            <div class="form-group">
-              <label>Mensaje</label>
-              <textarea [(ngModel)]="mensajeMasivo" rows="5" placeholder="Escriba el mensaje para todos..."></textarea>
-            </div>
-            <button class="btn-primary btn-block" (click)="enviarMasivo()" [disabled]="loading || !mensajeMasivo.trim()">
-              <i class="fas fa-paper-plane"></i> Enviar a todos
+
+          <div class="erp-field align-start">
+            <label class="erp-label">Mensaje Masivo</label>
+            <textarea
+              [(ngModel)]="mensajeMasivo"
+              class="erp-input mb-3"
+              rows="6"
+              placeholder="Escriba el mensaje para todos..."
+            ></textarea>
+
+            <button
+              class="erp-btn erp-btn--primary w-100"
+              (click)="enviarMasivo()"
+              [disabled]="loading || !mensajeMasivo.trim()"
+            >
+              <i *ngIf="loading" class="fas fa-spinner erp-spin"></i>
+              <i *ngIf="!loading" class="fas fa-bullhorn"></i> Enviar a Todos
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- TAB: Programar Mensaje -->
-    <div class="tab-content" *ngIf="tabActiva === 'programar'">
-      <div class="action-card full-width">
-        <div class="action-card-header">
-          <i class="fas fa-clock"></i>
-          <h3>Programar Mensaje</h3>
-        </div>
-        <p class="form-hint">Programe un mensaje para que se envíe automáticamente en la fecha y hora indicadas.</p>
-
-        <div class="two-columns">
-          <!-- Columna izquierda: selección de usuarios -->
-          <div class="column">
-            <div class="form-group">
-              <label>Seleccionar destinatarios</label>
-              <input type="text" [(ngModel)]="busquedaProgramar" placeholder="Buscar por nombre o celular..." class="search-input">
-              <div class="select-all-row">
-                <label class="checkbox-label" (click)="toggleTodosProgramados()">
-                  <input type="checkbox" [checked]="todosProgramadosSeleccionados" (click)="$event.stopPropagation()"> Seleccionar todos
-                </label>
-                <span class="selection-count" *ngIf="usuariosProgramados.length > 0">
-                  {{ usuariosProgramados.length }} seleccionado(s)
-                </span>
-              </div>
-              <div class="user-list">
-                <div *ngFor="let u of usuariosFiltradosProgramar()" class="user-list-item" [class.selected]="esProgramadoSeleccionado(u)" (click)="toggleUsuarioProgramado(u)">
-                  <input type="checkbox" [checked]="esProgramadoSeleccionado(u)" (click)="$event.stopPropagation()">
-                  <span class="user-name">{{ u.nombre }}</span>
-                  <span class="user-phone">{{ u.celular }}</span>
-                </div>
-                <div *ngIf="usuariosFiltradosProgramar().length === 0" class="no-users">
-                  No hay usuarios con celular registrado
-                </div>
-              </div>
+    <!-- TAB: PROGRAMAR -->
+    <section
+      class="erp-card erp-animation-fade"
+      *ngIf="tabActiva === 'programar'"
+    >
+      <div class="erp-card__body">
+        <div class="erp-grid erp-grid--2">
+          <!-- Columna Izquierda: Selección -->
+          <div class="erp-field">
+            <label class="erp-label">Seleccionar destinatarios</label>
+            <div class="erp-input-group mb-2">
+              <i class="fas fa-search erp-input-icon"></i>
+              <input
+                type="text"
+                [(ngModel)]="busquedaProgramar"
+                placeholder="Buscar por nombre o celular..."
+                class="erp-input has-icon"
+              />
             </div>
+
+            <div class="erp-flex-between mb-2 pb-2 border-bottom">
+              <label class="erp-checkbox">
+                <input
+                  type="checkbox"
+                  [checked]="todosProgramadosSeleccionados"
+                  (change)="toggleTodosProgramados()"
+                  (click)="$event.stopPropagation()"
+                />
+                <span class="erp-checkbox__mark"></span>
+                <span class="erp-checkbox__text">Seleccionar todos</span>
+              </label>
+              <span
+                class="erp-badge erp-badge--dark"
+                *ngIf="usuariosProgramados.length > 0"
+              >
+                {{ usuariosProgramados.length }} seleccionado(s)
+              </span>
+            </div>
+
+            <ul class="erp-list">
+              <li
+                class="erp-list__item"
+                *ngFor="let u of usuariosFiltradosProgramar()"
+                [class.is-selected]="esProgramadoSeleccionado(u)"
+                (click)="toggleUsuarioProgramado(u)"
+              >
+                <label class="erp-checkbox" (click)="$event.stopPropagation()">
+                  <input
+                    type="checkbox"
+                    [checked]="esProgramadoSeleccionado(u)"
+                    (change)="toggleUsuarioProgramado(u)"
+                  />
+                  <span class="erp-checkbox__mark"></span>
+                </label>
+                <div class="erp-list__info ms-2">
+                  <strong class="erp-list__title">{{ u.nombre }}</strong>
+                  <span class="erp-list__meta">{{ u.celular }}</span>
+                </div>
+              </li>
+            </ul>
           </div>
 
-          <!-- Columna derecha: configuración -->
-          <div class="column">
-            <div class="form-group">
-              <label>Mensaje</label>
-              <textarea [(ngModel)]="mensajeProgramado" rows="4" placeholder="Escriba el mensaje..."></textarea>
+          <!-- Columna Derecha: Configuración -->
+          <div class="erp-field align-start">
+            <div class="w-100 mb-3">
+              <label class="erp-label">Mensaje Programado</label>
+              <textarea
+                [(ngModel)]="mensajeProgramado"
+                class="erp-input"
+                rows="4"
+                placeholder="Escriba el mensaje..."
+              ></textarea>
             </div>
 
-            <div class="datetime-row">
-              <div class="form-group">
-                <label>Fecha</label>
-                <input type="date" [(ngModel)]="fechaProgramada" [min]="getFechaMinima()">
+            <div class="erp-grid erp-grid--2 w-100 mb-3">
+              <div class="erp-field">
+                <label class="erp-label">Fecha de Envío</label>
+                <input
+                  type="date"
+                  [(ngModel)]="fechaProgramada"
+                  [min]="getFechaMinima()"
+                  class="erp-input"
+                />
               </div>
-              <div class="form-group">
-                <label>Hora</label>
-                <input type="time" [(ngModel)]="horaProgramada">
+              <div class="erp-field">
+                <label class="erp-label">Hora de Envío</label>
+                <input
+                  type="time"
+                  [(ngModel)]="horaProgramada"
+                  class="erp-input"
+                />
               </div>
             </div>
 
-            <div class="form-group">
-              <label>Adjuntar archivo (opcional)</label>
-              <div class="file-upload-area">
-                <input type="file" id="archivoProgramado" (change)="onArchivoProgramado($event)" class="file-input" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx">
-                <label for="archivoProgramado" class="file-label" *ngIf="!archivoProgramadoNombre">
-                  <i class="fas fa-paperclip"></i> Seleccionar archivo
+            <div class="w-100 mb-3">
+              <label class="erp-label">Adjuntar archivo (opcional)</label>
+              <div class="erp-file-upload">
+                <input
+                  type="file"
+                  id="archivoProgramado"
+                  (change)="onArchivoProgramado($event)"
+                  class="erp-file-input"
+                  accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+                />
+                <label
+                  for="archivoProgramado"
+                  class="erp-file-label"
+                  *ngIf="!archivoProgramadoNombre"
+                >
+                  <i class="fas fa-paperclip"></i> Buscar archivo
                 </label>
-                <div class="file-selected" *ngIf="archivoProgramadoNombre">
-                  <i class="fas fa-file"></i>
-                  <span>{{ archivoProgramadoNombre }}</span>
-                  <button class="btn-remove-file" (click)="quitarArchivoProgramado()"><i class="fas fa-times"></i></button>
+                <div class="erp-file-selected" *ngIf="archivoProgramadoNombre">
+                  <div class="erp-file-info">
+                    <i class="fas fa-file"></i>
+                    <span>{{ archivoProgramadoNombre }}</span>
+                  </div>
+                  <button
+                    class="erp-action-btn erp-action-btn--danger"
+                    (click)="quitarArchivoProgramado()"
+                  >
+                    <i class="fas fa-times"></i>
+                  </button>
                 </div>
               </div>
             </div>
 
-            <button class="btn-primary btn-block" (click)="programarMensaje()" [disabled]="loading || usuariosProgramados.length === 0 || !mensajeProgramado.trim() || !fechaProgramada || !horaProgramada">
-              <i class="fas fa-calendar-check"></i> Programar envío
+            <button
+              class="erp-btn erp-btn--primary w-100"
+              (click)="programarMensaje()"
+              [disabled]="
+                loading ||
+                usuariosProgramados.length === 0 ||
+                !mensajeProgramado.trim() ||
+                !fechaProgramada ||
+                !horaProgramada
+              "
+            >
+              <i *ngIf="loading" class="fas fa-spinner erp-spin"></i>
+              <i *ngIf="!loading" class="fas fa-calendar-check"></i> Programar
+              Envío
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- TAB: Historial de Programados -->
-    <div class="tab-content" *ngIf="tabActiva === 'historial'">
-      <div class="action-card full-width">
-        <div class="action-card-header">
-          <i class="fas fa-history"></i>
-          <h3>Mensajes Programados</h3>
+    <!-- TAB: HISTORIAL -->
+    <section
+      class="erp-card erp-animation-fade"
+      *ngIf="tabActiva === 'historial'"
+    >
+      <div class="erp-card__body p-0">
+        <div *ngIf="mensajesProgramados.length === 0" class="erp-empty-state">
+          <div class="erp-empty-state__icon">
+            <i class="fas fa-history"></i>
+          </div>
+          <p class="erp-empty-state__desc">
+            No hay mensajes programados ni historial reciente.
+          </p>
         </div>
 
-        <div *ngIf="mensajesProgramados.length === 0" class="no-users" style="padding: 30px;">
-          No hay mensajes programados
-        </div>
-
-        <div class="scheduled-list" *ngIf="mensajesProgramados.length > 0">
-          <div class="scheduled-item" *ngFor="let m of mensajesProgramados">
-            <div class="scheduled-header">
-              <span class="badge" [ngClass]="getEstadoBadge(m.estado)">{{ getEstadoLabel(m.estado) }}</span>
-              <span class="scheduled-date"><i class="fas fa-calendar"></i> {{ m.fechaEnvio | date:'dd/MM/yyyy HH:mm' }}</span>
-              <button class="btn-cancel-small" *ngIf="m.estado === 'pendiente'" (click)="cancelarMensajeProgramado(m.id)">
-                <i class="fas fa-times"></i> Cancelar
+        <div class="erp-history-list" *ngIf="mensajesProgramados.length > 0">
+          <div
+            class="erp-history-item"
+            *ngFor="let m of mensajesProgramados"
+            [ngClass]="'is-' + m.estado"
+          >
+            <div class="erp-history-item__header">
+              <div class="erp-flex-between justify-start gap-2">
+                <span
+                  class="erp-status-badge"
+                  [ngClass]="getEstadoBadge(m.estado)"
+                  >{{ getEstadoLabel(m.estado) }}</span
+                >
+                <span class="erp-hint"
+                  ><i class="fas fa-calendar-alt"></i>
+                  {{ m.fechaEnvio | date: "dd/MM/yyyy HH:mm" }}</span
+                >
+              </div>
+              <button
+                class="erp-btn erp-btn--outline erp-btn--sm"
+                *ngIf="m.estado === 'pendiente'"
+                (click)="cancelarMensajeProgramado(m.id)"
+              >
+                <i class="fas fa-times text-danger"></i> Cancelar
               </button>
             </div>
-            <div class="scheduled-body">
-              <p class="scheduled-msg">{{ m.mensaje }}</p>
-              <div class="scheduled-details">
-                <span><i class="fas fa-users"></i> {{ m.telefonos.length }} destinatario(s)</span>
-                <span *ngIf="m.mediaName"><i class="fas fa-paperclip"></i> {{ m.mediaName }}</span>
-                <span *ngIf="m.resultado"><i class="fas fa-info-circle"></i> {{ m.resultado }}</span>
-              </div>
+
+            <div class="erp-history-item__body">
+              <p class="erp-history-item__msg">{{ m.mensaje }}</p>
+            </div>
+
+            <div class="erp-history-item__footer">
+              <span class="erp-tag"
+                ><i class="fas fa-users"></i>
+                {{ m.telefonos.length }} destinatarios</span
+              >
+              <span class="erp-tag" *ngIf="m.mediaName"
+                ><i class="fas fa-paperclip"></i> {{ m.mediaName }}</span
+              >
+              <span class="erp-tag erp-tag--info" *ngIf="m.resultado"
+                ><i class="fas fa-info-circle"></i> {{ m.resultado }}</span
+              >
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
+    </section>
+  </ng-container>
 </div>

@@ -1,68 +1,102 @@
 <app-navbar></app-navbar>
 
-<div class="gestion-archivos-container">
-  <!-- Mensajes -->
-  <div *ngIf="mensaje" class="mensaje" [ngClass]="tipoMensaje">
-    {{ mensaje }}
+<div class="erp-wrapper">
+  <!-- ========================================================
+       MENSAJES DE ALERTA (Toast Notification)
+  ======================================================== -->
+  <div *ngIf="mensaje" class="alert-message fade-slide" [ngClass]="tipoMensaje">
+    <i
+      class="fas"
+      [ngClass]="
+        tipoMensaje === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'
+      "
+    ></i>
+    <span>{{ mensaje }}</span>
   </div>
 
-  <!-- Header -->
-  <div class="header">
-    <h1>Gestión de Archivos</h1>
-    <p class="subtitle">Sistema de administración de documentos y videos de la empresa</p>
-  </div>
-
-  <!-- Formulario de subida (Solo Admin) -->
-  <div class="upload-section" *ngIf="esAdmin">
-    <div class="card">
-      <div class="card-header">
-        <h2>{{ archivoEditando ? 'Editar Archivo' : 'Subir Nuevo Archivo' }}</h2>
+  <!-- ========================================================
+       HEADER DE PÁGINA
+  ======================================================== -->
+  <header class="page-header fade-slide" style="--anim-delay: 0s">
+    <div class="page-header__bg"></div>
+    <div class="page-header__content">
+      <div class="page-header__left">
+        <div class="page-header__icon">
+          <i class="fas fa-folder-open"></i>
+        </div>
+        <div class="page-header__text">
+          <h1 class="page-header__title">Gestión de Archivos</h1>
+          <p class="page-header__subtitle">
+            Sistema de administración de documentos y videos de la empresa
+          </p>
+        </div>
       </div>
-      
-      <form (submit)="subirArchivo($event)" class="upload-form">
-        <div class="form-grid">
-          <!-- Archivo -->
-          <div class="form-group full-width">
-            <label for="fileInput">
-              Archivo {{ archivoEditando ? '(opcional para actualizar)' : '' }}
-            </label>
-            <input 
-              type="file" 
-              id="fileInput"
-              (change)="onFileSelected($event)"
-              [required]="!archivoEditando"
-              class="file-input"
-            >
-            <small class="help-text">Tamaño máximo: 100MB</small>
-          </div>
+    </div>
+  </header>
 
-          <!-- Nombre -->
+  <!-- ========================================================
+       FORMULARIO DE SUBIDA (SOLO ADMIN)
+  ======================================================== -->
+  <section class="card fade-slide" style="--anim-delay: 0.05s" *ngIf="esAdmin">
+    <div class="card__head">
+      <div class="card__head-left">
+        <i
+          class="fas"
+          [ngClass]="
+            archivoEditando ? 'fa-edit text-warning' : 'fa-cloud-upload-alt'
+          "
+        ></i>
+        <h3 class="card__head-title">
+          {{ archivoEditando ? "Editar Archivo" : "Subir Nuevo Archivo" }}
+        </h3>
+      </div>
+    </div>
+
+    <div class="card__body">
+      <form (submit)="subirArchivo($event)" class="form-layout">
+        <div class="form-grid">
+          <!-- Nombre del archivo -->
           <div class="form-group">
-            <label for="nombre">
-              Nombre del archivo
-            </label>
-            <input 
-              type="text" 
+            <label class="form-label" for="nombre">Nombre del archivo *</label>
+            <input
+              type="text"
               id="nombre"
-              [(ngModel)]="nuevoArchivo.nombre" 
-              name="nombre" 
+              class="form-control"
+              [(ngModel)]="nuevoArchivo.nombre"
+              name="nombre"
               placeholder="Ej: Video Capacitación 2024"
               required
-              class="form-input"
+            />
+          </div>
+
+          <!-- Input File -->
+          <div class="form-group">
+            <label class="form-label" for="fileInput">
+              Documento a adjuntar {{ archivoEditando ? "(Opcional)" : "*" }}
+            </label>
+            <div class="file-input-wrapper">
+              <input
+                type="file"
+                id="fileInput"
+                class="form-control file-control"
+                (change)="onFileSelected($event)"
+                [required]="!archivoEditando"
+              />
+            </div>
+            <small class="form-hint"
+              ><i class="fas fa-info-circle"></i> Tamaño máximo: 100MB</small
             >
           </div>
 
           <!-- Tipo -->
           <div class="form-group">
-            <label for="tipo">
-              Tipo
-            </label>
-            <select 
+            <label class="form-label" for="tipo">Tipo de Archivo *</label>
+            <select
               id="tipo"
-              [(ngModel)]="nuevoArchivo.tipo" 
-              name="tipo" 
+              class="form-control form-select"
+              [(ngModel)]="nuevoArchivo.tipo"
+              name="tipo"
               required
-              class="form-select"
             >
               <option value="pdf">PDF</option>
               <option value="video">Video</option>
@@ -73,203 +107,263 @@
 
           <!-- Categoría -->
           <div class="form-group">
-            <label for="categoria">
-              Categoría
-            </label>
-            <select 
+            <label class="form-label" for="categoria">Categoría *</label>
+            <select
               id="categoria"
-              [(ngModel)]="nuevoArchivo.categoria" 
-              name="categoria" 
+              class="form-control form-select"
+              [(ngModel)]="nuevoArchivo.categoria"
+              name="categoria"
               required
-              class="form-select"
             >
               <option value="videos_empresa">Videos de Empresa</option>
               <option value="certificados">Comunicados</option>
               <option value="documentos">Documentos</option>
               <option value="capacitaciones">Capacitaciones</option>
               <option value="manuales">Manuales</option>
-              <option value="capacitaciones_seguridad_salud">Capacitaciones seguridad y salud</option>
+              <option value="capacitaciones_seguridad_salud">
+                Capacitaciones Seguridad y Salud
+              </option>
             </select>
           </div>
 
           <!-- Descripción -->
-          <div class="form-group full-width">
-            <label for="descripcion">
-              Descripción (opcional)
-            </label>
-            <textarea 
+          <div class="form-group form-group--full">
+            <label class="form-label" for="descripcion"
+              >Descripción (opcional)</label
+            >
+            <textarea
               id="descripcion"
-              [(ngModel)]="nuevoArchivo.descripcion" 
-              name="descripcion" 
-              placeholder="Describe el contenido del archivo..."
-              rows="3"
-              class="form-textarea"
+              class="form-control"
+              [(ngModel)]="nuevoArchivo.descripcion"
+              name="descripcion"
+              placeholder="Describe brevemente el contenido del archivo..."
+              rows="2"
             ></textarea>
           </div>
         </div>
 
-        <!-- Botones -->
-        <div class="form-actions">
-          <button 
-            type="submit" 
-            class="btn btn-primary"
-            [disabled]="cargando"
-          >
-            <span *ngIf="!cargando">
-              {{ archivoEditando ? 'Actualizar Archivo' : 'Subir Archivo' }}
-            </span>
-            <span *ngIf="cargando" class="loading">Procesando...</span>
-          </button>
-          
-          <button 
-            type="button" 
-            class="btn btn-secondary"
+        <!-- Botones de Acción -->
+        <div
+          class="form-actions mt-3 flex-end"
+          style="
+            gap: 0.5rem;
+            border-top: 1px solid var(--border-light);
+            padding-top: 1rem;
+          "
+        >
+          <button
+            type="button"
+            class="btn btn--outline"
             (click)="resetForm()"
             *ngIf="archivoEditando"
           >
-            Cancelar
+            Cancelar Edición
+          </button>
+
+          <button type="submit" class="btn btn--primary" [disabled]="cargando">
+            <i
+              class="fas"
+              [ngClass]="
+                cargando
+                  ? 'fa-spinner fa-spin'
+                  : archivoEditando
+                    ? 'fa-save'
+                    : 'fa-upload'
+              "
+            ></i>
+            {{
+              cargando
+                ? "Procesando..."
+                : archivoEditando
+                  ? "Actualizar Archivo"
+                  : "Subir Archivo"
+            }}
           </button>
         </div>
       </form>
     </div>
-  </div>
+  </section>
 
-  <!-- Filtros -->
-  <div class="filtros-section">
-    <div class="card">
-      <div class="filtros-container">
-        <h3>Filtrar por categoría</h3>
-        <div class="filtros-buttons">
-          <button 
-            class="filtro-btn"
-            [class.active]="categoriaActual === 'todas'"
-            (click)="filtrarPorCategoria('todas')"
-          >
-            Todos
-          </button>
-          <button 
-            class="filtro-btn"
-            [class.active]="categoriaActual === 'videos_empresa'"
-            (click)="filtrarPorCategoria('videos_empresa')"
-          >
-            Videos
-          </button>
-          <button 
-            class="filtro-btn"
-            [class.active]="categoriaActual === 'documentos'"
-            (click)="filtrarPorCategoria('documentos')"
-          >
-            Documentos
-          </button>
-          <button 
-            class="filtro-btn"
-            [class.active]="categoriaActual === 'certificados'"
-            (click)="filtrarPorCategoria('certificados')"
-          >
-            Comunicados
-          </button>
-          <button 
-            class="filtro-btn"
-            [class.active]="categoriaActual === 'capacitaciones'"
-            (click)="filtrarPorCategoria('capacitaciones')"
-          >
-            Capacitaciones
-          </button>
-           <button 
-            class="filtro-btn"
-            [class.active]="categoriaActual === 'capacitaciones_seguridad_salud'"
-            (click)="filtrarPorCategoria('capacitaciones_seguridad_salud')"
-          >
-            Capacitaciones seguridad y salud
-          </button>
-        </div>
-      </div>
+  <!-- ========================================================
+       SECCIÓN DE FILTROS (BOTONES TABS)
+  ======================================================== -->
+  <div class="filter-tabs-container fade-slide" style="--anim-delay: 0.1s">
+    <div class="filter-tabs__header">
+      <i class="fas fa-filter text-accent"></i>
+      <span>Filtrar por Categoría:</span>
+    </div>
+    <div class="filter-tabs custom-scrollbar">
+      <button
+        class="tab-btn"
+        [class.tab-btn--active]="categoriaActual === 'todas'"
+        (click)="filtrarPorCategoria('todas')"
+      >
+        Todos los archivos
+      </button>
+      <button
+        class="tab-btn"
+        [class.tab-btn--active]="categoriaActual === 'videos_empresa'"
+        (click)="filtrarPorCategoria('videos_empresa')"
+      >
+        Videos
+      </button>
+      <button
+        class="tab-btn"
+        [class.tab-btn--active]="categoriaActual === 'documentos'"
+        (click)="filtrarPorCategoria('documentos')"
+      >
+        Documentos
+      </button>
+      <button
+        class="tab-btn"
+        [class.tab-btn--active]="categoriaActual === 'certificados'"
+        (click)="filtrarPorCategoria('certificados')"
+      >
+        Comunicados
+      </button>
+      <button
+        class="tab-btn"
+        [class.tab-btn--active]="categoriaActual === 'capacitaciones'"
+        (click)="filtrarPorCategoria('capacitaciones')"
+      >
+        Capacitaciones
+      </button>
+      <button
+        class="tab-btn"
+        [class.tab-btn--active]="
+          categoriaActual === 'capacitaciones_seguridad_salud'
+        "
+        (click)="filtrarPorCategoria('capacitaciones_seguridad_salud')"
+      >
+        SST
+      </button>
     </div>
   </div>
 
-  <!-- Loading -->
-  <div *ngIf="cargando && !mensaje" class="loading-container">
-    <div class="spinner"></div>
-    <p>Cargando archivos...</p>
+  <!-- ========================================================
+       LOADING Y EMPTY STATE
+  ======================================================== -->
+  <div class="loading-state fade-in" *ngIf="cargando && !mensaje">
+    <p class="text-muted mt-2" style="text-align: center; font-size: 0.8rem">
+      Cargando repositorio...
+    </p>
   </div>
 
-  <!-- Lista de archivos -->
-  <div class="archivos-grid" *ngIf="!cargando || mensaje">
-    <div class="empty-state" *ngIf="archivosFiltrados.length === 0">
-      <div class="empty-icon">�</div>
-      <h3>No hay archivos</h3>
-      <p *ngIf="categoriaActual === 'todas'">
-        Aún no se han subido archivos al sistema
-      </p>
-      <p *ngIf="categoriaActual !== 'todas'">
-        No hay archivos en la categoría "{{ categoriaActual }}"
-      </p>
-    </div>
+  <div
+    class="empty-state fade-in"
+    *ngIf="(!cargando || mensaje) && archivosFiltrados.length === 0"
+  >
+    <div class="empty-state__icon"><i class="fas fa-folder-open"></i></div>
+    <h3 class="empty-state__title">Carpeta Vacía</h3>
+    <p class="empty-state__desc" *ngIf="categoriaActual === 'todas'">
+      Aún no se han subido archivos al sistema.
+    </p>
+    <p class="empty-state__desc" *ngIf="categoriaActual !== 'todas'">
+      No hay archivos registrados en esta categoría.
+    </p>
+  </div>
 
-    <div 
-      class="archivo-card" 
+  <!-- ========================================================
+       GRID DE ARCHIVOS
+  ======================================================== -->
+  <div
+    class="docs-grid fade-slide"
+    style="--anim-delay: 0.15s"
+    *ngIf="(!cargando || mensaje) && archivosFiltrados.length > 0"
+  >
+    <div
+      class="card doc-card interactive-card"
       *ngFor="let archivo of archivosFiltrados"
-      [class.highlight]="archivoEditando?.Aid === archivo.Aid"
+      [class.doc-card--highlight]="archivoEditando?.Aid === archivo.Aid"
     >
-      <!-- Icono del tipo -->
-      <div class="archivo-icono">
-        {{ getIconoTipo(archivo.tipo) }}
-      </div>
+      <!-- Cuerpo del Card (Icono + Info) -->
+      <div class="card__body" style="padding-bottom: 0.5rem">
+        <div class="doc-card__main">
+          <!-- ICONO DINÁMICO SEGÚN TIPO -->
+          <div
+            class="doc-card__icon"
+            [ngClass]="{
+              'bg-pdf': archivo.tipo === 'pdf',
+              'bg-video': archivo.tipo === 'video',
+              'bg-imagen': archivo.tipo === 'imagen',
+              'bg-doc': archivo.tipo === 'documento',
+            }"
+          >
+            <i
+              class="fas"
+              [ngClass]="{
+                'fa-file-pdf': archivo.tipo === 'pdf',
+                'fa-file-video': archivo.tipo === 'video',
+                'fa-file-image': archivo.tipo === 'imagen',
+                'fa-file-word': archivo.tipo === 'documento',
+              }"
+            >
+            </i>
+          </div>
 
-      <!-- Información -->
-      <div class="archivo-info">
-        <h3 class="archivo-nombre">{{ archivo.nombre }}</h3>
-        <p class="archivo-descripcion" *ngIf="archivo.descripcion"
-          [class.expanded]="expandedDescriptions[archivo.Aid]">
-          {{ archivo.descripcion }}
-        </p>
-        <button class="btn-ver-mas" *ngIf="archivo.descripcion && archivo.descripcion.length > 80"
-          (click)="toggleDescripcion(archivo.Aid)">
-          {{ expandedDescriptions[archivo.Aid] ? 'Ver menos' : 'Ver más' }}
-        </button>
-        
-        <div class="archivo-meta">
-          <span class="meta-item">
-            <strong>Tipo:</strong> {{ archivo.tipo }}
-          </span>
-          <span class="meta-item">
-            <strong>Categoría:</strong> {{ archivo.categoria }}
-          </span>
-          <span class="meta-item">
-            <strong>Fecha:</strong> {{ formatearFecha(archivo.fechaSubida) }}
-          </span>
+          <div class="doc-card__info">
+            <h3 class="doc-card__title" [title]="archivo.nombre">
+              {{ archivo.nombre }}
+            </h3>
+
+            <div class="doc-card__desc-wrapper" *ngIf="archivo.descripcion">
+              <p
+                class="doc-card__desc"
+                [class.doc-card__desc--expanded]="
+                  expandedDescriptions[archivo.Aid]
+                "
+              >
+                {{ archivo.descripcion }}
+              </p>
+              <button
+                class="btn-text"
+                *ngIf="archivo.descripcion.length > 80"
+                (click)="toggleDescripcion(archivo.Aid)"
+              >
+                {{ expandedDescriptions[archivo.Aid] ? "Ocultar" : "Leer más" }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="doc-card__meta mt-3">
+          <span class="status-badge status-badge--outline">{{
+            archivo.categoria | uppercase
+          }}</span>
+          <span
+            ><i class="fas fa-calendar-alt"></i>
+            {{ formatearFecha(archivo.fechaSubida) }}</span
+          >
         </div>
       </div>
 
-      <!-- Acciones -->
-      <div class="archivo-acciones">
-        <button 
-          class="btn-accion btn-ver"
+      <!-- Footer / Acciones -->
+      <div class="card__footer" style="padding: 0.6rem 1rem">
+        <button
+          class="btn btn--outline w-full"
           (click)="verArchivo(archivo)"
-          title="Ver/Descargar archivo"
+          title="Ver o Descargar Archivo"
         >
-          Ver
+          <i class="fas fa-eye"></i> Visualizar
         </button>
-        
-        <button 
-          *ngIf="esAdmin"
-          class="btn-accion btn-editar"
-          (click)="editarArchivo(archivo)"
-          title="Editar archivo"
-        >
-          Editar
-        </button>
-        
-        <button 
-          *ngIf="esAdmin"
-          class="btn-accion btn-eliminar"
-          (click)="eliminarArchivo(archivo.Aid, archivo.nombre)"
-          title="Eliminar archivo"
-        >
-          Eliminar
-        </button>
+
+        <div class="action-group" *ngIf="esAdmin" style="margin-left: auto">
+          <button
+            class="action-btn action-btn--primary"
+            (click)="editarArchivo(archivo)"
+            title="Editar Información"
+          >
+            <i class="fas fa-edit"></i>
+          </button>
+          <button
+            class="action-btn action-btn--danger"
+            (click)="eliminarArchivo(archivo.Aid, archivo.nombre)"
+            title="Eliminar Archivo"
+          >
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
       </div>
     </div>
   </div>
-
 </div>

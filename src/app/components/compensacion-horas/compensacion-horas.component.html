@@ -1,230 +1,358 @@
 <app-navbar></app-navbar>
 
-<div class="comp-container">
-
-  <!-- ══════════════════════════════════════════
-       VISTA ADMIN: lista de planes enviados
-  ═══════════════════════════════════════════ -->
-  <div *ngIf="isAdmin" class="user-section">
-
-    <div class="welcome-card">
-      <h2 class="welcome-title">
-        <i class="bi bi-clock-history"></i>
-        Planes de Compensación de Horas Extras
-      </h2>
-      <p class="welcome-subtitle">
-        Lista de planes enviados por los colaboradores. Solo los administradores pueden descargar el documento oficial.
-      </p>
-    </div>
-
-    <div *ngIf="loadingPlanes" class="loading-msg">
-      <i class="bi bi-hourglass-split"></i> Cargando planes…
-    </div>
-
-    <div *ngIf="!loadingPlanes && planesAdmin.length === 0" class="empty-msg">
-      <i class="bi bi-inbox"></i>
-      <span>No hay planes de compensación guardados aún.</span>
-    </div>
-
-    <div *ngIf="!loadingPlanes && planesAdmin.length > 0" class="table-card">
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>Empleado</th>
-            <th>Mes generador</th>
-            <th>Mes compensación</th>
-            <th>Año</th>
-            <th>Horas acumuladas</th>
-            <th>Total planeado</th>
-            <th>Guardado</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let plan of planesAdmin">
-            <td>
-              <strong>{{ plan.nombreEmpleado }}</strong>
-              <div class="td-sub">{{ plan.cargo }}</div>
-            </td>
-            <td>{{ plan.mesGenerador }}</td>
-            <td>{{ plan.mesCompensacion }}</td>
-            <td>{{ plan.anio }}</td>
-            <td class="td-center">{{ plan.horasAcumuladas || '—' }}</td>
-            <td class="td-center"><strong>{{ calcularTotalPlaneadoPlan(plan.filas) }}</strong></td>
-            <td class="td-center td-small">{{ plan.createdAt | date:'dd/MM/yyyy' }}</td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="form-actions">
-        <button class="btn-descargar btn-descargar--full" (click)="descargarDocumentoConsolidado()">
-          <i class="bi bi-file-earmark-arrow-down"></i> Descargar Documento Consolidado ({{ planesAdmin.length }} colaboradores)
-        </button>
-      </div>
-    </div>
-
+<div class="erp-wrapper">
+  <!-- ========================================================
+       MENSAJES DE ALERTA (Toast Notifications)
+  ======================================================== -->
+  <div *ngIf="mensajeExito" class="alert-message success fade-slide">
+    <i class="bi bi-check-circle-fill"></i>
+    <span>{{ mensajeExito }}</span>
+  </div>
+  <div *ngIf="mensajeError" class="alert-message error fade-slide">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span>{{ mensajeError }}</span>
   </div>
 
-  <!-- ══════════════════════════════════════════
-       FORMULARIO: plan propio (todos los roles)
-  ═══════════════════════════════════════════ -->
-  <div class="user-section">
+  <!-- ════════════════════════════════════════════════════════
+       VISTA ADMIN: Lista de planes enviados
+  ═════════════════════════════════════════════════════════ -->
+  <div *ngIf="isAdmin" class="view-section fade-in">
+    <!-- PRINCIPIO #4: HEADER DE PÁGINA -->
+    <header class="page-header fade-slide" style="--anim-delay: 0s">
+      <div class="page-header__bg"></div>
+      <div class="page-header__content">
+        <div class="page-header__left">
+          <div class="page-header__icon">
+            <i class="bi bi-files"></i>
+          </div>
+          <div class="page-header__text">
+            <h1 class="page-header__title">Planes de Compensación</h1>
+            <p class="page-header__subtitle">
+              Lista de planes enviados por los colaboradores. Centro de descarga
+              oficial.
+            </p>
+          </div>
+        </div>
+        <div class="page-header__right" *ngIf="planesAdmin.length > 0">
+          <button
+            class="btn btn--outline-light"
+            (click)="descargarDocumentoConsolidado()"
+          >
+            <i class="bi bi-file-earmark-arrow-down"></i> Descargar Consolidado
+            ({{ planesAdmin.length }})
+          </button>
+        </div>
+      </div>
+    </header>
 
-    <div class="welcome-card">
-      <h2 class="welcome-title">
-        <i class="bi bi-clock-history"></i>
-        Mi Plan de Compensación de Horas Extras
-      </h2>
-      <p class="welcome-subtitle">
-        Ingresa los días en que planeas usar las horas extras del mes anterior. Guarda el plan al inicio de cada mes.
+    <!-- ESTADOS DE CARGA / VACÍO -->
+    <div *ngIf="loadingPlanes" class="loading-state fade-in">
+      <div class="spinner"></div>
+      <p class="text-muted mt-2">Cargando planes del sistema...</p>
+    </div>
+
+    <div
+      *ngIf="!loadingPlanes && planesAdmin.length === 0"
+      class="empty-state fade-in"
+    >
+      <div class="empty-state__icon"><i class="bi bi-inbox"></i></div>
+      <h3 class="empty-state__title">Bandeja Vacía</h3>
+      <p class="empty-state__desc">
+        No hay planes de compensación guardados aún.
       </p>
     </div>
 
-    <div *ngIf="mensajeExito" class="alert-success">
-      <i class="bi bi-check-circle-fill"></i> {{ mensajeExito }}
-    </div>
-    <div *ngIf="mensajeError" class="alert-error">
-      <i class="bi bi-exclamation-triangle-fill"></i> {{ mensajeError }}
-    </div>
-
-    <!-- SECCIÓN: Información del Empleado -->
-    <div class="form-section">
-      <h3 class="section-heading">
-        <i class="bi bi-person-badge"></i> Información del Empleado
-      </h3>
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Nombre completo</label>
-            <div class="form-control form-control--readonly">{{ nombreCompleto || '—' }}</div>
-          </div>
+    <!-- TABLA ADMIN -->
+    <section
+      *ngIf="!loadingPlanes && planesAdmin.length > 0"
+      class="card fade-slide"
+      style="--anim-delay: 0.1s"
+    >
+      <div class="card__head">
+        <div class="card__head-left">
+          <i class="bi bi-table text-accent"></i>
+          <h3 class="card__head-title">Registros Consolidados</h3>
         </div>
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Cargo / Área</label>
-            <div class="form-control form-control--readonly">{{ cargo || '—' }}</div>
+      </div>
+      <div class="card__body p-0 custom-scrollbar">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 25%">Colaborador</th>
+              <th>Mes Generador</th>
+              <th>Mes Compensación</th>
+              <th>Año</th>
+              <th class="text-center">Hrs Acumuladas</th>
+              <th class="text-center">Hrs Planeadas</th>
+              <th class="text-center">Fecha de Registro</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let plan of planesAdmin">
+              <td>
+                <span class="td-bold">{{ plan.nombreEmpleado }}</span>
+                <span class="td-muted d-block">{{ plan.cargo }}</span>
+              </td>
+              <td>
+                <span class="status-badge status-badge--outline">{{
+                  plan.mesGenerador
+                }}</span>
+              </td>
+              <td>
+                <span class="status-badge status-badge--info">{{
+                  plan.mesCompensacion
+                }}</span>
+              </td>
+              <td class="td-bold">{{ plan.anio }}</td>
+              <td class="text-center">{{ plan.horasAcumuladas || "—" }}</td>
+              <td class="text-center">
+                <span class="td-bold text-primary">{{
+                  calcularTotalPlaneadoPlan(plan.filas)
+                }}</span>
+              </td>
+              <td class="text-center td-muted">
+                {{ plan.createdAt | date: "dd/MM/yyyy" }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       FORMULARIO: Plan propio (Todos los roles)
+  ═════════════════════════════════════════════════════════ -->
+  <div class="view-section fade-in">
+    <!-- PRINCIPIO #4: HEADER DE PÁGINA -->
+    <header class="page-header fade-slide" style="--anim-delay: 0s">
+      <div class="page-header__bg"></div>
+      <div class="page-header__content">
+        <div class="page-header__left">
+          <div class="page-header__icon">
+            <i class="bi bi-clock-history"></i>
+          </div>
+          <div class="page-header__text">
+            <h1 class="page-header__title">Mi Plan de Compensación</h1>
+            <p class="page-header__subtitle">
+              Registra los días en que planeas usar tus horas extras del mes
+              anterior.
+            </p>
           </div>
         </div>
       </div>
-      <div class="row">
-        <div class="col-md-4">
+    </header>
+
+    <!-- PRINCIPIO #7: KPI CARDS (Reemplaza al summary-strip) -->
+    <section class="kpi-grid fade-slide" style="--anim-delay: 0.05s">
+      <div class="kpi-card">
+        <div class="kpi-card__content">
+          <span class="kpi-card__label">Horas Acumuladas</span>
+          <strong class="kpi-card__value" *ngIf="!loadingHistorico"
+            >{{ horasAcumuladas || "0" }}<span class="text-xs">h</span></strong
+          >
+          <span
+            class="kpi-card__value text-muted text-sm"
+            *ngIf="loadingHistorico"
+            >Calculando...</span
+          >
+        </div>
+        <div class="kpi-card__icon kpi-card__icon--blue">
+          <i class="bi bi-piggy-bank"></i>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-card__content">
+          <span class="kpi-card__label">Total Planeado</span>
+          <strong class="kpi-card__value"
+            >{{ totalPlaneado }}<span class="text-xs">h</span></strong
+          >
+        </div>
+        <div class="kpi-card__icon kpi-card__icon--success">
+          <i class="bi bi-calendar-check"></i>
+        </div>
+      </div>
+
+      <div class="kpi-card" [ngClass]="{ 'border-danger': !saldoPositivo }">
+        <div class="kpi-card__content">
+          <span class="kpi-card__label">Saldo Pendiente</span>
+          <strong
+            class="kpi-card__value"
+            [ngClass]="!saldoPositivo ? 'text-danger' : ''"
+            >{{ saldoPendiente }}<span class="text-xs">h</span></strong
+          >
+        </div>
+        <div
+          class="kpi-card__icon"
+          [ngClass]="
+            !saldoPositivo
+              ? 'kpi-card__icon--danger'
+              : 'kpi-card__icon--warning'
+          "
+        >
+          <i
+            class="bi"
+            [ngClass]="
+              !saldoPositivo ? 'bi-exclamation-octagon' : 'bi-hourglass-bottom'
+            "
+          ></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- ALERTA DE SALDO NEGATIVO -->
+    <div class="warning-panel fade-in" *ngIf="!saldoPositivo">
+      <i class="bi bi-exclamation-triangle"></i>
+      <span
+        ><strong>Atención:</strong> Estás planeando compensar más horas de las
+        que tienes acumuladas. Por favor ajusta tu plan.</span
+      >
+    </div>
+
+    <!-- CARD: INFORMACIÓN BÁSICA -->
+    <section class="card fade-slide" style="--anim-delay: 0.1s">
+      <div class="card__head">
+        <div class="card__head-left">
+          <i class="bi bi-person-badge"></i>
+          <h3 class="card__head-title">Parámetros del Plan</h3>
+        </div>
+      </div>
+      <div class="card__body form-layout">
+        <div class="form-grid">
           <div class="form-group">
-            <label>Mes que generó las horas extras</label>
-            <select class="form-control" [(ngModel)]="mesGenerador">
+            <label class="form-label">Colaborador</label>
+            <div class="form-control form-control--readonly">
+              {{ nombreCompleto || "—" }}
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cargo / Área</label>
+            <div class="form-control form-control--readonly">
+              {{ cargo || "—" }}
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="form-grid grid-3">
+          <div class="form-group">
+            <label class="form-label">Mes Generador (Origen)</label>
+            <select class="form-control form-select" [(ngModel)]="mesGenerador">
+              <option *ngFor="let mes of meses" [value]="mes">{{ mes }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Año</label>
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="anio"
+              min="2020"
+              max="2099"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mes de Compensación (Destino)</label>
+            <select
+              class="form-control form-select"
+              [(ngModel)]="mesCompensacion"
+            >
               <option *ngFor="let mes of meses" [value]="mes">{{ mes }}</option>
             </select>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="form-group">
-            <label>Año</label>
-            <input type="number" class="form-control" [(ngModel)]="anio" min="2020" max="2099" />
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="form-group">
-            <label>Mes en que se compensarán</label>
-            <select class="form-control" [(ngModel)]="mesCompensacion">
-              <option *ngFor="let mes of meses" [value]="mes">{{ mes }}</option>
-            </select>
-          </div>
-        </div>
       </div>
-    </div>
+    </section>
 
-    <!-- SECCIÓN: Resumen de horas -->
-    <div class="summary-strip">
-      <div class="summary-item">
-        <span class="summary-label">Horas extras acumuladas</span>
-        <span *ngIf="loadingHistorico" class="summary-val summary-loading">Cargando…</span>
-        <ng-container *ngIf="!loadingHistorico">
-          <span class="summary-val">{{ horasAcumuladas || '—' }}</span>
-          <span class="summary-hint">Del mes anterior</span>
-        </ng-container>
-      </div>
-      <div class="summary-item">
-        <span class="summary-label">Total planeado</span>
-        <span class="summary-val">{{ totalPlaneado }} h</span>
-      </div>
-      <div class="summary-item" [class.summary-item--warn]="!saldoPositivo">
-        <span class="summary-label">Saldo pendiente</span>
-        <span class="summary-val" [class.text-danger]="!saldoPositivo">{{ saldoPendiente }} h</span>
-        <span class="summary-hint text-danger" *ngIf="!saldoPositivo">Estás planeando más de lo acumulado</span>
-      </div>
-    </div>
-
-    <!-- SECCIÓN: Plan de días -->
-    <div class="form-section">
-      <h3 class="section-heading">
-        <i class="bi bi-calendar3"></i> Plan de Compensación — Detalle por Día
-      </h3>
-      <table class="comp-table">
-        <thead>
-          <tr>
-            <th style="width:5%">#</th>
-            <th>Fecha</th>
-            <th style="width:22%">Horas a compensar</th>
-            <th style="width:7%"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let fila of filas; let i = index">
-            <td class="td-center">{{ i + 1 }}</td>
-            <td>
-              <input class="form-control form-control--sm" type="date" [(ngModel)]="fila.fecha" />
-            </td>
-            <td>
-              <input
-                class="form-control form-control--sm form-control--center"
-                type="text"
-                [(ngModel)]="fila.horas"
-                placeholder="HH:MM"
-              />
-            </td>
-            <td class="td-center">
-              <button class="btn-remove" (click)="removeFila(i)" [disabled]="filas.length === 1" title="Eliminar">
-                <i class="bi bi-trash3"></i>
-              </button>
-            </td>
-          </tr>
-          <tr class="total-row">
-            <td colspan="2" style="text-align:right; padding-right:10px;"><strong>TOTAL:</strong></td>
-            <td class="td-center"><strong>{{ totalPlaneado }}</strong></td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="table-footer">
-        <button class="btn-agregar" (click)="addFila()">
-          <i class="bi bi-plus-circle"></i> Agregar día
+    <!-- CARD: DETALLE Y TABLA DINÁMICA -->
+    <section class="card fade-slide" style="--anim-delay: 0.15s">
+      <div class="card__head">
+        <div class="card__head-left">
+          <i class="bi bi-calendar3 text-accent"></i>
+          <h3 class="card__head-title">Detalle de Días a Compensar</h3>
+        </div>
+        <button class="btn btn--outline btn--sm" (click)="addFila()">
+          <i class="bi bi-plus-lg"></i> Agregar Día
         </button>
       </div>
-    </div>
 
-    <!-- SECCIÓN: Observaciones generales -->
-    <div class="form-section">
-      <h3 class="section-heading">
-        <i class="bi bi-chat-left-text"></i> Observaciones Generales
-      </h3>
-      <div class="form-group" style="padding: 14px 16px;">
-        <textarea
-          class="form-control"
-          rows="3"
-          [(ngModel)]="observacionesGenerales"
-          placeholder="Cualquier aclaración adicional sobre el plan de compensación…"
-        ></textarea>
+      <div class="card__body p-0 custom-scrollbar">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 5%" class="text-center">#</th>
+              <th style="width: 45%">Fecha de Ausencia</th>
+              <th style="width: 35%">Horas a Tomar (HH:MM)</th>
+              <th style="width: 15%" class="text-center">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let fila of filas; let i = index">
+              <td class="text-center td-muted">{{ i + 1 }}</td>
+              <td>
+                <input
+                  class="form-control"
+                  type="date"
+                  [(ngModel)]="fila.fecha"
+                />
+              </td>
+              <td>
+                <input
+                  class="form-control text-center"
+                  type="text"
+                  [(ngModel)]="fila.horas"
+                  placeholder="00:00"
+                />
+              </td>
+              <td class="text-center">
+                <button
+                  class="action-btn action-btn--danger"
+                  (click)="removeFila(i)"
+                  [disabled]="filas.length === 1"
+                  title="Eliminar Fila"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-    </div>
 
-    <!-- Botones -->
-    <div class="form-actions" style="gap: 12px;">
-      <button class="btn-descargar" (click)="descargarMiPlan()">
-        <i class="bi bi-file-earmark-pdf"></i> Descargar mi plan
-      </button>
-      <button class="btn-guardar" (click)="guardarPlan()" [disabled]="guardando">
-        <i class="bi bi-save2" *ngIf="!guardando"></i>
-        <i class="bi bi-hourglass-split" *ngIf="guardando"></i>
-        {{ guardando ? 'Guardando…' : 'Guardar Plan' }}
-      </button>
-    </div>
+      <!-- Observaciones y Guardado -->
+      <div
+        class="card__footer"
+        style="flex-direction: column; align-items: stretch; gap: 1rem"
+      >
+        <div class="form-group w-full">
+          <label class="form-label">Observaciones Adicionales</label>
+          <textarea
+            class="form-control"
+            rows="2"
+            [(ngModel)]="observacionesGenerales"
+            placeholder="Cualquier aclaración sobre el plan..."
+          ></textarea>
+        </div>
 
+        <div class="flex-end" style="gap: 0.5rem">
+          <button class="btn btn--outline" (click)="descargarMiPlan()">
+            <i class="bi bi-download"></i> Descargar Plan PDF
+          </button>
+          <button
+            class="btn btn--primary"
+            (click)="guardarPlan()"
+            [disabled]="guardando || !saldoPositivo"
+          >
+            <i
+              class="bi"
+              [ngClass]="guardando ? 'bi-arrow-repeat spin' : 'bi-save'"
+            ></i>
+            {{ guardando ? "Guardando..." : "Radicar Plan" }}
+          </button>
+        </div>
+      </div>
+    </section>
   </div>
 </div>

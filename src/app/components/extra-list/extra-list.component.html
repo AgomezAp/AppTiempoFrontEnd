@@ -1,248 +1,404 @@
 <app-navbar></app-navbar>
 
-<div class="extra-list-container">
-  <!-- Header -->
-  <div class="header-section">
-    <h1 class="page-title">Lista de Horas Extras</h1>
+<div class="erp-wrapper p-3">
+  <!-- PRINCIPIO #4: HEADER DE PÁGINA -->
+  <header class="page-header fade-slide delay-0">
+    <div class="page-header__left">
+      <div class="page-header__icon">
+        <i class="pi pi-clock"></i>
+      </div>
+      <div class="page-header__text">
+        <h1>Control de Horas Extras</h1>
+        <p>
+          Monitoreo, historial y actualización de acumulados por colaborador
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <!-- LOADING GLOBAL -->
+  <div *ngIf="loading" class="loading-state fade-slide delay-1">
+    <div class="spinner"></div>
+    <p>Cargando información de horas...</p>
   </div>
 
-  <!-- Tabla -->
-  <div class="table-container" *ngIf="!loading && filterdExtra.length > 0">
-    <table class="extras-table">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Horas Acumuladas</th>
-          <th>Días Acumulados</th>
-          <th>Observaciones</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          *ngFor="let extra of filterdExtra"
-          [ngClass]="{
-            'row-positive': isPositive(extra.Acumulado),
-            'row-negative': isNegative(extra.Acumulado),
-            'row-neutral': isNeutral(extra.Acumulado),
-          }"
-        >
-          <td class="name-cell">{{ extra.Name }}</td>
-          <td class="hours-cell">
-            <span
-              class="hours-badge"
+  <!-- PRINCIPIO #5 y #6: TABLA PRINCIPAL -->
+  <section
+    class="card fade-slide delay-1"
+    *ngIf="!loading && filterdExtra.length > 0"
+  >
+    <div class="card-head">
+      <i class="pi pi-users"></i>
+      <h3>Acumulados Generales</h3>
+    </div>
+
+    <div class="card-body p-0">
+      <div class="table-responsive custom-scrollbar">
+        <table class="table table-hover table-fixed">
+          <thead>
+            <tr>
+              <th style="width: 20%">Colaborador</th>
+              <th class="text-center" style="width: 15%">Horas Acumuladas</th>
+              <th class="text-center" style="width: 20%">Días Acumulados</th>
+              <th style="width: 35%">Observaciones</th>
+              <th class="text-right" style="width: 10%">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let extra of filterdExtra"
+              class="status-row"
               [ngClass]="{
-                positive: isPositive(extra.Acumulado),
-                negative: isNegative(extra.Acumulado),
-                neutral: isNeutral(extra.Acumulado),
+                'row-positive': isPositive(extra.Acumulado),
+                'row-negative': isNegative(extra.Acumulado),
               }"
             >
-              {{ extra.Acumulado }}
-            </span>
-          </td>
-          <td class="days-cell">{{ extra.acumuladoEnDias }}</td>
+              <td class="text-bold text-dark">{{ extra.Name }}</td>
 
-          <!-- CELDA DE OBSERVACIONES CON TOOLTIP Y MODAL -->
-          <td
-            class="obs-cell"
-            (click)="mostrarObservacion(extra.observaciones, extra.Name)"
-          >
-            <div class="obs-content" *ngIf="extra.observaciones">
-              <span class="obs-text" [attr.data-tooltip]="extra.observaciones">
-                {{ extra.observaciones }}
-              </span>
-              <i class="fas fa-expand-alt expand-icon"></i>
-            </div>
-            <span class="no-obs" *ngIf="!extra.observaciones">—</span>
-          </td>
+              <td class="text-center">
+                <span
+                  class="status-badge"
+                  [ngClass]="{
+                    'status-success': isPositive(extra.Acumulado),
+                    'status-danger': isNegative(extra.Acumulado),
+                    'status-neutral': isNeutral(extra.Acumulado),
+                  }"
+                >
+                  {{ extra.Acumulado }}
+                </span>
+              </td>
 
-          <td class="action-cell">
-            <button class="btn-update" (click)="openModal(extra)">
-              <i class="fas fa-edit"></i> Actualizar
-            </button>
-            <button class="btn-historial" (click)="verHistorial(extra)">
-              <i class="fas fa-history"></i> Historial
-            </button>
-            <button class="btn-detalle" (click)="verDetalle(extra)">
-              <i class="fas fa-calendar-alt"></i> Detalle
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+              <td class="text-center text-muted text-bold">
+                {{ extra.acumuladoEnDias }}
+              </td>
 
-  <!-- Sin datos -->
-  <div class="no-data" *ngIf="!loading && filterdExtra.length === 0">
-    <i class="fas fa-clock"></i>
-    <p>No hay datos disponibles</p>
-  </div>
-</div>
-
-<!-- MODAL PARA HISTORIAL DE HORAS EXTRAS -->
-<div
-  class="obs-modal-overlay"
-  *ngIf="historicoVisible"
-  (click)="cerrarHistorial()"
->
-  <div class="historico-modal" (click)="$event.stopPropagation()">
-    <div class="obs-modal-header">
-      <h3><i class="fas fa-history"></i> Historial de Horas Extras</h3>
-      <button class="obs-modal-close-btn" (click)="cerrarHistorial()">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-    <div class="obs-modal-subheader">
-      <i class="fas fa-user"></i> {{ historicoNombre }}
-    </div>
-    <div class="historico-modal-body">
-      <div *ngIf="historicoLoading" class="historico-loading">
-        <i class="fas fa-spinner fa-spin"></i> Cargando historial...
-      </div>
-      <div *ngIf="!historicoLoading && historicoData.length === 0" class="historico-empty">
-        <i class="fas fa-inbox"></i>
-        <p>No hay registros de historial</p>
-      </div>
-      <table class="historico-table" *ngIf="!historicoLoading && historicoData.length > 0">
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Horas Acumuladas</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let item of historicoData">
-            <td>{{ formatearFechaHistorico(item.fecha) }}</td>
-            <td>
-              <span
-                class="hours-badge"
-                [ngClass]="{
-                  positive: isPositive(item.Acumulado),
-                  negative: isNegative(item.Acumulado),
-                  neutral: isNeutral(item.Acumulado),
-                }"
+              <!-- CELDA DE OBSERVACIONES MEJORADA -->
+              <td
+                class="obs-cell"
+                (click)="mostrarObservacion(extra.observaciones, extra.Name)"
+                [title]="'Clic para leer completo'"
               >
-                {{ item.Acumulado }}
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                <!-- Si HAY observación real (distinta a "sin observacion") -->
+                <div
+                  class="obs-content"
+                  *ngIf="
+                    extra.observaciones &&
+                    extra.observaciones[0] !== 'sin observacion'
+                  "
+                >
+                  <span class="obs-text-clamp">{{
+                    extra.observaciones.join(" | ")
+                  }}</span>
+                  <i
+                    class="pi pi-external-link text-muted ml-1"
+                    style="font-size: 0.75rem; flex-shrink: 0"
+                  ></i>
+                </div>
+                <!-- Si NO hay observación (imprime el guion largo) -->
+                <span
+                  class="text-muted"
+                  *ngIf="
+                    !extra.observaciones ||
+                    extra.observaciones[0] === 'sin observacion'
+                  "
+                  >—</span
+                >
+              </td>
+
+              <!-- ACCIONES ALINEADAS -->
+              <td>
+                <div class="table-actions">
+                  <button
+                    class="btn-action"
+                    title="Actualizar Horas"
+                    (click)="openModal(extra)"
+                  >
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                  <button
+                    class="btn-action"
+                    title="Ver Historial"
+                    (click)="verHistorial(extra)"
+                  >
+                    <i class="pi pi-history"></i>
+                  </button>
+                  <button
+                    class="btn-action"
+                    title="Ver Detalle Diario"
+                    (click)="verDetalle(extra)"
+                  >
+                    <i class="pi pi-calendar"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div class="obs-modal-footer">
-      <button class="btn-cerrar-modal" (click)="cerrarHistorial()">
-        <i class="fas fa-check"></i> Cerrar
+  </section>
+
+  <!-- EMPTY STATE -->
+  <div
+    class="empty-state fade-slide delay-1"
+    *ngIf="!loading && filterdExtra.length === 0"
+  >
+    <div class="empty-state__icon"><i class="pi pi-clock"></i></div>
+    <h4>Sin registros</h4>
+    <p>No hay datos de horas extras disponibles en este momento.</p>
+  </div>
+</div>
+
+<!-- =========================================================
+     MODAL 1: ACTUALIZAR HORAS (EDICIÓN)
+     ========================================================= -->
+<div class="modal-overlay fade-in" *ngIf="editModalVisible">
+  <div class="modal-dialog fade-slide delay-0" style="max-width: 400px">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="pi pi-pencil"></i>
+        <h3>Actualizar Horas</h3>
+      </div>
+      <button class="btn-close" (click)="cerrarEditModal()">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group mb-3">
+        <label>Colaborador</label>
+        <input
+          type="text"
+          [value]="editExtra?.Name || ''"
+          readonly
+          class="bg-light text-bold"
+        />
+      </div>
+      <div class="form-group">
+        <label>Nuevo Acumulado (HH:MM)</label>
+        <div class="input-group">
+          <i class="pi pi-clock input-icon"></i>
+          <input
+            type="text"
+            [(ngModel)]="editAcumulado"
+            placeholder="Ej: 2:30 o -1:00"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer flex-end">
+      <button class="btn btn-outline" (click)="cerrarEditModal()">
+        Cancelar
+      </button>
+      <button class="btn btn-primary" (click)="guardarEditModal()">
+        <i class="pi pi-save"></i> Guardar
       </button>
     </div>
   </div>
 </div>
-<!-- MODAL PARA DETALLE DIARIO DE HORAS EXTRAS -->
-<div
-  class="obs-modal-overlay"
-  *ngIf="detalleVisible"
-  (click)="cerrarDetalle()"
->
-  <div class="detalle-modal" (click)="$event.stopPropagation()">
-    <div class="obs-modal-header">
-      <h3><i class="fas fa-calendar-alt"></i> Detalle de Horas Extras</h3>
-      <button class="obs-modal-close-btn" (click)="cerrarDetalle()">
-        <i class="fas fa-times"></i>
+
+<!-- =========================================================
+     MODAL 2: HISTORIAL DE HORAS EXTRAS
+     ========================================================= -->
+<div class="modal-overlay fade-in" *ngIf="historicoVisible">
+  <div class="modal-dialog fade-slide delay-0" style="max-width: 500px">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="pi pi-history"></i>
+        <h3>Historial de Cambios</h3>
+      </div>
+      <button class="btn-close" (click)="cerrarHistorial()">
+        <i class="pi pi-times"></i>
       </button>
     </div>
-    <div class="obs-modal-subheader">
-      <i class="fas fa-user"></i> {{ detalleNombre }}
+
+    <div class="modal-subheader">
+      <i class="pi pi-user"></i>
+      <span class="text-bold">{{ historicoNombre }}</span>
     </div>
 
-    <!-- Filtros de período -->
-    <div class="detalle-filtros">
+    <div class="modal-body p-0">
+      <div *ngIf="historicoLoading" class="loading-panel">
+        <i class="pi pi-spinner pi-spin"></i> Cargando historial...
+      </div>
+
+      <div
+        *ngIf="!historicoLoading && historicoData.length === 0"
+        class="empty-state empty-state--sm"
+      >
+        <i class="pi pi-inbox empty-icon"></i>
+        <p>No hay registros históricos para este colaborador.</p>
+      </div>
+
+      <div
+        class="table-responsive custom-scrollbar"
+        *ngIf="!historicoLoading && historicoData.length > 0"
+        style="max-height: 350px"
+      >
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>Fecha de Registro</th>
+              <th class="text-right">Acumulado Resultante</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of historicoData">
+              <td>{{ formatearFechaHistorico(item.fecha) }}</td>
+              <td class="text-right">
+                <span
+                  class="status-badge"
+                  [ngClass]="{
+                    'status-success': isPositive(item.Acumulado),
+                    'status-danger': isNegative(item.Acumulado),
+                    'status-neutral': isNeutral(item.Acumulado),
+                  }"
+                >
+                  {{ item.Acumulado }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer flex-end">
+      <button class="btn btn-primary" (click)="cerrarHistorial()">
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
+     MODAL 3: DETALLE DIARIO (FILTROS)
+     ========================================================= -->
+<div class="modal-overlay fade-in" *ngIf="detalleVisible">
+  <div class="modal-dialog fade-slide delay-0" style="max-width: 700px">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="pi pi-calendar"></i>
+        <h3>Detalle Diario de Extras</h3>
+      </div>
+      <button class="btn-close" (click)="cerrarDetalle()">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-subheader flex-between">
+      <div class="flex items-center gap-sm">
+        <i class="pi pi-user text-muted"></i>
+        <span class="text-bold text-dark">{{ detalleNombre }}</span>
+      </div>
+      <span class="badge-period"
+        ><i class="pi pi-calendar-times"></i> {{ getPeriodoLabel() }}</span
+      >
+    </div>
+
+    <!-- Filtros tipo Tabs -->
+    <div class="modal-filters">
       <button
-        class="filtro-btn"
-        [ngClass]="{ active: detallePeriodo === 'semana' }"
+        class="tab-filter"
+        [class.active]="detallePeriodo === 'semana'"
         (click)="cambiarPeriodo('semana')"
       >
         Esta Semana
       </button>
       <button
-        class="filtro-btn"
-        [ngClass]="{ active: detallePeriodo === 'semanaAnterior' }"
+        class="tab-filter"
+        [class.active]="detallePeriodo === 'semanaAnterior'"
         (click)="cambiarPeriodo('semanaAnterior')"
       >
         Semana Anterior
       </button>
       <button
-        class="filtro-btn"
-        [ngClass]="{ active: detallePeriodo === 'mes' }"
+        class="tab-filter"
+        [class.active]="detallePeriodo === 'mes'"
         (click)="cambiarPeriodo('mes')"
       >
         Este Mes
       </button>
     </div>
-    <div class="detalle-periodo-label">
-      <i class="fas fa-calendar-week"></i> {{ getPeriodoLabel() }}
-    </div>
 
-    <div class="historico-modal-body">
-      <div *ngIf="detalleLoading" class="historico-loading">
-        <i class="fas fa-spinner fa-spin"></i> Cargando detalle...
+    <div class="modal-body p-0">
+      <div *ngIf="detalleLoading" class="loading-panel">
+        <i class="pi pi-spinner pi-spin"></i> Cargando detalle...
       </div>
-      <div *ngIf="!detalleLoading && detalleData.length === 0" class="historico-empty">
-        <i class="fas fa-inbox"></i>
-        <p>No hay días con horas extras en este período</p>
+
+      <div
+        *ngIf="!detalleLoading && detalleData.length === 0"
+        class="empty-state empty-state--sm"
+      >
+        <i class="pi pi-calendar-minus empty-icon"></i>
+        <p>No se generaron horas extras en el período seleccionado.</p>
       </div>
-      <table class="historico-table" *ngIf="!detalleLoading && detalleData.length > 0">
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Entrada</th>
-            <th>Salida</th>
-            <th>Total</th>
-            <th>Extra</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let item of detalleData">
-            <td>{{ formatearFechaDetalle(item.Fecha) }}</td>
-            <td>{{ item.Entrada }}</td>
-            <td>{{ item.Salida }}</td>
-            <td>{{ item.Total }}</td>
-            <td>
-              <span class="hours-badge positive">
-                {{ item.Extra }}
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+
+      <div
+        class="table-responsive custom-scrollbar"
+        *ngIf="!detalleLoading && detalleData.length > 0"
+        style="max-height: 350px"
+      >
+        <table class="table table-sm table-hover">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th class="text-center">Entrada</th>
+              <th class="text-center">Salida</th>
+              <th class="text-center">Total Día</th>
+              <th class="text-right">Tiempo Extra</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of detalleData">
+              <td class="text-bold text-muted">
+                {{ formatearFechaDetalle(item.Fecha) }}
+              </td>
+              <td class="text-center">{{ item.Entrada }}</td>
+              <td class="text-center">{{ item.Salida }}</td>
+              <td class="text-center text-bold">{{ item.Total }}</td>
+              <td class="text-right">
+                <span class="status-badge status-success">{{
+                  item.Extra
+                }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div class="obs-modal-footer">
-      <button class="btn-cerrar-modal" (click)="cerrarDetalle()">
-        <i class="fas fa-check"></i> Cerrar
+    <div class="modal-footer flex-end">
+      <button class="btn btn-primary" (click)="cerrarDetalle()">
+        Cerrar Detalle
       </button>
     </div>
   </div>
 </div>
 
-<div
-  class="obs-modal-overlay"
-  *ngIf="observacionSeleccionada"
-  (click)="cerrarModalObservacion()"
->
-  <div class="obs-modal" (click)="$event.stopPropagation()">
-    <div class="obs-modal-header">
-      <h3><i class="fas fa-comment-alt"></i> Observaciones</h3>
-      <button class="obs-modal-close-btn" (click)="cerrarModalObservacion()">
-        <i class="fas fa-times"></i>
+<!-- =========================================================
+     MODAL 4: LECTURA DE OBSERVACIONES
+     ========================================================= -->
+<div class="modal-overlay fade-in" *ngIf="observacionSeleccionada">
+  <div class="modal-dialog fade-slide delay-0" style="max-width: 400px">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="pi pi-comment"></i>
+        <h3>Observación</h3>
+      </div>
+      <button class="btn-close" (click)="cerrarModalObservacion()">
+        <i class="pi pi-times"></i>
       </button>
     </div>
-    <div class="obs-modal-subheader" *ngIf="nombreSeleccionado">
-      <i class="fas fa-user"></i> {{ nombreSeleccionado }}
+    <div class="modal-subheader" *ngIf="nombreSeleccionado">
+      <i class="pi pi-user"></i>
+      <span class="text-bold">{{ nombreSeleccionado }}</span>
     </div>
-    <div class="obs-modal-body">
-      <p>{{ observacionSeleccionada }}</p>
+    <div class="modal-body">
+      <div class="text-panel">
+        {{ observacionSeleccionada }}
+      </div>
     </div>
-    <div class="obs-modal-footer">
-      <button class="btn-cerrar-modal" (click)="cerrarModalObservacion()">
-        <i class="fas fa-check"></i> Entendido
+    <div class="modal-footer flex-end">
+      <button class="btn btn-primary" (click)="cerrarModalObservacion()">
+        Entendido
       </button>
     </div>
   </div>
