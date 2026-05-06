@@ -668,3 +668,66 @@ textarea.form-control {
     border: 1px solid var(--border);
   }
 }
+
+/* =========================================================
+   TOGGLE ARCHIVO / LINK
+   ========================================================= */
+.entry-mode-toggle {
+  display: flex;
+  gap: 0.25rem;
+  background: var(--bg-body, #f4f6f9);
+  border: 1px solid var(--border, #e2e5e9);
+  border-radius: 8px;
+  padding: 0.2rem;
+  width: fit-content;
+}
+
+.entry-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.38rem 0.9rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted, #6c757d);
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.entry-mode-btn.active {
+  background: var(--primary, #141414);
+  color: var(--secondary, #ffd600);
+  box-shadow: 0 1px 3px rgba(0,0,0,.15);
+}
+
+.entry-mode-btn i {
+  font-size: 0.75rem;
+}
+
+/* Input link */
+.input-link-wrapper {
+  position: relative;
+}
+
+.input-link-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted, #6c757d);
+  font-size: 0.8rem;
+  pointer-events: none;
+}
+
+.input-link-wrapper .form-control {
+  padding-left: 2.1rem;
+}
+
+/* Ícono de link en los doc-cards */
+.bg-link {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}

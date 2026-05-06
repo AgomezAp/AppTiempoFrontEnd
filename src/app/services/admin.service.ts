@@ -50,6 +50,36 @@ export interface CostoPermisosMedicos {
   byUser: CostoUsuario[];
 }
 
+export interface IncapacidadDetalle {
+  id: number;
+  tipo: string;
+  fecha: string | null;
+  fechaFin: string | null;
+  dias: number;
+  observaciones: string | null;
+  cancelado: boolean;
+}
+
+export interface IncapacidadUsuario {
+  Uid: number;
+  nombre: string;
+  cargo: string;
+  empresa: string;
+  cantidad: number;
+  totalDias: number;
+  incapacidades: IncapacidadDetalle[];
+}
+
+export interface IncapacidadesResponse {
+  success: boolean;
+  summary: {
+    totalIncapacidades: number;
+    totalDias: number;
+    empleadosAfectados: number;
+  };
+  byUser: IncapacidadUsuario[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private apiUrl = `${environment.apiUrl}/api/admin`;
@@ -87,6 +117,16 @@ export class AdminService {
       {},
       { headers: this.getHeaders() }
     );
+  }
+
+  getIncapacidades(from?: string, to?: string): Observable<IncapacidadesResponse> {
+    const params: any = {};
+    if (from) params.from = from;
+    if (to) params.to = to;
+    return this.http.get<IncapacidadesResponse>(`${this.apiUrl}/ausentismo/incapacidades`, {
+      headers: this.getHeaders(),
+      params,
+    });
   }
 }
 

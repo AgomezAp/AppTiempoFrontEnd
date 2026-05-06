@@ -1,0 +1,151 @@
+<app-navbar></app-navbar>
+
+<div class="exp-wrapper">
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="page-header">
+    <div class="page-header__bg"></div>
+    <div class="page-header__content">
+      <div class="page-header__left">
+        <div class="page-header__icon">
+          <i class="fas fa-folder-open"></i>
+        </div>
+        <div class="page-header__text">
+          <h1 class="page-header__title">Expedientes de Colaboradores</h1>
+          <p class="page-header__subtitle">
+            Selecciona un colaborador para ver o gestionar su hoja de vida
+          </p>
+        </div>
+      </div>
+      <div class="page-header__right">
+        <span class="total-badge" *ngIf="!cargando">
+          {{ filtrados.length }} colaborador{{ filtrados.length !== 1 ? 'es' : '' }}
+        </span>
+        <button
+          class="btn-init"
+          (click)="inicializarTodasLasCarpetas()"
+          [disabled]="inicializando"
+          title="Crear carpetas de expediente para todos los colaboradores activos"
+        >
+          <i class="fas" [ngClass]="inicializando ? 'fa-spinner fa-spin' : 'fa-folder-plus'"></i>
+          {{ inicializando ? 'Creando...' : 'Crear carpetas' }}
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ BUSCADOR ═══ -->
+  <div class="search-bar">
+    <div class="search-bar__inner">
+      <i class="fas fa-search search-bar__icon"></i>
+      <input
+        type="text"
+        class="search-bar__input"
+        placeholder="Buscar por nombre, apellido, cargo, cédula o correo..."
+        [(ngModel)]="busqueda"
+        (input)="onBusqueda()"
+      />
+      <span class="search-bar__clear" *ngIf="busqueda" (click)="busqueda = ''; onBusqueda()">
+        <i class="fas fa-times"></i>
+      </span>
+    </div>
+  </div>
+
+  <!-- ═══ LOADING ═══ -->
+  <div class="loading-state" *ngIf="cargando">
+    <div class="loading-state__spinner"></div>
+    <p>Cargando colaboradores...</p>
+  </div>
+
+  <!-- ═══ GRID DE COLABORADORES ═══ -->
+  <div class="colaboradores-grid" *ngIf="!cargando && paginados.length > 0">
+    <div
+      class="colab-card"
+      *ngFor="let c of paginados"
+      (click)="verHojaVida(c.Uid)"
+      role="button"
+      tabindex="0"
+      (keydown.enter)="verHojaVida(c.Uid)"
+    >
+      <!-- Avatar -->
+      <div class="colab-card__avatar">
+        {{ iniciales(c) }}
+        <span class="colab-card__status"
+          [class.colab-card__status--activo]="true"
+          title="Activo"
+        ></span>
+      </div>
+
+      <!-- Info principal -->
+      <div class="colab-card__body">
+        <h3 class="colab-card__name">{{ c.name }} {{ c.lastName }}</h3>
+        <p class="colab-card__cargo">{{ c.cargo || 'Sin cargo' }}</p>
+        <p class="colab-card__empresa">{{ c.empresa || '' }}</p>
+      </div>
+
+      <!-- Meta datos -->
+      <div class="colab-card__meta">
+        <span class="colab-meta-item" *ngIf="c.email">
+          <i class="fas fa-envelope"></i>
+          <span>{{ c.email }}</span>
+        </span>
+        <span class="colab-meta-item" *ngIf="c.celular">
+          <i class="fas fa-phone"></i>
+          <span>{{ c.celular }}</span>
+        </span>
+        <span class="colab-meta-item" *ngIf="c.fechaIngreso">
+          <i class="fas fa-calendar-alt"></i>
+          <span>Ingreso: {{ formatearFecha(c.fechaIngreso) }}</span>
+        </span>
+        <span class="colab-meta-item" *ngIf="c.role?.Rname">
+          <i class="fas fa-id-badge"></i>
+          <span>{{ c.role.Rname }}</span>
+        </span>
+      </div>
+
+      <!-- Alertas visibles -->
+      <div class="colab-card__footer">
+        <span class="llamado-badge" *ngIf="c.llamadosActivos > 0" [title]="c.llamadosActivos + ' llamado(s) activo(s)'">
+          <i class="fas fa-exclamation-triangle"></i> {{ c.llamadosActivos }}
+        </span>
+        <button class="btn-ver" (click)="verHojaVida(c.Uid); $event.stopPropagation()">
+          <i class="fas fa-eye"></i> Ver expediente
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ EMPTY STATE ═══ -->
+  <div class="empty-state" *ngIf="!cargando && filtrados.length === 0">
+    <i class="fas fa-folder-open empty-state__icon"></i>
+    <h3>No se encontraron colaboradores</h3>
+    <p>Intenta con otros términos de búsqueda.</p>
+  </div>
+
+  <!-- ═══ PAGINACIÓN ═══ -->
+  <div class="pagination" *ngIf="totalPaginas > 1 && !cargando">
+    <button
+      class="pagination__btn"
+      (click)="irAPagina(paginaActual - 1)"
+      [disabled]="paginaActual === 1"
+    >
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <button
+      *ngFor="let p of getPageNumbers()"
+      class="pagination__btn pagination__btn--page"
+      [class.pagination__btn--active]="paginaActual === p"
+      (click)="irAPagina(p)"
+    >
+      {{ p }}
+    </button>
+    <button
+      class="pagination__btn"
+      (click)="irAPagina(paginaActual + 1)"
+      [disabled]="paginaActual === totalPaginas"
+    >
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+
+</div>

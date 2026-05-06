@@ -55,6 +55,19 @@ export class HorasComponent implements OnInit {
   // Control de roles
   isAdmin: boolean = false;
 
+  // Vista activa: registros normales o llegadas tarde
+  vistaActual: 'registros' | 'llegadas' = 'registros';
+  llegadasConFormulario: any[] = [];
+  llegadasSinFormulario: any[] = [];
+  llegadasConPermiso: any[] = [];
+  llegadasConFiltradas: any[] = [];
+  llegadasSinFiltradas: any[] = [];
+  llegadasConPermisoFiltradas: any[] = [];
+  cargandoLlegadas = false;
+  buscarLlegada = '';
+  llegadasDesde = '';
+  llegadasHasta = '';
+
   constructor(
     private horaService: HoraService,
     private userService: UserService,
@@ -432,5 +445,55 @@ export class HorasComponent implements OnInit {
       this.currentPage * this.pageSize,
       this.filteredHoras.length
     );
+  }
+
+  // ── LLEGADAS TARDE ──────────────────────────────────────────────
+  cambiarVista(vista: 'registros' | 'llegadas'): void {
+    this.vistaActual = vista;
+    if (vista === 'llegadas' && this.llegadasConFormulario.length === 0 && this.llegadasSinFormulario.length === 0 && this.llegadasConPermiso.length === 0) {
+      this.cargarLlegadasTarde();
+    }
+  }
+
+  cargarLlegadasTarde(): void {
+    this.cargandoLlegadas = true;
+    this.horaService.getLlegadasTarde(this.llegadasDesde || undefined, this.llegadasHasta || undefined).subscribe({
+      next: (data) => {
+        this.llegadasConFormulario = data.conFormulario || [];
+        this.llegadasSinFormulario = data.sinFormulario || [];
+        this.llegadasConPermiso = data.conPermiso || [];
+        this.filtrarLlegadas();
+        this.cargandoLlegadas = false;
+      },
+      error: () => this.cargandoLlegadas = false
+    });
+  }
+
+  filtrarLlegadas(): void {
+    const q = this.buscarLlegada.toLowerCase().trim();
+    this.llegadasConFiltradas = this.llegadasConFormulario.filter(r =>
+      !q || r.Name.toLowerCase().includes(q)
+    );
+    this.llegadasSinFiltradas = this.llegadasSinFormulario.filter(r =>
+      !q || r.Name.toLowerCase().includes(q)
+    );
+    this.llegadasConPermisoFiltradas = this.llegadasConPermiso.filter(r =>
+      !q || r.Name.toLowerCase().includes(q)
+    );
+  }
+
+  formatHora(timestamp: string): string {
+    if (!timestamp) return '—';
+    if (/^\d{2}:\d{2}$/.test(timestamp)) return timestamp;
+    const d = new Date(timestamp);
+    if (isNaN(d.getTime())) return timestamp;
+    return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+  }
+
+  minutosTardeTexto(min: number): string {
+    if (!min || min <= 0) return '—';
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    return h > 0 ? `${h}h ${m}m` : `${m} min`;
   }
 }

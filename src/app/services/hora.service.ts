@@ -117,4 +117,12 @@ export class HoraService {
     return this.http.get<Hora[]>(`${this.appUrl}${this.apiUrl}/detalleExtras/${id}?desde=${desde}&hasta=${hasta}`);
   }
 
+  getLlegadasTarde(desde?: string, hasta?: string): Observable<{ conFormulario: any[]; sinFormulario: any[]; conPermiso: any[] }> {
+    let query = '';
+    if (desde && hasta) {
+      query = `?desde=${desde}&hasta=${hasta}`;
+    }
+    return this.http.get<{ conFormulario: any[]; sinFormulario: any[]; conPermiso: any[] }>(`${this.appUrl}${this.apiUrl}/llegadas-tarde${query}`);
+  }
+
 }

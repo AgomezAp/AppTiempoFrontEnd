@@ -29,6 +29,10 @@ export class GestionArchivosComponent implements OnInit {
   archivoEditando: any = null;
   expandedDescriptions: { [key: number]: boolean } = {};
 
+  // Modo de entrada: archivo físico o link externo
+  modoEntrada: 'archivo' | 'link' = 'archivo';
+  linkUrl = '';
+
   constructor(private archivoService: ArchivoService) {}
 
   ngOnInit() {
@@ -112,32 +116,40 @@ export class GestionArchivosComponent implements OnInit {
 
   subirArchivo(event: Event) {
     event.preventDefault();
-    
-    if (!this.archivoSeleccionado && !this.archivoEditando) {
-      this.mostrarMensaje('Selecciona un archivo', 'error');
-      return;
-    }
 
     if (!this.nuevoArchivo.nombre.trim()) {
       this.mostrarMensaje('Ingresa un nombre para el archivo', 'error');
       return;
     }
 
+    if (this.modoEntrada === 'link') {
+      if (!this.linkUrl.trim()) {
+        this.mostrarMensaje('Ingresa el link del recurso', 'error');
+        return;
+      }
+    } else {
+      if (!this.archivoSeleccionado && !this.archivoEditando) {
+        this.mostrarMensaje('Selecciona un archivo', 'error');
+        return;
+      }
+    }
+
     const formData = new FormData();
-    if (this.archivoSeleccionado) {
+    if (this.modoEntrada === 'archivo' && this.archivoSeleccionado) {
       formData.append('file', this.archivoSeleccionado);
+    } else if (this.modoEntrada === 'link') {
+      formData.append('link', this.linkUrl.trim());
     }
     formData.append('nombre', this.nuevoArchivo.nombre);
     formData.append('descripcion', this.nuevoArchivo.descripcion);
-    formData.append('tipo', this.nuevoArchivo.tipo);
+    formData.append('tipo', this.modoEntrada === 'link' ? 'link' : this.nuevoArchivo.tipo);
     formData.append('categoria', this.nuevoArchivo.categoria);
 
     this.cargando = true;
 
     if (this.archivoEditando) {
-      // Actualizar
       this.archivoService.updateArchivo(this.archivoEditando.Aid, formData).subscribe({
-        next: (response) => {
+        next: () => {
           this.mostrarMensaje('Archivo actualizado exitosamente', 'success');
           this.cargarArchivos();
           this.resetForm();
@@ -145,22 +157,21 @@ export class GestionArchivosComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error:', error);
-          this.mostrarMensaje('Error al actualizar archivo. Verifica que seas administrador.', 'error');
+          this.mostrarMensaje('Error al actualizar. Verifica que seas administrador.', 'error');
           this.cargando = false;
         }
       });
     } else {
-      // Crear nuevo
       this.archivoService.createArchivo(formData).subscribe({
-        next: (response) => {
-          this.mostrarMensaje('Archivo subido exitosamente', 'success');
+        next: () => {
+          this.mostrarMensaje('Recurso agregado exitosamente', 'success');
           this.cargarArchivos();
           this.resetForm();
           this.cargando = false;
         },
         error: (error) => {
           console.error('Error:', error);
-          this.mostrarMensaje('Error al subir archivo. Verifica que seas administrador.', 'error');
+          this.mostrarMensaje('Error al subir. Verifica que seas administrador.', 'error');
           this.cargando = false;
         }
       });
@@ -168,7 +179,9 @@ export class GestionArchivosComponent implements OnInit {
   }
 
   verArchivo(archivo: any) {
-    const url = this.archivoService.getFileUrl(archivo.url);
+    const url = archivo.url.startsWith('http')
+      ? archivo.url
+      : this.archivoService.getFileUrl(archivo.url);
     window.open(url, '_blank');
   }
 
@@ -184,8 +197,16 @@ export class GestionArchivosComponent implements OnInit {
       tipo: archivo.tipo,
       categoria: archivo.categoria
     };
-    
-    // Scroll al formulario
+
+    // Detectar si es link externo
+    if (archivo.url && archivo.url.startsWith('http')) {
+      this.modoEntrada = 'link';
+      this.linkUrl = archivo.url;
+    } else {
+      this.modoEntrada = 'archivo';
+      this.linkUrl = '';
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -218,8 +239,9 @@ export class GestionArchivosComponent implements OnInit {
     };
     this.archivoSeleccionado = null;
     this.archivoEditando = null;
-    
-    // Limpiar input file
+    this.modoEntrada = 'archivo';
+    this.linkUrl = '';
+
     const fileInput = document.getElementById('fileInput') as HTMLInputElement;
     if (fileInput) {
       fileInput.value = '';
@@ -241,6 +263,7 @@ export class GestionArchivosComponent implements OnInit {
       case 'video': return '🎬';
       case 'imagen': return '🖼️';
       case 'documento': return '📋';
+      case 'link': return '🔗';
       default: return '📎';
     }
   }

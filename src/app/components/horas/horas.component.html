@@ -4,7 +4,7 @@
 <app-spinner *ngIf="loading"></app-spinner>
 
 <div *ngIf="!loading" class="erp-wrapper p-3">
-  <!-- PRINCIPIO #4: HEADER DE PÁGINA -->
+  <!-- HEADER DE PÁGINA -->
   <header class="page-header fade-slide delay-0">
     <div class="page-header__left">
       <div class="page-header__icon">
@@ -20,277 +20,371 @@
       <button
         class="btn btn-outline"
         (click)="toggleDateWeek()"
-        [title]="
-          showDateRange
-            ? 'Cambiar a búsqueda por semana'
-            : 'Cambiar a búsqueda por fechas'
-        "
+        *ngIf="vistaActual === 'registros'"
+        [title]="showDateRange ? 'Cambiar a búsqueda por semana' : 'Cambiar a búsqueda por fechas'"
       >
-        <i class="pi pi-calendar"></i> {{ showDateRange ? "Semana" : "Fechas" }}
+        <i class="pi pi-calendar"></i>
+        {{ showDateRange ? "Semana" : "Fechas" }}
       </button>
-      <button class="btn btn-outline" *ngIf="!showList" (click)="verHoras()">
+      <button class="btn btn-outline" *ngIf="!showList && vistaActual === 'registros'" (click)="verHoras()">
         <i class="pi pi-list"></i> Ver Todo
       </button>
-      <button
-        class="btn btn-primary"
-        *ngIf="showList"
-        (click)="agregarRegistro()"
-      >
+      <button class="btn btn-primary" *ngIf="showList && vistaActual === 'registros'" (click)="agregarRegistro()">
         <i class="pi pi-plus"></i> Agregar
       </button>
     </div>
   </header>
 
-  <!-- PRINCIPIO #8: PANEL DE FILTROS -->
-  <section class="filter-panel fade-slide delay-1" *ngIf="isAdmin">
-    <div class="filter-panel__header">
-      <i class="pi pi-filter"></i>
-      <h2>Filtros de Búsqueda</h2>
-    </div>
-    <div class="filter-panel__body filter-flex">
-      <!-- Rango de Fechas -->
-      <ng-container *ngIf="showDateRange">
-        <div class="form-group">
-          <label>Inicio</label>
+  <!-- TABS DE VISTA (solo admin en modo lista) -->
+  <div class="page-tabs fade-slide delay-1" *ngIf="showList && isAdmin">
+    <button
+      class="page-tab-btn"
+      [class.is-active]="vistaActual === 'registros'"
+      (click)="cambiarVista('registros')"
+    >
+      <i class="pi pi-table"></i> Registros
+    </button>
+    <button
+      class="page-tab-btn"
+      [class.is-active]="vistaActual === 'llegadas'"
+      (click)="cambiarVista('llegadas')"
+    >
+      <i class="pi pi-clock"></i> Llegadas Tarde
+    </button>
+  </div>
+
+  <!-- ═══════════════════ VISTA: REGISTROS ═══════════════════ -->
+  <ng-container *ngIf="vistaActual === 'registros'">
+    <!-- PANEL DE FILTROS -->
+    <section class="filter-panel fade-slide delay-1" *ngIf="isAdmin">
+      <div class="filter-panel__header">
+        <i class="pi pi-filter"></i>
+        <h2>Filtros de Búsqueda</h2>
+      </div>
+      <div class="filter-panel__body filter-flex">
+        <ng-container *ngIf="showDateRange">
+          <div class="form-group">
+            <label>Inicio</label>
+            <div class="input-group">
+              <i class="pi pi-calendar input-icon"></i>
+              <input type="date" [(ngModel)]="startDate" (change)="filterByDataRange()" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Fin</label>
+            <div class="input-group">
+              <i class="pi pi-calendar input-icon"></i>
+              <input type="date" [(ngModel)]="endDate" (change)="filterByDataRange()" />
+            </div>
+          </div>
+        </ng-container>
+        <div class="form-group" *ngIf="!showDateRange">
+          <label>Semana</label>
           <div class="input-group">
             <i class="pi pi-calendar input-icon"></i>
-            <input
-              type="date"
-              [(ngModel)]="startDate"
-              (change)="filterByDataRange()"
-            />
+            <input type="week" [(ngModel)]="week" (change)="filterByWeek()" />
           </div>
         </div>
-        <div class="form-group">
-          <label>Fin</label>
+        <div class="form-group" *ngIf="showList">
+          <label>Buscar Empleado</label>
           <div class="input-group">
-            <i class="pi pi-calendar input-icon"></i>
+            <i class="pi pi-search input-icon"></i>
             <input
-              type="date"
-              [(ngModel)]="endDate"
-              (change)="filterByDataRange()"
+              type="text"
+              [(ngModel)]="filterName"
+              (input)="filterdByName()"
+              placeholder="Escriba un nombre..."
             />
           </div>
-        </div>
-      </ng-container>
-
-      <!-- Semana -->
-      <div class="form-group" *ngIf="!showDateRange">
-        <label>Semana</label>
-        <div class="input-group">
-          <i class="pi pi-calendar input-icon"></i>
-          <input type="week" [(ngModel)]="week" (change)="filterByWeek()" />
-        </div>
-      </div>
-
-      <!-- Buscador por Nombre -->
-      <div class="form-group" *ngIf="showList">
-        <label>Buscar Empleado</label>
-        <div class="input-group">
-          <i class="pi pi-search input-icon"></i>
-          <input
-            type="text"
-            [(ngModel)]="filterName"
-            (input)="filterdByName()"
-            placeholder="Escriba un nombre..."
-          />
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- GRILLA PRINCIPAL (TABLA + SIDEBAR) -->
-  <div class="layout-grid fade-slide delay-2" [class.layout-full]="showList">
-    <!-- PRINCIPIO #5 y #6: TABLA DE HORAS -->
-    <section class="card">
-      <div class="card-head">
-        <i class="pi pi-table"></i>
-        <h3>Historial de Registros</h3>
-      </div>
-
-      <div class="card-body p-0">
-        <div class="table-responsive custom-scrollbar">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th class="text-center">Entrada</th>
-                <th class="text-center">Salida</th>
-                <th>
-                  <div class="flex items-center gap-sm">
-                    Fecha
-                    <!-- Botones de Ordenamiento -->
-                    <button
-                      class="btn-sort"
-                      *ngIf="sortOrder !== 'asc' && sortOrder !== 'desc'"
-                      (click)="sortHours('asc')"
-                      title="Ordenar Ascendente"
-                    >
-                      <i class="pi pi-sort-alt"></i>
-                    </button>
-                    <button
-                      class="btn-sort active"
-                      *ngIf="sortOrder === 'asc'"
-                      (click)="sortHours('desc')"
-                      title="Ordenar Descendente"
-                    >
-                      <i class="pi pi-sort-amount-up-alt"></i>
-                    </button>
-                    <button
-                      class="btn-sort active"
-                      *ngIf="sortOrder === 'desc'"
-                      (click)="sortHours('')"
-                      title="Quitar Orden"
-                    >
-                      <i class="pi pi-sort-amount-down"></i>
-                    </button>
-                  </div>
-                </th>
-                <th class="text-center">Total</th>
-                <th class="text-center">Extras</th>
-                <th *ngIf="showList && isAdmin" class="text-right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Si no hay registros -->
-              <tr *ngIf="filteredHoras.length === 0">
-                <td
-                  [attr.colspan]="showList && isAdmin ? 7 : 6"
-                  class="text-center p-4 text-muted"
-                >
-                  <i
-                    class="pi pi-inbox"
-                    style="
-                      font-size: 2rem;
-                      opacity: 0.5;
-                      margin-bottom: 0.5rem;
-                      display: block;
-                    "
-                  ></i>
-                  No se encontraron registros de horas.
-                </td>
-              </tr>
-
-              <tr
-                *ngFor="let item of paginatedHoras"
-                [class]="getRowClass(item)"
-              >
-                <td>
-                  <div class="flex items-center gap-sm">
-                    <span class="text-bold text-dark">{{ item.Name }}</span>
-                    <i
-                      *ngIf="item.Autocorregido"
-                      class="pi pi-verified text-warning"
-                      [title]="'Autocorregido: ' + item.Autocorregido"
-                      style="font-size: 0.85rem"
-                    ></i>
-                  </div>
-                </td>
-                <td class="text-center text-muted">{{ item.Entrada }}</td>
-                <td class="text-center text-muted">{{ item.Salida }}</td>
-                <td>{{ item.Fecha }}</td>
-                <td class="text-center text-bold">{{ item.Total }}</td>
-                <td class="text-center" [class]="getExtraCellClass(item.Extra)">
-                  <span
-                    class="status-badge"
-                    [ngClass]="
-                      item.Extra !== '0' && item.Extra !== '00:00'
-                        ? 'bg-warning text-dark'
-                        : 'bg-light text-muted'
-                    "
-                  >
-                    {{ item.Extra }}
-                    <i
-                      class="pi pi-clock ml-1"
-                      [class]="getExtraIconClass(item.Extra)"
-                      style="font-size: 0.6rem"
-                    ></i>
-                  </span>
-                </td>
-                <td
-                  *ngIf="showList && isAdmin"
-                  class="text-right table-actions"
-                >
-                  <button
-                    class="btn-action"
-                    (click)="navigateToEditSalida(item.Hid, item.Fecha)"
-                    title="Modificar salida"
-                  >
-                    <i class="pi pi-pencil"></i>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- PRINCIPIO #11: PAGINACIÓN -->
-      <div class="card-footer pagination-wrapper" *ngIf="totalPages > 1">
-        <div class="pagination-info">
-          Mostrando {{ getStartIndex() }} - {{ getEndIndex() }} de
-          {{ filteredHoras.length }} registros
-        </div>
-        <div class="pagination-controls">
-          <button
-            class="btn-page"
-            (click)="goToPage(currentPage - 1)"
-            [disabled]="currentPage === 1"
-          >
-            <i class="pi pi-chevron-left"></i>
-          </button>
-
-          <button
-            class="btn-page"
-            *ngFor="let page of getPageNumbers()"
-            [class.active]="currentPage === page"
-            (click)="goToPage(page)"
-          >
-            {{ page }}
-          </button>
-
-          <button
-            class="btn-page"
-            (click)="goToPage(currentPage + 1)"
-            [disabled]="currentPage === totalPages"
-          >
-            <i class="pi pi-chevron-right"></i>
-          </button>
         </div>
       </div>
     </section>
 
-    <!-- PRINCIPIO #10: SIDEBAR HORAS EXTRAS (Lista Seleccionables) -->
-    <aside class="card fade-slide delay-3" *ngIf="!showList">
-      <div class="card-head">
-        <i class="pi pi-clock"></i>
-        <h3>Resumen Horas Extras</h3>
-      </div>
-
-      <div class="card-body p-0 list-container custom-scrollbar">
-        <div
-          *ngIf="filterdExtra.length === 0"
-          class="p-4 text-center text-muted text-xs"
-        >
-          No hay horas extras registradas.
+    <!-- GRILLA PRINCIPAL (TABLA + SIDEBAR) -->
+    <div class="layout-grid fade-slide delay-2" [class.layout-full]="showList">
+      <section class="card">
+        <div class="card-head">
+          <i class="pi pi-table"></i>
+          <h3>Historial de Registros</h3>
         </div>
 
-        <div class="list-item" *ngFor="let it of filterdExtra">
-          <div class="list-item__info">
-            <span class="list-item__title">{{ it.Name }}</span>
+        <div class="card-body p-0">
+          <div class="table-responsive custom-scrollbar">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th class="text-center">Entrada</th>
+                  <th class="text-center">Salida</th>
+                  <th>
+                    <div class="flex items-center gap-sm">
+                      Fecha
+                      <button class="btn-sort" *ngIf="sortOrder !== 'asc' && sortOrder !== 'desc'" (click)="sortHours('asc')" title="Ordenar Ascendente"><i class="pi pi-sort-alt"></i></button>
+                      <button class="btn-sort active" *ngIf="sortOrder === 'asc'" (click)="sortHours('desc')" title="Ordenar Descendente"><i class="pi pi-sort-amount-up-alt"></i></button>
+                      <button class="btn-sort active" *ngIf="sortOrder === 'desc'" (click)="sortHours('')" title="Quitar Orden"><i class="pi pi-sort-amount-down"></i></button>
+                    </div>
+                  </th>
+                  <th class="text-center">Total</th>
+                  <th class="text-center">Extras</th>
+                  <th *ngIf="showList && isAdmin" class="text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngIf="filteredHoras.length === 0">
+                  <td [attr.colspan]="showList && isAdmin ? 7 : 6" class="text-center p-4 text-muted">
+                    <i class="pi pi-inbox" style="font-size:2rem;opacity:.5;margin-bottom:.5rem;display:block;"></i>
+                    No se encontraron registros de horas.
+                  </td>
+                </tr>
+                <tr *ngFor="let item of paginatedHoras" [class]="getRowClass(item)">
+                  <td>
+                    <div class="flex items-center gap-sm">
+                      <span class="text-bold text-dark">{{ item.Name }}</span>
+                      <i *ngIf="item.Autocorregido" class="pi pi-verified text-warning" [title]="'Autocorregido: ' + item.Autocorregido" style="font-size:.85rem"></i>
+                    </div>
+                  </td>
+                  <td class="text-center text-muted">{{ item.Entrada }}</td>
+                  <td class="text-center text-muted">{{ item.Salida }}</td>
+                  <td>{{ item.Fecha }}</td>
+                  <td class="text-center text-bold">{{ item.Total }}</td>
+                  <td class="text-center" [class]="getExtraCellClass(item.Extra)">
+                    <span class="status-badge" [ngClass]="item.Extra !== '0' && item.Extra !== '00:00' ? 'bg-warning text-dark' : 'bg-light text-muted'">
+                      {{ item.Extra }}
+                      <i class="pi pi-clock ml-1" [class]="getExtraIconClass(item.Extra)" style="font-size:.6rem"></i>
+                    </span>
+                  </td>
+                  <td *ngIf="showList && isAdmin" class="text-right table-actions">
+                    <button class="btn-action" (click)="navigateToEditSalida(item.Hid, item.Fecha)" title="Modificar salida">
+                      <i class="pi pi-pencil"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <span
-            class="status-badge"
-            [ngClass]="
-              getExtraHoursBadgeClass(it.Acumulado)
-                ? getExtraHoursBadgeClass(it.Acumulado)
-                : 'bg-warning text-dark'
-            "
-          >
-            {{ it.Acumulado }}h
-          </span>
+        </div>
+
+        <div class="card-footer pagination-wrapper" *ngIf="totalPages > 1">
+          <div class="pagination-info">Mostrando {{ getStartIndex() }} - {{ getEndIndex() }} de {{ filteredHoras.length }} registros</div>
+          <div class="pagination-controls">
+            <button class="btn-page" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1"><i class="pi pi-chevron-left"></i></button>
+            <button class="btn-page" *ngFor="let page of getPageNumbers()" [class.active]="currentPage === page" (click)="goToPage(page)">{{ page }}</button>
+            <button class="btn-page" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages"><i class="pi pi-chevron-right"></i></button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="card fade-slide delay-3" *ngIf="!showList">
+        <div class="card-head">
+          <i class="pi pi-clock"></i>
+          <h3>Resumen Horas Extras</h3>
+        </div>
+        <div class="card-body p-0 list-container custom-scrollbar">
+          <div *ngIf="filterdExtra.length === 0" class="p-4 text-center text-muted text-xs">No hay horas extras registradas.</div>
+          <div class="list-item" *ngFor="let it of filterdExtra">
+            <div class="list-item__info"><span class="list-item__title">{{ it.Name }}</span></div>
+            <span class="status-badge" [ngClass]="getExtraHoursBadgeClass(it.Acumulado) ? getExtraHoursBadgeClass(it.Acumulado) : 'bg-warning text-dark'">
+              {{ it.Acumulado }}h
+            </span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </ng-container>
+
+  <!-- ═══════════════════ VISTA: LLEGADAS TARDE ═══════════════════ -->
+  <ng-container *ngIf="vistaActual === 'llegadas'">
+    <!-- Filtros -->
+    <section class="filter-panel fade-slide delay-1">
+      <div class="filter-panel__header">
+        <i class="pi pi-filter"></i>
+        <h2>Filtrar Llegadas Tarde</h2>
+      </div>
+      <div class="filter-panel__body filter-flex">
+        <div class="form-group">
+          <label>Desde</label>
+          <div class="input-group">
+            <i class="pi pi-calendar input-icon"></i>
+            <input type="date" [(ngModel)]="llegadasDesde" (change)="cargarLlegadasTarde()" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Hasta</label>
+          <div class="input-group">
+            <i class="pi pi-calendar input-icon"></i>
+            <input type="date" [(ngModel)]="llegadasHasta" (change)="cargarLlegadasTarde()" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Buscar Empleado</label>
+          <div class="input-group">
+            <i class="pi pi-search input-icon"></i>
+            <input type="text" [(ngModel)]="buscarLlegada" (input)="filtrarLlegadas()" placeholder="Nombre..." />
+          </div>
         </div>
       </div>
-    </aside>
-  </div>
+    </section>
+
+    <div class="card-body loading-panel" *ngIf="cargandoLlegadas">
+      <div class="spinner"></div>
+    </div>
+
+    <ng-container *ngIf="!cargandoLlegadas">
+      <!-- TABLA 1: Con formulario de llegada tarde -->
+      <div class="layout-full fade-slide delay-2">
+        <section class="card">
+          <div class="card-head flex-between">
+            <div style="display:flex;align-items:center;gap:.5rem">
+              <i class="pi pi-file-edit text-warning"></i>
+              <h3>Con formulario de llegada tarde
+                <span class="tab-count" style="margin-left:.35rem">{{ llegadasConFiltradas.length }}</span>
+              </h3>
+            </div>
+            <span class="panel-instructions" style="margin:0;font-size:.7rem">Entradas tarde con permiso "Llegada tarde por factores externos"</span>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive custom-scrollbar">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Empleado</th>
+                    <th class="text-center">Fecha</th>
+                    <th class="text-center">Hora llegada</th>
+                    <th class="text-center">Tiempo tarde</th>
+                    <th>Observación del permiso</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="llegadasConFiltradas.length === 0">
+                    <td colspan="5" class="text-center p-4 text-muted">
+                      <i class="pi pi-check-circle" style="font-size:2rem;opacity:.5;margin-bottom:.5rem;display:block;"></i>
+                      No hay registros con formulario en este período.
+                    </td>
+                  </tr>
+                  <tr *ngFor="let r of llegadasConFiltradas">
+                    <td class="text-bold text-dark">{{ r.Name }}</td>
+                    <td class="text-center text-muted">{{ r.Fecha | date:'dd/MM/yyyy' }}</td>
+                    <td class="text-center">
+                      <span class="status-badge bg-warning text-dark">{{ formatHora(r.Entrada) }}</span>
+                    </td>
+                    <td class="text-center">
+                      <span class="status-badge" [ngClass]="r.minutosTarde > 60 ? 'status-danger' : 'bg-warning text-dark'">
+                        {{ minutosTardeTexto(r.minutosTarde) }}
+                      </span>
+                    </td>
+                    <td style="font-size:.78rem;max-width:220px">
+                      <span *ngIf="r.permiso?.observaciones" class="text-muted">{{ r.permiso.observaciones }}</span>
+                      <span *ngIf="!r.permiso?.observaciones" class="text-muted">—</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- TABLA 2: Sin formulario (llegada tarde sin justificación) -->
+      <div class="layout-full fade-slide delay-3">
+        <section class="card">
+          <div class="card-head flex-between">
+            <div style="display:flex;align-items:center;gap:.5rem">
+              <i class="pi pi-exclamation-triangle" style="color:#dc3545"></i>
+              <h3>Sin formulario (sin justificación)
+                <span class="tab-count" style="margin-left:.35rem;background:#dc3545">{{ llegadasSinFiltradas.length }}</span>
+              </h3>
+            </div>
+            <span class="panel-instructions" style="margin:0;font-size:.7rem">Entradas tarde sin ningún permiso registrado</span>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive custom-scrollbar">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Empleado</th>
+                    <th class="text-center">Fecha</th>
+                    <th class="text-center">Hora llegada</th>
+                    <th class="text-center">Tiempo tarde</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="llegadasSinFiltradas.length === 0">
+                    <td colspan="4" class="text-center p-4 text-muted">
+                      <i class="pi pi-check-circle" style="font-size:2rem;opacity:.5;margin-bottom:.5rem;display:block;"></i>
+                      Todos los registros cuentan con formulario.
+                    </td>
+                  </tr>
+                  <tr *ngFor="let r of llegadasSinFiltradas" class="row-sin-permiso">
+                    <td class="text-bold text-dark">{{ r.Name }}</td>
+                    <td class="text-center text-muted">{{ r.Fecha | date:'dd/MM/yyyy' }}</td>
+                    <td class="text-center">
+                      <span class="status-badge status-danger">{{ formatHora(r.Entrada) }}</span>
+                    </td>
+                    <td class="text-center">
+                      <span class="status-badge status-danger">
+                        {{ minutosTardeTexto(r.minutosTarde) }}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- TABLA 3: Con permiso de otro tipo (informativo, no cuentan como tardanza) -->
+      <div class="layout-full fade-slide delay-4">
+        <section class="card">
+          <div class="card-head flex-between">
+            <div style="display:flex;align-items:center;gap:.5rem">
+              <i class="pi pi-shield" style="color:#0d6efd"></i>
+              <h3>Con permiso (no cuenta como tardanza)
+                <span class="tab-count" style="margin-left:.35rem;background:#0d6efd">{{ llegadasConPermisoFiltradas.length }}</span>
+              </h3>
+            </div>
+            <span class="panel-instructions" style="margin:0;font-size:.7rem">Personas con cita médica, autorización u otro permiso válido — solo informativo</span>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive custom-scrollbar">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Empleado</th>
+                    <th class="text-center">Fecha</th>
+                    <th class="text-center">Hora llegada</th>
+                    <th class="text-center">Tiempo tarde</th>
+                    <th>Tipo de permiso</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="llegadasConPermisoFiltradas.length === 0">
+                    <td colspan="5" class="text-center p-4 text-muted">
+                      <i class="pi pi-check-circle" style="font-size:2rem;opacity:.5;margin-bottom:.5rem;display:block;"></i>
+                      No hay registros con permiso en este período.
+                    </td>
+                  </tr>
+                  <tr *ngFor="let r of llegadasConPermisoFiltradas">
+                    <td class="text-bold text-dark">{{ r.Name }}</td>
+                    <td class="text-center text-muted">{{ r.Fecha | date:'dd/MM/yyyy' }}</td>
+                    <td class="text-center">
+                      <span class="status-badge" style="background:#e8f0fe;color:#0d6efd">{{ formatHora(r.Entrada) }}</span>
+                    </td>
+                    <td class="text-center">
+                      <span class="status-badge" style="background:#e8f0fe;color:#0d6efd">{{ minutosTardeTexto(r.minutosTarde) }}</span>
+                    </td>
+                    <td style="font-size:.78rem">
+                      <ng-container *ngFor="let p of r.otrosPermisos; let last = last">
+                        <span class="status-badge" style="background:#e8f0fe;color:#0d6efd;margin-right:.25rem">{{ p.tipo }}</span>
+                      </ng-container>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </ng-container>
+  </ng-container>
 </div>

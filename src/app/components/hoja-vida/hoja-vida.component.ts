@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { HojaVidaService } from '../../services/hoja-vida.service';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';import { HojaVidaService } from '../../services/hoja-vida.service';
 import { UserService } from '../../services/user.service';
 import Swal from 'sweetalert2';
 import { NavbarComponent } from '../navbar/navbar.component';
@@ -29,6 +28,7 @@ export class HojaVidaComponent implements OnInit {
   actasDispositivos: any[] = [];
   actasConsumibles: any[] = [];
   actasMobiliario: any[] = [];
+  actasCargadas = false;
   documentos: any[] = [];
   notas: any[] = [];
 
@@ -39,6 +39,7 @@ export class HojaVidaComponent implements OnInit {
   modoAdmin = false;
   esRRHH = false;
   puedeEditarExpediente = false;
+  esVistaAdmin = false; // true cuando el admin está viendo el perfil de OTRO colaborador
 
   // Sección activa en el tab
   seccionActiva = 'personal';
@@ -127,7 +128,10 @@ export class HojaVidaComponent implements OnInit {
         this.esRRHH = payload.role === 'RRHH' || payload.role === 'Admin';
         this.puedeEditarExpediente = this.esRRHH;
         const uidParam = this.route.snapshot.paramMap.get('uid');
-        this.uid = uidParam ? parseInt(uidParam) : (payload.Uid || payload.uid);
+        const miUid = payload.userId || payload.Uid || payload.uid;
+        this.uid = uidParam ? parseInt(uidParam) : miUid;
+        // Es vista admin cuando el admin accede al perfil de OTRO colaborador
+        this.esVistaAdmin = this.modoAdmin && uidParam !== null && parseInt(uidParam) !== miUid;
       } catch {}
     }
     this.cargarHojaVida();
@@ -156,7 +160,7 @@ export class HojaVidaComponent implements OnInit {
     // Cargar datos de expediente bajo demanda
     if (seccion === 'permisos' && this.permisos.length === 0) this.cargarPermisos();
     if (seccion === 'novedades' && this.novedades.length === 0) this.cargarNovedades();
-    if (seccion === 'actas' && this.actasDispositivos.length === 0 && this.actasConsumibles.length === 0) this.cargarActasInventario();
+    if (seccion === 'actas' && !this.actasCargadas) this.cargarActasInventario();
     if (seccion === 'documentos' && this.documentos.length === 0) this.cargarDocumentos();
     if (seccion === 'notas' && this.notas.length === 0) this.cargarNotas();
   }
@@ -184,9 +188,14 @@ export class HojaVidaComponent implements OnInit {
         this.actasDispositivos = data.dispositivos || [];
         this.actasConsumibles = data.consumibles || [];
         this.actasMobiliario = data.mobiliario || [];
+        this.actasCargadas = true;
         this.cargandoExpediente = false;
       },
-      error: () => { this.cargandoExpediente = false; }
+      error: (err) => {
+        this.cargandoExpediente = false;
+        const msg = err?.error?.msg || `Error ${err?.status || ''} al cargar actas`;
+        Swal.fire('Error al cargar actas', msg, 'error');
+      }
     });
   }
 
@@ -227,6 +236,10 @@ export class HojaVidaComponent implements OnInit {
       },
       error: () => { this.generandoPdf = false; Swal.fire('Error', 'Error al generar el PDF', 'error'); }
     });
+  }
+
+  volverAExpedientes(): void {
+    this.router.navigate(['/expedientes']);
   }
 
   // ---- Documentos expediente ----

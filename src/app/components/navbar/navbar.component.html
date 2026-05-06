@@ -208,8 +208,11 @@
               <li *ngIf="tieneModulo('rrhh_contratos')">
                 <a class="dropdown-item" href="/contratos">Contratos</a>
               </li>
+              <li *ngIf="tieneModulo('rrhh_hoja_vida') && esAdmin">
+                <a class="dropdown-item" href="/expedientes">Expedientes de Personal</a>
+              </li>
               <li *ngIf="tieneModulo('rrhh_hoja_vida')">
-                <a class="dropdown-item" href="/hoja-vida/{{ userId }}">Hoja de Vida</a>
+                <a class="dropdown-item" href="/hoja-vida/{{ userId }}">Mi Hoja de Vida</a>
               </li>
               <li *ngIf="tieneModulo('rrhh_evaluaciones')">
                 <a class="dropdown-item" href="/evaluaciones">Evaluaciones</a>

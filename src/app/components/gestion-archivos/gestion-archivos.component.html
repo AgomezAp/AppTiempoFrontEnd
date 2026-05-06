@@ -57,7 +57,7 @@
         <div class="form-grid">
           <!-- Nombre del archivo -->
           <div class="form-group">
-            <label class="form-label" for="nombre">Nombre del archivo *</label>
+            <label class="form-label" for="nombre">Nombre del recurso *</label>
             <input
               type="text"
               id="nombre"
@@ -69,41 +69,78 @@
             />
           </div>
 
-          <!-- Input File -->
-          <div class="form-group">
-            <label class="form-label" for="fileInput">
-              Documento a adjuntar {{ archivoEditando ? "(Opcional)" : "*" }}
-            </label>
-            <div class="file-input-wrapper">
-              <input
-                type="file"
-                id="fileInput"
-                class="form-control file-control"
-                (change)="onFileSelected($event)"
-                [required]="!archivoEditando"
-              />
+          <!-- Toggle: Archivo o Link -->
+          <div class="form-group form-group--full">
+            <label class="form-label">Tipo de contenido *</label>
+            <div class="entry-mode-toggle">
+              <button
+                type="button"
+                class="entry-mode-btn"
+                [class.active]="modoEntrada === 'archivo'"
+                (click)="modoEntrada = 'archivo'"
+              >
+                <i class="fas fa-upload"></i> Adjuntar archivo
+              </button>
+              <button
+                type="button"
+                class="entry-mode-btn"
+                [class.active]="modoEntrada === 'link'"
+                (click)="modoEntrada = 'link'"
+              >
+                <i class="fas fa-link"></i> Ingresar link
+              </button>
             </div>
-            <small class="form-hint"
-              ><i class="fas fa-info-circle"></i> Tamaño máximo: 100MB</small
-            >
           </div>
 
-          <!-- Tipo -->
-          <div class="form-group">
-            <label class="form-label" for="tipo">Tipo de Archivo *</label>
-            <select
-              id="tipo"
-              class="form-control form-select"
-              [(ngModel)]="nuevoArchivo.tipo"
-              name="tipo"
-              required
-            >
-              <option value="pdf">PDF</option>
-              <option value="video">Video</option>
-              <option value="imagen">Imagen</option>
-              <option value="documento">Documento</option>
-            </select>
-          </div>
+          <!-- Input File (modo archivo) -->
+          <ng-container *ngIf="modoEntrada === 'archivo'">
+            <div class="form-group">
+              <label class="form-label" for="fileInput">
+                Documento a adjuntar {{ archivoEditando ? "(Opcional)" : "*" }}
+              </label>
+              <div class="file-input-wrapper">
+                <input
+                  type="file"
+                  id="fileInput"
+                  class="form-control file-control"
+                  (change)="onFileSelected($event)"
+                  [required]="!archivoEditando"
+                />
+              </div>
+              <small class="form-hint"><i class="fas fa-info-circle"></i> Tamaño máximo: 100MB</small>
+            </div>
+
+            <!-- Tipo (solo modo archivo) -->
+            <div class="form-group">
+              <label class="form-label" for="tipo">Tipo de Archivo *</label>
+              <select id="tipo" class="form-control form-select" [(ngModel)]="nuevoArchivo.tipo" name="tipo" required>
+                <option value="pdf">PDF</option>
+                <option value="video">Video</option>
+                <option value="imagen">Imagen</option>
+                <option value="documento">Documento</option>
+              </select>
+            </div>
+          </ng-container>
+
+          <!-- Input Link (modo link) -->
+          <ng-container *ngIf="modoEntrada === 'link'">
+            <div class="form-group form-group--full">
+              <label class="form-label" for="linkUrl">URL del recurso *</label>
+              <div class="input-link-wrapper">
+                <i class="fas fa-link input-link-icon"></i>
+                <input
+                  type="url"
+                  id="linkUrl"
+                  class="form-control"
+                  [(ngModel)]="linkUrl"
+                  name="linkUrl"
+                  placeholder="https://drive.google.com/..."
+                  required
+                />
+              </div>
+              <small class="form-hint"><i class="fas fa-info-circle"></i> Puedes usar Google Drive, YouTube, SharePoint u otro servicio.</small>
+            </div>
+          </ng-container>
 
           <!-- Categoría -->
           <div class="form-group">
@@ -287,6 +324,7 @@
               'bg-video': archivo.tipo === 'video',
               'bg-imagen': archivo.tipo === 'imagen',
               'bg-doc': archivo.tipo === 'documento',
+              'bg-link': archivo.tipo === 'link'
             }"
           >
             <i
@@ -296,9 +334,9 @@
                 'fa-file-video': archivo.tipo === 'video',
                 'fa-file-image': archivo.tipo === 'imagen',
                 'fa-file-word': archivo.tipo === 'documento',
+                'fa-link': archivo.tipo === 'link'
               }"
-            >
-            </i>
+            ></i>
           </div>
 
           <div class="doc-card__info">
@@ -344,7 +382,8 @@
           (click)="verArchivo(archivo)"
           title="Ver o Descargar Archivo"
         >
-          <i class="fas fa-eye"></i> Visualizar
+          <i class="fas" [ngClass]="archivo.tipo === 'link' ? 'fa-external-link-alt' : 'fa-eye'"></i>
+          {{ archivo.tipo === 'link' ? 'Abrir link' : 'Visualizar' }}
         </button>
 
         <div class="action-group" *ngIf="esAdmin" style="margin-left: auto">

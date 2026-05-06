@@ -97,6 +97,16 @@ export class HojaVidaService {
     return this.http.delete(`${this.apiUrl}/${uid}/documentos/${docId}`);
   }
 
+  // ---- Lista de todos los colaboradores (Admin / RRHH) ----
+  listarColaboradores(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/usuarios`);
+  }
+
+  // ---- Inicializar carpetas de todos los colaboradores ----
+  inicializarCarpetas(): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/inicializar-carpetas`, {});
+  }
+
   // ---- Expediente: Notas admin ----
   listarNotas(uid: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/${uid}/notas`);

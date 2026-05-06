@@ -711,3 +711,47 @@ input[type="date"]:focus {
     display: none;
   }
 }
+
+/* =========================================================
+   TABS
+   ========================================================= */
+.page-tabs {
+  display: flex;
+  gap: 0.2rem;
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 0.25rem;
+  width: fit-content;
+  margin-bottom: 1rem;
+}
+
+.page-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.page-tab-btn:hover {
+  color: var(--text-dark);
+  background: var(--bg-hover);
+}
+
+.page-tab-btn.is-active {
+  background: var(--secondary);
+  color: var(--primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+
+.page-tab-btn i {
+  font-size: 0.72rem;
+}

@@ -74,6 +74,7 @@ export const routes: Routes = [
 
   // ==================== NUEVOS MÓDULOS RRHH ====================
   { path: 'contratos', loadComponent: () => import('./components/contratos/contratos.component').then(m => m.ContratosComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'User', 'Tecnologia'], modulo: 'rrhh_contratos' } },
+  { path: 'expedientes', loadComponent: () => import('./components/expedientes/expedientes.component').then(m => m.ExpedientesComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin'], modulo: 'rrhh_hoja_vida' } },
   { path: 'hoja-vida/:uid', loadComponent: () => import('./components/hoja-vida/hoja-vida.component').then(m => m.HojaVidaComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'User', 'Tecnologia'], modulo: 'rrhh_hoja_vida' } },
   { path: 'evaluaciones', loadComponent: () => import('./components/evaluaciones/evaluaciones.component').then(m => m.EvaluacionesComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'], modulo: 'rrhh_evaluaciones' } },
   { path: 'evaluaciones/:id', loadComponent: () => import('./components/evaluaciones/evaluaciones.component').then(m => m.EvaluacionesComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'], modulo: 'rrhh_evaluaciones' } },

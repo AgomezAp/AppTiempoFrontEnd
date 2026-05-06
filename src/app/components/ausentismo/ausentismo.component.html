@@ -1,228 +1,394 @@
 <app-navbar></app-navbar>
 
 <div class="erp-wrapper p-3">
-  
-  <!-- PRINCIPIO #4: HEADER DE PÁGINA -->
+
+  <!-- HEADER -->
   <header class="page-header fade-slide delay-0">
     <div class="page-header__left">
       <div class="page-header__icon">
-        <i class="pi pi-money-bill"></i>
+        <i class="pi pi-heart"></i>
       </div>
       <div class="page-header__text">
-        <h1>Costos de Permisos Médicos</h1>
-        <p>Cada cita equivale a <strong>2 horas</strong>. El costo se calcula según el salario base.</p>
+        <h1>Ausentismo</h1>
+        <p>Control de permisos médicos, citas y días de incapacidad del personal</p>
       </div>
     </div>
     <div class="page-header__actions">
-      <button class="btn btn-outline" (click)="exportCSV()">
+      <button class="btn btn-outline" (click)="exportCSV()" *ngIf="tabActivo === 'citas'">
         <i class="pi pi-download"></i> Exportar CSV
       </button>
     </div>
   </header>
 
-  <!-- PRINCIPIO #8: PANEL DE FILTROS -->
-  <section class="filter-panel fade-slide delay-1">
-    <div class="filter-panel__header">
-      <i class="pi pi-filter"></i>
-      <h2>Filtros de Período</h2>
-    </div>
-    <div class="filter-panel__body filter-flex">
-      <div class="form-group">
-        <label>Desde</label>
-        <div class="input-group">
-          <i class="pi pi-calendar input-icon"></i>
-          <input type="date" [(ngModel)]="fromDate">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Hasta</label>
-        <div class="input-group">
-          <i class="pi pi-calendar input-icon"></i>
-          <input type="date" [(ngModel)]="toDate">
-        </div>
-      </div>
-      <div class="filter-actions">
-        <button class="btn btn-primary" (click)="applyFilters()">
-          <i class="pi pi-search"></i> Aplicar
-        </button>
-        <button class="btn btn-outline" (click)="clearFilters()">
-          <i class="pi pi-eraser"></i> Limpiar
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- LOADING STATE -->
-  <div *ngIf="loading" class="loading-state fade-slide delay-2">
-    <div class="spinner"></div>
-    <p>Calculando estadísticas...</p>
+  <!-- TABS -->
+  <div class="page-tabs fade-slide delay-1">
+    <button class="page-tab-btn" [class.is-active]="tabActivo === 'citas'" (click)="cambiarTab('citas')">
+      <i class="pi pi-calendar-plus"></i> Citas Médicas y Odontológicas
+    </button>
+    <button class="page-tab-btn" [class.is-active]="tabActivo === 'incapacidades'" (click)="cambiarTab('incapacidades')">
+      <i class="pi pi-file-pdf"></i> Incapacidades
+    </button>
   </div>
 
-  <ng-container *ngIf="!loading && stats">
-    <!-- PRINCIPIO #7: KPI CARDS -->
-    <section class="kpi-grid fade-slide delay-2">
-      <div class="kpi-card">
-        <div class="kpi-card__icon kpi-icon--info"><i class="pi pi-id-card"></i></div>
-        <div class="kpi-card__data">
-          <span class="kpi-card__label">Total Permisos</span>
-          <span class="kpi-card__value">{{ stats.summary.totalPermisos || 0 }}</span>
-        </div>
+  <!-- ════════════ TAB: CITAS MÉDICAS ════════════ -->
+  <ng-container *ngIf="tabActivo === 'citas'">
+    <!-- PANEL DE FILTROS -->
+    <section class="filter-panel fade-slide delay-1">
+      <div class="filter-panel__header">
+        <i class="pi pi-filter"></i>
+        <h2>Filtros de Período</h2>
       </div>
-      <div class="kpi-card">
-        <div class="kpi-card__icon kpi-icon--warning"><i class="pi pi-clock"></i></div>
-        <div class="kpi-card__data">
-          <span class="kpi-card__label">Horas Totales</span>
-          <span class="kpi-card__value">{{ stats.summary.totalHoras || 0 }}h</span>
+      <div class="filter-panel__body filter-flex">
+        <div class="form-group">
+          <label>Desde</label>
+          <div class="input-group">
+            <i class="pi pi-calendar input-icon"></i>
+            <input type="date" [(ngModel)]="fromDate">
+          </div>
         </div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-card__icon kpi-icon--danger"><i class="pi pi-dollar"></i></div>
-        <div class="kpi-card__data">
-          <span class="kpi-card__label">Costo Total para la Empresa</span>
-          <span class="kpi-card__value text-danger">{{ formatCOP(stats.summary.totalCosto) }}</span>
+        <div class="form-group">
+          <label>Hasta</label>
+          <div class="input-group">
+            <i class="pi pi-calendar input-icon"></i>
+            <input type="date" [(ngModel)]="toDate">
+          </div>
         </div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-card__icon kpi-icon--success"><i class="pi pi-users"></i></div>
-        <div class="kpi-card__data">
-          <span class="kpi-card__label">Colaboradores Afectados</span>
-          <span class="kpi-card__value">{{ stats.summary.empleadosAfectados || 0 }}</span>
+        <div class="filter-actions">
+          <button class="btn btn-primary" (click)="applyFilters()">
+            <i class="pi pi-search"></i> Aplicar
+          </button>
+          <button class="btn btn-outline" (click)="clearFilters()">
+            <i class="pi pi-eraser"></i> Limpiar
+          </button>
         </div>
       </div>
     </section>
 
-    <!-- PRINCIPIO #5 y #6: CARD CON TABLA Y TOTALES -->
-    <section class="card fade-slide delay-3">
-      <div class="card-head">
-        <i class="pi pi-list"></i>
-        <h3>Desglose de Costos por Colaborador</h3>
-      </div>
-      
-      <div class="card-body p-0">
-        <div class="table-responsive custom-scrollbar">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Colaborador</th>
-                <th>Cargo</th>
-                <th>Empresa</th>
-                <th class="text-right">Salario Mensual</th>
-                <th class="text-right">Tarifa/Hora</th>
-                <th class="text-center">Médicas</th>
-                <th class="text-center">Odonto.</th>
-                <th class="text-center">Total P.</th>
-                <th class="text-center">Horas</th>
-                <th class="text-right">Costo Total</th>
-                <th class="text-center">Detalle</th>
-              </tr>
-            </thead>
-            <tbody>
-              <ng-container *ngFor="let user of stats.byUser || []">
-                <!-- Fila Principal -->
-                <tr [class.row-expanded]="expandedUid === user?.Uid">
-                  <td class="text-bold text-dark">{{ user?.nombre || 'N/A' }}</td>
-                  <td class="text-muted">{{ user?.cargo || 'N/A' }}</td>
-                  <td>
-                    <span class="status-badge" [ngClass]="{
-                      'bg-company-ap': user?.empresa === 'AP',
-                      'bg-company-at': user?.empresa === 'AT',
-                      'bg-company-me': user?.empresa === 'ME'
-                    }">{{ user?.empresa || 'N/A' }}</span>
-                  </td>
-                  <td class="text-right text-muted">{{ formatCOP(user?.salario) }}</td>
-                  <td class="text-right text-muted">{{ formatCOP(user?.tarifaHora) }}</td>
-                  <td class="text-center">{{ user?.citasMedicas || 0 }}</td>
-                  <td class="text-center">{{ user?.citasOdontologicas || 0 }}</td>
-                  <td class="text-center text-bold">{{ user?.totalPermisos || 0 }}</td>
-                  <td class="text-center">{{ user?.totalHoras || 0 }}h</td>
-                  <td class="text-right text-bold text-danger">{{ formatCOP(user?.costoTotal) }}</td>
-                  <td class="text-center table-actions justify-center">
-                    <button class="btn-action" 
-                            (click)="toggleDetalle(user?.Uid)" 
-                            *ngIf="user?.Uid"
-                            [title]="expandedUid === user?.Uid ? 'Ocultar' : 'Ver detalle'">
-                      <i class="pi" [ngClass]="expandedUid === user?.Uid ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
-                    </button>
-                  </td>
-                </tr>
+    <div *ngIf="loading" class="loading-state fade-slide delay-2">
+      <div class="spinner"></div>
+      <p>Calculando estadísticas...</p>
+    </div>
 
-                <!-- Fila Expandible (Detalle) -->
-                <tr *ngIf="expandedUid === user?.Uid && user?.permisos?.length" class="expanded-detail-row">
-                  <td colspan="11" class="p-0">
-                    <div class="sub-panel">
-                      <div class="sub-panel__header">
-                        <h4><i class="pi pi-file-o"></i> Historial de permisos — {{ user?.nombre }}</h4>
-                        <div class="sub-panel__meta">
-                          <span>Fórmula: {{ formatCOP(user?.salario) }} ÷ 30 ÷ 9.5 = <strong>{{ formatCOP(user?.tarifaHora) }}/h</strong></span>
-                          <span class="divider">|</span>
-                          <span>Costo base (2h): <strong>{{ formatCOP((user?.tarifaHora || 0) * 2) }}</strong></span>
+    <ng-container *ngIf="!loading && stats">
+      <!-- KPI CARDS -->
+      <section class="kpi-grid fade-slide delay-2">
+        <div class="kpi-card">
+          <div class="kpi-card__icon kpi-icon--info"><i class="pi pi-id-card"></i></div>
+          <div class="kpi-card__data">
+            <span class="kpi-card__label">Total Permisos</span>
+            <span class="kpi-card__value">{{ stats.summary.totalPermisos || 0 }}</span>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-card__icon kpi-icon--warning"><i class="pi pi-clock"></i></div>
+          <div class="kpi-card__data">
+            <span class="kpi-card__label">Horas Totales</span>
+            <span class="kpi-card__value">{{ stats.summary.totalHoras || 0 }}h</span>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-card__icon kpi-icon--danger"><i class="pi pi-dollar"></i></div>
+          <div class="kpi-card__data">
+            <span class="kpi-card__label">Costo Total para la Empresa</span>
+            <span class="kpi-card__value text-danger">{{ formatCOP(stats.summary.totalCosto) }}</span>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-card__icon kpi-icon--success"><i class="pi pi-users"></i></div>
+          <div class="kpi-card__data">
+            <span class="kpi-card__label">Colaboradores Afectados</span>
+            <span class="kpi-card__value">{{ stats.summary.empleadosAfectados || 0 }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- TABLA -->
+      <section class="card fade-slide delay-3">
+        <div class="card-head">
+          <i class="pi pi-list"></i>
+          <h3>Desglose de Costos por Colaborador</h3>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive custom-scrollbar">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Colaborador</th>
+                  <th>Cargo</th>
+                  <th>Empresa</th>
+                  <th class="text-right">Salario Mensual</th>
+                  <th class="text-right">Tarifa/Hora</th>
+                  <th class="text-center">Médicas</th>
+                  <th class="text-center">Odonto.</th>
+                  <th class="text-center">Total P.</th>
+                  <th class="text-center">Horas</th>
+                  <th class="text-right">Costo Total</th>
+                  <th class="text-center">Detalle</th>
+                </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngFor="let user of stats.byUser || []">
+                  <tr [class.row-expanded]="expandedUid === user?.Uid">
+                    <td class="text-bold text-dark">{{ user?.nombre || 'N/A' }}</td>
+                    <td class="text-muted">{{ user?.cargo || 'N/A' }}</td>
+                    <td>
+                      <span class="status-badge" [ngClass]="{
+                        'bg-company-ap': user?.empresa === 'AP',
+                        'bg-company-at': user?.empresa === 'AT',
+                        'bg-company-me': user?.empresa === 'ME'
+                      }">{{ user?.empresa || 'N/A' }}</span>
+                    </td>
+                    <td class="text-right text-muted">{{ formatCOP(user?.salario) }}</td>
+                    <td class="text-right text-muted">{{ formatCOP(user?.tarifaHora) }}</td>
+                    <td class="text-center">{{ user?.citasMedicas || 0 }}</td>
+                    <td class="text-center">{{ user?.citasOdontologicas || 0 }}</td>
+                    <td class="text-center text-bold">{{ user?.totalPermisos || 0 }}</td>
+                    <td class="text-center">{{ user?.totalHoras || 0 }}h</td>
+                    <td class="text-right text-bold text-danger">{{ formatCOP(user?.costoTotal) }}</td>
+                    <td class="text-center table-actions justify-center">
+                      <button class="btn-action" (click)="toggleDetalle(user?.Uid)" *ngIf="user?.Uid"
+                              [title]="expandedUid === user?.Uid ? 'Ocultar' : 'Ver detalle'">
+                        <i class="pi" [ngClass]="expandedUid === user?.Uid ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="expandedUid === user?.Uid && user?.permisos?.length" class="expanded-detail-row">
+                    <td colspan="11" class="p-0">
+                      <div class="sub-panel">
+                        <div class="sub-panel__header">
+                          <h4><i class="pi pi-file-o"></i> Historial de permisos — {{ user?.nombre }}</h4>
+                          <div class="sub-panel__meta">
+                            <span>Fórmula: {{ formatCOP(user?.salario) }} ÷ 30 ÷ 9.5 = <strong>{{ formatCOP(user?.tarifaHora) }}/h</strong></span>
+                            <span class="divider">|</span>
+                            <span>Costo base (2h): <strong>{{ formatCOP((user?.tarifaHora || 0) * 2) }}</strong></span>
+                          </div>
                         </div>
+                        <table class="sub-table">
+                          <thead>
+                            <tr>
+                              <th>Fecha</th>
+                              <th>Tipo</th>
+                              <th class="text-right">Costo Calculado</th>
+                              <th>Estado</th>
+                              <th class="text-right">Acción</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let p of user?.permisos || []" [class.is-cancelled]="p?.cancelado">
+                              <td>{{ p?.fecha || 'N/A' }}</td>
+                              <td>{{ p?.tipo || 'N/A' }}</td>
+                              <td class="text-right text-bold" [ngClass]="p?.cancelado ? 'text-muted' : 'text-dark'">
+                                {{ p?.cancelado ? '$ 0' : formatCOP(p?.costo) }}
+                              </td>
+                              <td>
+                                <span class="status-badge" [ngClass]="p?.cancelado ? 'status-danger' : 'status-success'">
+                                  {{ p?.cancelado ? 'No tomado' : 'Tomado' }}
+                                </span>
+                              </td>
+                              <td class="text-right">
+                                <button class="btn btn-outline btn-xs" (click)="toggleCancelado(p.id)"
+                                        [title]="p?.cancelado ? 'Restaurar permiso' : 'Marcar como no tomado'">
+                                  <i class="pi" [ngClass]="p?.cancelado ? 'pi-refresh' : 'pi-ban'"></i>
+                                  {{ p?.cancelado ? 'Restaurar' : 'Anular' }}
+                                </button>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
-                      
-                      <table class="sub-table">
-                        <thead>
-                          <tr>
-                            <th>Fecha</th>
-                            <th>Tipo</th>
-                            <th class="text-right">Costo Calculado</th>
-                            <th>Estado</th>
-                            <th class="text-right">Acción</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr *ngFor="let p of user?.permisos || []" [class.is-cancelled]="p?.cancelado">
-                            <td>{{ p?.fecha || 'N/A' }}</td>
-                            <td>{{ p?.tipo || 'N/A' }}</td>
-                            <td class="text-right text-bold" [ngClass]="p?.cancelado ? 'text-muted' : 'text-dark'">
-                              {{ p?.cancelado ? '$ 0' : formatCOP(p?.costo) }}
-                            </td>
-                            <td>
-                              <span class="status-badge" [ngClass]="p?.cancelado ? 'status-danger' : 'status-success'">
-                                {{ p?.cancelado ? 'No tomado' : 'Tomado' }}
-                              </span>
-                            </td>
-                            <td class="text-right">
-                              <button class="btn btn-outline btn-xs" 
-                                      (click)="toggleCancelado(p.id)" 
-                                      [title]="p?.cancelado ? 'Restaurar permiso' : 'Marcar como no tomado'">
-                                <i class="pi" [ngClass]="p?.cancelado ? 'pi-refresh' : 'pi-ban'"></i>
-                                {{ p?.cancelado ? 'Restaurar' : 'Anular' }}
-                              </button>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </td>
+                    </td>
+                  </tr>
+                </ng-container>
+              </tbody>
+              <tfoot *ngIf="stats.byUser && stats.byUser.length > 0">
+                <tr class="table-totals">
+                  <td colspan="5" class="text-right">TOTALES GENERALES</td>
+                  <td class="text-center">{{ getTotalCitasMedicas() }}</td>
+                  <td class="text-center">{{ getTotalCitasOdonto() }}</td>
+                  <td class="text-center">{{ stats.summary.totalPermisos }}</td>
+                  <td class="text-center">{{ stats.summary.totalHoras }}h</td>
+                  <td class="text-right text-danger">{{ formatCOP(stats.summary.totalCosto) }}</td>
+                  <td></td>
                 </tr>
-              </ng-container>
-            </tbody>
-            
-            <!-- Totales (TFOOT) -->
-            <tfoot *ngIf="stats.byUser && stats.byUser.length > 0">
-              <tr class="table-totals">
-                <td colspan="5" class="text-right">TOTALES GENERALES</td>
-                <td class="text-center">{{ getTotalCitasMedicas() }}</td>
-                <td class="text-center">{{ getTotalCitasOdonto() }}</td>
-                <td class="text-center">{{ stats.summary.totalPermisos }}</td>
-                <td class="text-center">{{ stats.summary.totalHoras }}h</td>
-                <td class="text-right text-danger">{{ formatCOP(stats.summary.totalCosto) }}</td>
-                <td></td>
-              </tr>
-            </tfoot>
-          </table>
+              </tfoot>
+            </table>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </ng-container>
+
+    <div *ngIf="!loading && !stats" class="empty-state fade-slide delay-1">
+      <div class="empty-state__icon"><i class="pi pi-inbox"></i></div>
+      <h4>Sin registros encontrados</h4>
+      <p>No hay permisos médicos u odontológicos registrados para las fechas seleccionadas.</p>
+    </div>
   </ng-container>
 
-  <!-- PRINCIPIO #15: EMPTY STATE -->
-  <div *ngIf="!loading && !stats" class="empty-state fade-slide delay-1">
-    <div class="empty-state__icon">
-      <i class="pi pi-inbox"></i>
+  <!-- ════════════ TAB: INCAPACIDADES ════════════ -->
+  <ng-container *ngIf="tabActivo === 'incapacidades'">
+    <!-- Filtros -->
+    <section class="filter-panel fade-slide delay-1">
+      <div class="filter-panel__header">
+        <i class="pi pi-filter"></i>
+        <h2>Filtros de Período</h2>
+      </div>
+      <div class="filter-panel__body filter-flex">
+        <div class="form-group">
+          <label>Desde</label>
+          <div class="input-group">
+            <i class="pi pi-calendar input-icon"></i>
+            <input type="date" [(ngModel)]="incapFromDate">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Hasta</label>
+          <div class="input-group">
+            <i class="pi pi-calendar input-icon"></i>
+            <input type="date" [(ngModel)]="incapToDate">
+          </div>
+        </div>
+        <div class="filter-actions">
+          <button class="btn btn-primary" (click)="applyIncapFilters()">
+            <i class="pi pi-search"></i> Aplicar
+          </button>
+          <button class="btn btn-outline" (click)="clearIncapFilters()">
+            <i class="pi pi-eraser"></i> Limpiar
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <div *ngIf="loadingIncap" class="loading-state fade-slide delay-2">
+      <div class="spinner"></div>
+      <p>Cargando incapacidades...</p>
     </div>
-    <h4>Sin registros encontrados</h4>
-    <p>No hay permisos médicos u odontológicos registrados para las fechas seleccionadas.</p>
-  </div>
+
+    <ng-container *ngIf="!loadingIncap && incapacidades">
+      <!-- KPI CARDS -->
+      <section class="kpi-grid fade-slide delay-2">
+        <div class="kpi-card">
+          <div class="kpi-card__icon kpi-icon--danger"><i class="pi pi-file-pdf"></i></div>
+          <div class="kpi-card__data">
+            <span class="kpi-card__label">Total Incapacidades</span>
+            <span class="kpi-card__value">{{ incapacidades.summary.totalIncapacidades }}</span>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-card__icon kpi-icon--warning"><i class="pi pi-calendar-times"></i></div>
+          <div class="kpi-card__data">
+            <span class="kpi-card__label">Total Días Incapacitados</span>
+            <span class="kpi-card__value">{{ incapacidades.summary.totalDias }}</span>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-card__icon kpi-icon--info"><i class="pi pi-users"></i></div>
+          <div class="kpi-card__data">
+            <span class="kpi-card__label">Colaboradores Afectados</span>
+            <span class="kpi-card__value">{{ incapacidades.summary.empleadosAfectados }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- TABLA -->
+      <section class="card fade-slide delay-3">
+        <div class="card-head">
+          <i class="pi pi-list"></i>
+          <h3>Incapacidades por Colaborador</h3>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive custom-scrollbar">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Colaborador</th>
+                  <th>Cargo</th>
+                  <th>Empresa</th>
+                  <th class="text-center">Cant. Incapacidades</th>
+                  <th class="text-center">Total Días</th>
+                  <th class="text-center">Detalle</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngIf="incapacidades.byUser.length === 0">
+                  <td colspan="6" class="text-center p-4 text-muted">
+                    <i class="pi pi-check-circle" style="font-size:2rem;opacity:.5;margin-bottom:.5rem;display:block;"></i>
+                    No hay incapacidades registradas en este período.
+                  </td>
+                </tr>
+                <ng-container *ngFor="let u of incapacidades.byUser">
+                  <tr [class.row-expanded]="expandedIncapUid === u.Uid">
+                    <td class="text-bold text-dark">{{ u.nombre }}</td>
+                    <td class="text-muted">{{ u.cargo }}</td>
+                    <td>
+                      <span class="status-badge" [ngClass]="{
+                        'bg-company-ap': u.empresa === 'AP',
+                        'bg-company-at': u.empresa === 'AT',
+                        'bg-company-me': u.empresa === 'ME'
+                      }">{{ u.empresa }}</span>
+                    </td>
+                    <td class="text-center text-bold">{{ u.cantidad }}</td>
+                    <td class="text-center">
+                      <span class="status-badge" [ngClass]="u.totalDias > 15 ? 'status-danger' : u.totalDias > 5 ? 'bg-warning text-dark' : 'status-success'">
+                        {{ u.totalDias }} días
+                      </span>
+                    </td>
+                    <td class="text-center table-actions justify-center">
+                      <button class="btn-action" (click)="toggleIncapDetalle(u.Uid)"
+                              [title]="expandedIncapUid === u.Uid ? 'Ocultar' : 'Ver detalle'">
+                        <i class="pi" [ngClass]="expandedIncapUid === u.Uid ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="expandedIncapUid === u.Uid" class="expanded-detail-row">
+                    <td colspan="6" class="p-0">
+                      <div class="sub-panel">
+                        <div class="sub-panel__header">
+                          <h4><i class="pi pi-file-pdf"></i> Historial de incapacidades — {{ u.nombre }}</h4>
+                        </div>
+                        <table class="sub-table">
+                          <thead>
+                            <tr>
+                              <th>Tipo</th>
+                              <th>Fecha inicio</th>
+                              <th>Fecha fin</th>
+                              <th class="text-center">Días</th>
+                              <th>Observaciones</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let inc of u.incapacidades" [class.is-cancelled]="inc.cancelado">
+                              <td>{{ inc.tipo }}</td>
+                              <td>{{ inc.fecha || '—' }}</td>
+                              <td>{{ inc.fechaFin || '—' }}</td>
+                              <td class="text-center text-bold">{{ inc.dias || '—' }}</td>
+                              <td class="text-muted" style="font-size:.78rem">{{ inc.observaciones || '—' }}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-container>
+              </tbody>
+              <tfoot *ngIf="incapacidades.byUser.length > 0">
+                <tr class="table-totals">
+                  <td colspan="3" class="text-right">TOTALES</td>
+                  <td class="text-center">{{ incapacidades.summary.totalIncapacidades }}</td>
+                  <td class="text-center">{{ incapacidades.summary.totalDias }} días</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </section>
+    </ng-container>
+
+    <div *ngIf="!loadingIncap && !incapacidades" class="empty-state fade-slide delay-1">
+      <div class="empty-state__icon"><i class="pi pi-inbox"></i></div>
+      <h4>Sin registros</h4>
+      <p>No hay incapacidades registradas en el período seleccionado.</p>
+    </div>
+  </ng-container>
 
 </div>
