@@ -63,6 +63,7 @@ export class LoginComponent {
           const role = response.role;
           const userId = response.userId;
           const Aid = response.Aid;
+          const area = response.area || '';
           const correoLider = response.correolider;
           const email = user.email;
           const name = response.name;
@@ -75,6 +76,7 @@ export class LoginComponent {
           localStorage.setItem('correoLider', correoLider);
           localStorage.setItem('userId', userId); 
           localStorage.setItem('Aid', Aid);
+          localStorage.setItem('area', area);
           localStorage.setItem('email', email);
           localStorage.setItem('name', name);
           localStorage.setItem('lastname', lastname);

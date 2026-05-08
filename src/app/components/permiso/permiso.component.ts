@@ -33,6 +33,12 @@ export class PermisoComponent implements OnInit {
   };
   cantidadDias: number = 1;
   fechaFin: string = ''; // Nueva propiedad para fecha de fin
+  areaNombre: string = localStorage.getItem('area') || '';
+
+  esGestionAdministrativa(): boolean {
+    const area = this.areaNombre.toLowerCase();
+    return area.includes('gestión administrativa') || area.includes('gestion administrativa');
+  }
 
   ngOnInit(): void {
     // Obtener el correo del líder desde localStorage
@@ -182,7 +188,7 @@ export class PermisoComponent implements OnInit {
   }
 
   requiereSoporte(): boolean {
-    const tiposConSoporteObligatorio = ['Vacaciones', 'Día de la familia'];
+    const tiposConSoporteObligatorio = ['Vacaciones', 'Día de la familia', 'Incapacidad médica', 'Incapacidad laboral'];
     return tiposConSoporteObligatorio.includes(this.permiso.tipo);
   }
 
@@ -353,6 +359,20 @@ export class PermisoComponent implements OnInit {
         this.toastr.warning('No hay días laborales en el rango seleccionado');
         this.loading = false;
         return;
+      }
+
+      // Validar días mínimos de vacaciones según área
+      if (this.permiso.tipo === 'Vacaciones') {
+        if (this.esGestionAdministrativa() && diasLaborales < 3) {
+          this.toastr.error('Para Gestión Administrativa, el mínimo de días laborales de vacaciones es 3');
+          this.loading = false;
+          return;
+        }
+        if (!this.esGestionAdministrativa() && diasLaborales < 6) {
+          this.toastr.error('El mínimo de días laborales de vacaciones es 6. Solo Gestión Administrativa puede solicitar menos días.');
+          this.loading = false;
+          return;
+        }
       }
 
       console.log(`📅 Permiso de rango: ${diasLaborales} días laborales`);

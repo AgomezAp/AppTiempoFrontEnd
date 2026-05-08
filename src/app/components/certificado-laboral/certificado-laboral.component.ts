@@ -97,10 +97,38 @@ export class CertificadoLaboralComponent implements OnInit {
         this.userName = `${payload.name} ${payload.lastname}`;
         this.userRole = payload.role || '';
         this.isAdmin = this.userRole === 'Admin';
+        // Para usuarios no admin, el área se toma del token/localStorage para validar días de vacaciones.
+        this.certificadoConfig.areaName =
+          payload.area ||
+          payload.areaName ||
+          localStorage.getItem('area') ||
+          '';
+
+        // Refrescar siempre desde backend para evitar área desactualizada en token/localStorage.
+        if (this.uid) {
+          this.cargarAreaUsuarioActual();
+        }
       } catch (e) {
         this.error = 'Error al obtener datos del usuario';
       }
     }
+  }
+
+  private cargarAreaUsuarioActual() {
+    this.userService.getAllUsers().subscribe({
+      next: (users: any[]) => {
+        const usuarioActual = users.find((u: any) => Number(u.Uid) === Number(this.uid));
+        const areaActual =
+          usuarioActual?.area?.Aname || usuarioActual?.areaName || usuarioActual?.Aname || '';
+        if (areaActual) {
+          this.certificadoConfig.areaName = areaActual;
+          localStorage.setItem('area', areaActual);
+        }
+      },
+      error: (err) => {
+        console.error('No se pudo obtener el área del usuario actual:', err);
+      },
+    });
   }
 
   onSearchChange() {
@@ -144,7 +172,8 @@ export class CertificadoLaboralComponent implements OnInit {
     this.certificadoConfig.fondoPension = user.fondoPension || 'PORVENIR';
     this.certificadoConfig.fondoCesantias = user.fondoCesantias || 'PORVENIR';
     this.certificadoConfig.fechaIngreso = user.fechaIngreso || '';
-    this.certificadoConfig.areaName = user.area?.Aname || '';
+    this.certificadoConfig.areaName =
+      user.area?.Aname || user.areaName || user.Aname || '';
     this.certificadoConfig.tipoContrato =
       user.tipoContrato || 'termino-indefinido';
 
@@ -370,11 +399,24 @@ export class CertificadoLaboralComponent implements OnInit {
   }
 
   esGestionAdministrativa(): boolean {
-    const areaName = this.certificadoConfig.areaName?.toLowerCase() || '';
-    return (
-      areaName.includes('gestión administrativa') ||
-      areaName.includes('gestion administrativa')
-    );
+    const areaDetectada =
+      this.certificadoConfig.areaName ||
+      this.selectedUser?.area?.Aname ||
+      this.selectedUser?.areaName ||
+      this.selectedUser?.Aname ||
+      localStorage.getItem('area') ||
+      '';
+    const areaName = this.normalizarTexto(areaDetectada);
+    return /gestion\s+administrativ/.test(areaName);
+  }
+
+  private normalizarTexto(valor: string): string {
+    return (valor || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 
   validarDiasVacaciones(): string | null {
