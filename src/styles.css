@@ -273,7 +273,7 @@ a:hover {
    ======================================== */
 app-navbar {
   position: relative;
-  z-index: 1050;
+  z-index: 1030;
 }
 
 /* ── Contenedores principales ── */
