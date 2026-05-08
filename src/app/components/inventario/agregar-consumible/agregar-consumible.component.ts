@@ -17,7 +17,7 @@ import { CrearConsumibleRequest } from '../../../interfaces/Inventario/mobiliari
 export class AgregarConsumibleComponent implements OnInit {
   consumibleForm!: FormGroup;
   loading = false;
-  tipoInventario: 'aseo' | 'papeleria' | 'botiquin' | 'desechables' | 'dotacion' = 'aseo';
+  tipoInventario: 'aseo' | 'papeleria' | 'botiquin' | 'desechables' | 'dotacion' | 'herramientas' = 'aseo';
 
   // Configuración según tipo
   tituloTipo = 'Aseo';
@@ -76,6 +76,17 @@ export class AgregarConsumibleComponent implements OnInit {
     'Otro',
   ];
 
+  categoriasHerramientas = [
+    'Clavos y Tornillos',
+    'Herramientas de Mano',
+    'Herramientas Eléctricas',
+    'Adhesivos y Selladores',
+    'Brocas y Discos',
+    'Medición y Nivelación',
+    'Seguridad Industrial',
+    'Otro',
+  ];
+
   categoriasDotacion = [
     'Camisas y Camisetas',
     'Pantalones',
@@ -114,7 +125,7 @@ export class AgregarConsumibleComponent implements OnInit {
     // Obtener tipo de la ruta
     this.route.params.subscribe((params) => {
       const tipo = params['tipo'];
-      if (tipo === 'aseo' || tipo === 'papeleria' || tipo === 'botiquin' || tipo === 'desechables' || tipo === 'dotacion') {
+      if (tipo === 'aseo' || tipo === 'papeleria' || tipo === 'botiquin' || tipo === 'desechables' || tipo === 'dotacion' || tipo === 'herramientas') {
         this.tipoInventario = tipo;
         this.configurarTipo();
       }
@@ -144,6 +155,11 @@ export class AgregarConsumibleComponent implements OnInit {
       this.iconoTipo = 'fa-trash-can';
       this.colorTema = '#6f42c1';
       this.categorias = this.categoriasDesechables;
+    } else if (this.tipoInventario === 'herramientas') {
+      this.tituloTipo = 'Herramientas';
+      this.iconoTipo = 'fa-screwdriver-wrench';
+      this.colorTema = '#795548';
+      this.categorias = this.categoriasHerramientas;
     } else {
       this.tituloTipo = 'Dotación';
       this.iconoTipo = 'fa-shirt';

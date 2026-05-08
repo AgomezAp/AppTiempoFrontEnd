@@ -24,7 +24,8 @@ export class InventarioConsumiblesComponent implements OnInit, OnDestroy {
     | 'papeleria'
     | 'botiquin'
     | 'desechables'
-    | 'dotacion' = 'aseo';
+    | 'dotacion'
+    | 'herramientas' = 'aseo';
 
   tipoInventario: TipoInventario | null = null;
   consumibles: Consumible[] = [];
@@ -86,6 +87,16 @@ export class InventarioConsumiblesComponent implements OnInit, OnDestroy {
     'gorras y cascos',
     'guantes de trabajo',
     'overoles',
+    'otro',
+  ];
+  categoriasHerramientas = [
+    'clavos y tornillos',
+    'herramientas de mano',
+    'herramientas eléctricas',
+    'adhesivos y selladores',
+    'brocas y discos',
+    'medición y nivelación',
+    'seguridad industrial',
     'otro',
   ];
 
@@ -161,7 +172,7 @@ export class InventarioConsumiblesComponent implements OnInit, OnDestroy {
     this.websocketService.leaveRoom('consumibles');
   }
   get permiteSustraccionStock(): boolean {
-    return this.tipoInventarioCodigo !== 'botiquin' && this.tipoInventarioCodigo !== 'papeleria' && this.tipoInventarioCodigo !== 'desechables' && this.tipoInventarioCodigo !== 'dotacion';
+    return this.tipoInventarioCodigo !== 'botiquin' && this.tipoInventarioCodigo !== 'papeleria' && this.tipoInventarioCodigo !== 'desechables' && this.tipoInventarioCodigo !== 'dotacion' && this.tipoInventarioCodigo !== 'herramientas';
   }
   /**
    * Configurar debounce para el campo de búsqueda (300ms de delay)
@@ -351,6 +362,8 @@ export class InventarioConsumiblesComponent implements OnInit, OnDestroy {
       return this.categoriasBotiquin;
     if (this.tipoInventarioCodigo === 'desechables')
       return this.categoriasDesechables;
+    if (this.tipoInventarioCodigo === 'herramientas')
+      return this.categoriasHerramientas;
     return this.categoriasDotacion;
   }
 
@@ -362,6 +375,8 @@ export class InventarioConsumiblesComponent implements OnInit, OnDestroy {
       return 'Inventario de Botiquín';
     if (this.tipoInventarioCodigo === 'desechables')
       return 'Inventario de Desechables';
+    if (this.tipoInventarioCodigo === 'herramientas')
+      return 'Inventario de Herramientas';
     return 'Inventario de Dotación';
   }
 
@@ -370,6 +385,7 @@ export class InventarioConsumiblesComponent implements OnInit, OnDestroy {
     if (this.tipoInventarioCodigo === 'papeleria') return 'fa-paperclip';
     if (this.tipoInventarioCodigo === 'botiquin') return 'fa-kit-medical';
     if (this.tipoInventarioCodigo === 'desechables') return 'fa-trash-can';
+    if (this.tipoInventarioCodigo === 'herramientas') return 'fa-screwdriver-wrench';
     return 'fa-shirt';
   }
 
@@ -378,6 +394,7 @@ export class InventarioConsumiblesComponent implements OnInit, OnDestroy {
     if (this.tipoInventarioCodigo === 'papeleria') return '#ffc107';
     if (this.tipoInventarioCodigo === 'botiquin') return '#dc3545';
     if (this.tipoInventarioCodigo === 'desechables') return '#6f42c1';
+    if (this.tipoInventarioCodigo === 'herramientas') return '#795548';
     return '#20c997';
   }
 

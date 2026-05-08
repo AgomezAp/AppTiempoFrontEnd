@@ -22,7 +22,8 @@ export class ActasConsumiblesComponent implements OnInit, OnDestroy {
     | 'papeleria'
     | 'botiquin'
     | 'desechables'
-    | 'dotacion' = 'aseo';
+    | 'dotacion'
+    | 'herramientas' = 'aseo';
   tituloTipo = 'Aseo';
   iconoTipo = 'fa-broom';
   colorTema = '#00bcd4';
@@ -93,6 +94,10 @@ export class ActasConsumiblesComponent implements OnInit, OnDestroy {
       this.tituloTipo = 'Desechables';
       this.iconoTipo = 'pi-trash';
       this.colorTema = '#6f42c1';
+    } else if (this.tipoInventario === 'herramientas') {
+      this.tituloTipo = 'Herramientas';
+      this.iconoTipo = 'pi-wrench';
+      this.colorTema = '#795548';
     } else {
       this.tituloTipo = 'Dotación';
       this.iconoTipo = 'pi-box';

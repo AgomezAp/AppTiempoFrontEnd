@@ -28,7 +28,8 @@ export class CrearActaConsumibleComponent implements OnInit {
     | 'papeleria'
     | 'botiquin'
     | 'desechables'
-    | 'dotacion' = 'aseo';
+    | 'dotacion'
+    | 'herramientas' = 'aseo';
   tituloTipo = 'Aseo';
   iconoTipo = 'fa-broom';
   colorTema = '#00acc1';
@@ -94,7 +95,8 @@ export class CrearActaConsumibleComponent implements OnInit {
         tipo === 'papeleria' ||
         tipo === 'botiquin' ||
         tipo === 'desechables' ||
-        tipo === 'dotacion'
+        tipo === 'dotacion' ||
+        tipo === 'herramientas'
       ) {
         this.tipoInventario = tipo;
         this.configurarTipo();
@@ -120,6 +122,10 @@ export class CrearActaConsumibleComponent implements OnInit {
       this.tituloTipo = 'Desechables';
       this.iconoTipo = 'fa-trash-can';
       this.colorTema = '#6f42c1';
+    } else if (this.tipoInventario === 'herramientas') {
+      this.tituloTipo = 'Herramientas';
+      this.iconoTipo = 'fa-screwdriver-wrench';
+      this.colorTema = '#795548';
     } else {
       this.tituloTipo = 'Dotación';
       this.iconoTipo = 'fa-shirt';
