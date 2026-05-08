@@ -578,6 +578,7 @@ label {
   max-width: 400px;
   box-shadow: var(--shadow-modal);
   overflow: hidden;
+  pointer-events: auto;
 }
 
 .modal-header {

@@ -20,6 +20,8 @@ export const MODULOS_SISTEMA = [
   { key: 'inventario_papeleria',    label: 'Inventario - Papelería',        grupo: 'Inventario' },
   { key: 'inventario_botiquin',     label: 'Inventario - Botiquín',         grupo: 'Inventario' },
   { key: 'inventario_dotacion',     label: 'Inventario - Dotación',         grupo: 'Inventario' },
+  { key: 'inventario_desechables',  label: 'Inventario - Desechables',      grupo: 'Inventario' },
+  { key: 'inventario_herramientas', label: 'Inventario - Herramientas',     grupo: 'Inventario' },
 ];
 
 @Injectable({ providedIn: 'root' })
