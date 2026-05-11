@@ -474,6 +474,8 @@ input[readonly] {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  max-height: calc(100vh - 2rem);
+  pointer-events: auto;
 }
 
 .modal-header {
@@ -523,6 +525,8 @@ input[readonly] {
 }
 .modal-body {
   padding: 1.25rem;
+  overflow-y: auto;
+  flex: 1;
 }
 .modal-footer {
   padding: 0.85rem 1.25rem;
@@ -646,6 +650,9 @@ input[readonly] {
 /* =========================================================
    PRINCIPIO #14: SCROLLBARS
    ========================================================= */
+.custom-scrollbar {
+  overflow-y: auto;
+}
 .custom-scrollbar::-webkit-scrollbar {
   width: 5px;
   height: 5px;
