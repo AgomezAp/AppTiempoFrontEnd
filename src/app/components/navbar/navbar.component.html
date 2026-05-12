@@ -86,7 +86,7 @@
           <li class="nav-item">
             <a class="nav-link" href="/permisos">Permisos</a>
           </li>
-          <li class="nav-item dropdown">
+          <li class="nav-item dropdown" *ngIf="tieneModulo('recursos') || userRole === 'User' || userRole === 'Tecnologia'">
             <a
               class="nav-link dropdown-toggle"
               href="#"

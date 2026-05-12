@@ -230,6 +230,75 @@
     </div>
 
     <ng-container *ngIf="!cargandoLlegadas">
+      <!-- TABLA UNIFICADA: Todas las llegadas tarde con permiso relacionado -->
+      <div class="layout-full fade-slide delay-2">
+        <section class="card">
+          <div class="card-head flex-between">
+            <div style="display:flex;align-items:center;gap:.5rem">
+              <i class="pi pi-list text-primary"></i>
+              <h3>Todas las llegadas tarde
+                <span class="tab-count" style="margin-left:.35rem;background:#6c757d">{{ llegadasTodasFiltradas.length }}</span>
+              </h3>
+            </div>
+            <span class="panel-instructions" style="margin:0;font-size:.7rem">Vista general con permiso relacionado del día</span>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive custom-scrollbar">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Empleado</th>
+                    <th class="text-center">Fecha</th>
+                    <th class="text-center">Hora llegada</th>
+                    <th class="text-center">Tiempo tarde</th>
+                    <th>Permiso relacionado del día</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="llegadasTodasFiltradas.length === 0">
+                    <td colspan="5" class="text-center p-4 text-muted">
+                      <i class="pi pi-check-circle" style="font-size:2rem;opacity:.5;margin-bottom:.5rem;display:block;"></i>
+                      No hay llegadas tarde en este período.
+                    </td>
+                  </tr>
+                  <tr *ngFor="let r of llegadasTodasFiltradas">
+                    <td class="text-bold text-dark">{{ r.Name }}</td>
+                    <td class="text-center text-muted">{{ r.Fecha | date:'dd/MM/yyyy' }}</td>
+                    <td class="text-center">
+                      <span class="status-badge"
+                        [ngClass]="{
+                          'bg-warning text-dark': r._categoriaPermiso === 'formulario',
+                          'status-danger': r._categoriaPermiso === 'sin_permiso',
+                          'bg-primary text-white': r._categoriaPermiso === 'otro_permiso'
+                        }">
+                        {{ formatHora(r.Entrada) }}
+                      </span>
+                    </td>
+                    <td class="text-center">
+                      <span class="status-badge"
+                        [ngClass]="{
+                          'bg-warning text-dark': r._categoriaPermiso === 'formulario',
+                          'status-danger': r._categoriaPermiso === 'sin_permiso',
+                          'bg-primary text-white': r._categoriaPermiso === 'otro_permiso'
+                        }">
+                        {{ minutosTardeTexto(r.minutosTarde) }}
+                      </span>
+                    </td>
+                    <td style="font-size:.78rem;max-width:260px">
+                      <span *ngIf="r._categoriaPermiso === 'sin_permiso'" class="status-badge status-danger">Sin permiso</span>
+                      <span *ngIf="r._categoriaPermiso === 'formulario'" class="status-badge bg-warning text-dark">{{ r.permiso?.tipo || 'Llegada tarde por factores externos' }}</span>
+                      <span *ngIf="r._categoriaPermiso === 'otro_permiso'">
+                        <span *ngFor="let p of r.otrosPermisos" class="status-badge" style="background:#e8f0fe;color:#0d6efd;margin-right:.25rem;margin-bottom:.2rem;display:inline-block">{{ p.tipo }}</span>
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+
       <!-- TABLA 1: Con formulario de llegada tarde -->
       <div class="layout-full fade-slide delay-2">
         <section class="card">

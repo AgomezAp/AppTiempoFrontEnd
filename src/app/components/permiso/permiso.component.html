@@ -303,12 +303,15 @@
             type="submit"
             class="btn btn--primary"
             [disabled]="
+              loading ||
               !permisoForm.form.valid ||
               !isObservacionesValid() ||
               (requiereSoporte() && !selectedFile)
             "
           >
-            <i class="pi pi-send"></i> Enviar Solicitud
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            <i *ngIf="!loading" class="pi pi-send"></i>
+            {{ loading ? 'Enviando...' : 'Enviar Solicitud' }}
           </button>
         </div>
       </form>

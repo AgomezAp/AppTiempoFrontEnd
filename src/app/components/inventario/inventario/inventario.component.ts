@@ -130,7 +130,9 @@ export class InventarioComponent implements OnInit, OnDestroy {
         d.marca?.toLowerCase().includes(this.filtroBusqueda.toLowerCase()) ||
         d.modelo?.toLowerCase().includes(this.filtroBusqueda.toLowerCase()) ||
         d.serial?.toLowerCase().includes(this.filtroBusqueda.toLowerCase()) ||
-        d.imei?.toLowerCase().includes(this.filtroBusqueda.toLowerCase());
+        d.imei?.toLowerCase().includes(this.filtroBusqueda.toLowerCase()) ||
+        d.ubicacion?.toLowerCase().includes(this.filtroBusqueda.toLowerCase()) ||
+        d.nombre?.toLowerCase().includes(this.filtroBusqueda.toLowerCase());
 
       return cumpleEstado && cumpleCategoria && cumpleBusqueda;
     });

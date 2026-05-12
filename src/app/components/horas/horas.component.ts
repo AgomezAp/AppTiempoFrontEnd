@@ -60,9 +60,11 @@ export class HorasComponent implements OnInit {
   llegadasConFormulario: any[] = [];
   llegadasSinFormulario: any[] = [];
   llegadasConPermiso: any[] = [];
+  llegadasTodas: any[] = [];
   llegadasConFiltradas: any[] = [];
   llegadasSinFiltradas: any[] = [];
   llegadasConPermisoFiltradas: any[] = [];
+  llegadasTodasFiltradas: any[] = [];
   cargandoLlegadas = false;
   buscarLlegada = '';
   llegadasDesde = '';
@@ -462,6 +464,16 @@ export class HorasComponent implements OnInit {
         this.llegadasConFormulario = data.conFormulario || [];
         this.llegadasSinFormulario = data.sinFormulario || [];
         this.llegadasConPermiso = data.conPermiso || [];
+        // Vista unificada: todos los registros con su permiso del día
+        this.llegadasTodas = [
+          ...this.llegadasConFormulario.map(r => ({ ...r, _categoriaPermiso: 'formulario' })),
+          ...this.llegadasConPermiso.map(r => ({ ...r, _categoriaPermiso: 'otro_permiso' })),
+          ...this.llegadasSinFormulario.map(r => ({ ...r, _categoriaPermiso: 'sin_permiso' })),
+        ].sort((a, b) => {
+          const dateCompare = new Date(b.Fecha).getTime() - new Date(a.Fecha).getTime();
+          if (dateCompare !== 0) return dateCompare;
+          return (a.Name || '').localeCompare(b.Name || '');
+        });
         this.filtrarLlegadas();
         this.cargandoLlegadas = false;
       },
@@ -480,6 +492,15 @@ export class HorasComponent implements OnInit {
     this.llegadasConPermisoFiltradas = this.llegadasConPermiso.filter(r =>
       !q || r.Name.toLowerCase().includes(q)
     );
+    this.llegadasTodasFiltradas = this.llegadasTodas.filter(r =>
+      !q || r.Name.toLowerCase().includes(q)
+    );
+  }
+
+  getPermisosDelDia(r: any): string {
+    if (r._categoriaPermiso === 'formulario') return r.permiso?.tipo || 'Llegada tarde por factores externos';
+    if (r._categoriaPermiso === 'otro_permiso') return (r.otrosPermisos || []).map((p: any) => p.tipo).join(', ');
+    return 'Sin permiso';
   }
 
   formatHora(timestamp: string): string {
