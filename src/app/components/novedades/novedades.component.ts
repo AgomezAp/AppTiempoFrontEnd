@@ -7,7 +7,6 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, mapToResolve, Router } from '@angular/router';
 import { NovedadService } from '../../services/novedad.service';
 import { NovedadHistorico } from '../../interfaces/hora';
-import { response } from 'express';
 @Component({
   selector: 'app-novedades',
   imports: [NavbarComponent, FormsModule, CommonModule],

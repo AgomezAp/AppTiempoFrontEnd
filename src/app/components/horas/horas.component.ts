@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Extra, Hora } from '../../interfaces/hora';
@@ -70,6 +71,8 @@ export class HorasComponent implements OnInit {
   llegadasDesde = '';
   llegadasHasta = '';
 
+  private destroyRef = inject(DestroyRef);
+
   constructor(
     private horaService: HoraService,
     private userService: UserService,
@@ -79,7 +82,7 @@ export class HorasComponent implements OnInit {
 
   ngOnInit(): void {
     this.checkUserRole(); // Verificar rol del usuario
-    this.route.params.subscribe((params) => {
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const id = +params['id']; // Obtener el parámetro ID de la URL
       if (!isNaN(id)) {
         this.showList = false;
@@ -101,14 +104,14 @@ export class HorasComponent implements OnInit {
   }
 
   loadUsers(): void {
-    this.userService.getListUser().subscribe((users: UResponse[]) => {
+    this.userService.getListUser().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((users: UResponse[]) => {
       this.listUsers = users;
     });
   }
 
   loadHoras(): void {
     this.loading = true;
-    this.horaService.getHoras().subscribe((data: Hora[]) => {
+    this.horaService.getHoras().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((data: Hora[]) => {
       this.listHoras = data;
       this.filteredHoras = data;
       const currentDate = new Date();
@@ -205,7 +208,7 @@ export class HorasComponent implements OnInit {
   }
   loadHoras2(): void {
     this.loading = true;
-    this.horaService.getHoras().subscribe((data: Hora[]) => {
+    this.horaService.getHoras().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((data: Hora[]) => {
       this.listHoras = data.map((hora) => {
         const user = this.listUsers.find((u) => u.Uid === hora.Hid);
         console.log(user);
@@ -223,7 +226,7 @@ export class HorasComponent implements OnInit {
 
   loadExtra(): void {
     this.loading = true;
-    this.horaService.getExtra().subscribe((data: Extra[]) => {
+    this.horaService.getExtra().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((data: Extra[]) => {
       this.listExtra = data;
       this.filterdExtra = data;
       this.loading = false;
@@ -233,7 +236,7 @@ export class HorasComponent implements OnInit {
   getHoraById(id: number): void {
     this.loading = true;
 
-    this.horaService.getHorarioById(id).subscribe(
+    this.horaService.getHorarioById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (data: Hora[]) => {
         this.listHoras = data;
         this.filteredHoras = data;
@@ -259,7 +262,7 @@ export class HorasComponent implements OnInit {
 
   getExtraById(id: number): void {
     this.loading = true;
-    this.horaService.getExtraById(id).subscribe(
+    this.horaService.getExtraById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (dato: Extra[]) => {
         this.listExtra = dato;
         this.filterdExtra = dato;
@@ -275,7 +278,7 @@ export class HorasComponent implements OnInit {
   getHoraByFecha(fecha: string): void {
     this.loading = true;
 
-    this.horaService.getHorarioByFecha(fecha).subscribe(
+    this.horaService.getHorarioByFecha(fecha).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (data: Hora[]) => {
         this.listHoras = data;
         this.filteredHoras = data;

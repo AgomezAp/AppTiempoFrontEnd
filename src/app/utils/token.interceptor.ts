@@ -16,14 +16,12 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
   const errorService = inject(ErrorsService); 
   const router = inject(Router); 
 
-  const token = localStorage.getItem('token'); 
-  const clonedRequest = req.clone({
-    setHeaders: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const token = localStorage.getItem('token');
+  const requestToSend = token
+    ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
+    : req;
 
-  return next(clonedRequest).pipe(
+  return next(requestToSend).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
         errorService.messageError(error); 

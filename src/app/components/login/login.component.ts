@@ -12,8 +12,6 @@ import { ToastrService } from 'ngx-toastr';
 import { ErrorsService } from '../../services/errors.service';
 import { UserService } from '../../services/user.service';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
-import { response } from 'express';
-
 const SYSTEM_ROLES = ['Admin', 'User', 'Tecnologia'];
 
 const MODULE_ROUTE_MAP: Record<string, string> = {

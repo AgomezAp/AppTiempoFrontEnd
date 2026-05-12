@@ -87,6 +87,13 @@
        SECCIÓN: DASHBOARD
        ═══════════════════════════════════════ -->
   <section class="tab-content" *ngIf="seccionActiva === 'dashboard'">
+    <!-- Sin período seleccionado -->
+    <div class="empty-state" *ngIf="!periodoSeleccionado && !cargando">
+      <i class="pi pi-calendar empty-state__icon"></i>
+      <h3 class="empty-state__title">Selecciona un período de evaluación</h3>
+      <p class="empty-state__text">Elige un período en el selector de arriba para ver las estadísticas del dashboard.</p>
+    </div>
+
     <!-- Loading -->
     <div class="loading-state" *ngIf="cargando">
       <div class="loading-state__spinner"></div>

@@ -6,8 +6,6 @@ import { map } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment.development';
 import { Hora, Extra, Novedad, HistoricoExtra} from '../interfaces/hora';
-import { response } from 'express';
-
 @Injectable({
   providedIn: 'root'
 })

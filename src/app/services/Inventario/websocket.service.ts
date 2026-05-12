@@ -99,7 +99,7 @@ export class WebsocketService implements OnDestroy {
     const token = localStorage.getItem('token');
     
     this.socket = io(wsUrl, {
-      transports: ['websocket', 'polling'],
+      transports: ['polling', 'websocket'],
       reconnection: true,
       reconnectionAttempts: this.reconnectConfig.maxAttempts,
       reconnectionDelay: this.reconnectConfig.initialDelay,
