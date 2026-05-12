@@ -180,32 +180,34 @@
             </button>
           </span>
         </div>
-        <div class="pagina-container" [style.width.%]="zoom">
-          <img
-            [src]="getPaginaImagenUrl()"
-            alt="Página {{ paginaActual }}"
-            class="pagina-imagen"
-          />
-          <div
-            class="campo-overlay"
-            *ngFor="let campo of getCamposPaginaActual(); let i = index"
-            [style.left.%]="campo.posX"
-            [style.top.%]="campo.posY"
-            [style.width.%]="campo.ancho"
-            [style.height.%]="campo.alto"
-            (mousedown)="onCampoDragStart($event, campo)"
-          >
-            <span class="campo-label">{{ campo.etiqueta }}</span>
-            <button
-              class="campo-delete"
-              (click)="eliminarCampo(i); $event.stopPropagation()"
-            >
-              <i class="fas fa-times"></i>
-            </button>
+        <div class="pagina-container">
+          <div class="pagina-zoom-inner" [style.width.%]="zoom">
+            <img
+              [src]="getPaginaImagenUrl()"
+              alt="Página {{ paginaActual }}"
+              class="pagina-imagen"
+            />
             <div
-              class="campo-resize-handle"
-              (mousedown)="onCampoResizeStart($event, campo)"
-            ></div>
+              class="campo-overlay"
+              *ngFor="let campo of getCamposPaginaActual(); let i = index"
+              [style.left.%]="campo.posX"
+              [style.top.%]="campo.posY"
+              [style.width.%]="campo.ancho"
+              [style.height.%]="campo.alto"
+              (mousedown)="onCampoDragStart($event, campo)"
+            >
+              <span class="campo-label">{{ campo.etiqueta }}</span>
+              <button
+                class="campo-delete"
+                (click)="eliminarCampo(i); $event.stopPropagation()"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+              <div
+                class="campo-resize-handle"
+                (mousedown)="onCampoResizeStart($event, campo)"
+              ></div>
+            </div>
           </div>
         </div>
       </div>

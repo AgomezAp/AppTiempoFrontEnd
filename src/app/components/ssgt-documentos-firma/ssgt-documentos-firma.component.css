@@ -498,13 +498,16 @@ h1, h2, h3, h4, p, span, div, input, select, textarea, button, label, strong {
   flex: 1;
   overflow: auto;
   padding: 1.5rem;
-  display: flex;
-  justify-content: center;
+  min-height: 0;
+}
+.pagina-zoom-inner {
   position: relative;
+  margin: 0 auto;
+  min-width: min-content;
 }
 .pagina-imagen {
   display: block;
-  max-width: 100%;
+  width: 100%;
   height: auto;
   box-shadow: var(--shadow-md);
   background: #fff;
