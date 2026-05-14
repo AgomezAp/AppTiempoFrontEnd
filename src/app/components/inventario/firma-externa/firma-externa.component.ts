@@ -89,7 +89,7 @@ export class FirmaExternaComponent implements OnInit, AfterViewInit {
   }
 
   cargarDatosActa(): void {
-    this.http.get<DatosActa>(`${this.apiUrl}/api/firma/publica/${this.token}`)
+    this.http.get<DatosActa>(`${this.apiUrl}/api/inventario/firma-externa/publica/${this.token}`)
       .subscribe({
         next: (datos) => {
           this.datosActa = datos;
@@ -240,7 +240,7 @@ export class FirmaExternaComponent implements OnInit, AfterViewInit {
 
     this.firmando = true;
 
-    this.http.post(`${this.apiUrl}/api/firma/publica/${this.token}/firmar`, {
+    this.http.post(`${this.apiUrl}/api/inventario/firma-externa/publica/${this.token}/firmar`, {
       firma: firmaBase64
     }).subscribe({
       next: () => {
@@ -264,7 +264,7 @@ export class FirmaExternaComponent implements OnInit, AfterViewInit {
     
     this.rechazando = true;
     
-    this.http.post(`${this.apiUrl}/api/firma/publica/${this.token}/rechazar`, {
+    this.http.post(`${this.apiUrl}/api/inventario/firma-externa/publica/${this.token}/rechazar`, {
       motivo: this.motivoRechazo
     }).subscribe({
       next: () => {
