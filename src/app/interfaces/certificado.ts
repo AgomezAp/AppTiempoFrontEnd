@@ -9,8 +9,6 @@ export interface Certificado {
   salarioEnPalabras: string;
   fechaCertificado: string;
   gerente: string;
-  lider: string;
-  cargoLider: string;
   direccion: string;
   telefono: string;
   email: string;
