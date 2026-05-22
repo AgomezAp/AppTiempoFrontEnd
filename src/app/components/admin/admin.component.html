@@ -17,6 +17,9 @@
         </div>
       </div>
       <div class="page-header__right">
+        <button class="btn btn--primary" (click)="openAddModal()">
+          <i class="fas fa-user-plus"></i> Adicionar Usuario
+        </button>
         <button class="btn btn--outline-light" (click)="goBack()">
           <i class="fas fa-arrow-left"></i> Volver
         </button>
@@ -387,6 +390,259 @@
         </button>
         <button class="btn btn--primary" (click)="saveUser()">
           <i class="fas fa-save"></i> Guardar Cambios
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MODAL ADICIONAR USUARIO ═══ -->
+  <div class="modal-overlay fade-in" *ngIf="addingUser" (click)="cancelAdd()">
+    <div
+      class="modal-dialog fade-slide"
+      style="max-width: 650px"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fas fa-user-plus text-accent"></i>
+          <h3>Adicionar Usuario</h3>
+        </div>
+        <button class="modal-close" (click)="cancelAdd()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body custom-scrollbar">
+        <form class="form-grid">
+          <div class="form-group form-group--full">
+            <label class="form-label" for="add-Uid">ID de Usuario *</label>
+            <input
+              type="number"
+              id="add-Uid"
+              class="form-control"
+              [(ngModel)]="addForm.Uid"
+              name="add-Uid"
+              placeholder="Ej: 101"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-name">Nombre *</label>
+            <input
+              type="text"
+              id="add-name"
+              class="form-control"
+              [(ngModel)]="addForm.name"
+              name="add-name"
+              placeholder="Nombre"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-lastName">Apellido *</label>
+            <input
+              type="text"
+              id="add-lastName"
+              class="form-control"
+              [(ngModel)]="addForm.lastName"
+              name="add-lastName"
+              placeholder="Apellido"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-email">Email *</label>
+            <input
+              type="email"
+              id="add-email"
+              class="form-control"
+              [(ngModel)]="addForm.email"
+              name="add-email"
+              placeholder="correo@ejemplo.com"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-celular">Celular (WhatsApp)</label>
+            <input
+              type="text"
+              id="add-celular"
+              class="form-control"
+              [(ngModel)]="addForm.celular"
+              name="add-celular"
+              placeholder="3001234567"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-password">Contraseña *</label>
+            <input
+              type="password"
+              id="add-password"
+              class="form-control"
+              [(ngModel)]="addForm.password"
+              name="add-password"
+              placeholder="Contraseña"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-confirmPassword">Confirmar Contraseña *</label>
+            <input
+              type="password"
+              id="add-confirmPassword"
+              class="form-control"
+              [(ngModel)]="addForm.confirmPassword"
+              name="add-confirmPassword"
+              placeholder="Repetir contraseña"
+              required
+            />
+          </div>
+
+          <div class="form-group form-group--full">
+            <label class="form-label" for="add-documentoIdentificacion">Documento</label>
+            <input
+              type="text"
+              id="add-documentoIdentificacion"
+              class="form-control"
+              [(ngModel)]="addForm.documentoIdentificacion"
+              name="add-documentoIdentificacion"
+              placeholder="1234567890"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-Rid">Rol *</label>
+            <select
+              id="add-Rid"
+              class="form-control form-select"
+              [(ngModel)]="addForm.Rid"
+              name="add-Rid"
+              required
+            >
+              <option [value]="0" disabled>Seleccione un rol</option>
+              <option *ngFor="let role of roles" [value]="role.Rid">
+                {{ role.Rname }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-Aid">Área *</label>
+            <select
+              id="add-Aid"
+              class="form-control form-select"
+              [(ngModel)]="addForm.Aid"
+              name="add-Aid"
+              required
+            >
+              <option [value]="0" disabled>Seleccione un área</option>
+              <option *ngFor="let area of areas" [value]="area.Aid">
+                {{ area.Aname }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-empresa">Empresa</label>
+            <select
+              id="add-empresa"
+              class="form-control form-select"
+              [(ngModel)]="addForm.empresa"
+              name="add-empresa"
+            >
+              <option value="AP">AP - Andrés Publicidad</option>
+              <option value="AT">AT - Andrés Tobón</option>
+              <option value="ME">ME - María Evangelina</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-cargo">Cargo</label>
+            <input
+              type="text"
+              id="add-cargo"
+              class="form-control"
+              [(ngModel)]="addForm.cargo"
+              name="add-cargo"
+              placeholder="Desarrollador, Diseñador..."
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-salario">Salario</label>
+            <input
+              type="text"
+              id="add-salario"
+              class="form-control"
+              [value]="formatSalario(addForm.salario)"
+              (input)="onAddSalarioChange($event)"
+              name="add-salario"
+              placeholder="1.500.000"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-fechaIngreso">Fecha Ingreso</label>
+            <input
+              type="date"
+              id="add-fechaIngreso"
+              class="form-control"
+              [(ngModel)]="addForm.fechaIngreso"
+              name="add-fechaIngreso"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-tipoContrato">Tipo de Contrato</label>
+            <select
+              id="add-tipoContrato"
+              class="form-control form-select"
+              [(ngModel)]="addForm.tipoContrato"
+              name="add-tipoContrato"
+            >
+              <option value="termino-indefinido">A Término Indefinido</option>
+              <option value="termino-fijo">A Término Fijo</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-fondoPension">Fondo Pensión</label>
+            <input
+              type="text"
+              id="add-fondoPension"
+              class="form-control"
+              [(ngModel)]="addForm.fondoPension"
+              name="add-fondoPension"
+              placeholder="PORVENIR, PROTECCIÓN..."
+            />
+          </div>
+
+          <div class="form-group form-group--full">
+            <label class="form-label" for="add-fondoCesantias">Fondo Cesantías</label>
+            <input
+              type="text"
+              id="add-fondoCesantias"
+              class="form-control"
+              [(ngModel)]="addForm.fondoCesantias"
+              name="add-fondoCesantias"
+              placeholder="PORVENIR, PROTECCIÓN..."
+            />
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn--outline" (click)="cancelAdd()">
+          Cancelar
+        </button>
+        <button class="btn btn--primary" (click)="registerUser()">
+          <i class="fas fa-user-plus"></i> Registrar Usuario
         </button>
       </div>
     </div>

@@ -45,6 +45,28 @@ export class AdminComponent implements OnInit {
     celular: ''
   };
 
+  // Adición de usuario
+  addingUser: boolean = false;
+  addForm: any = {
+    Uid: '',
+    name: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    Rid: 0,
+    Aid: 0,
+    salario: 0,
+    empresa: 'AP',
+    documentoIdentificacion: '',
+    fechaIngreso: '',
+    cargo: '',
+    tipoContrato: 'termino-indefinido',
+    fondoPension: 'PORVENIR',
+    fondoCesantias: 'PORVENIR',
+    celular: ''
+  };
+
   // Listas para selects
   areas: Area[] = [];
   roles: Role[] = [];
@@ -278,6 +300,73 @@ export class AdminComponent implements OnInit {
         });
       }
     });
+  }
+
+  openAddModal(): void {
+    this.addingUser = true;
+    this.addForm = {
+      Uid: '',
+      name: '',
+      lastName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      Rid: 0,
+      Aid: 0,
+      salario: 0,
+      empresa: 'AP',
+      documentoIdentificacion: '',
+      fechaIngreso: '',
+      cargo: '',
+      tipoContrato: 'termino-indefinido',
+      fondoPension: 'PORVENIR',
+      fondoCesantias: 'PORVENIR',
+      celular: ''
+    };
+  }
+
+  cancelAdd(): void {
+    this.addingUser = false;
+  }
+
+  registerUser(): void {
+    if (!this.addForm.Uid) {
+      this.toastr.error('El ID de usuario es obligatorio', 'Error');
+      return;
+    }
+    if (!this.addForm.name || !this.addForm.lastName || !this.addForm.email || !this.addForm.password) {
+      this.toastr.error('Nombre, apellido, email y contraseña son obligatorios', 'Error');
+      return;
+    }
+    if (this.addForm.password !== this.addForm.confirmPassword) {
+      this.toastr.warning('Las contraseñas no coinciden', 'Advertencia');
+      return;
+    }
+    if (!this.addForm.Rid || !this.addForm.Aid) {
+      this.toastr.error('Debes seleccionar un rol y un área', 'Error');
+      return;
+    }
+
+    this.loading = true;
+    const { confirmPassword, ...userData } = this.addForm;
+    this.userService.signIn(userData).subscribe({
+      next: () => {
+        this.toastr.success('Usuario registrado con éxito', 'Éxito');
+        this.cancelAdd();
+        this.getAllUsers();
+      },
+      error: (err) => {
+        this.toastr.error(err?.error?.msg || 'Error al registrar el usuario', 'Error');
+        this.loading = false;
+      }
+    });
+  }
+
+  onAddSalarioChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value.replace(/\./g, '');
+    const numericValue = parseInt(value, 10);
+    this.addForm.salario = !isNaN(numericValue) ? numericValue : 0;
   }
 
   goBack(): void {

@@ -313,6 +313,7 @@
           </button>
         </div>
         <div class="pagina-container">
+          <div class="pagina-zoom-inner" style="width: 100%">
           <img
             [src]="getPaginaImagenUrl()"
             alt="Página {{ paginaActual }}"
@@ -335,6 +336,7 @@
             <span class="campo-label" *ngIf="!campo.firmado">{{
               campo.etiqueta
             }}</span>
+          </div>
           </div>
         </div>
       </div>

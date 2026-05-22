@@ -68,6 +68,7 @@ export class SsgtDocumentoFirmarComponent implements OnInit, AfterViewInit {
 
   // Stores the final base64 to submit
   firmaBase64Final: string | null = null;
+  uploadError: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -289,6 +290,15 @@ export class SsgtDocumentoFirmarComponent implements OnInit, AfterViewInit {
   onImagenFirmaSeleccionada(event: any): void {
     const file = event.target.files[0];
     if (!file) return;
+
+    const formatosPermitidos = ['image/png', 'image/jpeg', 'image/jpg'];
+    if (!formatosPermitidos.includes(file.type)) {
+      this.uploadError = `Formato no soportado: "${file.type || file.name.split('.').pop()}". Solo se permiten imágenes PNG o JPEG/JPG.`;
+      (event.target as HTMLInputElement).value = '';
+      return;
+    }
+
+    this.uploadError = null;
     const reader = new FileReader();
     reader.onload = (e: any) => {
       this.firmaImagenPreview = e.target.result;
@@ -301,6 +311,7 @@ export class SsgtDocumentoFirmarComponent implements OnInit, AfterViewInit {
     this.firmaImagenPreview = null;
     this.hasSignature = false;
     this.firmaBase64Final = null;
+    this.uploadError = null;
   }
 
   // --- Text signature ---

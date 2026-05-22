@@ -328,7 +328,20 @@ export class SsgtDocumentosFirmaComponent implements OnInit {
         a.href = url; a.download = `${this.documentoSeleccionado!.titulo}_firmado.pdf`; a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => { Swal.fire('Error', 'Error al descargar PDF', 'error'); }
+      error: (err) => {
+        if (err.error instanceof Blob) {
+          err.error.text().then((text: string) => {
+            try {
+              const json = JSON.parse(text);
+              Swal.fire('Error', json.msg || 'Error al descargar PDF', 'error');
+            } catch {
+              Swal.fire('Error', 'Error al descargar PDF', 'error');
+            }
+          });
+        } else {
+          Swal.fire('Error', err.error?.msg || 'Error al descargar PDF', 'error');
+        }
+      }
     });
   }
 
