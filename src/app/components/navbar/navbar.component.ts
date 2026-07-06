@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ActaRecargaService } from '../../services/acta-recarga.service';
 import { RolesService } from '../../services/roles.service';
+import { InventarioAdminService } from '../../services/inventario-admin.service';
 
 @Component({
   selector: 'app-navbar',
@@ -18,11 +19,13 @@ export class NavbarComponent implements OnInit {
   userId = '';
   tieneAccesoActas = false;
   modulosUsuario: string[] = [];
+  tiposInventarioNav: any[] = [];
 
   constructor(
     private router: Router,
     private actaService: ActaRecargaService,
-    private rolesService: RolesService
+    private rolesService: RolesService,
+    private invAdminService: InventarioAdminService,
   ) {}
 
   ngOnInit() {
@@ -35,6 +38,10 @@ export class NavbarComponent implements OnInit {
         error: () => this.modulosUsuario = []
       });
     }
+    this.invAdminService.getTiposInventario().subscribe({
+      next: (tipos) => this.tiposInventarioNav = tipos,
+      error: () => this.tiposInventarioNav = [],
+    });
   }
 
   tieneModulo(key: string): boolean {

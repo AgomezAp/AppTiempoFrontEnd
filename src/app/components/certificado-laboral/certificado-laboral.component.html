@@ -332,16 +332,17 @@
           <label>Tipo de Documento a Generar *</label>
           <div class="input-group">
             <select [(ngModel)]="tipoCertificado">
-              <option value="laboral">Certificado Laboral (Estándar)</option>
-              <option value="cesantias">
-                Autorización Retiro de Cesantías
-              </option>
-              <option value="terminacion">Terminación de Contrato</option>
-              <option value="desprendible">Desprendible de Pago</option>
-              <option value="vacaciones">Solicitud de Vacaciones</option>
-              <option value="notificacion-vacaciones">
-                Notificación de Vacaciones (Aprobación)
-              </option>
+              <optgroup label="Tipos estándar">
+                <option value="laboral">Certificado Laboral (Estándar)</option>
+                <option value="cesantias">Autorización Retiro de Cesantías</option>
+                <option value="terminacion">Terminación de Contrato</option>
+                <option value="desprendible">Desprendible de Pago</option>
+                <option value="vacaciones">Solicitud de Vacaciones</option>
+                <option value="notificacion-vacaciones">Notificación de Vacaciones (Aprobación)</option>
+              </optgroup>
+              <optgroup label="Plantillas personalizadas" *ngIf="plantillasPersonalizadas.length > 0">
+                <option *ngFor="let p of plantillasPersonalizadas" [value]="p.codigo">{{ p.nombre }}</option>
+              </optgroup>
             </select>
             <i class="pi pi-chevron-down select-arrow"></i>
           </div>
@@ -652,6 +653,22 @@
                 <option value="solo-pagos">Solo Pagos</option>
               </select>
               <i class="pi pi-chevron-down select-arrow"></i>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- CAMPOS: PLANTILLA PERSONALIZADA -->
+        <ng-container *ngIf="esPlantillaPersonalizada()">
+          <h4 class="section-subtitle">Certificado personalizado</h4>
+          <div class="alert-box alert-info mb-3">
+            <i class="pi pi-info-circle"></i>
+            <div>El texto de este certificado está configurado desde <strong>Configuración → Certificados y Hojas Membrete</strong>. Solo selecciona el empleado y descarga.</div>
+          </div>
+          <div class="form-group" style="max-width:300px">
+            <label>Fecha de salida (opcional)</label>
+            <div class="input-group">
+              <i class="pi pi-calendar input-icon"></i>
+              <input type="date" [(ngModel)]="certificadoConfig.fechaSalida">
             </div>
           </div>
         </ng-container>

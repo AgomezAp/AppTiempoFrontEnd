@@ -1,0 +1,266 @@
+<app-navbar></app-navbar>
+
+<div *ngIf="loading" class="spinner-overlay">
+  <app-spinner></app-spinner>
+</div>
+
+<div class="erp-wrapper">
+
+  <!-- HEADER -->
+  <header class="page-header">
+    <div class="page-header__icon">
+      <i class="pi pi-file-pdf"></i>
+    </div>
+    <div class="page-header__text">
+      <h1>Certificados y Hojas Membrete</h1>
+      <p>Edita los datos de empresa, textos y crea nuevos tipos de certificado</p>
+    </div>
+  </header>
+
+  <!-- TABS PRINCIPALES -->
+  <div class="section-tabs">
+    <button class="section-tab" [class.active]="seccionActiva === 'empresas'" (click)="seccionActiva = 'empresas'">
+      <i class="pi pi-building"></i> Datos de Empresas
+    </button>
+    <button class="section-tab" [class.active]="seccionActiva === 'plantillas'" (click)="seccionActiva = 'plantillas'">
+      <i class="pi pi-file-edit"></i> Plantillas de Certificados
+      <span class="badge-count">{{ plantillas.length }}</span>
+    </button>
+  </div>
+
+  <!-- ========================== SECCIÓN EMPRESAS ========================== -->
+  <ng-container *ngIf="seccionActiva === 'empresas'">
+
+    <div class="empresa-tabs">
+      <button class="empresa-tab" [class.active]="tabEmpresa === 'AP'" (click)="seleccionarTabEmpresa('AP')">Empresa AP</button>
+      <button class="empresa-tab" [class.active]="tabEmpresa === 'AT'" (click)="seleccionarTabEmpresa('AT')">Empresa AT</button>
+      <button class="empresa-tab" [class.active]="tabEmpresa === 'ME'" (click)="seleccionarTabEmpresa('ME')">Empresa ME</button>
+    </div>
+
+    <div *ngIf="empresaActiva" class="card">
+      <div class="card-head">
+        <h3><i class="pi pi-building"></i> {{ empresaActiva.nombre || tabEmpresa }}</h3>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-group" style="grid-column: span 2">
+            <label>Nombre de la empresa</label>
+            <input type="text" class="form-control" [(ngModel)]="empresaActiva.nombre">
+          </div>
+          <div class="form-group">
+            <label>NIT / CC</label>
+            <input type="text" class="form-control" [(ngModel)]="empresaActiva.nit">
+          </div>
+          <div class="form-group">
+            <label>Ciudad</label>
+            <input type="text" class="form-control" [(ngModel)]="empresaActiva.direccion">
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" class="form-control" [(ngModel)]="empresaActiva.telefono">
+          </div>
+          <div class="form-group">
+            <label>Email de contacto</label>
+            <input type="email" class="form-control" [(ngModel)]="empresaActiva.email">
+          </div>
+          <div class="form-group" style="grid-column: span 2">
+            <label>Nombre del gerente / representante</label>
+            <input type="text" class="form-control" [(ngModel)]="empresaActiva.gerente">
+          </div>
+          <div class="form-group">
+            <label>Cargo del gerente</label>
+            <input type="text" class="form-control" [(ngModel)]="empresaActiva.cargo_gerente">
+          </div>
+          <div class="form-group">
+            <label>Cédula del gerente</label>
+            <input type="text" class="form-control" [(ngModel)]="empresaActiva.cedula_gerente">
+          </div>
+          <div class="form-group">
+            <label>Color encabezado</label>
+            <div class="color-row">
+              <input type="color" class="form-control form-control-color" [(ngModel)]="empresaActiva.header_color">
+              <input type="text" class="form-control" [(ngModel)]="empresaActiva.header_color" placeholder="#1a3560">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Color acento</label>
+            <div class="color-row">
+              <input type="color" class="form-control form-control-color" [(ngModel)]="empresaActiva.accent_color">
+              <input type="text" class="form-control" [(ngModel)]="empresaActiva.accent_color" placeholder="#ffd600">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Logo principal</label>
+            <img *ngIf="empresaActiva.logo_url" [src]="logoPath(empresaActiva.logo_url)" class="img-preview" onerror="this.style.display='none'" alt="Logo">
+            <span *ngIf="empresaActiva.logo_url" class="img-filename">{{ empresaActiva.logo_url }}</span>
+            <input type="file" class="form-control" accept="image/*" (change)="onLogoChange($event, 'logo')">
+          </div>
+          <div class="form-group">
+            <label>Marca de agua</label>
+            <img *ngIf="empresaActiva.watermark_url" [src]="logoPath(empresaActiva.watermark_url)" class="img-preview" onerror="this.style.display='none'" alt="Watermark">
+            <span *ngIf="empresaActiva.watermark_url" class="img-filename">{{ empresaActiva.watermark_url }}</span>
+            <input type="file" class="form-control" accept="image/*" (change)="onLogoChange($event, 'watermark')">
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button class="btn btn-primary" (click)="guardarEmpresa()" [disabled]="guardando">
+          <i class="pi" [ngClass]="guardando ? 'pi-spinner pi-spin' : 'pi-save'"></i>
+          {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
+        </button>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ========================== SECCIÓN PLANTILLAS ========================== -->
+  <ng-container *ngIf="seccionActiva === 'plantillas'">
+    <div class="plantillas-layout">
+
+      <!-- COLUMNA IZQUIERDA: lista -->
+      <div>
+        <div class="card">
+          <div class="card-head">
+            <h3><i class="pi pi-list"></i> Plantillas</h3>
+            <button class="btn btn-primary btn-sm" (click)="nuevaPlantilla()">
+              <i class="pi pi-plus"></i> Nueva
+            </button>
+          </div>
+          <div class="card-body" style="padding: 0.75rem;">
+            <div class="plantilla-list">
+              <div
+                *ngFor="let p of plantillas"
+                class="plantilla-item"
+                [class.active]="plantillaSeleccionada?.id === p.id"
+                [class.inactive]="!p.activo"
+                (click)="seleccionarPlantilla(p)"
+              >
+                <div class="plantilla-item__info">
+                  <div class="plantilla-item__name">{{ p.nombre }}</div>
+                  <div class="plantilla-item__code">{{ p.codigo }}</div>
+                </div>
+                <span class="plantilla-item__badge" [class.badge-active]="p.activo" [class.badge-inactive]="!p.activo">
+                  {{ p.activo ? 'Activa' : 'Inactiva' }}
+                </span>
+              </div>
+
+              <div *ngIf="plantillas.length === 0" class="empty-state">
+                <div class="empty-state-icon">📄</div>
+                <p>No hay plantillas aún.<br>Crea la primera con el botón "Nueva".</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COLUMNA DERECHA: editor -->
+      <div>
+        <!-- Estado vacío -->
+        <div *ngIf="!editandoPlantilla" class="card">
+          <div class="card-body empty-state" style="padding: 4rem 2rem;">
+            <div class="empty-state-icon">✏️</div>
+            <p>Selecciona una plantilla de la lista para editarla,<br>o crea una nueva con el botón <strong>+ Nueva</strong>.</p>
+          </div>
+        </div>
+
+        <!-- EDITOR ACTIVO -->
+        <div *ngIf="editandoPlantilla" class="card">
+          <div class="card-head">
+            <h3>
+              <i class="pi" [ngClass]="creandoNueva ? 'pi-plus-circle' : 'pi-pencil'"></i>
+              {{ creandoNueva ? 'Nueva plantilla' : ('Editando: ' + (plantillaSeleccionada?.nombre || '')) }}
+            </h3>
+            <div style="display:flex; gap:0.4rem; align-items:center;">
+              <button
+                *ngIf="!creandoNueva"
+                class="btn btn-sm"
+                [ngClass]="plantillaSeleccionada?.activo ? 'btn-danger-soft' : 'btn-success-soft'"
+                (click)="togglePlantilla(plantillaSeleccionada!)"
+              >
+                <i class="pi" [ngClass]="plantillaSeleccionada?.activo ? 'pi-eye-slash' : 'pi-eye'"></i>
+                {{ plantillaSeleccionada?.activo ? 'Desactivar' : 'Activar' }}
+              </button>
+              <button
+                *ngIf="!creandoNueva"
+                class="btn btn-sm btn-danger-soft"
+                (click)="eliminarPlantilla(plantillaSeleccionada!)"
+              >
+                <i class="pi pi-trash"></i> Eliminar
+              </button>
+              <button class="btn btn-sm btn-outline" (click)="cancelarEdicion()">
+                <i class="pi pi-times"></i> Cancelar
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Código único *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="editandoPlantilla.codigo"
+                  [disabled]="!creandoNueva"
+                  placeholder="ej: constancia_ingreso"
+                >
+                <span class="help-text">Sin espacios. No se puede cambiar después de crear.</span>
+              </div>
+              <div class="form-group" style="grid-column: span 2">
+                <label>Nombre visible *</label>
+                <input type="text" class="form-control" [(ngModel)]="editandoPlantilla.nombre" placeholder="ej: Constancia de Ingreso Laboral">
+              </div>
+              <div class="form-group form-grid-full">
+                <label>Título del certificado *</label>
+                <input type="text" class="form-control" [(ngModel)]="editandoPlantilla.titulo" placeholder="ej: CONSTANCIA DE INGRESO">
+                <span class="help-text">Aparece centrado y en negrilla en el PDF generado.</span>
+              </div>
+              <div class="form-group form-grid-full">
+                <label>Descripción / uso interno</label>
+                <input type="text" class="form-control" [(ngModel)]="editandoPlantilla.descripcion" placeholder="Para qué se usa esta plantilla">
+              </div>
+            </div>
+
+            <!-- Variables disponibles -->
+            <div style="margin-top: 1.25rem;">
+              <label class="form-group" style="font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-muted); margin-bottom:0.5rem; display:block;">
+                Variables disponibles — haz clic para insertar en el texto
+              </label>
+              <div class="variable-chips">
+                <button
+                  *ngFor="let v of variablesDisponibles"
+                  type="button"
+                  class="variable-chip"
+                  (click)="insertarVariable(v.key)"
+                  [title]="v.label"
+                >{{ '{{' + v.key + '}}' }}</button>
+              </div>
+              <p class="help-text" style="margin-top:0.5rem;">Coloca el cursor en el texto donde quieres insertar y haz clic en la variable.</p>
+            </div>
+
+            <!-- Textarea cuerpo -->
+            <div style="margin-top: 1rem;" class="form-group">
+              <label>Cuerpo del certificado *</label>
+              <textarea
+                #cuerpoTextarea
+                class="cuerpo-textarea"
+                [(ngModel)]="editandoPlantilla.cuerpo"
+                rows="12"
+                placeholder="Escribe el texto del certificado. Usa los botones de arriba para insertar las variables del empleado y la empresa."
+              ></textarea>
+              <p class="help-text">Líneas en blanco separan párrafos. Las variables se reemplazan automáticamente al generar el PDF.</p>
+            </div>
+
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-outline" (click)="cancelarEdicion()">Cancelar</button>
+            <button class="btn btn-primary" (click)="guardarPlantilla()" [disabled]="guardandoPlantilla">
+              <i class="pi" [ngClass]="guardandoPlantilla ? 'pi-spinner pi-spin' : 'pi-save'"></i>
+              {{ guardandoPlantilla ? 'Guardando...' : (creandoNueva ? 'Crear plantilla' : 'Guardar cambios') }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+</div>

@@ -103,6 +103,9 @@
                   >Mi Certificado</a
                 >
               </li>
+              <li>
+                <a class="dropdown-item" href="/mi-inventario">Mi Inventario</a>
+              </li>
                  <li>
                 <a class="dropdown-item" href="/ssgt-documentos-firma"
                   >Documentos para Firmar</a
@@ -222,7 +225,7 @@
 
           <!-- Inventario -->
           <li class="nav-item dropdown"
-            *ngIf="tieneModulo('inventario_dispositivos') || tieneModulo('inventario_mobiliario') || tieneModulo('inventario_aseo') || tieneModulo('inventario_papeleria') || tieneModulo('inventario_botiquin') || tieneModulo('inventario_desechables') || tieneModulo('inventario_dotacion')">
+            *ngIf="tieneModulo('inventario_dispositivos') || tieneModulo('inventario_mobiliario') || tiposInventarioNav.length > 0">
             <a class="nav-link dropdown-toggle" href="#" id="inventarioDropdown" role="button"
               data-bs-toggle="dropdown" aria-expanded="false">
               Inventario
@@ -252,53 +255,58 @@
               <li *ngIf="tieneModulo('inventario_mobiliario')">
                 <a class="dropdown-item" href="/actas-mobiliario">Actas de Mobiliario</a>
               </li>
-              <!-- Consumibles -->
-              <li *ngIf="tieneModulo('inventario_aseo') || tieneModulo('inventario_papeleria') || tieneModulo('inventario_botiquin') || tieneModulo('inventario_desechables') || tieneModulo('inventario_dotacion')"><hr class="dropdown-divider" /></li>
-              <li *ngIf="tieneModulo('inventario_aseo') || tieneModulo('inventario_papeleria') || tieneModulo('inventario_botiquin') || tieneModulo('inventario_desechables') || tieneModulo('inventario_dotacion')">
+              <!-- Consumibles — dinámico -->
+              <li *ngIf="tiposInventarioNav.length > 0"><hr class="dropdown-divider" /></li>
+              <li *ngIf="tiposInventarioNav.length > 0">
                 <h6 class="dropdown-header">Consumibles</h6>
               </li>
-              <li *ngIf="tieneModulo('inventario_aseo')">
-                <a class="dropdown-item" href="/inventario-aseo">Aseo</a>
-              </li>
-              <li *ngIf="tieneModulo('inventario_aseo')">
-                <a class="dropdown-item" href="/actas-aseo">Actas de Aseo</a>
-              </li>
-              <li *ngIf="tieneModulo('inventario_papeleria')">
-                <a class="dropdown-item" href="/inventario-papeleria">Papelería</a>
-              </li>
-              <li *ngIf="tieneModulo('inventario_papeleria')">
-                <a class="dropdown-item" href="/actas-papeleria">Actas de Papelería</a>
-              </li>
-              <li *ngIf="tieneModulo('inventario_botiquin')">
-                <a class="dropdown-item" href="/inventario-botiquin">Botiquín</a>
-              </li>
-              <li *ngIf="tieneModulo('inventario_botiquin')">
-                <a class="dropdown-item" href="/actas-botiquin">Actas de Botiquín</a>
-              </li>
-              <li *ngIf="tieneModulo('inventario_desechables')">
-                <a class="dropdown-item" href="/inventario-desechables">Desechables</a>
-              </li>
-              <li *ngIf="tieneModulo('inventario_desechables')">
-                <a class="dropdown-item" href="/actas-desechables">Actas de Desechables</a>
-              </li>
-              <li *ngIf="tieneModulo('inventario_dotacion')">
-                <a class="dropdown-item" href="/inventario-dotacion">Dotación</a>
-              </li>
-              <li *ngIf="tieneModulo('inventario_dotacion')">
-                <a class="dropdown-item" href="/actas-dotacion">Actas de Dotación</a>
-              </li>
-              <li *ngIf="tieneModulo('inventario_herramientas')">
-                <a class="dropdown-item" href="/inventario-herramientas">Herramientas</a>
-              </li>
-              <li *ngIf="tieneModulo('inventario_herramientas')">
-                <a class="dropdown-item" href="/actas-herramientas">Actas de Herramientas</a>
-              </li>
+              <ng-container *ngFor="let tipo of tiposInventarioNav">
+                <li *ngIf="tieneModulo('inventario_' + tipo.codigo)">
+                  <a class="dropdown-item" href="/inventario-consumible/{{ tipo.codigo }}">{{ tipo.nombre }}</a>
+                </li>
+                <li *ngIf="tieneModulo('inventario_' + tipo.codigo)">
+                  <a class="dropdown-item" href="/actas-consumible/{{ tipo.codigo }}">Actas de {{ tipo.nombre }}</a>
+                </li>
+              </ng-container>
             </ul>
           </li>
 
           <!-- Admin Roles (solo Admin) -->
           <li class="nav-item" *ngIf="userRole === 'Admin'">
             <a class="nav-link" href="/admin-roles">Roles</a>
+          </li>
+
+          <!-- Configuración Admin (solo Admin) -->
+          <li class="nav-item dropdown" *ngIf="userRole === 'Admin'">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="configDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              Configuración
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="configDropdown">
+              <li><h6 class="dropdown-header">Permisos</h6></li>
+              <li>
+                <a class="dropdown-item" href="/admin-permisos-config">Tipos de Permiso</a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="/admin-destinatarios">Destinatarios de Permisos</a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li><h6 class="dropdown-header">Certificados</h6></li>
+              <li>
+                <a class="dropdown-item" href="/admin-certificados">Certificados y Hojas Membrete</a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li><h6 class="dropdown-header">Inventario</h6></li>
+              <li>
+                <a class="dropdown-item" href="/admin-inventarios">Plantillas de Inventario</a>
+              </li>
+            </ul>
           </li>
 
           <li class="nav-item ms-lg-2">

@@ -1,0 +1,135 @@
+<app-navbar></app-navbar>
+<app-spinner *ngIf="loading"></app-spinner>
+
+<div class="container-fluid py-4 px-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">Gestión de Destinatarios de Permisos</h3>
+    <button class="btn btn-primary" *ngIf="esAdmin" (click)="abrirNuevo()">+ Nuevo destinatario</button>
+  </div>
+
+  <!-- FORMULARIO (solo admin) -->
+  <div class="card shadow-sm mb-4" *ngIf="showForm && esAdmin">
+    <div class="card-header-custom">{{ editingId ? 'Editar' : 'Nuevo' }} destinatario</div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Email *</label>
+          <input type="email" class="form-control" [(ngModel)]="form.email" placeholder="correo@empresa.com">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Nombre</label>
+          <input type="text" class="form-control" [(ngModel)]="form.nombre" placeholder="Nombre de referencia">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Tipo</label>
+          <select class="form-select" [(ngModel)]="form.tipo">
+            <option value="fijo">Fijo</option>
+            <option value="filtrado">Filtrado</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Enviar como</label>
+          <select class="form-select" [(ngModel)]="form.es_cc">
+            <option [ngValue]="false">Destinatario</option>
+            <option [ngValue]="true">CC</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-3" *ngIf="form.tipo === 'filtrado'">
+        <label class="form-label fw-semibold">Tipos de permiso que activan este destinatario</label>
+        <p class="text-muted small mb-2">Si no selecciona ninguno, recibirá todos.</p>
+        <div class="row g-2">
+          <div class="col-md-4 col-6" *ngFor="let t of tiposPermiso">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox"
+                [checked]="tipoSeleccionado(t.nombre)"
+                (change)="toggleTipoFiltrado(t.nombre)"
+                [id]="'tipo_' + t.id">
+              <label class="form-check-label small" [for]="'tipo_' + t.id">{{ t.nombre }}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3 d-flex gap-2">
+        <button class="btn btn-success" (click)="guardar()">Guardar</button>
+        <button class="btn btn-secondary" (click)="cancelar()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLA FIJOS -->
+  <div class="card shadow-sm mb-4">
+    <div class="section-title section-title--dark">Destinatarios Fijos</div>
+    <div class="card-body p-0">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Email</th><th>Nombre</th><th>Envío</th><th>Estado</th>
+            <th *ngIf="esAdmin">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let d of fijosList">
+            <td>{{ d.email }}</td>
+            <td>{{ d.nombre || '-' }}</td>
+            <td><span class="badge" [class.bg-primary]="!d.es_cc" [class.bg-secondary]="d.es_cc">{{ d.es_cc ? 'CC' : 'Principal' }}</span></td>
+            <td>
+              <span class="badge" [class.bg-success]="d.activo" [class.bg-danger]="!d.activo">
+                {{ d.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td *ngIf="esAdmin">
+              <button class="btn btn-sm btn-outline-primary me-1" (click)="editar(d)">Editar</button>
+              <button class="btn btn-sm btn-outline-secondary me-1" (click)="toggle(d)">{{ d.activo ? 'Desactivar' : 'Activar' }}</button>
+              <button class="btn btn-sm btn-outline-danger" (click)="eliminar(d)">Eliminar</button>
+            </td>
+          </tr>
+          <tr *ngIf="fijosList.length === 0">
+            <td [colSpan]="esAdmin ? 5 : 4" class="text-center text-muted py-3">Sin destinatarios fijos</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TABLA FILTRADOS -->
+  <div class="card shadow-sm">
+    <div class="section-title section-title--secondary">Destinatarios Filtrados (por tipo de permiso)</div>
+    <div class="card-body p-0">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Email</th><th>Nombre</th><th>Envío</th><th>Tipos de permiso aplicables</th><th>Estado</th>
+            <th *ngIf="esAdmin">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let d of filtradosList">
+            <td>{{ d.email }}</td>
+            <td>{{ d.nombre || '-' }}</td>
+            <td><span class="badge" [class.bg-primary]="!d.es_cc" [class.bg-secondary]="d.es_cc">{{ d.es_cc ? 'CC' : 'Principal' }}</span></td>
+            <td>
+              <span *ngIf="!d.tipos_permiso?.length" class="text-muted small">Todos</span>
+              <span *ngFor="let t of d.tipos_permiso" class="badge bg-info text-dark me-1 small">{{ t }}</span>
+            </td>
+            <td>
+              <span class="badge" [class.bg-success]="d.activo" [class.bg-danger]="!d.activo">
+                {{ d.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td *ngIf="esAdmin">
+              <button class="btn btn-sm btn-outline-primary me-1" (click)="editar(d)">Editar</button>
+              <button class="btn btn-sm btn-outline-secondary me-1" (click)="toggle(d)">{{ d.activo ? 'Desactivar' : 'Activar' }}</button>
+              <button class="btn btn-sm btn-outline-danger" (click)="eliminar(d)">Eliminar</button>
+            </td>
+          </tr>
+          <tr *ngIf="filtradosList.length === 0">
+            <td [colSpan]="esAdmin ? 6 : 5" class="text-center text-muted py-3">Sin destinatarios filtrados</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

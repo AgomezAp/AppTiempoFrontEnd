@@ -45,6 +45,11 @@ export const routes: Routes = [
   { path: 'permisos', loadComponent: () => import('./components/permiso/permiso.component').then(m => m.PermisoComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'User', 'Tecnologia'], modulo: 'permisos' } },
   { path: 'admin', loadComponent: () => import('./components/admin/admin.component').then(m => m.AdminComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin'], modulo: 'usuarios' } },
   { path: 'admin-roles', loadComponent: () => import('./components/admin-roles/admin-roles.component').then(m => m.AdminRolesComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin'], modulo: 'admin_roles' } },
+  { path: 'admin-destinatarios', loadComponent: () => import('./components/admin-destinatarios/admin-destinatarios.component').then(m => m.AdminDestinatariosComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin'] } },
+  { path: 'admin-permisos-config', loadComponent: () => import('./components/admin-permisos-config/admin-permisos-config.component').then(m => m.AdminPermisosConfigComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin'] } },
+  { path: 'admin-certificados', loadComponent: () => import('./components/admin-certificados/admin-certificados.component').then(m => m.AdminCertificadosComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin'] } },
+  { path: 'admin-inventarios', loadComponent: () => import('./components/admin-inventarios/admin-inventarios.component').then(m => m.AdminInventariosComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin'] } },
+  { path: 'mi-inventario', loadComponent: () => import('./components/mi-inventario/mi-inventario.component').then(m => m.MiInventarioComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'User', 'Tecnologia'] } },
 
   // ==================== RECURSOS / DOCUMENTOS ====================
   { path: 'gestion-archivos', loadComponent: () => import('./components/gestion-archivos/gestion-archivos.component').then(m => m.GestionArchivosComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'User', 'Tecnologia'], modulo: 'recursos' } },
@@ -105,6 +110,7 @@ export const routes: Routes = [
   { path: 'inventario-dotacion', loadComponent: () => import('./components/inventario/inventario-consumibles/inventario-consumibles.component').then(m => m.InventarioConsumiblesComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'], tipoInventario: 'dotacion', modulo: 'inventario_dotacion' } },
   { path: 'inventario-desechables', loadComponent: () => import('./components/inventario/inventario-consumibles/inventario-consumibles.component').then(m => m.InventarioConsumiblesComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'], tipoInventario: 'desechables', modulo: 'inventario_desechables' } },
   { path: 'inventario-herramientas', loadComponent: () => import('./components/inventario/inventario-consumibles/inventario-consumibles.component').then(m => m.InventarioConsumiblesComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'], tipoInventario: 'herramientas', modulo: 'inventario_herramientas' } },
+  { path: 'inventario-consumible/:codigo', loadComponent: () => import('./components/inventario/inventario-consumibles/inventario-consumibles.component').then(m => m.InventarioConsumiblesComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'] } },
   { path: 'agregar-consumible/:tipo', loadComponent: () => import('./components/inventario/agregar-consumible/agregar-consumible.component').then(m => m.AgregarConsumibleComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'] } },
 
   // ==================== INVENTARIO — ACTAS CONSUMIBLES ====================
@@ -115,6 +121,7 @@ export const routes: Routes = [
   { path: 'actas-desechables', loadComponent: () => import('./components/inventario/actas-consumibles/actas-consumibles.component').then(m => m.ActasConsumiblesComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'], tipo: 'desechables', modulo: 'inventario_desechables' } },
   { path: 'actas-herramientas', loadComponent: () => import('./components/inventario/actas-consumibles/actas-consumibles.component').then(m => m.ActasConsumiblesComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'], tipo: 'herramientas', modulo: 'inventario_herramientas' } },
   { path: 'crear-acta-consumible/:tipo', loadComponent: () => import('./components/inventario/crear-acta-consumible/crear-acta-consumible.component').then(m => m.CrearActaConsumibleComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'] } },
+  { path: 'actas-consumible/:codigo', loadComponent: () => import('./components/inventario/actas-consumibles/actas-consumibles.component').then(m => m.ActasConsumiblesComponent), canActivate: [tRolGuard], data: { allowedRoles: ['Admin', 'Tecnologia'] } },
 
   // ==================== FALLBACK ====================
   { path: '**', loadComponent: () => import('./components/error-page/error-page.component').then(m => m.ErrorPageComponent) }

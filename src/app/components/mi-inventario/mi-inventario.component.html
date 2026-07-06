@@ -1,0 +1,97 @@
+<app-navbar></app-navbar>
+<app-spinner *ngIf="loading"></app-spinner>
+
+<div class="inv-page">
+
+  <!-- HEADER -->
+  <div class="inv-page__header">
+    <div class="inv-page__header-icon">
+      <i class="bi bi-boxes"></i>
+    </div>
+    <div>
+      <h1 class="inv-page__title">Mi Inventario</h1>
+      <p class="inv-page__subtitle">Equipos y recursos asignados a tu cargo</p>
+    </div>
+  </div>
+
+  <!-- RESUMEN -->
+  <div class="inv-summary" *ngIf="inventariosActivos.length > 0">
+    <div class="inv-summary__card">
+      <span class="inv-summary__num">{{ inventariosActivos.length }}</span>
+      <span class="inv-summary__label">Kit{{ inventariosActivos.length !== 1 ? 's' : '' }} asignado{{ inventariosActivos.length !== 1 ? 's' : '' }}</span>
+    </div>
+    <div class="inv-summary__card">
+      <span class="inv-summary__num">{{ totalItemsGlobal }}</span>
+      <span class="inv-summary__label">Ítems en total</span>
+    </div>
+  </div>
+
+  <!-- ESTADO VACÍO -->
+  <div class="inv-empty" *ngIf="!loading && inventariosActivos.length === 0">
+    <div class="inv-empty__icon"><i class="bi bi-inbox"></i></div>
+    <h3 class="inv-empty__title">Sin inventario asignado</h3>
+    <p class="inv-empty__text">Aún no tienes equipos o recursos asignados a tu cargo.<br>Contacta con el administrador si crees que esto es un error.</p>
+  </div>
+
+  <!-- TARJETAS DE INVENTARIO -->
+  <div class="inv-grid" *ngIf="!loading && inventariosActivos.length > 0">
+    <div class="inv-card" *ngFor="let inv of inventariosActivos">
+
+      <!-- Cabecera de la tarjeta -->
+      <div class="inv-card__head">
+        <div class="inv-card__icon-wrap">
+          <i class="bi bi-archive-fill"></i>
+        </div>
+        <div class="inv-card__head-info">
+          <h2 class="inv-card__name">{{ inv.plantilla?.nombre }}</h2>
+          <p class="inv-card__desc" *ngIf="inv.plantilla?.descripcion">{{ inv.plantilla.descripcion }}</p>
+          <div class="inv-card__meta">
+            <span class="inv-card__date">
+              <i class="bi bi-calendar3"></i>
+              Asignado el {{ inv.fechaAsignacion | date:'dd/MM/yyyy' }}
+            </span>
+            <span class="inv-card__badge inv-card__badge--active">Activo</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Observaciones -->
+      <div class="inv-card__obs" *ngIf="inv.observaciones">
+        <i class="bi bi-info-circle"></i> {{ inv.observaciones }}
+      </div>
+
+      <!-- Contador de ítems + toggle -->
+      <button class="inv-card__toggle" (click)="toggleExpandir(inv.id)">
+        <span>
+          <i class="bi bi-list-ul"></i>
+          {{ inv.plantilla?.items?.length || 0 }} ítem{{ inv.plantilla?.items?.length !== 1 ? 's' : '' }}
+          · {{ totalItems(inv) }} unidad{{ totalItems(inv) !== 1 ? 'es' : '' }} en total
+        </span>
+        <i class="bi" [class.bi-chevron-down]="expandido !== inv.id" [class.bi-chevron-up]="expandido === inv.id"></i>
+      </button>
+
+      <!-- Lista de ítems (expandible) -->
+      <div class="inv-card__items" [class.inv-card__items--open]="expandido === inv.id">
+        <div class="inv-item" *ngFor="let item of inv.plantilla?.items">
+          <div class="inv-item__icon" [style.background]="colorCategoria(item.categoria)">
+            <i class="bi" [ngClass]="iconoCategoria(item.categoria)"></i>
+          </div>
+          <div class="inv-item__info">
+            <span class="inv-item__name">{{ item.nombre }}</span>
+            <span class="inv-item__detail">{{ item.descripcion || '' }}</span>
+          </div>
+          <div class="inv-item__qty">
+            <span class="inv-item__qty-num">{{ item.cantidad }}</span>
+            <span class="inv-item__qty-unit">{{ item.unidad }}</span>
+          </div>
+          <span class="inv-item__cat">{{ item.categoria }}</span>
+        </div>
+        <div class="inv-card__items-empty" *ngIf="!inv.plantilla?.items?.length">
+          Sin ítems registrados
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

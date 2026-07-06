@@ -5,6 +5,7 @@ import { CertificadoService } from '../../services/certificado.service';
 import { UserService } from '../../services/user.service';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { environment } from '../../../environments/environment';
+import { PlantillaCertificadoService, PlantillaCertificado } from '../../services/plantilla-certificado.service';
 
 @Component({
   selector: 'app-certificado-laboral',
@@ -28,15 +29,11 @@ export class CertificadoLaboralComponent implements OnInit {
   searching: boolean = false;
 
   // Campos para Admin
-  tipoCertificado:
-    | 'laboral'
-    | 'cesantias'
-    | 'terminacion'
-    | 'desprendible'
-    | 'vacaciones'
-    | 'notificacion-vacaciones'
-    | 'dia-familia' = 'laboral';
+  tipoCertificado: string = 'laboral';
   versionConFirma: boolean = false;
+
+  // Plantillas personalizadas desde DB
+  plantillasPersonalizadas: PlantillaCertificado[] = [];
 
   // Variables para el cálculo visual de días
   diasCalendario: number = 0;
@@ -80,12 +77,65 @@ export class CertificadoLaboralComponent implements OnInit {
 
   constructor(
     private certificadoService: CertificadoService,
-    private userService: UserService
+    private userService: UserService,
+    private plantillaService: PlantillaCertificadoService
   ) {}
 
   ngOnInit() {
     this.obtenerDatosUsuario();
     this.setFechaActual();
+    this.cargarPlantillasPersonalizadas();
+  }
+
+  cargarPlantillasPersonalizadas() {
+    this.plantillaService.getActivas().subscribe({
+      next: (data) => {
+        // Excluir las que ya están como tipos fijos (laboral, cesantias, terminacion)
+        const codigosBase = ['laboral', 'cesantias', 'terminacion'];
+        this.plantillasPersonalizadas = data.filter(p => !codigosBase.includes(p.codigo));
+      },
+      error: () => { /* silencioso: las plantillas son un extra */ },
+    });
+  }
+
+  esPlantillaPersonalizada(): boolean {
+    const codigosBase = ['laboral', 'cesantias', 'terminacion', 'desprendible', 'vacaciones', 'notificacion-vacaciones', 'dia-familia'];
+    return !codigosBase.includes(this.tipoCertificado);
+  }
+
+  generarDesdeTemplate() {
+    if (!this.selectedUser && this.tipoCertificado !== 'laboral') {
+      this.error = 'Por favor, busca y selecciona un empleado antes de generar el certificado.';
+      return;
+    }
+    const uidAUsar = this.selectedUser ? this.selectedUser.Uid : this.uid;
+    const empresa = this.selectedUser?.empresa || this.certificadoConfig.empresa || 'AP';
+    const token = localStorage.getItem('token');
+    const params = new URLSearchParams({ empresa });
+    if (this.certificadoConfig.fechaSalida) params.append('fechaSalida', this.certificadoConfig.fechaSalida);
+    const url = `${environment.apiUrl}/api/plantillas-certificado/generar/${this.tipoCertificado}/${uidAUsar}?${params.toString()}`;
+
+    this.cargando = true;
+    fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+      .then(res => {
+        if (!res.ok) throw new Error(`Error ${res.status}`);
+        return res.blob();
+      })
+      .then(blob => {
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = `certificado_${this.tipoCertificado}_${uidAUsar}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(blobUrl);
+        document.body.removeChild(a);
+        this.cargando = false;
+      })
+      .catch(err => {
+        this.error = 'Error al generar el certificado personalizado';
+        this.cargando = false;
+      });
   }
 
   obtenerDatosUsuario() {
@@ -234,6 +284,11 @@ export class CertificadoLaboralComponent implements OnInit {
   generarCertificado() {
     this.cargando = true;
     this.error = '';
+
+    if (this.esPlantillaPersonalizada()) {
+      this.generarDesdeTemplate();
+      return;
+    }
 
     if (this.tipoCertificado === 'vacaciones') {
       this.generarVacaciones();

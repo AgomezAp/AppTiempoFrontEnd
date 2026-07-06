@@ -1,0 +1,27 @@
+.container-fluid { max-width: 1200px; margin: 0 auto; }
+
+.section-title {
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: 0.375rem 0.375rem 0 0;
+}
+
+.section-title--dark {
+  background-color: #212529;
+  color: #ffffff;
+}
+
+.section-title--secondary {
+  background-color: #6c757d;
+  color: #ffffff;
+}
+
+.card-header-custom {
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  border-radius: 0.375rem 0.375rem 0 0;
+}

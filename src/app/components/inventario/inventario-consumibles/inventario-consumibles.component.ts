@@ -19,13 +19,7 @@ import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular
   styleUrls: ['./inventario-consumibles.component.css']
 })
 export class InventarioConsumiblesComponent implements OnInit, OnDestroy {
-  @Input() tipoInventarioCodigo:
-    | 'aseo'
-    | 'papeleria'
-    | 'botiquin'
-    | 'desechables'
-    | 'dotacion'
-    | 'herramientas' = 'aseo';
+  @Input() tipoInventarioCodigo: string = 'aseo';
 
   tipoInventario: TipoInventario | null = null;
   consumibles: Consumible[] = [];
@@ -150,10 +144,17 @@ export class InventarioConsumiblesComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Detectar si viene por ruta
+    // Detectar si viene por data de ruta (rutas específicas) o por params (ruta genérica)
     this.route.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
       if (data['tipoInventario']) {
         this.tipoInventarioCodigo = data['tipoInventario'];
+      }
+    });
+    this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+      if (params['codigo']) {
+        this.tipoInventarioCodigo = params['codigo'];
+        this.cargarTipoInventario();
+        return;
       }
     });
 
@@ -172,12 +173,8 @@ export class InventarioConsumiblesComponent implements OnInit, OnDestroy {
     this.websocketService.leaveRoom('consumibles');
   }
   get permiteSustraccionStock(): boolean {
-    return this.tipoInventarioCodigo !== 'botiquin' &&
-           this.tipoInventarioCodigo !== 'aseo' &&
-           this.tipoInventarioCodigo !== 'papeleria' &&
-           this.tipoInventarioCodigo !== 'desechables' &&
-           this.tipoInventarioCodigo !== 'dotacion' &&
-           this.tipoInventarioCodigo !== 'herramientas';
+    const tiposConActasObligatorias = ['botiquin', 'aseo', 'papeleria', 'desechables', 'dotacion', 'herramientas'];
+    return !tiposConActasObligatorias.includes(this.tipoInventarioCodigo);
   }
   /**
    * Configurar debounce para el campo de búsqueda (300ms de delay)
@@ -361,28 +358,24 @@ export class InventarioConsumiblesComponent implements OnInit, OnDestroy {
 
   get categorias(): string[] {
     if (this.tipoInventarioCodigo === 'aseo') return this.categoriasAseo;
-    if (this.tipoInventarioCodigo === 'papeleria')
-      return this.categoriasPapeleria;
-    if (this.tipoInventarioCodigo === 'botiquin')
-      return this.categoriasBotiquin;
-    if (this.tipoInventarioCodigo === 'desechables')
-      return this.categoriasDesechables;
-    if (this.tipoInventarioCodigo === 'herramientas')
-      return this.categoriasHerramientas;
-    return this.categoriasDotacion;
+    if (this.tipoInventarioCodigo === 'papeleria') return this.categoriasPapeleria;
+    if (this.tipoInventarioCodigo === 'botiquin') return this.categoriasBotiquin;
+    if (this.tipoInventarioCodigo === 'desechables') return this.categoriasDesechables;
+    if (this.tipoInventarioCodigo === 'herramientas') return this.categoriasHerramientas;
+    if (this.tipoInventarioCodigo === 'dotacion') return this.categoriasDotacion;
+    // Para inventarios dinámicos: extraer categorías únicas de los consumibles cargados
+    const cats = [...new Set(this.consumibles.map(c => c.categoria).filter((c): c is string => !!c))];
+    return cats.length > 0 ? cats : [];
   }
 
   get tituloInventario(): string {
     if (this.tipoInventarioCodigo === 'aseo') return 'Inventario de Aseo';
-    if (this.tipoInventarioCodigo === 'papeleria')
-      return 'Inventario de Papelería';
-    if (this.tipoInventarioCodigo === 'botiquin')
-      return 'Inventario de Botiquín';
-    if (this.tipoInventarioCodigo === 'desechables')
-      return 'Inventario de Desechables';
-    if (this.tipoInventarioCodigo === 'herramientas')
-      return 'Inventario de Herramientas';
-    return 'Inventario de Dotación';
+    if (this.tipoInventarioCodigo === 'papeleria') return 'Inventario de Papelería';
+    if (this.tipoInventarioCodigo === 'botiquin') return 'Inventario de Botiquín';
+    if (this.tipoInventarioCodigo === 'desechables') return 'Inventario de Desechables';
+    if (this.tipoInventarioCodigo === 'herramientas') return 'Inventario de Herramientas';
+    if (this.tipoInventarioCodigo === 'dotacion') return 'Inventario de Dotación';
+    return this.tipoInventario?.nombre ? `Inventario de ${this.tipoInventario.nombre}` : 'Inventario';
   }
 
   get iconoInventario(): string {
@@ -391,7 +384,8 @@ export class InventarioConsumiblesComponent implements OnInit, OnDestroy {
     if (this.tipoInventarioCodigo === 'botiquin') return 'fa-kit-medical';
     if (this.tipoInventarioCodigo === 'desechables') return 'fa-trash-can';
     if (this.tipoInventarioCodigo === 'herramientas') return 'fa-screwdriver-wrench';
-    return 'fa-shirt';
+    if (this.tipoInventarioCodigo === 'dotacion') return 'fa-shirt';
+    return this.tipoInventario?.icono?.replace('fa-', '') ? (this.tipoInventario.icono.startsWith('fa-') ? this.tipoInventario.icono.slice(3) : this.tipoInventario.icono) : 'fa-box';
   }
 
   get colorPrincipal(): string {
@@ -400,7 +394,8 @@ export class InventarioConsumiblesComponent implements OnInit, OnDestroy {
     if (this.tipoInventarioCodigo === 'botiquin') return '#dc3545';
     if (this.tipoInventarioCodigo === 'desechables') return '#6f42c1';
     if (this.tipoInventarioCodigo === 'herramientas') return '#795548';
-    return '#20c997';
+    if (this.tipoInventarioCodigo === 'dotacion') return '#20c997';
+    return this.tipoInventario?.color || '#6c757d';
   }
 
   aplicarFiltros(): void {
@@ -477,9 +472,16 @@ export class InventarioConsumiblesComponent implements OnInit, OnDestroy {
   }
 
   irAEntrega(): void {
-    this.router.navigate([
-      `/crear-acta-consumible/${this.tipoInventarioCodigo}`,
-    ]);
+    this.router.navigate([`/crear-acta-consumible/${this.tipoInventarioCodigo}`]);
+  }
+
+  irAActas(): void {
+    const tiposConRutaEspecifica = ['aseo', 'papeleria', 'botiquin', 'desechables', 'dotacion', 'herramientas'];
+    if (tiposConRutaEspecifica.includes(this.tipoInventarioCodigo)) {
+      this.router.navigate([`/actas-${this.tipoInventarioCodigo}`]);
+    } else {
+      this.router.navigate([`/actas-consumible/${this.tipoInventarioCodigo}`]);
+    }
   }
 
   verDetalle(id: number): void {

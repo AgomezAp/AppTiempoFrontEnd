@@ -8,6 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 import { PermisosService } from '../../services/permisos.service';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 import { NavbarComponent } from '../navbar/navbar.component';
+import { TipoPermisoService, TipoPermiso } from '../../services/tipo-permiso.service';
 
 @Component({
   selector: 'app-permiso',
@@ -32,7 +33,8 @@ export class PermisoComponent implements OnInit {
     observaciones: '',
   };
   cantidadDias: number = 1;
-  fechaFin: string = ''; // Nueva propiedad para fecha de fin
+  fechaFin: string = '';
+  diasPagos: number | null = null;
   areaNombre: string = localStorage.getItem('area') || '';
 
   esGestionAdministrativa(): boolean {
@@ -40,17 +42,26 @@ export class PermisoComponent implements OnInit {
     return area.includes('gestión administrativa') || area.includes('gestion administrativa');
   }
 
+  esVacacionesMasPagos(): boolean {
+    return this.permiso.tipo?.toLowerCase().trim() === 'vacaciones más pagos';
+  }
+
   ngOnInit(): void {
-    // Obtener el correo del líder desde localStorage
     const correoLider = localStorage.getItem('correoLider');
     if (correoLider) {
-      if (correoLider === this.permiso.emailPersonal) {
-        this.permiso.emailLider = '';
-      } else {
-        this.permiso.emailLider = correoLider;
-      }
+      this.permiso.emailLider = correoLider === this.permiso.emailPersonal ? '' : correoLider;
     }
     this.loadHolidays();
+    this.tipoPermisoService.getActivos().subscribe({
+      next: (tipos) => {
+        this.tiposPermisoConfig = tipos;
+        this.tiposPermiso = tipos.map(t => t.nombre);
+        this.permitidosSalida = tipos.filter(t => t.requiere_horas).map(t => t.nombre);
+        this.permitidoEntrada = tipos.filter(t => t.requiere_horas).map(t => t.nombre);
+        this.variosDias = tipos.filter(t => t.requiere_fecha_fin).map(t => t.nombre);
+      },
+      error: () => { /* mantiene los valores hardcodeados como fallback */ },
+    });
   }
   transformHora() {
     const pipe = new DatePipe('en-GB'); // Configuración para 24 horas
@@ -71,6 +82,8 @@ export class PermisoComponent implements OnInit {
     });
   }
   loading: boolean = false;
+  // Tipos cargados desde la API; fallback a lista hardcodeada si falla
+  tiposPermisoConfig: TipoPermiso[] = [];
   tiposPermiso: string[] = [
     'Permiso personal de todo el día',
     'Salida Temprano',
@@ -95,32 +108,18 @@ export class PermisoComponent implements OnInit {
   ];
 
   permitidosSalida: string[] = [
-    'Salida Temprano',
-    'Cita médica',
-    'Cita odontológica',
-    'Movimiento de horario',
-    'Permiso personal por horas',
-    'Horas extras (en casa, fuera de las instalaciones y viajes)',
+    'Salida Temprano', 'Cita médica', 'Cita odontológica', 'Movimiento de horario',
+    'Permiso personal por horas', 'Horas extras (en casa, fuera de las instalaciones y viajes)',
     'Adecuacion horario (Horarios Especiales)',
   ];
 
   permitidoEntrada: string[] = [
-    'Entrada luego de la jornada',
-    'Llegada tarde por factores externos',
-    'Cita médica',
-    'Cita odontológica',
-    'Movimiento de horario',
-    'Permiso personal por horas',
-    'Horas extras (en casa, fuera de las instalaciones y viajes)',
-    'Adecuacion horario (Horarios Especiales)',
+    'Entrada luego de la jornada', 'Llegada tarde por factores externos', 'Cita médica',
+    'Cita odontológica', 'Movimiento de horario', 'Permiso personal por horas',
+    'Horas extras (en casa, fuera de las instalaciones y viajes)', 'Adecuacion horario (Horarios Especiales)',
   ];
 
-  variosDias: string[] = [
-    'Vacaciones',
-    'Incapacidad médica',
-    'Incapacidad laboral',
-    'Movimiento de horario',
-  ];
+  variosDias: string[] = ['Vacaciones', 'Incapacidad médica', 'Incapacidad laboral', 'Movimiento de horario'];
 
   holidays: string[] = [];
 
@@ -188,8 +187,11 @@ export class PermisoComponent implements OnInit {
   }
 
   requiereSoporte(): boolean {
-    const tiposConSoporteObligatorio = ['Vacaciones', 'Día de la familia', 'Incapacidad médica', 'Incapacidad laboral'];
-    return tiposConSoporteObligatorio.includes(this.permiso.tipo);
+    if (this.tiposPermisoConfig.length > 0) {
+      const config = this.tiposPermisoConfig.find(t => t.nombre === this.permiso.tipo);
+      return config?.requiere_soporte ?? false;
+    }
+    return ['Vacaciones', 'Día de la familia', 'Incapacidad médica', 'Incapacidad laboral'].includes(this.permiso.tipo);
   }
 
   selectedFile: File | null = null;
@@ -197,6 +199,7 @@ export class PermisoComponent implements OnInit {
 
   constructor(
     private permisoService: PermisosService,
+    private tipoPermisoService: TipoPermisoService,
     private toastr: ToastrService,
     private router: Router,
     private location: Location
@@ -324,6 +327,18 @@ export class PermisoComponent implements OnInit {
       return;
     }
 
+    // Validar días pagos para "Vacaciones más pagos"
+    if (this.esVacacionesMasPagos()) {
+      if (!this.diasPagos || this.diasPagos < 1) {
+        this.toastr.error('Debe indicar la cantidad de días pagos a disfrutar.');
+        return;
+      }
+      if (this.diasPagos > 9) {
+        this.toastr.error('Los días pagos a disfrutar no pueden superar 9 días.');
+        return;
+      }
+    }
+
     this.loading = true;
     const fechaInicio = new Date(this.permiso.fecha + 'T00:00:00');
 
@@ -387,6 +402,16 @@ export class PermisoComponent implements OnInit {
       // Agregar fecha de fin y días laborales
       formData.append('fechaFin', this.fechaFin);
       formData.append('diasLaborales', diasLaborales.toString());
+
+      // Validar y agregar días pagos para Vacaciones más pagos
+      if (this.esVacacionesMasPagos()) {
+        if (this.diasPagos! > diasLaborales) {
+          this.toastr.error(`Los días pagos (${this.diasPagos}) no pueden superar los días de vacaciones solicitados (${diasLaborales}).`);
+          this.loading = false;
+          return;
+        }
+        formData.append('diasPagos', String(this.diasPagos));
+      }
 
       if (this.selectedFile) {
         formData.append('soporte', this.selectedFile);
@@ -458,6 +483,7 @@ export class PermisoComponent implements OnInit {
     this.selectedFile = null;
     this.fechaFin = '';
     this.cantidadDias = 1;
+    this.diasPagos = null;
   }
 
   cancel() {

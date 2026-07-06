@@ -13,6 +13,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
 import { FormsModule } from '@angular/forms';
 import { Area } from '../../interfaces/area';
 import { Role } from '../../interfaces/role';
+import { PlantillaInventarioService, PlantillaInventario, InventarioUsuario } from '../../services/plantilla-inventario.service';
 
 @Component({
   selector: 'app-admin',
@@ -76,10 +77,18 @@ export class AdminComponent implements OnInit {
   currentPage = 1;
   totalPages = 1;
 
+  // Inventarios por usuario
+  tabModal: 'datos' | 'inventarios' = 'datos';
+  inventariosUsuario: InventarioUsuario[] = [];
+  todasPlantillas: PlantillaInventario[] = [];
+  plantillaSeleccionadaId: number | null = null;
+  loadingInventarios = false;
+
   constructor(
     private userService: UserService,
     private areaService: AreaService,
     private roleService: RoleService,
+    private plantillaService: PlantillaInventarioService,
     private toastr: ToastrService,
     private location: Location
   ) {}
@@ -176,7 +185,11 @@ export class AdminComponent implements OnInit {
 
   // Edición de usuario
   editUser(user: UResponse): void {
+    this.tabModal = 'datos';
+    this.inventariosUsuario = [];
+    this.plantillaSeleccionadaId = null;
     this.editingUser = user;
+    this.cargarInventariosUsuario(user.Uid!);
     
     // Convertir fechaIngreso de ISO a formato YYYY-MM-DD para input type="date"
     let fechaIngresoFormateada = '';
@@ -371,5 +384,42 @@ export class AdminComponent implements OnInit {
 
   goBack(): void {
     this.location.back();
+  }
+
+  // ---- Gestión de inventarios por usuario ----
+  cargarInventariosUsuario(Uid: number) {
+    this.loadingInventarios = true;
+    this.plantillaService.getInventariosUsuario(Uid).subscribe({
+      next: data => { this.inventariosUsuario = data; this.loadingInventarios = false; },
+      error: () => this.loadingInventarios = false,
+    });
+    if (this.todasPlantillas.length === 0) {
+      this.plantillaService.getAll().subscribe({ next: p => this.todasPlantillas = p });
+    }
+  }
+
+  asignarInventario() {
+    if (!this.editingUser?.Uid || !this.plantillaSeleccionadaId) {
+      this.toastr.warning('Seleccione una plantilla');
+      return;
+    }
+    this.plantillaService.asignar(this.editingUser.Uid, this.plantillaSeleccionadaId).subscribe({
+      next: () => {
+        this.toastr.success('Inventario asignado');
+        this.plantillaSeleccionadaId = null;
+        this.cargarInventariosUsuario(this.editingUser!.Uid!);
+      },
+      error: () => this.toastr.error('Error al asignar inventario'),
+    });
+  }
+
+  removerInventario(id: number) {
+    this.plantillaService.remover(id).subscribe({
+      next: () => {
+        this.toastr.success('Inventario removido');
+        this.cargarInventariosUsuario(this.editingUser!.Uid!);
+      },
+      error: () => this.toastr.error('Error al remover inventario'),
+    });
   }
 }

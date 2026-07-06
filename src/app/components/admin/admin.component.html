@@ -192,7 +192,47 @@
         </button>
       </div>
 
-      <div class="modal-body custom-scrollbar">
+      <!-- Tabs del modal de edición -->
+      <div style="display:flex; border-bottom:1px solid #dee2e6; padding: 0 1rem;">
+        <button type="button" style="padding:8px 16px; border:none; background:none; border-bottom: 2px solid transparent; cursor:pointer; font-weight:500;"
+          [style.border-bottom-color]="tabModal==='datos' ? '#0d6efd' : 'transparent'"
+          [style.color]="tabModal==='datos' ? '#0d6efd' : '#6c757d'"
+          (click)="tabModal='datos'">Datos generales</button>
+        <button type="button" style="padding:8px 16px; border:none; background:none; border-bottom: 2px solid transparent; cursor:pointer; font-weight:500;"
+          [style.border-bottom-color]="tabModal==='inventarios' ? '#0d6efd' : 'transparent'"
+          [style.color]="tabModal==='inventarios' ? '#0d6efd' : '#6c757d'"
+          (click)="tabModal='inventarios'">Inventarios ({{ inventariosUsuario.length }})</button>
+      </div>
+
+      <!-- Tab Inventarios -->
+      <div *ngIf="tabModal==='inventarios'" style="padding:1rem">
+        <div *ngIf="loadingInventarios" class="text-center py-3">Cargando inventarios...</div>
+        <div *ngIf="!loadingInventarios">
+          <div class="mb-3 d-flex gap-2 align-items-center">
+            <select class="form-select form-select-sm" [(ngModel)]="plantillaSeleccionadaId" style="max-width:280px">
+              <option [ngValue]="null" disabled>Seleccionar plantilla...</option>
+              <option *ngFor="let p of todasPlantillas" [ngValue]="p.id" [disabled]="!p.activo">{{ p.nombre }}</option>
+            </select>
+            <button class="btn btn-sm btn-primary" (click)="asignarInventario()">Asignar</button>
+          </div>
+          <table class="table table-sm table-hover" *ngIf="inventariosUsuario.length > 0">
+            <thead class="table-light">
+              <tr><th>Plantilla</th><th>Fecha</th><th>Estado</th><th></th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let inv of inventariosUsuario">
+                <td>{{ inv.plantilla?.nombre || '-' }}</td>
+                <td>{{ inv.fechaAsignacion | date:'dd/MM/yyyy' }}</td>
+                <td><span class="badge" [class.bg-success]="inv.estado==='activo'" [class.bg-secondary]="inv.estado!=='activo'">{{ inv.estado }}</span></td>
+                <td><button class="btn btn-sm btn-outline-danger" (click)="removerInventario(inv.id!)">Quitar</button></td>
+              </tr>
+            </tbody>
+          </table>
+          <p *ngIf="inventariosUsuario.length === 0" class="text-muted text-center py-3">Sin inventarios asignados.</p>
+        </div>
+      </div>
+
+      <div class="modal-body custom-scrollbar" *ngIf="tabModal==='datos'">
         <form class="form-grid">
           <div class="form-group">
             <label class="form-label" for="name">Nombre *</label>
@@ -388,7 +428,7 @@
         <button class="btn btn--outline" (click)="cancelEdit()">
           Cancelar
         </button>
-        <button class="btn btn--primary" (click)="saveUser()">
+        <button class="btn btn--primary" *ngIf="tabModal==='datos'" (click)="saveUser()">
           <i class="fas fa-save"></i> Guardar Cambios
         </button>
       </div>

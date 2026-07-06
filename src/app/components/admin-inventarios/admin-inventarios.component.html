@@ -1,0 +1,686 @@
+<app-navbar></app-navbar>
+<app-spinner *ngIf="loadingCatalogo || loadingTipos"></app-spinner>
+
+<div class="adm-page">
+
+  <!-- HEADER -->
+  <div class="adm-header">
+    <div class="adm-header__left">
+      <div class="adm-header__icon"><i class="bi bi-boxes"></i></div>
+      <div>
+        <h1 class="adm-header__title">Gestión de Inventarios</h1>
+        <p class="adm-header__sub">Administre el catálogo y cree nuevos inventarios</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS PRINCIPALES -->
+  <div class="adm-tabs">
+    <button class="adm-tab" [class.adm-tab--active]="seccion === 'catalogo'"
+      (click)="seccion = 'catalogo'; cancelarEditarCatalogo(); cerrarGestionCampos()">
+      <i class="bi bi-list-ul me-1"></i> Catálogo de Inventarios
+      <span class="adm-tab__badge">{{ catalogoDispositivos.length + catalogoMobiliario.length }}</span>
+    </button>
+    <button class="adm-tab" [class.adm-tab--active]="seccion === 'crear'"
+      (click)="seccion = 'crear'">
+      <i class="bi bi-plus-circle me-1"></i> Crear Inventario
+      <span class="adm-tab__badge">{{ tiposExistentes.length }}</span>
+    </button>
+  </div>
+
+  <!-- ══════ CATÁLOGO ══════ -->
+  <ng-container *ngIf="seccion === 'catalogo'">
+
+    <!-- PANEL EDICIÓN INLINE -->
+    <div class="adm-edit-panel" *ngIf="editandoCatalogo">
+      <div class="adm-edit-panel__head">
+        <i class="bi bi-pencil-square"></i>
+        Editando {{ editandoCatalogo.tipo }}: {{ editandoCatalogo.item.nombre }}
+        <small class="ms-2 opacity-75">(Solo campos seguros — ID y claves de trazabilidad están protegidos)</small>
+      </div>
+      <div class="adm-edit-panel__body">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="adm-form-label">Nombre <span class="adm-required">*</span></label>
+            <input type="text" class="form-control" [(ngModel)]="formCatalogo['nombre']">
+          </div>
+          <div class="col-md-3">
+            <label class="adm-form-label">Categoría</label>
+            <input type="text" class="form-control" [(ngModel)]="formCatalogo['categoria']">
+          </div>
+          <div class="col-md-5">
+            <label class="adm-form-label">Descripción</label>
+            <input type="text" class="form-control" [(ngModel)]="formCatalogo['descripcion']">
+          </div>
+          <ng-container *ngIf="editandoCatalogo.tipo === 'dispositivo'">
+            <div class="col-md-3">
+              <label class="adm-form-label">Marca</label>
+              <input type="text" class="form-control" [(ngModel)]="formCatalogo['marca']">
+            </div>
+            <div class="col-md-3">
+              <label class="adm-form-label">Modelo</label>
+              <input type="text" class="form-control" [(ngModel)]="formCatalogo['modelo']">
+            </div>
+            <div class="col-md-3">
+              <label class="adm-form-label">Ubicación</label>
+              <input type="text" class="form-control" [(ngModel)]="formCatalogo['ubicacion']">
+            </div>
+            <div class="col-md-3">
+              <label class="adm-form-label">Color</label>
+              <input type="text" class="form-control" [(ngModel)]="formCatalogo['color']">
+            </div>
+          </ng-container>
+          <ng-container *ngIf="editandoCatalogo.tipo !== 'dispositivo'">
+            <div class="col-md-4">
+              <label class="adm-form-label">Ubicación en almacén</label>
+              <input type="text" class="form-control" [(ngModel)]="formCatalogo['ubicacionAlmacen']">
+            </div>
+            <div class="col-md-4">
+              <label class="adm-form-label">Proveedor</label>
+              <input type="text" class="form-control" [(ngModel)]="formCatalogo['proveedor']">
+            </div>
+          </ng-container>
+          <ng-container *ngIf="editandoCatalogo.tipo === 'consumible'">
+            <div class="col-md-2">
+              <label class="adm-form-label">Stock mín.</label>
+              <input type="number" class="form-control" [(ngModel)]="formCatalogo['stockMinimo']" min="0">
+            </div>
+            <div class="col-md-2">
+              <label class="adm-form-label">Stock máx.</label>
+              <input type="number" class="form-control" [(ngModel)]="formCatalogo['stockMaximo']" min="0">
+            </div>
+          </ng-container>
+          <div class="col-12">
+            <label class="adm-form-label">Observaciones</label>
+            <input type="text" class="form-control" [(ngModel)]="formCatalogo['observaciones']">
+          </div>
+        </div>
+        <div class="alert alert-warning py-2 small mt-3">
+          <i class="bi bi-shield-exclamation me-1"></i>
+          Los campos de <strong>ID, serial, IMEI, usuario asignado y claves de trazabilidad</strong> están protegidos.
+        </div>
+        <div class="mt-3 d-flex gap-2">
+          <button class="btn btn-primary" (click)="guardarCatalogo()">
+            <i class="bi bi-check-lg me-1"></i> Guardar
+          </button>
+          <button class="btn btn-outline-secondary" (click)="cancelarEditarCatalogo()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL GESTIÓN DE CAMPOS INLINE -->
+    <div class="adm-campos-panel" *ngIf="tipoGestionandoCampos && !editandoCatalogo">
+      <div class="adm-campos-panel__head">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-layout-three-columns"></i>
+          <span>Campos de <strong>{{ tipoGestionandoCampos.nombre }}</strong></span>
+          <small class="opacity-75">— atributos que tendrán los ítems de este inventario</small>
+        </div>
+        <button class="btn btn-sm btn-outline-light" (click)="cerrarGestionCampos()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="adm-campos-panel__body">
+
+        <!-- Campos existentes -->
+        <div *ngIf="loadingCampos" class="text-center py-3 text-muted small">Cargando campos...</div>
+        <div *ngIf="!loadingCampos && camposDelTipo.length === 0" class="text-muted small py-2">
+          <i class="bi bi-info-circle me-1"></i> Este inventario no tiene campos configurados. Agréguelos a continuación.
+        </div>
+        <div *ngIf="!loadingCampos && camposDelTipo.length > 0" class="mb-3">
+          <table class="adm-campos-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Clave</th>
+                <th>Tipo</th>
+                <th class="text-center">Obligatorio</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngFor="let campo of camposDelTipo">
+                <tr *ngIf="campoEditando?.id !== campo.id">
+                  <td><strong>{{ campo.nombre }}</strong></td>
+                  <td><code class="small">{{ campo.clave }}</code></td>
+                  <td><span class="adm-tipo-badge">{{ tipoCampoLabel(campo.tipo_campo) }}</span></td>
+                  <td class="text-center">
+                    <i class="bi" [class.bi-check-circle-fill]="campo.requerido" [class.bi-dash-circle]="!campo.requerido"
+                      [class.text-success]="campo.requerido" [class.text-muted]="!campo.requerido"></i>
+                  </td>
+                  <td class="text-center">
+                    <div class="d-flex gap-1 justify-content-center">
+                      <button class="btn btn-sm btn-outline-primary" title="Editar" (click)="abrirEditarCampo(campo)">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger" title="Eliminar" (click)="eliminarCampo(campo)">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Fila de edición inline -->
+                <tr *ngIf="campoEditando?.id === campo.id" class="adm-row--editing">
+                  <td>
+                    <input type="text" class="form-control form-control-sm" [(ngModel)]="campoEditando.nombre">
+                  </td>
+                  <td><code class="small text-muted">{{ campo.clave }}</code></td>
+                  <td>
+                    <select class="form-select form-select-sm" [(ngModel)]="campoEditando.tipo_campo">
+                      <option value="texto">Texto</option>
+                      <option value="numero">Número</option>
+                      <option value="fecha">Fecha</option>
+                      <option value="booleano">Sí/No</option>
+                    </select>
+                  </td>
+                  <td class="text-center">
+                    <input type="checkbox" class="form-check-input" [(ngModel)]="campoEditando.requerido">
+                  </td>
+                  <td class="text-center">
+                    <div class="d-flex gap-1 justify-content-center">
+                      <button class="btn btn-sm btn-success" (click)="guardarCampoEditado()">
+                        <i class="bi bi-check-lg"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-secondary" (click)="campoEditando = null">
+                        <i class="bi bi-x"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Formulario agregar nuevo campo -->
+        <div class="adm-nuevo-campo-form">
+          <p class="adm-form-label mb-2"><i class="bi bi-plus-circle me-1"></i> Agregar campo</p>
+          <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+              <label class="adm-form-label">Nombre <span class="adm-required">*</span></label>
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="formCampoNuevo.nombre"
+                placeholder="Ej: Precio, Peso, Proveedor"
+                (blur)="onNombreCampoNuevoBlur()">
+            </div>
+            <div class="col-md-3">
+              <label class="adm-form-label">
+                Clave <span class="adm-required">*</span>
+                <span class="adm-hint">— solo a-z, 0-9, _</span>
+              </label>
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="formCampoNuevo.clave"
+                placeholder="ej: precio_unitario">
+            </div>
+            <div class="col-md-2">
+              <label class="adm-form-label">Tipo</label>
+              <select class="form-select form-select-sm" [(ngModel)]="formCampoNuevo.tipo_campo">
+                <option value="texto">Texto</option>
+                <option value="numero">Número</option>
+                <option value="fecha">Fecha</option>
+                <option value="booleano">Sí/No</option>
+              </select>
+            </div>
+            <div class="col-md-1 text-center">
+              <label class="adm-form-label">Oblig.</label>
+              <div><input type="checkbox" class="form-check-input" [(ngModel)]="formCampoNuevo.requerido"></div>
+            </div>
+            <div class="col-md-2">
+              <button class="btn btn-primary btn-sm w-100" (click)="guardarCampoNuevo()" [disabled]="guardandoCampo">
+                <i class="bi bi-plus-lg me-1"></i> Agregar
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CONTROLES -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="form-check form-switch mb-0">
+        <input class="form-check-input" type="checkbox" id="mostrarOcultos" [(ngModel)]="mostrarOcultos">
+        <label class="form-check-label" for="mostrarOcultos">Mostrar ítems ocultos</label>
+      </div>
+      <button class="btn btn-sm btn-outline-secondary" (click)="cargarCatalogo()">
+        <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
+      </button>
+    </div>
+
+    <!-- SUB-PESTAÑAS -->
+    <div class="adm-subtabs">
+      <button class="adm-subtab" [class.adm-subtab--active]="subSeccionCatalogo === 'dispositivos'"
+        (click)="subSeccionCatalogo = 'dispositivos'; cancelarEditarCatalogo(); cerrarGestionCampos()">
+        <i class="bi bi-laptop me-1"></i> Dispositivos
+        <span class="adm-subtab__count">{{ dispositivosVisibles.length }}</span>
+      </button>
+      <button class="adm-subtab" [class.adm-subtab--active]="subSeccionCatalogo === 'mobiliario'"
+        (click)="subSeccionCatalogo = 'mobiliario'; cancelarEditarCatalogo(); cerrarGestionCampos()">
+        <i class="bi bi-building me-1"></i> Mobiliario
+        <span class="adm-subtab__count">{{ mobiliarioVisible.length }}</span>
+      </button>
+      <button *ngFor="let tipo of catalogoTipos" class="adm-subtab"
+        [class.adm-subtab--active]="subSeccionCatalogo === tipo.nombre"
+        (click)="subSeccionCatalogo = tipo.nombre; cancelarEditarCatalogo(); cerrarGestionCampos()">
+        <i class="bi bi-box-seam me-1"></i> {{ tipo.nombre }}
+        <span class="adm-subtab__count">{{ consumiblesVisibles(tipo).length }}</span>
+      </button>
+    </div>
+
+    <!-- DISPOSITIVOS -->
+    <div class="adm-panel" *ngIf="subSeccionCatalogo === 'dispositivos'">
+      <div class="adm-panel__body--no-pad">
+        <div class="table-responsive">
+          <table class="adm-table">
+            <thead>
+              <tr>
+                <th>Nombre / Marca-Modelo</th>
+                <th>Categoría</th>
+                <th>Serial / IMEI</th>
+                <th>Estado</th>
+                <th>Ubicación</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let d of dispositivosVisibles" [class.adm-row--oculto]="d.estado === 'obsoleto'">
+                <td>
+                  <strong>{{ d.nombre }}</strong>
+                  <div class="adm-user-email" *ngIf="d.marca || d.modelo">{{ d.marca }} {{ d.modelo }}</div>
+                </td>
+                <td>{{ d.categoria || '—' }}</td>
+                <td class="small text-muted">{{ d.serial || d.imei || '—' }}</td>
+                <td>
+                  <span class="adm-state-badge"
+                    [class.adm-state-badge--active]="d.estado === 'disponible'"
+                    [class.adm-state-badge--inactive]="d.estado !== 'disponible' && d.estado !== 'obsoleto'"
+                    [class.adm-state-badge--hidden]="d.estado === 'obsoleto'">
+                    {{ d.estado }}
+                  </span>
+                </td>
+                <td class="small text-muted">{{ d.ubicacion || '—' }}</td>
+                <td class="text-center">
+                  <div class="d-flex gap-1 justify-content-center">
+                    <button class="btn btn-sm btn-outline-primary" title="Editar" (click)="abrirEditarCatalogo('dispositivo', d)">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button *ngIf="d.estado !== 'obsoleto'" class="btn btn-sm btn-outline-warning"
+                      title="Ocultar" (click)="ocultarItem('dispositivo', d)">
+                      <i class="bi bi-eye-slash"></i>
+                    </button>
+                    <button *ngIf="d.estado === 'obsoleto'" class="btn btn-sm btn-outline-success"
+                      title="Restaurar" (click)="restaurarItem('dispositivo', d)">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="dispositivosVisibles.length === 0">
+                <td colspan="6" class="text-center text-muted py-3">Sin dispositivos</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- MOBILIARIO -->
+    <div class="adm-panel" *ngIf="subSeccionCatalogo === 'mobiliario'">
+      <div class="adm-panel__body--no-pad">
+        <div class="table-responsive">
+          <table class="adm-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Stock actual</th>
+                <th>Ubicación</th>
+                <th>Estado</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let m of mobiliarioVisible" [class.adm-row--oculto]="m.activo === false">
+                <td><strong>{{ m.nombre }}</strong></td>
+                <td>{{ m.categoria || '—' }}</td>
+                <td>{{ m.stockActual }} {{ m.unidadMedida }}</td>
+                <td class="small text-muted">{{ m.ubicacionAlmacen || '—' }}</td>
+                <td>
+                  <span class="adm-state-badge"
+                    [class.adm-state-badge--active]="m.activo !== false"
+                    [class.adm-state-badge--hidden]="m.activo === false">
+                    {{ m.activo !== false ? 'Activo' : 'Oculto' }}
+                  </span>
+                </td>
+                <td class="text-center">
+                  <div class="d-flex gap-1 justify-content-center">
+                    <button class="btn btn-sm btn-outline-primary" title="Editar" (click)="abrirEditarCatalogo('mobiliario', m)">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button *ngIf="m.activo !== false" class="btn btn-sm btn-outline-warning"
+                      title="Ocultar" (click)="ocultarItem('mobiliario', m)">
+                      <i class="bi bi-eye-slash"></i>
+                    </button>
+                    <button *ngIf="m.activo === false" class="btn btn-sm btn-outline-success"
+                      title="Restaurar" (click)="restaurarItem('mobiliario', m)">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="mobiliarioVisible.length === 0">
+                <td colspan="6" class="text-center text-muted py-3">Sin mobiliario</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONSUMIBLES POR TIPO (inventarios dinámicos) -->
+    <ng-container *ngFor="let tipo of catalogoTipos">
+      <ng-container *ngIf="subSeccionCatalogo === tipo.nombre">
+
+        <!-- Barra de acciones del tipo -->
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <p class="mb-0 text-muted small">
+            <i class="bi bi-box-seam me-1"></i>
+            Inventario <strong>{{ tipo.nombre }}</strong> — {{ consumiblesVisibles(tipo).length }} ítem(s) visible(s)
+          </p>
+          <button class="btn btn-sm"
+            [class.btn-outline-secondary]="tipoGestionandoCampos?.id !== tipo.id"
+            [class.btn-secondary]="tipoGestionandoCampos?.id === tipo.id"
+            (click)="abrirGestionCampos(tipo)" title="Configurar campos de este inventario">
+            <i class="bi bi-layout-three-columns me-1"></i>
+            {{ tipoGestionandoCampos?.id === tipo.id ? 'Cerrar campos' : 'Gestionar campos' }}
+          </button>
+        </div>
+
+        <div class="adm-panel">
+          <div class="adm-panel__body--no-pad">
+            <div class="table-responsive">
+              <table class="adm-table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Stock actual</th>
+                    <th>Stock mín.</th>
+                    <th>Unidad</th>
+                    <th>Estado</th>
+                    <th class="text-center">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let c of consumiblesVisibles(tipo)" [class.adm-row--oculto]="c.activo === false">
+                    <td><strong>{{ c.nombre }}</strong></td>
+                    <td>{{ c.categoria || '—' }}</td>
+                    <td [class.text-danger]="c.stockActual <= c.stockMinimo">{{ c.stockActual }}</td>
+                    <td class="small text-muted">{{ c.stockMinimo }}</td>
+                    <td class="small text-muted">{{ c.unidadMedida }}</td>
+                    <td>
+                      <span class="adm-state-badge"
+                        [class.adm-state-badge--active]="c.activo !== false"
+                        [class.adm-state-badge--hidden]="c.activo === false">
+                        {{ c.activo !== false ? 'Activo' : 'Oculto' }}
+                      </span>
+                    </td>
+                    <td class="text-center">
+                      <div class="d-flex gap-1 justify-content-center">
+                        <button class="btn btn-sm btn-outline-primary" title="Editar" (click)="abrirEditarCatalogo('consumible', c)">
+                          <i class="bi bi-pencil"></i>
+                        </button>
+                        <button *ngIf="c.activo !== false" class="btn btn-sm btn-outline-warning"
+                          title="Ocultar" (click)="ocultarItem('consumible', c)">
+                          <i class="bi bi-eye-slash"></i>
+                        </button>
+                        <button *ngIf="c.activo === false" class="btn btn-sm btn-outline-success"
+                          title="Restaurar" (click)="restaurarItem('consumible', c)">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr *ngIf="consumiblesVisibles(tipo).length === 0">
+                    <td colspan="7" class="text-center text-muted py-3">Sin ítems en esta categoría</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </ng-container>
+    </ng-container>
+
+  </ng-container>
+
+  <!-- ══════ CREACIÓN DE INVENTARIOS ══════ -->
+  <ng-container *ngIf="seccion === 'crear'">
+
+    <div class="row g-4">
+
+      <!-- FORMULARIO DE CREACIÓN -->
+      <div class="col-lg-7">
+        <div class="adm-panel">
+          <div class="adm-panel__head">
+            <h2 class="adm-panel__title">
+              <i class="bi bi-plus-circle"></i> Nuevo Inventario
+            </h2>
+          </div>
+          <div class="adm-panel__body">
+
+            <!-- Errores -->
+            <div class="adm-errors" *ngIf="erroresCrear.length > 0">
+              <ul><li *ngFor="let e of erroresCrear">{{ e }}</li></ul>
+            </div>
+
+            <!-- Datos del tipo -->
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="adm-form-label">Nombre del inventario <span class="adm-required">*</span></label>
+                <input type="text" class="form-control" [(ngModel)]="formInventario.nombre"
+                  (blur)="generarCodigo()" placeholder="Ej: Cocina, Herramientas eléctricas">
+              </div>
+              <div class="col-md-6">
+                <label class="adm-form-label">
+                  Código (identificador único) <span class="adm-required">*</span>
+                  <span class="adm-hint">— solo letras minúsculas, números y _</span>
+                </label>
+                <input type="text" class="form-control" [(ngModel)]="formInventario.codigo"
+                  placeholder="ej: cocina o herramientas_electricas">
+                <small class="form-text text-muted">Se genera automáticamente del nombre, puede editarlo.</small>
+              </div>
+              <div class="col-12">
+                <label class="adm-form-label">Descripción (opcional)</label>
+                <input type="text" class="form-control" [(ngModel)]="formInventario.descripcion"
+                  placeholder="Descripción breve del inventario">
+              </div>
+            </div>
+
+            <!-- ── CAMPOS DEL INVENTARIO ── -->
+            <div class="adm-section-divider">
+              <div class="adm-section-divider__line"></div>
+              <span class="adm-section-divider__label">
+                <i class="bi bi-layout-three-columns me-1"></i> Campos del inventario
+              </span>
+              <div class="adm-section-divider__line"></div>
+            </div>
+            <p class="text-muted small mb-3">
+              Define qué atributos tendrán los ítems de este inventario (además de nombre, categoría y stock que son fijos).
+            </p>
+
+            <div *ngIf="camposNuevo.length === 0" class="adm-empty" style="padding:16px 0">
+              <i class="bi bi-layout-three-columns"></i>
+              <p>Sin campos personalizados. Puede agregar campos como Precio, Peso, Proveedor, etc.</p>
+            </div>
+
+            <div *ngFor="let campo of camposNuevo; let i = index" class="adm-campo-card mb-2">
+              <div class="row g-2 align-items-end">
+                <div class="col-md-4">
+                  <label class="adm-form-label">Nombre <span class="adm-required">*</span></label>
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="campo.nombre"
+                    (blur)="onNombreCampoNuevoCrearBlur(campo)" placeholder="Ej: Precio unitario">
+                </div>
+                <div class="col-md-3">
+                  <label class="adm-form-label">
+                    Clave <span class="adm-required">*</span>
+                    <span class="adm-hint">a-z, 0-9, _</span>
+                  </label>
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="campo.clave"
+                    placeholder="precio_unitario">
+                </div>
+                <div class="col-md-2">
+                  <label class="adm-form-label">Tipo</label>
+                  <select class="form-select form-select-sm" [(ngModel)]="campo.tipo_campo">
+                    <option value="texto">Texto</option>
+                    <option value="numero">Número</option>
+                    <option value="fecha">Fecha</option>
+                    <option value="booleano">Sí/No</option>
+                  </select>
+                </div>
+                <div class="col-md-1 text-center">
+                  <label class="adm-form-label">Oblig.</label>
+                  <div><input type="checkbox" class="form-check-input" [(ngModel)]="campo.requerido"></div>
+                </div>
+                <div class="col-md-2 text-end">
+                  <button class="btn btn-sm btn-outline-danger" (click)="quitarCampoNuevo(i)" title="Quitar campo">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn btn-sm btn-outline-secondary mb-4" (click)="agregarCampoNuevo()">
+              <i class="bi bi-plus me-1"></i> Agregar campo
+            </button>
+
+            <!-- ── ÍTEMS INICIALES ── -->
+            <div class="adm-section-divider">
+              <div class="adm-section-divider__line"></div>
+              <span class="adm-section-divider__label">
+                <i class="bi bi-box-seam me-1"></i> Ítems iniciales (opcional)
+              </span>
+              <div class="adm-section-divider__line"></div>
+            </div>
+
+            <div class="adm-items-head mt-3">
+              <label class="adm-form-label mb-0">
+                <span class="adm-hint">— puede agregar más ítems después desde el inventario</span>
+              </label>
+              <button class="btn btn-sm btn-outline-primary" (click)="agregarItem()">
+                <i class="bi bi-plus me-1"></i> Agregar ítem
+              </button>
+            </div>
+
+            <div *ngIf="items.length === 0" class="adm-empty" style="padding: 16px 0">
+              <i class="bi bi-inbox"></i>
+              <p>Sin ítems iniciales. Puede crearlos desde el inventario una vez creado.</p>
+            </div>
+
+            <div *ngFor="let item of items; let i = index" class="adm-item-card">
+              <div class="adm-item-card__head">
+                <span class="adm-item-card__num">{{ i + 1 }}</span>
+                <button class="btn btn-sm btn-outline-danger ms-auto" (click)="quitarItem(i)" title="Eliminar ítem">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+              <div class="row g-2 mt-1">
+                <div class="col-md-5">
+                  <label class="adm-form-label">Nombre <span class="adm-required">*</span></label>
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="item.nombre" placeholder="Nombre del producto">
+                </div>
+                <div class="col-md-4">
+                  <label class="adm-form-label">Categoría</label>
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="item.categoria" placeholder="Ej: Limpieza">
+                </div>
+                <div class="col-md-3">
+                  <label class="adm-form-label">Unidad</label>
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="item.unidadMedida" placeholder="unidad">
+                </div>
+                <div class="col-md-3">
+                  <label class="adm-form-label">Stock inicial</label>
+                  <input type="number" class="form-control form-control-sm" [(ngModel)]="item.stockActual" min="0">
+                </div>
+                <div class="col-md-3">
+                  <label class="adm-form-label">Stock mín.</label>
+                  <input type="number" class="form-control form-control-sm" [(ngModel)]="item.stockMinimo" min="0">
+                </div>
+                <div class="col-md-3">
+                  <label class="adm-form-label">Stock máx.</label>
+                  <input type="number" class="form-control form-control-sm" [(ngModel)]="item.stockMaximo" min="0">
+                </div>
+                <div class="col-md-3">
+                  <label class="adm-form-label">Ubicación</label>
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="item.ubicacion" placeholder="Almacén...">
+                </div>
+                <div class="col-12">
+                  <label class="adm-form-label">Descripción</label>
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="item.descripcion" placeholder="Descripción opcional">
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+              <button class="btn btn-primary" (click)="crearInventario()" [disabled]="creando">
+                <span *ngIf="!creando"><i class="bi bi-check-lg me-1"></i> Crear Inventario</span>
+                <span *ngIf="creando"><i class="bi bi-hourglass-split me-1"></i> Creando...</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INVENTARIOS EXISTENTES -->
+      <div class="col-lg-5">
+        <div class="adm-panel">
+          <div class="adm-panel__head">
+            <h2 class="adm-panel__title">
+              <i class="bi bi-collection"></i> Inventarios existentes
+              <span style="font-weight:400;color:#6b7280;font-size:.85rem">({{ tiposExistentes.length }})</span>
+            </h2>
+          </div>
+          <div class="adm-panel__body--no-pad">
+            <div *ngIf="tiposExistentes.length === 0" class="adm-empty">
+              <i class="bi bi-inbox"></i><p>Sin inventarios registrados</p>
+            </div>
+            <table class="adm-table" *ngIf="tiposExistentes.length > 0">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Código</th>
+                  <th>Estado</th>
+                  <th class="text-center">Ver</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let t of tiposExistentes">
+                  <td><strong>{{ t.nombre }}</strong></td>
+                  <td><code class="small">{{ t.codigo }}</code></td>
+                  <td>
+                    <span class="adm-state-badge"
+                      [class.adm-state-badge--active]="t.activo"
+                      [class.adm-state-badge--hidden]="!t.activo">
+                      {{ t.activo ? 'Activo' : 'Inactivo' }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <a [href]="'/inventario-consumible/' + t.codigo" class="btn btn-sm btn-outline-primary" title="Ir al inventario">
+                      <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="alert alert-info small mt-3">
+          <i class="bi bi-info-circle me-1"></i>
+          Los inventarios nuevos aparecerán automáticamente en el <strong>navbar</strong> bajo "Consumibles"
+          una vez que recargue la página.
+        </div>
+      </div>
+
+    </div>
+  </ng-container>
+
+</div>

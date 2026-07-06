@@ -169,6 +169,26 @@
             >
           </div>
 
+          <div class="form-group fade-in" *ngIf="esVacacionesMasPagos()">
+            <label class="form-label" for="diasPagos">
+              Días pagos a disfrutar *
+            </label>
+            <input
+              type="number"
+              id="diasPagos"
+              class="form-control"
+              [(ngModel)]="diasPagos"
+              name="diasPagos"
+              required
+              min="1"
+              max="9"
+              placeholder="Ej: 5"
+            />
+            <small class="form-hint">
+              Máximo 9 días y no puede superar los días de vacaciones solicitados
+            </small>
+          </div>
+
           <div class="form-group fade-in" *ngIf="mostrarSalida()">
             <label class="form-label" for="horaSalida">Hora de salida *</label>
             <select

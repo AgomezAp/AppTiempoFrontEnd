@@ -17,13 +17,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class ActasConsumiblesComponent implements OnInit, OnDestroy {
   // Tipo de inventario
-  tipoInventario:
-    | 'aseo'
-    | 'papeleria'
-    | 'botiquin'
-    | 'desechables'
-    | 'dotacion'
-    | 'herramientas' = 'aseo';
+  tipoInventario: string = 'aseo';
   tituloTipo = 'Aseo';
   iconoTipo = 'fa-broom';
   colorTema = '#00bcd4';
@@ -62,13 +56,22 @@ export class ActasConsumiblesComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Obtener tipo de la ruta
+    // Soporta tanto rutas específicas (data['tipo']) como la ruta genérica (params['codigo'])
     this.route.data.subscribe((data) => {
-      const tipo = data['tipo'] || 'aseo';
-      this.tipoInventario = tipo;
-      this.configurarTipo();
-      this.cargarActas();
-      this.conectarWebSocket();
+      if (data['tipo']) {
+        this.tipoInventario = data['tipo'];
+        this.configurarTipo();
+        this.cargarActas();
+        this.conectarWebSocket();
+      }
+    });
+    this.route.params.subscribe((params) => {
+      if (params['codigo']) {
+        this.tipoInventario = params['codigo'];
+        this.configurarTipo();
+        this.cargarActas();
+        this.conectarWebSocket();
+      }
     });
   }
 
@@ -98,10 +101,15 @@ export class ActasConsumiblesComponent implements OnInit, OnDestroy {
       this.tituloTipo = 'Herramientas';
       this.iconoTipo = 'pi-wrench';
       this.colorTema = '#795548';
-    } else {
+    } else if (this.tipoInventario === 'dotacion') {
       this.tituloTipo = 'Dotación';
       this.iconoTipo = 'pi-box';
       this.colorTema = '#20c997';
+    } else {
+      // Inventario dinámico
+      this.tituloTipo = this.tipoInventario.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      this.iconoTipo = 'pi-box';
+      this.colorTema = '#6c757d';
     }
   }
 

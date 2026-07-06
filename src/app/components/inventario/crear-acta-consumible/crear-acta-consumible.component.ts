@@ -23,13 +23,7 @@ interface ArticuloSeleccionado {
 })
 export class CrearActaConsumibleComponent implements OnInit {
   // Tipo de inventario
-  tipoInventario:
-    | 'aseo'
-    | 'papeleria'
-    | 'botiquin'
-    | 'desechables'
-    | 'dotacion'
-    | 'herramientas' = 'aseo';
+  tipoInventario: string = 'aseo';
   tituloTipo = 'Aseo';
   iconoTipo = 'fa-broom';
   colorTema = '#00acc1';
@@ -87,17 +81,9 @@ export class CrearActaConsumibleComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Obtener tipo de la ruta
     this.route.params.subscribe((params) => {
       const tipo = params['tipo'];
-      if (
-        tipo === 'aseo' ||
-        tipo === 'papeleria' ||
-        tipo === 'botiquin' ||
-        tipo === 'desechables' ||
-        tipo === 'dotacion' ||
-        tipo === 'herramientas'
-      ) {
+      if (tipo) {
         this.tipoInventario = tipo;
         this.configurarTipo();
         this.cargarArticulosDisponibles();
@@ -126,10 +112,15 @@ export class CrearActaConsumibleComponent implements OnInit {
       this.tituloTipo = 'Herramientas';
       this.iconoTipo = 'fa-screwdriver-wrench';
       this.colorTema = '#795548';
-    } else {
+    } else if (this.tipoInventario === 'dotacion') {
       this.tituloTipo = 'Dotación';
       this.iconoTipo = 'fa-shirt';
       this.colorTema = '#20c997';
+    } else {
+      // Inventario dinámico creado por el usuario
+      this.tituloTipo = this.tipoInventario.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      this.iconoTipo = 'fa-box';
+      this.colorTema = '#6c757d';
     }
   }
 
