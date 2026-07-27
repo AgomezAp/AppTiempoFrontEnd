@@ -42,6 +42,7 @@ export class AdminRolesComponent implements OnInit {
   cargandoTodosUsuarios = false;
   buscadorUsuarios = '';
   asignandoUid: number | null = null;
+  quitandoUid: number | null = null;
 
   readonly MODULOS = MODULOS_SISTEMA;
   readonly ROLES_PROTEGIDOS = ['Admin', 'User', 'Tecnologia'];
@@ -203,6 +204,46 @@ export class AdminRolesComponent implements OnInit {
         this.asignandoUid = null;
         Swal.fire('Error', err.error?.msg || 'No se pudo asignar el rol.', 'error');
       }
+    });
+  }
+
+  get esRolBase(): boolean {
+    return this.rolSeleccionado?.Rname === 'User';
+  }
+
+  quitarDeRol(usuario: any): void {
+    if (this.quitandoUid !== null || !this.rolSeleccionado) return;
+
+    const rolBase = this.roles.find(r => r.Rname === 'User');
+    if (!rolBase) {
+      Swal.fire('Error', 'No se encontró el rol base "User" para reasignar al usuario.', 'error');
+      return;
+    }
+
+    Swal.fire({
+      title: `¿Quitar a ${usuario.name} ${usuario.lastName} del rol "${this.rolSeleccionado.Rname}"?`,
+      text: `El usuario quedará con el rol "${rolBase.Rname}".`,
+      icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc3545',
+      confirmButtonText: 'Sí, quitar', cancelButtonText: 'Cancelar'
+    }).then(r => {
+      if (!r.isConfirmed) return;
+      this.quitandoUid = usuario.Uid;
+      this.userService.updateUser(usuario.Uid, { Rid: rolBase.Rid }).subscribe({
+        next: () => {
+          this.quitandoUid = null;
+          this.cargarUsuariosRol(this.rolSeleccionado.Rid);
+          Swal.fire({
+            icon: 'success',
+            title: 'Usuario removido del rol',
+            timer: 2000,
+            showConfirmButton: false
+          });
+        },
+        error: (err: any) => {
+          this.quitandoUid = null;
+          Swal.fire('Error', err.error?.msg || 'No se pudo quitar al usuario del rol.', 'error');
+        }
+      });
     });
   }
 

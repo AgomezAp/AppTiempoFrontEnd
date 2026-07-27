@@ -210,6 +210,15 @@
                   <span class="member-email">{{ u.email }}</span>
                 </div>
                 <span class="member-cargo" *ngIf="u.cargo">{{ u.cargo }}</span>
+                <button
+                  class="btn-action btn-action--danger"
+                  *ngIf="!esRolBase"
+                  [disabled]="quitandoUid === u.Uid"
+                  (click)="quitarDeRol(u)"
+                  title="Quitar del rol"
+                >
+                  <i class="pi" [ngClass]="quitandoUid === u.Uid ? 'pi-spin pi-spinner' : 'pi-user-minus'"></i>
+                </button>
               </div>
             </div>
           </ng-container>
