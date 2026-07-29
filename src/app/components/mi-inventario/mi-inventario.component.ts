@@ -19,13 +19,8 @@ export class MiInventarioComponent implements OnInit {
   private uid: number = 0;
 
   constructor(private plantillaService: PlantillaInventarioService) {
-    try {
-      const token = localStorage.getItem('token');
-      if (token) {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        this.uid = payload.id || 0;
-      }
-    } catch { this.uid = 0; }
+    const userId = localStorage.getItem('userId');
+    this.uid = userId ? Number(userId) : 0;
   }
 
   ngOnInit() {

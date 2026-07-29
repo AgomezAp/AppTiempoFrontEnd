@@ -40,9 +40,11 @@ export interface CampoTipoInventario {
 @Injectable({ providedIn: 'root' })
 export class InventarioAdminService {
   private base: string;
+  private baseTipos: string;
 
   constructor(private http: HttpClient) {
     this.base = `${environment.apiUrl}/api/inventario-admin`;
+    this.baseTipos = `${environment.apiUrl}/api/inventario/tipos-inventario`;
   }
 
   getCatalogo(): Observable<CatalogoInventario> {
@@ -51,6 +53,11 @@ export class InventarioAdminService {
 
   getTiposInventario(): Observable<any[]> {
     return this.http.get<any[]>(`${this.base}/tipos`);
+  }
+
+  /** Catálogo de tipos de inventario activos, accesible para cualquier usuario autenticado (no solo Admin). */
+  getTiposInventarioPublico(): Observable<any[]> {
+    return this.http.get<any[]>(this.baseTipos);
   }
 
   crearInventarioCompleto(data: { nombre: string; codigo: string; descripcion: string; items: any[] }): Observable<any> {

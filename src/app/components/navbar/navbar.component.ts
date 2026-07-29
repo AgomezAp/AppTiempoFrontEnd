@@ -38,7 +38,7 @@ export class NavbarComponent implements OnInit {
         error: () => this.modulosUsuario = []
       });
     }
-    this.invAdminService.getTiposInventario().subscribe({
+    this.invAdminService.getTiposInventarioPublico().subscribe({
       next: (tipos) => this.tiposInventarioNav = tipos,
       error: () => this.tiposInventarioNav = [],
     });
