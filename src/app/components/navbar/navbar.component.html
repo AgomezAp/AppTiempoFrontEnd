@@ -126,7 +126,7 @@
                   >Reservas de Salas</a
                 >
               </li>
-              <li *ngIf="userRole === 'Admin'">
+              <li *ngIf="tieneModulo('ssgt') || userRole === 'Admin'">
                 <a class="dropdown-item" href="/registro-asistencia"
                   >Registro de Asistencia</a
                 >
@@ -156,7 +156,7 @@
               </li>
             </ul>
           </li>
-          <li class="nav-item dropdown" *ngIf="userRole === 'Admin'">
+          <li class="nav-item dropdown" *ngIf="tieneModulo('ssgt') || userRole === 'Admin'">
             <a
               class="nav-link dropdown-toggle"
               href="#"

@@ -34,7 +34,14 @@ export class NavbarComponent implements OnInit {
     const token = localStorage.getItem('token');
     if (token) {
       this.rolesService.getMisModulos().subscribe({
-        next: (res) => this.modulosUsuario = res.modulos,
+        next: (res) => {
+          this.modulosUsuario = res.modulos;
+          // Mantiene sincronizado el caché que usa tRolGuard para autorizar rutas:
+          // sin esto, un módulo habilitado por un admin después del login queda
+          // visible en el navbar pero el guard sigue bloqueando el acceso hasta
+          // que el usuario vuelve a iniciar sesión.
+          localStorage.setItem('modulos', JSON.stringify(res.modulos));
+        },
         error: () => this.modulosUsuario = []
       });
     }

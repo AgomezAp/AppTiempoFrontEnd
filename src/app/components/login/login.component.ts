@@ -32,6 +32,7 @@ const MODULE_ROUTE_MAP: Record<string, string> = {
   inventario_botiquin:     '/inventario-botiquin',
   inventario_desechables:  '/inventario-desechables',
   inventario_dotacion:     '/inventario-dotacion',
+  inventario_herramientas: '/inventario-herramientas',
 };
 
 @Component({
